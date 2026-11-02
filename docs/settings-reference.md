@@ -144,6 +144,7 @@
 | [`permissions.allow`](#permissions-allow) | 无需确认提示即批准所列的[工具使用](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax) | 权限设置 | 任意文件 |
 | [`permissions.ask`](#permissions-ask) | 在所列的[工具使用](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)之前始终进行提示 | 权限设置 | 任意文件 |
 | [`permissions.blockReadsOutsideWorkingDirectories`](#permissions-blockreadsoutsideworkingdirectories) | 使文件工具在所有权限模式下拒绝读取[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的内容 | 权限设置 | 任意文件 |
+| [`permissions.blockWritesOutsideWorkingDirectories`](#permissions-blockwritesoutsideworkingdirectories) | 使 `Write`、`Edit` 和 `NotebookEdit` 工具在所有权限模式下拒绝[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的路径，[Claude Code 自身的部分文件](#what-the-write-block-refuses-and-what-stays-writable)除外 | 权限设置 | 任意文件 |
 | [`permissions.defaultMode`](#permissions-defaultmode) | 设置新会话启动时的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in) | 权限设置 | 任意文件 |
 | [`permissions.deny`](#permissions-deny) | 阻止所列的[工具使用](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)，包括读取包含机密的文件 | 权限设置 | 任意文件 |
 | [`permissions.disableBypassPermissionsMode`](#permissions-disablebypasspermissionsmode) | 阻止任何人进入 [bypassPermissions 模式](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode) | 权限设置 | 任意文件 |
@@ -901,7 +902,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 控制 Claude 无需询问即可使用哪些工具、哪些工具始终需要提示、哪些工具被阻止，并设置会话启动时的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。下面的每个 `permissions.*` 键都嵌套在此对象下。
 
 * **作用域**：[`Any file`](#scopes)
-* **类型**：包含 `allow`、`ask`、`deny`、`additionalDirectories`、`blockReadsOutsideWorkingDirectories`、`defaultMode`、`disableBypassPermissionsMode` 和 `disableAutoMode` 的对象
+* **类型**：包含 `allow`、`ask`、`deny`、`additionalDirectories`、`blockReadsOutsideWorkingDirectories`、`blockWritesOutsideWorkingDirectories`、`defaultMode`、`disableBypassPermissionsMode` 和 `disableAutoMode` 的对象
 * **默认值**：未设置
 
 此示例无需询问即批准 `npm run` 命令，在 `git push` 之前进行提示，阻止读取 `.env`，并以 `acceptEdits` 启动会话：
@@ -1091,6 +1092,47 @@ Claude Code 会分别判断每个文件。如果某个文件位于沙箱中的�
 在 Linux 和 WSL2 上，作为符号链接的配置文件在其自身路径上可能仍不可读，此时 `git` 会在没有该文件的情况下运行。`~/.git-credentials` 和 `$XDG_CONFIG_HOME/git/credentials` 仍保持阻止状态。
 
 如果重新开放的文件中包含机密（例如 `http.extraHeader` 令牌），请将其路径添加到 [`sandbox.filesystem.denyRead`](#sandbox-filesystem-denyread)。覆盖某个文件的 `denyRead` 条目始终优先于此重新开放。
+
+### `permissions.blockWritesOutsideWorkingDirectories`
+
+使 `Write`、`Edit` 和 `NotebookEdit` 工具在所有权限模式下（包括 `bypassPermissions`）拒绝[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的路径，但 [Claude Code 自身的部分文件](#what-the-write-block-refuses-and-what-stays-writable)除外。此键不限制 shell 命令、MCP 工具或 hook 运行的程序。要限制 shell 命令的写入位置，请启用[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md)。需要 Claude Code v2.1.314 或更高版本。
+
+启用此键后，Claude Code 还会移除 `EnterWorktree` 和 `ExitWorktree` 工具，或拒绝对它们的调用。要继续在 worktree 中工作，请按照 [Claude 没有 `EnterWorktree` 工具](https://code.claude.com/docs/zh-CN/worktrees#claude-has-no-enterworktree-tool)中的说明操作。
+
+* **作用域**：[`Any file`](#scopes)。会话加载的任何文件中的 `true` 都会生效，因此仓库可以为自身开启阻止，但无法解除您设置的阻止。在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中，Claude Code 可能不会应用此键，因为文件工具运行在容器中，而容器本身就是边界。
+* **类型**：Boolean
+  * `true`：开启阻止
+  * `false`：与未设置相同；如果其他文件设置了 `true`，阻止仍然适用
+* **默认值**：未设置，因此对工作目录之外的写入遵循您的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。当 Claude Code 无法读取您[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#keys-that-fail-closed)中的 `permissions` 对象时，该阻止也会开启。
+
+```json settings.json theme={null}
+{
+  "permissions": {
+    "blockWritesOutsideWorkingDirectories": true
+  }
+}
+```
+
+要测试该阻止，请让 Claude 使用 Write 工具在工作目录之外创建一个文件，例如 `~/block-test.txt`（如果您的主目录不属于工作目录）。Claude Code 会拒绝该调用，拒绝信息会说明[设置阻止了工作目录之外的写入](https://code.claude.com/docs/zh-CN/errors.md#setting-blocks-writes-outside-the-working-directories)。
+
+要解除阻止，请从所有设置了此键的设置文件中删除该键，然后重启 Claude Code。
+
+#### 写入阻止会拒绝哪些写入以及哪些内容仍可写入
+
+Claude Code 自身的部分文件仍可写入，例如计划文件、[草稿区](https://code.claude.com/docs/zh-CN/claude-directory.md#session-scratchpad-directory)、[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)的 `tmp` 目录，以及此项目[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#storage-location)中的 `.md` 文件。
+
+除工作目录之外您自己的文件外，该阻止还会拒绝写入：
+
+* **Claude Code 设置文件**：在工作目录内，Claude Code 同样会[拒绝这些写入](https://code.claude.com/docs/zh-CN/errors.md#writes-to-claude-code-settings-files-are-blocked)，因为设置文件可以解除该阻止。请自行编辑设置文件。
+* **仅由仓库设置添加的目录**：[`additionalDirectories`](#permissions-additionaldirectories) 仅在 `.claude/settings.json` 中列出的目录，或仅在 `.claude/settings.local.json` 中列出的目录（除非 git 将该文件报告为未跟踪）
+* **子代理的 worktree**：当 [`isolation: worktree`](https://code.claude.com/docs/zh-CN/worktrees#isolate-subagents-with-worktrees) 子代理的 worktree 位于工作目录之外时，其文件编辑会被拒绝
+* **仓库所选目录中的自动记忆**：仓库设置中 [`autoMemoryDirectory`](#automemorydirectory) 指定的目录
+
+无论您添加什么，设置文件始终会被拒绝。要在其他任一情况下放行写入，请[添加工作目录](#let-one-directory-through-the-read-or-write-block)。`/add-dir` 需要一个已存在的目录，因此对于子代理 worktree，请指定仓库根目录下的 `.claude/worktrees` 目录。
+
+#### 让单个目录通过读取或写入阻止
+
+当 `blockReadsOutsideWorkingDirectories` 或 `blockWritesOutsideWorkingDirectories` 为 `true` 时，要让 Claude 访问项目之外的某个目录，请将其添加为工作目录。在会话中运行 `/add-dir <directory>`，在启动 Claude Code 时传入 `--add-dir <directory>`，或在用户设置或托管设置的 `additionalDirectories` 下列出该目录。任何[允许规则](https://code.claude.com/docs/zh-CN/permissions.md#read-and-edit)都无法让 Claude 的文件工具通过这两种阻止中的任何一种。
 
 ### `permissions.defaultMode`
 

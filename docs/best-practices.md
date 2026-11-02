@@ -397,7 +397,7 @@ use a subagent to review the rate limiter diff against SPEC.md, check every requ
 * 将敏感数据发送到外部端点
 * 看起来是由 Claude 读取的内容而不是由您驱动的操作
 
-当它确实阻止了某项操作时，您会收到通知，该操作会出现在 `/permissions` 的 **Recently denied** 下，您可以在那里通过手动批准重试它。在[连续三次阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#when-auto-mode-falls-back)（或总计二十次）之后，自动模式会暂停并恢复为向您询问。
+当自动模式阻止某项操作时，您会收到通知，该操作会出现在 `/permissions` 的 **Recently blocked** 下，您可以在那里[批准该操作，以便 Claude 重试](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)。在[连续三次阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#when-auto-mode-falls-back)（或总计二十次）之后，自动模式会暂停并恢复为向您询问。
 
 这些都不会取代您的确定性控制，因为它在它们*之后*运行。拒绝规则、询问规则和 `PreToolUse` hook 会在分类器看到任何内容之前生效，因此拒绝规则在自动模式中的阻止效果与在其他任何地方完全相同。沙箱仍然会限制[它所包装的 shell 命令](https://code.claude.com/docs/zh-CN/sandboxing.md#what-runs-outside-the-sandbox)。
 

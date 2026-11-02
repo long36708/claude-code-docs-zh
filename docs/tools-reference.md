@@ -18,7 +18,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 
 | 工具 | 描述 | 需要权限 |
 | :- | :- | :- |
-| `Agent` | 生成一个[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)，具有自己的上下文窗口来处理任务。启用[代理团队](https://code.claude.com/docs/zh-CN/agent-teams.md)后，携带 `name` 的调用可以启动一个[队友](https://code.claude.com/docs/zh-CN/agent-teams.md#how-claude-starts-agent-teams)。请参阅 [Agent 工具行为](#agent-tool-behavior) | 否 |
+| `Agent` | 生成一个[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)，具有自己的上下文窗口来处理任务。启用 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 后，携带 `name` 的调用可以改为启动一个[队友](https://code.claude.com/docs/zh-CN/agent-teams.md#how-claude-starts-agent-teams)。请参阅 [Agent 工具行为](#agent-tool-behavior) | 否 |
 | `Artifact` | 将 HTML 或 Markdown 文件作为 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 发布到 claude.ai：一个私有的交互式页面。您可以通过公开链接共享它，或在 Team 和 Enterprise 计划上在您的组织内共享，其中公开共享需要所有者[启用它](https://code.claude.com/docs/zh-CN/artifacts.md#control-public-sharing)。需要 Pro、Max、Ultra、Team 或 Enterprise 计划和 `/login` 身份验证；请参阅[可用性](https://code.claude.com/docs/zh-CN/artifacts.md#availability) | 是 |
 | `AskUserQuestion` | 提出多选问题以收集要求或澄清歧义。问题默认保持打开状态，直到您回答。请参阅 [AskUserQuestion 工具行为](#askuserquestion-tool-behavior) | 否 |
 | `Bash` | 在您的环境中执行 shell 命令。请参阅 [Bash 工具行为](#bash-tool-behavior) | 是 |
@@ -27,16 +27,16 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `CronList` | 列出所有会话级定时任务 | 否 |
 | `Edit` | 对特定文件进行有针对性的编辑。请参阅 [Edit 工具行为](#edit-tool-behavior) | 是 |
 | `EndConversation` | 结束会话，在持续滥用输入的罕见情况下或当您要求 Claude 演示该工具时。请参阅 [EndConversation 工具行为](#endconversation-tool-behavior) | 否 |
-| `EnterPlanMode` | 切换到 Plan Mode 以在编码前设计方法 | 否 |
-| `EnterWorktree` | 创建一个隔离的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 并切换到它。传递 `path` 以切换到现有 worktree，而不是创建新的。首次进入时，目标可能是当前存储库的 worktree，或在多存储库工作区中，是嵌套在其中的存储库的 worktree。在 v2.1.203 之前，嵌套存储库的 worktree 被拒绝。`.claude/worktrees/` 之外的 `path` 会在进入前提示您的批准，因为它会移动会话的工作目录和对该位置的写入访问权限。新 worktree 创建和 `.claude/worktrees/` 下的路径不会提示。在 v2.1.206 之前，Claude 进入 `.claude/worktrees/` 之外的路径而不提示。从 worktree 会话内，或从具有固定工作目录的子代理（例如 [`isolation: worktree`](https://code.claude.com/docs/zh-CN/sub-agents#supported-frontmatter-fields)），只有 `path` 形式可用，目标必须在会话存储库的 `.claude/worktrees/` 下 | 是 |
-| `ExitPlanMode` | 呈现计划以供批准并退出 Plan Mode | 是 |
-| `ExitWorktree` | 退出 worktree 会话并返回到原始目录。不适用于已在自己的工作目录中运行的子代理，例如 [`isolation: worktree`](https://code.claude.com/docs/zh-CN/sub-agents#supported-frontmatter-fields) | 否 |
+| `EnterPlanMode` | 切换到计划模式以在编码前设计方法 | 否 |
+| `EnterWorktree` | 创建一个隔离的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 并切换到它，或切换到现有的 worktree。请参阅 [EnterWorktree 工具行为](#enterworktree-tool-behavior) | 是 |
+| `ExitPlanMode` | 呈现计划以供批准并退出计划模式 | 是 |
+| `ExitWorktree` | 退出 worktree 会话并返回到原始目录。不适用于已在自己的工作目录中运行的子代理，例如 [`isolation: worktree`](https://code.claude.com/docs/zh-CN/sub-agents#supported-frontmatter-fields)。一旦启用 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories)，该工具将被移除或拒绝 | 否 |
 | `Glob` | 基于模式匹配查找文件。在 macOS、Linux 和 WSL 上默认不存在。请参阅 [Glob 工具行为](#glob-tool-behavior) | 否 |
 | `Grep` | 在文件内容中搜索模式。在 macOS、Linux 和 WSL 上默认不存在。请参阅 [Grep 工具行为](#grep-tool-behavior) | 否 |
-| `ListAgents` | 列出 Claude 可以使用 `SendMessage` 消息的代理：会话中的子代理、[代理团队](https://code.claude.com/docs/zh-CN/agent-teams.md)队友、您的其他本地 Claude Code 会话，以及当此会话连接到[远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)时，您的[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)和您在其他机器上的远程控制会话。支持 `/list-agents` 命令。请参阅[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)。需要 Claude Code v2.1.224 或更高版本，仅在[启用跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#availability)的会话中出现。队友行和显示此会话自己名称的第一行需要 v2.1.239 或更高版本 | 否 |
+| `ListAgents` | 列出 Claude 可以使用 `SendMessage` 向其发送消息的 Agent：会话中的子代理、[agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友、您的其他本地 Claude Code 会话，以及当此会话连接到 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 时，您的[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)和您在其他机器上的 Remote Control 会话。支持 `/list-agents` 命令。请参阅[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)。需要 Claude Code v2.1.224 或更高版本，仅在[启用跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#availability)的会话中出现。队友行和显示此会话自己名称的第一行需要 v2.1.239 或更高版本 | 否 |
 | `ListMcpResourcesTool` | 列出连接的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)公开的资源，不包括 [MCP Apps UI 资源](https://code.claude.com/docs/zh-CN/mcp.md#reference-mcp-resources)，这些是主机应用程序要呈现的页面 | 否 |
 | `LSP` | 通过语言服务器的代码智能：跳转到定义、查找引用、报告类型错误和警告。请参阅 [LSP 工具行为](#lsp-tool-behavior) | 否 |
-| `Monitor` | 在后台运行命令并将每个输出行反馈给 Claude，以便它可以对日志条目、文件更改或轮询状态做出反应。还可以打开 WebSocket 并将每条传入消息视为事件。请参阅 [Monitor 工具](#monitor-tool) | 是 |
+| `Monitor` | 在后台运行命令并将每个输出行反馈给 Claude，以便它可以在对话过程中对日志条目、文件更改或轮询状态做出反应。还可以打开 WebSocket 并将每条传入消息视为事件。请参阅 [Monitor 工具](#monitor-tool) | 是 |
 | `NotebookEdit` | 修改 Jupyter notebook 单元格。请参阅 [NotebookEdit 工具行为](#notebookedit-tool-behavior) | 是 |
 | `PowerShell` | 本地执行 PowerShell 命令。请参阅 [PowerShell 工具](#powershell-tool)了解可用性 | 是 |
 | `PushNotification` | 发送桌面通知，以及当 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 连接时的手机推送，以便长时间运行的任务或[会话级定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)可以在您离开时联系您。推送传递通过 Anthropic 托管的基础设施运行，无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
@@ -46,11 +46,11 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `ReportFindings` | 将代码审查发现报告为结构化列表，每个发现都有文件、摘要和失败场景，以便 Claude Code 可以呈现它们而不是将其打印为文本。当活跃的代码审查指令要求它这样做时，Claude 会调用它。发现还可以携带可选的 `category` 段，例如 `correctness` 或 `test-coverage`，显示在呈现列表中的文件位置旁边 | 否 |
 | `ScheduleWakeup` | 重新安排[自定步调 `/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)的下一次迭代。Claude 在每次迭代结束时调用此工具以选择下一次运行的时间，在一分钟到一小时之间；您不直接调用它。要改为结束循环，Claude 使用 `stop: true` 调用它，这会取消待处理的唤醒。待处理的唤醒出现在 [Stop hook 输入](https://code.claude.com/docs/zh-CN/hooks.md#stop-input)中的 `session_crons` 中 | 否 |
 | `SendFeedback` | 起草关于 Claude Code 的反馈报告，涵盖产品问题或 Claude 在会话中的自身行为，并将其排队在您的机器上供您审查。Claude Code 在您选择发送草稿之前不会发送任何内容。请参阅 [SendFeedback 工具行为](#sendfeedback-tool-behavior)。需要 Claude Code v2.1.238 或更高版本 | 否 |
-| `SendMessage` | 向另一个代理发送消息：[代理团队](https://code.claude.com/docs/zh-CN/agent-teams.md)队友、[通过代理 ID 或名称恢复的子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#resume-subagents)，或您的其他 Claude Code 会话之一，在此机器上或超越它。消息传递其他会话需要 Claude Code v2.1.224 或更高版本。[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)涵盖 Claude 可以到达的会话、[消息到达时的样子](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#what-a-message-looks-like)以及[Claude 如何在另一个会话空闲时获得通知](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#get-a-notice-when-another-session-goes-idle)。Claude 可以包含可选的 `summary` 输入，通常为 5-10 个单词，Claude Code 显示为单行预览。当 Claude 在[纯文本消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#limitations)上省略它时，Claude Code 使用消息的第一行作为摘要。Claude Code 使用省略号截断长于 200 个字符的摘要 | 否 |
+| `SendMessage` | 向另一个 Agent 发送消息：[agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友、[通过 Agent ID 或名称恢复的子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#resume-subagents)，或您的其他 Claude Code 会话之一，无论在此机器上还是其他机器上。向其他会话发送消息需要 Claude Code v2.1.224 或更高版本。[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)涵盖 Claude 可以到达的会话、[消息到达时的样子](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#what-a-message-looks-like)以及[Claude 如何在另一个会话空闲时获得通知](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#get-a-notice-when-another-session-goes-idle)。Claude 可以包含可选的 `summary` 输入，通常为 5-10 个单词，Claude Code 显示为单行预览。当 Claude 在[纯文本消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#limitations)上省略它时，Claude Code 使用消息的第一行作为摘要。Claude Code 使用省略号截断长于 200 个字符的摘要 | 否 |
 | `SendUserFile` | 从会话向您发送文件，带有可选标题，以便生成的报告、图表、屏幕截图或构建产物到达您的设备，而不仅仅在会话记录中提及。可选的 `display` 输入控制呈现方式：`render` 在客户端中内联打开文件，`attach` 仅显示下载卡，未设置时客户端按文件类型决定。在连接 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 客户端或在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中时可用。传递通过 Anthropic 托管的基础设施运行，因此该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用 | 否 |
 | `ShareOnboardingGuide` | 上传 `ONBOARDING.md` 并返回队友可以在 Claude Code 中打开的共享链接。在编写指南后从 `/team-onboarding` 调用。适用于 Team 和 Enterprise 计划上的 claude.ai 订阅者 | 是 |
 | `Skill` | 在主对话中执行[skill](https://code.claude.com/docs/zh-CN/skills.md#control-who-invokes-a-skill) | 是 |
-| `SubagentHandback` | 将子代理的最终报告传递给接收该子代理结果的任何对话。仅在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中提供，给 Agent 工具在本地运行的子代理，除了[分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，并在终端 CLI、IDE 扩展、网络版会话和 Agent SDK 中可用；分类器在传递报告前审查它。需要 Claude Code v2.1.271 或更高版本 | 否 |
+| `SubagentHandback` | 将子代理的最终报告传递给接收该子代理结果的任何对话。仅在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中提供，给 Agent 工具在本地运行的子代理，除了[分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，并在终端 CLI、IDE 扩展、云端会话和 Agent SDK 中可用；分类器在传递报告前审查它。需要 Claude Code v2.1.271 或更高版本 | 否 |
 | `TaskCreate` | 在任务列表中创建新任务。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TaskGet` | 检索特定任务的完整详细信息。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TaskList` | 列出所有任务及其当前状态。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
@@ -298,6 +298,15 @@ Claude 结束交互式会话后，会话被锁定。新提示和大多数命令�
   * [云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)
 * **启动模式**：不是 [`--bare`](https://code.claude.com/docs/zh-CN/headless#start-faster-with-bare-mode) 会话。裸模式仅加载 shell 和文件工具，因此该工具从不在那里注册。
 * **提供商**：在 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、[Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md) 上不可用，或在通过[云网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)登录的会话上不可用。
+
+## EnterWorktree 工具行为
+
+EnterWorktree 工具会创建一个隔离的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 并切换到其中。如果提供了 `path`，它会切换到一个现有的 worktree，而不是创建新的 worktree。
+
+* **`path` 可以指定哪些 worktree**：首次进入时，目标可以是当前仓库的 worktree。在包含其他仓库的仓库中，目标也可以是嵌套在其中的仓库的 worktree。在 v2.1.203 之前，嵌套仓库的 worktree 会被拒绝。
+* **何时会提示您**：位于 `.claude/worktrees/` 之外的 `path` 会在进入前请求您的批准，因为这会将会话的工作目录和写入权限移至该位置。创建新 worktree 以及 `.claude/worktrees/` 下的路径不会提示。在 v2.1.206 之前，Claude 进入 `.claude/worktrees/` 之外的路径时不会提示。
+* **在 worktree 内部时**：在 worktree 会话中，只能使用 `path` 形式，且目标必须位于该会话所属仓库的 `.claude/worktrees/` 下。对于固定了工作目录的子代理（例如 [`isolation: worktree`](https://code.claude.com/docs/zh-CN/sub-agents#supported-frontmatter-fields)），同样如此。
+* **工具缺失时**：一旦启用 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories)，Claude Code 会移除 `EnterWorktree` 和 `ExitWorktree`，或拒绝对它们的调用。如需继续在 worktree 中工作，请参阅 [Claude 没有 `EnterWorktree` 工具](https://code.claude.com/docs/zh-CN/worktrees#claude-has-no-enterworktree-tool)。
 
 ## Glob 工具行为
 
@@ -632,7 +641,7 @@ WebFetch 接收一个 URL 和一个描述要提取内容的提示词。它会获
 * 当 URL 重定向到不同的主机时，WebFetch 不会跟随重定向，而是返回一个文本结果，其中列出原始 URL 和重定向目标。Claude 随后会通过第二次 WebFetch 调用获取新的 URL。
 * 当提取步骤遇到 API 过载时，Claude Code 会以退避方式重试；如果获取仍然失败，则返回错误结果。
 
-在 Manual 和 `acceptEdits` [权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)下，WebFetch 会在获取之前进行提示，但您的[权限规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)已允许或拒绝的域名，以及一组内置的预先批准的文档域名除外，这些域名无需提示即可获取。无论您的规则允许什么，获取操作都会先通过 [WebFetch 域名安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)；该部分介绍了检查会发送的内容以及跳过检查的设置。提示提供三个选项：
+在 Manual 和 `acceptEdits` [权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)下，WebFetch 会在获取之前进行提示，但您的[权限规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)已允许或拒绝的域名，以及一组内置的、无需提示即可获取的预先批准文档域名除外。无论您的规则允许什么，获取操作都会先通过 [WebFetch 域名安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)；该部分介绍了检查会发送的内容以及跳过检查的设置。提示提供三个选项：
 
 * **Yes**：仅批准本次获取。下一次 WebFetch 调用会再次提示，即使是同一域名。
 * **Yes, and don't ask again for `<domain>`**：批准本次获取，并将该域名的 `WebFetch(domain:...)` 允许规则保存到该仓库的 `.claude/settings.local.json` 中。请参阅[已保存的批准如何持久保留](https://code.claude.com/docs/zh-CN/permissions.md#permission-system)。当您的组织设置了 [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/permissions#managed-only-settings) 时，Claude Code 会隐藏此选项。

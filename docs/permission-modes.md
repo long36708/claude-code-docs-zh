@@ -41,6 +41,7 @@ Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypass
 * 在 [`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 打开时在工作目录外读取：识别的文件读取 Bash 命令和任何需要批准才能在沙箱外运行的 [未沙箱化重试](https://code.claude.com/docs/zh-CN/sandboxing.md#the-unsandboxed-retry-escape-hatch)，即使在 auto 模式和 `bypassPermissions` 模式下也会提示。需要 Claude Code v2.1.257 或更高版本。
 
   shell 解析器无法追踪的命令，例如更改目录多次或运行子 shell 的命令，即使在未命名任何外部路径时也会以相同方式提示。当命令在 [沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md) 中运行且沙箱强制执行该块时，此提示不适用。
+* 在 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories) 打开时在工作目录外写入：Claude Code 会拒绝在这些位置的 `Write`、`Edit` 和 `NotebookEdit` 调用，但 [其自身的部分文件](https://code.claude.com/docs/zh-CN/settings-reference.md#what-the-write-block-refuses-and-what-stays-writable) 除外。该设置项不限制 shell 命令、MCP 工具或 hook 运行的程序，因此请使用 [沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md) 来限制 shell 命令的写入位置。需要 Claude Code v2.1.314 或更高版本。
 
 ## 常见设置
 
@@ -553,9 +554,9 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 当自动模式无法批准您会话中的操作时，具体情况取决于以下场景：
 
-* **操作被阻止**：Claude Code 会显示通知，并在 `/permissions` 的 **Recently denied** 选项卡下列出该操作，您可以在那里按 `r` 以手动批准的方式重试。
+* **操作被阻止**：Claude Code 会显示通知，并在 `/permissions` 的 **Recently blocked** 选项卡下列出该操作，您可以在那里[批准该操作，以便 Claude 重试](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)。
 * **反复阻止**：如果分类器连续 3 次或累计 20 次阻止操作，自动模式会暂停，Claude Code 会恢复提示。批准被提示的操作后会恢复自动模式。有关阻止次数的计算方式，请参阅[反复阻止阈值](#repeated-block-thresholds)。
-* **分类器未给出裁决**：当独立于自动模式的安全检查拒绝了分类器自身的请求，或分类器的响应无法解析时，Claude Code 会拒绝该操作，且不显示通知，也不会添加 **Recently denied** 条目。有关每种情况显示的消息及处理方法，请参阅[自动模式无法确定操作的安全性](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)。
+* **分类器未给出裁决**：当独立于自动模式的安全检查拒绝了分类器自身的请求，或分类器的响应无法解析时，Claude Code 会阻止该操作，且不显示通知，也不会添加 **Recently blocked** 条目。有关每种情况显示的消息及处理方法，请参阅[自动模式无法确定操作的安全性](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)。
 * **服务器未给出裁决**：在[服务器端分类器审查](#server-side-classifier-review)下，Claude Code 会拒绝服务器未给出裁决的操作，并在连续十个响应均无裁决后停止当前轮次。请参阅[服务器未返回安全裁决](https://code.claude.com/docs/zh-CN/errors.md#the-server-returned-no-safety-verdict)。
 * **检查期间切换模式**：如果您在分类器检查尚未完成时切换权限模式，Claude Code 会丢弃新模式本不会请求的裁决。此时会改为提示您批准，或者在 [`dontAsk` 模式](#allow-only-pre-approved-tools-with-dontask-mode)下自动拒绝该操作。
 
@@ -738,6 +739,8 @@ Bypass permissions was requested at launch and ignored · if that was you, ~/.cl
 
 在使用 [`--restricted`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 启动的会话中，需要 Claude Code v2.1.248 或更高版本，分类器无法批准受保护路径的写入。
 
+当 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories) 开启时，Claude Code 在所有权限模式下都会拒绝对设置文件的 `Write`、`Edit` 和 `NotebookEdit` 写入。
+
 在将受保护路径写入路由到分类器的模式中，当 Claude 请求的路径本身不受保护时，[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)解析为受保护路径的写入会提示你。
 
 设置文件中的 [`permissions.allow`](https://code.claude.com/docs/zh-CN/permissions#manage-permissions) 规则不会预先批准受保护路径的写入。安全检查在 Claude Code 评估设置中的允许规则之前运行，因此 `~/.claude/settings.json` 或 `.claude/settings.json` 中的条目（如 `Edit(.claude/**)`）不会改变上表中的每个模式结果。在提示的模式中，对项目的 `.claude/` 文件夹或 `~/.claude/` 的写入提示可以提供以下这些会话范围的选项之一：
@@ -776,6 +779,7 @@ Bypass permissions was requested at launch and ignored · if that was you, ~/.cl
 * `.devcontainer.json`
 * `.ripgreprc`、`pyrightconfig.json`
 * `.mcp.json`、`.claude.json`
+* `remote-settings.json`（即您组织的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)的存储副本），以及 Claude Code 随其保存的签名、同步和同意文件，位于 `~/.claude` 或 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 所指向的目录中
 * 您在启动会话时传递给 [`--settings`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)、`--mcp-config` 或 `--agents` 的文件
 * 当您的用户、项目或本地[设置文件](https://code.claude.com/docs/zh-CN/settings.md#settings-files-and-who-they-affect)本身是符号链接（例如指向 dotfiles 仓库）时，该设置文件所指向的文件。在将受保护路径写入路由到分类器的模式中，对此文件的写入会改为提示您，即使有允许规则匹配也是如此。如果该文件自身的路径同时也是某个设置文件的路径，例如另一个文件夹中的 `.claude/settings.json`，则该写入会像其他受保护路径写入一样交由分类器处理
 

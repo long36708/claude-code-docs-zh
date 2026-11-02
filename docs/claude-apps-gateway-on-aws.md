@@ -620,7 +620,7 @@ managed:
 
 让开发者传入该工作所属团队的 id，例如 `claude --model data-claude-opus-4-8`。
 
-网关会应用[第一个匹配的策略](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#managed)，因此仅属于两个团队组的开发者会获得 `team-platform` 策略。他们使用数据团队 id 的会话会失败，并显示 `is not in your role's availableModels allowlist`，其中指明的是 Claude Code 的默认模型，而不是他们输入的 id。如果您改为在一个策略的 `groups` 中列出两个团队组，那么任一团队中的每个人都可以对任一团队的配置文件进行计费。
+默认情况下，网关会应用[第一个匹配的策略](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#managed)，因此仅属于两个团队组的开发者会获得 `team-platform` 策略。他们使用数据团队 id 的会话会失败，并显示 `is not in your role's availableModels allowlist`，其中指明的是 Claude Code 的默认模型，而不是他们输入的 id。如果您改为在一个策略的 `groups` 中列出两个团队组，那么任一团队中的每个人都可以对任一团队的配置文件进行计费。
 
 在网关自身的[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md#set-a-cap)中，无论会话使用哪个 id，该开发者每个周期都只有一个总额和一个上限，默认为其所属各组上限中的最低值。为避免某个团队较低的上限阻止另一个团队的工作，请为该开发者设置按用户的上限。
 

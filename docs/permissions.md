@@ -668,9 +668,16 @@ PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask
 
 您无法添加大多数[网络路径](https://code.claude.com/docs/zh-CN/errors.md#working-directory-is-a-network-path)（例如 UNC 共享 `\\server\share`）作为工作目录，因为查找它们可能会联系它们命名的主机。在 Windows 上，将共享映射到驱动器号，然后在启动时使用 `--add-dir` 传递该驱动器。
 
-设置 [`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 以使文件工具在每种权限模式下都拒绝它围栏的路径。在自动模式下，Claude Code 会在 Claude 首次[读取工作目录外的文件](https://code.claude.com/docs/zh-CN/permission-modes.md#first-read-outside-the-working-directories)时提供打开它。
-
 在 macOS 上的后台会话中，会话主机会单独从您的终端请求访问受保护的文件夹（如 `~/Desktop`、`~/Documents` 和 `~/Downloads`），当 Claude 需要在那里读取或写入文件时；如果读取失败并显示 `Operation not permitted`，请参阅[如何向后台会话授予文件夹访问权限](https://code.claude.com/docs/zh-CN/agent-view.md#background-sessions-can%E2%80%99t-read-desktop-documents-or-downloads-on-macos)。
+
+### 阻止文件工具在工作目录之外读取和写入
+
+要使 Claude 的文件工具在每种权限模式（包括 `bypassPermissions`）下都拒绝工作目录之外的路径，请将以下一个或两个键设置为 `true`：
+
+* **[`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories)**：文件工具拒绝在那里读取，Claude Code 自身需要的文件除外。在自动模式下，Claude Code 会在 Claude 首次[读取工作目录外的文件](https://code.claude.com/docs/zh-CN/permission-modes.md#first-read-outside-the-working-directories)时提供启用它的选项。
+* **[`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories)**：`Write`、`Edit` 和 `NotebookEdit` 工具拒绝在那里写入，Claude Code 自身的某些文件（例如计划文件）除外。该键不限制 shell 命令、MCP 工具或 hook 运行的程序，因此请使用[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md)来限制 shell 命令的写入位置。需要 Claude Code v2.1.314 或更高版本。
+
+要在任一键为 `true` 时仍保持某个外部目录可访问，请[将其添加为工作目录](https://code.claude.com/docs/zh-CN/settings-reference.md#let-one-directory-through-the-read-or-write-block)。
 
 ### 将会话移动到另一个目录
 

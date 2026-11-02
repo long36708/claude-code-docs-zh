@@ -326,6 +326,9 @@
 | `MCP server "<name>" tool "<tool>" timed out after <N>s. The server asked the user a question, and no answer came before the time limit.` | [工具错误](#mcp-tool-call-timed-out-with-the-servers-question-unanswered) |
 | `would be spawned with zero tools — refusing` | [工具错误](#agent-would-be-spawned-with-zero-tools) |
 | `File is covered by a Read deny rule in your permission settings` | [工具错误](#file-is-covered-by-a-read-deny-rule) |
+| `<path> is outside <dirs>; the permissions.blockWritesOutsideWorkingDirectories setting blocks writes outside the working directories` | [工具错误](#setting-blocks-writes-outside-the-working-directories) |
+| `<path>: Writes outside the working directories are blocked (permissions.blockWritesOutsideWorkingDirectories)` | [工具错误](#setting-blocks-writes-outside-the-working-directories) |
+| `Writes to Claude Code settings files are blocked while permissions.blockWritesOutsideWorkingDirectories is on` | [工具错误](#writes-to-claude-code-settings-files-are-blocked) |
 | `cannot contain null bytes (\0)` | [工具错误](#path-cannot-contain-null-bytes) |
 | `Path contains null bytes` | [工具错误](#path-cannot-contain-null-bytes) |
 | `command contains the invisible character U+FEFF (byte order mark) or U+180E (Mongolian vowel separator), and was not run` | [工具错误](#command-contains-an-invisible-character) |
@@ -672,7 +675,7 @@ API Error: The response stream was malformed. The response above may be incomple
 <model> is temporarily unavailable, so auto mode cannot determine the safety of <tool> right now. Wait a moment and then try this action again.
 ```
 
-在交互式会话中，工具调用下方会显示一行暗色的 `Not run · auto mode's check had no usable answer`，而不是此消息。按 `Ctrl+O` 可在[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)中阅读该消息。[The server returned no safety verdict](#the-server-returned-no-safety-verdict) 下的 `gave no verdict` 拒绝也显示同样的一行。在 v2.1.296 之前，该消息以红色错误的形式显示在调用下方。
+在交互式会话中，工具调用下方会显示一行暗色的 `Not run · auto mode's check had no usable answer`，而不是此消息。这一行也可以替代表明[服务器未给出判决](#the-server-returned-no-safety-verdict)的消息，或者在远程会话之外，替代以 `Auto mode could not evaluate` 开头的消息。按 `Ctrl+O` 可在[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)中阅读其消息。在 v2.1.296 之前，该消息以红色错误的形式显示。
 
 当 Claude Code 可以确定故障类别时，它在 `temporarily unavailable` 后的括号中指出该类别，例如 `<model> is temporarily unavailable (rate-limited), so auto mode cannot determine the safety of <tool> right now`。类别为 `(rate-limited)`、`(overloaded)`、`(server error)`、`(timed out)` 和 `(connection failed)`。如果 `(timed out)` 或 `(connection failed)` 重复出现，请检查您的连接；请参阅[无法连接到 API](#unable-to-connect-to-api)。在 v2.1.229 之前，消息从不指出类别，读作 `Wait briefly and then try this action again`。
 
@@ -4562,6 +4565,46 @@ File is covered by a Read deny rule in your permission settings and cannot be ed
 
 * 如果 Claude 应该能够更改该文件，请在 `/permissions` 或[设置](https://code.claude.com/docs/zh-CN/settings-reference.md#permission-settings)中移除或缩小该 `Read` 拒绝规则
 * 如果该文件必须保持不变，请保留该规则，并为同一路径添加 `Edit` 拒绝规则，以同时阻止 NotebookEdit 工具
+
+### Setting blocks writes outside the working directories
+
+当 Claude 尝试写入文件且工具调用因以下消息失败时，表示该路径位于会话的[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外，且 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories) 已启用：
+
+```text wrap theme={null}
+<path> is outside <dirs>; the permissions.blockWritesOutsideWorkingDirectories setting blocks writes outside the working directories. Ask the user to add the directory with /add-dir, or to remove that setting.
+```
+
+在所有权限模式下，Claude Code 都会拒绝该写入。拒绝消息也可能是：
+
+```text wrap theme={null}
+<path>: Writes outside the working directories are blocked (permissions.blockWritesOutsideWorkingDirectories). Add the directory with /add-dir, or remove that setting.
+```
+
+**处理方法：**
+
+* 如果 Claude 不应写入该位置，则无需任何操作
+* 如需让 Claude 写入包含该路径的现有目录，请在 Claude Code 输入框中运行 `/add-dir <directory>`，或在启动 Claude Code 时传入 `--add-dir <directory>`
+* 如果该路径是 Claude Code 的设置文件，例如 `~/.claude/settings.json`，请自行编辑它。使用 `/add-dir` 添加其所在目录并无帮助，因为 Claude Code 随后会[将其作为设置文件](#writes-to-claude-code-settings-files-are-blocked)拒绝写入。
+* 如需让某个目录在每个会话中都保持可写，请在您的用户设置或托管设置中将其列在 [`permissions.additionalDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-additionaldirectories) 下
+* 如需关闭 `permissions.blockWritesOutsideWorkingDirectories`，请从所有设置了它的设置文件中将其移除，然后重新启动 Claude Code
+* 如果您的设置文件中都没有 `permissions.blockWritesOutsideWorkingDirectories`，它可能来自 `--settings` 或宿主应用程序。当 Claude Code 无法读取您[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#keys-that-fail-closed)中的 `permissions` 时，也会拒绝这些写入。请咨询启动或管理该会话的人员。
+
+### Writes to Claude Code settings files are blocked
+
+当 Claude 尝试写入文件且工具调用因以下消息失败时，表示 Claude Code 将该文件视为其设置文件之一，且 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories) 已启用：
+
+```text wrap theme={null}
+<path>: Writes to Claude Code settings files are blocked while permissions.blockWritesOutsideWorkingDirectories is on, because a settings file can lift that block. While a managed settings folder cannot be resolved, any .json file counts as one.
+```
+
+**处理方法：**
+
+* 如需更改某项设置，请自行编辑该设置文件
+* 如需让 Claude 再次编辑设置文件，请从所有设置了 `permissions.blockWritesOutsideWorkingDirectories` 的设置文件中将其移除，然后重新启动 Claude Code
+* 如果该文件不是您的设置文件之一，请在 Claude Code 视为设置文件的其他文件中查找它：
+  * **您传给 `--agents` 或 `--mcp-config` 的文件**：请自行编辑它
+  * **[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#security-considerations)的存储副本及与其一起保存的文件**：请让[所有者](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control)在服务器托管设置中更改该设置。
+  * **当 Claude Code 无法确定 [`managed-settings.d/`](https://code.claude.com/docs/zh-CN/managed-settings#split-a-file-based-policy-across-teams) 文件夹指向何处时的任何 `.json` 文件**：请让您的管理员检查该文件夹
 
 ### Path cannot contain null bytes
 

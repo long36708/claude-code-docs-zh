@@ -339,7 +339,7 @@ skill 目录插件是用户在 `~/.claude/skills/` 或项目的 `.claude/skills/
 要运行稳定和早期访问频道，托管两个指向相同插件的不同 ref 的市场。然后通过单独的端点托管设置或网关策略为每个用户组提供自己的市场。来自管理控制台的服务器托管设置[应用于组织中的每个用户](https://code.claude.com/docs/zh-CN/server-managed-settings.md#current-limitations)，因此它们无法为不同的组分配不同的设置。
 
 * 将单独的[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)（例如托管设置文件或 MDM 配置文件）部署到每个组的设备。要检查按组文件或配置文件是否在也有组织范围源的设备上应用，请参阅[Claude Code 如何组合托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#precedence-within-the-managed-tier)。
-* 为每个组定义一个[Claude 应用网关策略](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#managed)。网关应用第一个匹配规则适合用户的策略，因此订购策略以便每个用户到达其组的策略。该策略的 `extraKnownMarketplaces` 映射不与任何其他策略的合并，因此在其中列出组需要的每个市场，而不仅仅是其频道市场。
+* 为每个组定义一个[Claude 应用网关策略](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#managed)。默认情况下，网关应用第一个匹配规则适合用户的策略，因此请对策略进行排序，使每个用户都能到达其所在组的策略。该策略的 `extraKnownMarketplaces` 映射不与任何其他策略的合并，因此在其中列出组需要的每个市场，而不仅仅是其频道市场。
 
 使用任一机制，稳定组接收此配置：
 

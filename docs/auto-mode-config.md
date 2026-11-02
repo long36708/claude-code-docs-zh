@@ -351,21 +351,48 @@ claude auto-mode reset
 
 ## 审查拒绝
 
-要审查和重试 auto mode 分类器拒绝的操作，请打开 `/permissions` 并选择 **Recently denied** 选项卡，Claude Code 在该选项卡中记录每个拒绝。在拒绝的操作上按 `r` 将其标记为重试：当您退出对话框时，Claude Code 会发送一条消息，告诉模型它可以重试该工具调用并恢复对话。
+要让 Claude 重试被阻止的操作，请使用 `/permissions` 中的 **Recently blocked** 选项卡：
 
-当分类器对操作[无法做出判决](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)时，因为与 auto mode 分离的安全检查拒绝了分类器自己的请求或其响应无法解析，Claude Code 会拒绝该操作而不在 **Recently denied** 下记录它。链接的错误条目涵盖了 Claude 被告知的内容以及如果您需要它如何运行该操作。
+**1. 打开选项卡**
+
+在会话中运行 `/permissions` 打开权限对话框，然后选择 **Recently blocked** 选项卡。
+
+**2. 检查操作**
+
+高亮显示该操作所在的行，并在列表下方阅读其命令或输入。请以命令或输入为准，而不是该行的描述，因为描述是由 Claude 或工具编写的。
+
+**3. 批准操作**
+
+按 `r` 批准该操作，让 Claude 重试。
+
+**4. 关闭对话框**
+
+按 `Esc` 关闭对话框并应用您的批准。如果您打开 `/permissions` 时 Claude 正在工作，请在 Claude 完成后发送一条消息，让 Claude 重试该操作。否则，无需发送任何内容：Claude 会立即继续，并可能重试该操作。如果没有重试，请在下一条消息中指明该操作，如[您在对话中表达的批准](https://code.claude.com/docs/zh-CN/permission-modes.md#approvals-you-state-in-conversation)中所述。
+
+批准操作不会添加权限规则。在自动模式下，重试的操作会再次经过检查，因此可能再次被阻止。要从现在起放行某个命令，请[添加一个 `allow` 规则](#fix-a-denial-with-an-allow-rule-an-environment-entry-or-a-retry)。
+
+如果您不希望 Claude 立即重试，可以批准操作供稍后使用、撤回批准，或关闭对话框并放弃您的批准：
+
+* **批准供稍后使用**：在该行上按 `Enter`，然后按 `Esc`。该行会离开选项卡，Claude 完成后，可能会在您的下一条消息之后重试该操作。如果您还在另一行上按了 `r`，则按 `Enter` 的那一行会保留在选项卡上，Claude 也不会被告知该操作。请在下次访问时批准该行，或在两行上都按 `r`
+* **撤回批准**：在按 `Esc` 之前，在该行上按 `Enter`，无论您是用 `Enter` 还是 `r` 批准的
+* **关闭对话框并放弃您的批准**：按两次 `Ctrl+C`
+
+当某行无法显示其完整命令或输入，或者操作没有对应的行时，您无法从该选项卡批准操作：
+
+* **该行显示 `This row can't be approved here`**：如果您确实打算执行该操作，请在下一条消息中告诉 Claude，Claude 可能会再次尝试
+* **没有对应的行，且对话中出现 `Not run` 或分类器错误**：自动模式的分类器没有给出判决。要了解如何运行该操作，请阅读[自动模式无法确定操作的安全性](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)
 
 ### 使用允许规则、环境条目或重试来修复拒绝
 
-要查看诸如 `bash denied by auto mode · [Data Exfiltration] · /permissions` 之类的通知背后的命令或 URL，请使用 **Recently denied** 选项卡、hook 或对话：
+通知的形式类似 `bash blocked by auto mode · /permissions · Auto mode: [Data Exfiltration]`。要查看通知背后的命令或 URL，请使用 **Recently blocked** 选项卡、hook 或对话：
 
-* **Recently denied 选项卡**：在 `/permissions` 对话框中，高亮显示被拒绝的 Bash 或 PowerShell 操作，即可在列表下方查看其命令。在[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)下，所有命令会改为显示在列表之前。
-* **Hook**：要以编程方式捕获拒绝的确切输入，请添加一个 [`PermissionDenied` hook](https://code.claude.com/docs/zh-CN/hooks#permissiondenied)，它将其作为 `tool_input` 接收。
+* **Recently blocked 选项卡**：高亮显示该操作所在的行。在[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)下，所有命令和输入都会显示在列表之前。
+* **Hook**：要以编程方式捕获拒绝的确切输入，请添加一个 [`PermissionDenied` hook](https://code.claude.com/docs/zh-CN/hooks#permissiondenied)，它将其作为 `tool_input` 接收。如果您的 hook 读取 `reason`，则其中不会有 `Auto mode:` 前缀，并且会出现诸如 `Blocked by classifier` 之类的文本，而不是 `No reason provided`。
 * **对话**：找到工具调用。如果调用显示为缩短或折叠成摘要行（例如 `Ran 3 shell commands`），请按 `Ctrl+O` 打开[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)，它会展开该调用。
 
 调用下方的文本告诉您是否有任何需要修复的内容。一行暗色的 `Not run · auto mode's check had no usable answer`，或报告分类器本身问题的文本（例如 `Auto mode could not evaluate this action`），意味着 Claude Code 在没有来自分类器的判决的情况下阻止了调用。对于 `Not run` 行，请按 `Ctrl+O` 阅读完整消息，然后参阅[自动模式无法确定操作的安全性](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)或[服务器未返回安全判决](https://code.claude.com/docs/zh-CN/errors.md#the-server-returned-no-safety-verdict)了解该怎么做。
 
-否则，一行显示 `Denied by auto mode classifier` 并带有 `[Production Deploy]` 或 `Blocked by classifier` 等原因意味着分类器判断调用不安全，因此从调用试图到达或执行的内容中选择修复：
+否则，`Blocked by auto mode` 行意味着分类器判断调用不安全。要放行该调用，请根据 Claude 试图到达或执行的内容采取相应措施：
 
 * Claude 在整个任务中需要的目标，例如包注册表、内部域或存储库主机：将其添加到 `autoMode.environment`。
 * 您想从现在开始运行而无需审查的命令：添加一个 `allow` 规则。

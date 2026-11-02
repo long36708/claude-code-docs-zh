@@ -192,7 +192,7 @@ hook 让您可以在 Claude Code 生命周期的关键节点运行代码：在�
 | `agent_completed` | 某个后台会话完成或失败。仅在 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)打开时触发 |
 | `quota_auto_resume_fired` | 在 claude.ai 用量限制暂停任务后，Claude Code 继续执行您的任务：在重置时继续，或者当您在等待期间于 Claude Code 中执行的某些操作（例如添加使用额度、升级套餐或切换模型）使用量重新可用时更早继续，[模型设置例外](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)除外 |
 | `quota_auto_resume_stale` | 在您的计算机休眠超过约 30 分钟期间，claude.ai 用量限制已重置。Claude Code 会等待您按 `Enter`，而不是继续执行。如果休眠时间较短，它会继续执行并改为触发 `quota_auto_resume_fired` |
-| `quota_auto_resume_disabled` | Claude Code 结束对 claude.ai 用量限制的等待，但没有继续您的任务：[`autoContinueAtUsageLimit`](https://code.claude.com/docs/zh-CN/settings-reference#autocontinueatusagelimit) 被关闭，或者在 Claude Code 自行开始的等待期间重置时间被推迟到 24 小时以后，继续执行的任务不断触及限制，或者继续执行在到达模型之前被阻止。当您按 `Esc` 或 `Ctrl+C`，或选择 **Don't continue automatically** 时不会触发 |
+| `quota_auto_resume_disabled` | Claude Code 结束对 claude.ai 用量限制的等待，但没有继续您的任务：在 Claude Code 自行开始的等待期间 [`autoContinueAtUsageLimit`](https://code.claude.com/docs/zh-CN/settings-reference#autocontinueatusagelimit) 被关闭或重置时间被推迟到 24 小时以后；继续执行的任务不断触及限制；或者继续执行在到达模型之前被阻止。当您按 `Esc` 或 `Ctrl+C`，或选择 **Don't continue automatically** 时不会触发 |
 | `plugin_notification` | 某个 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/api.md#show-something-without-starting-a-turn) 通过 `$.ui.notify` 发出通知。除非 mod 设置了 `title`，否则该 hook 的 `title` 为 mod 的名称 |
 
 在终端中，与在 Claude Desktop、VS Code 扩展以及其他通过 Agent SDK 响应权限请求的宿主中，Claude Code 对 `permission_prompt` 的计时方式不同。有关两种计时方式，请参阅[各通知类型的触发时机](https://code.claude.com/docs/zh-CN/hooks.md#notification)。

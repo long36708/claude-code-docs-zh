@@ -41,7 +41,7 @@ Worktree 是一个新的检出，因此请在那里初始化您的开发环境�
 
 ### 要求 Claude 创建 worktree
 
-您也可以在会话期间要求 Claude "在 worktree 中工作"，它会使用 [`EnterWorktree`](https://code.claude.com/docs/zh-CN/tools-reference) 工具创建一个。一旦进入 worktree，Claude 可以通过调用 `EnterWorktree` 并指定目标路径，直接切换到 `.claude/worktrees/` 下的另一个 worktree；之前的 worktree 保留在磁盘上不变。
+您也可以在会话期间要求 Claude "在 worktree 中工作"，它会使用 [`EnterWorktree`](https://code.claude.com/docs/zh-CN/tools-reference#enterworktree-tool-behavior) 工具创建一个。一旦进入 worktree，Claude 可以通过调用 `EnterWorktree` 并指定目标路径，直接切换到 `.claude/worktrees/` 下的另一个 worktree；之前的 worktree 保留在磁盘上不变。
 
 当 Claude 进入仓库的 `.claude/worktrees/` 目录之外的路径时，Claude Code 会首先请求您的批准。该移动会将会话的工作目录、写入访问权限和项目配置（如 `CLAUDE.md` 和设置）转移到该位置。`EnterWorktree` [权限规则](https://code.claude.com/docs/zh-CN/permissions.md)或选择"不再询问"不会抑制此提示；只有 `bypassPermissions` 模式会跳过它。
 
@@ -51,6 +51,20 @@ Worktree 是一个新的检出，因此请在那里初始化您的开发环境�
 >
 > * **`${CLAUDE_PROJECT_DIR}` 保持不变**：它仍然指向会话启动的项目根目录，因此 hook 命令（如 `${CLAUDE_PROJECT_DIR}/.claude/hooks/check-style.sh`）仍然在主检出中运行脚本。
 > * **`cwd` 跟随 Claude**：hook 的[输入 JSON](https://code.claude.com/docs/zh-CN/hooks.md#common-input-fields) 中的 `cwd` 字段是 worktree 根目录，当 Claude 运行 `cd` 时它会再次移动。当 hook 需要 worktree 路径时读取它。
+
+#### Claude 没有 `EnterWorktree` 工具
+
+如果您要求 Claude 在 worktree 中工作，而它没有 `EnterWorktree` 或 `ExitWorktree` 工具，请检查 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories) 是否已开启。开启该设置项后，Claude Code 会移除这两个 worktree 工具，或拒绝对它们的调用。
+
+在该设置项开启时，您仍可以继续在 worktree 中工作：
+
+* **交互式会话**：使用 `claude --worktree` 在 worktree 中启动会话。
+* **[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#how-file-edits-are-isolated)**：在后台会话调用 `EnterWorktree` 之前，Claude Code 会拒绝该会话在您主检出中的编辑，而该会话并没有这个工具。以下任一方式都可以让会话进行编辑：
+  * 使用 `claude --bg --worktree` 启动会话
+  * 将 [`worktree.bgIsolation`](https://code.claude.com/docs/zh-CN/settings-reference#worktree-bgisolation) 设置为 `"none"`
+  * 让 Claude 在会话启动目录下使用 `git worktree add` 创建的 worktree 中进行编辑
+
+要恢复这些工具，请在会话中运行 `/status` 以列出其[已加载的设置来源](https://code.claude.com/docs/zh-CN/settings.md#check-what-loaded)，并从每个设置了该设置项的文件中将其移除。然后重启 Claude Code。如果托管设置设置了该设置项，请询问您的管理员是否应更改该策略。
 
 ## 清理 worktrees
 
@@ -67,7 +81,7 @@ Worktree 是一个新的检出，因此请在那里初始化您的开发环境�
 
 ## 恢复 worktree 会话
 
-当您恢复在 worktree 内结束的会话而未[退出它](#clean-up-worktrees)时，Claude Code 会将会话返回到该 worktree。这适用于交互式恢复、[非交互式模式](https://code.claude.com/docs/zh-CN/headless.md)中带有 `-p` 的 `--continue` 和 `--resume`，以及 Agent SDK。`--continue` 会选择从您启动的目录下记录的最近会话。回到 worktree 内，Claude 仍然可以使用 [`ExitWorktree`](https://code.claude.com/docs/zh-CN/tools-reference) 工具退出它。
+当您恢复在 worktree 内结束的会话而未[退出它](#clean-up-worktrees)时，Claude Code 会将会话返回到该 worktree。这适用于交互式恢复、[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中带有 `-p` 的 `--continue` 和 `--resume`，以及 Agent SDK。`--continue` 会选择从您启动的目录下记录的最近会话。回到 worktree 内后，[当会话拥有 `ExitWorktree` 工具时](#claude-has-no-enterworktree-tool)，Claude 可以使用 [`ExitWorktree`](https://code.claude.com/docs/zh-CN/tools-reference) 工具退出它。
 
 在将会话返回到其 worktree 之前，Claude Code 会验证 worktree 仍然是与主检出分开的检出，并拒绝重新进入未通过检查的 worktree。对于 git worktree，检查会读取其 git 元数据。没有 git 元数据的 worktree（例如 [`WorktreeCreate` hook](#non-git-version-control) 创建的）可以通过检查；Claude Code 仍然拒绝的情况列在[Claude Code 拒绝使用 worktree](#claude-code-refuses-to-use-a-worktree) 下及其恢复。有关消息和如何从每个消息恢复，请参阅[会话在其 worktree 外恢复](#the-session-resumes-outside-its-worktree)。
 
@@ -91,7 +105,7 @@ Worktree 是一个新的检出，因此请在那里初始化您的开发环境�
 
 Claude Code 应用四个检查：
 
-* **文件编辑**：Claude Code 阻止针对主检出中的路径的 `Edit`、`Write` 或 `NotebookEdit`。
+* **文件编辑**：Claude Code 阻止针对主检出中的路径的 `Edit`、`Write` 或 `NotebookEdit`。要更改主检出中的文件，请自行编辑，或在那里启动交互式会话。
 * **命令工作目录**：Claude Code 阻止其工作目录解析为主检出的 Bash、PowerShell 或 Monitor 命令，或其工作目录它无法验证保持在其外的命令。
 * **Git 重定向**：Claude Code 阻止将 git 重定向到主检出的 Bash 或 Monitor 命令。重定向可以通过 `git -C`、`--git-dir`、`GIT_DIR` 或 `GIT_WORK_TREE` 变量，或在运行 git 之前 `cd` 到主检出来进行。
 * **命令形状**：当 Claude Code 无法从命令文本验证命令运行的任何 git 保持在 worktree 内时，它会阻止 Bash 或 Monitor 命令。例如，当命令名称在运行时计算、语法无法解析，或当诸如 `${!name}` 或 `${ command; }` 之类的扩展可能运行文本中未明确说明的命令时，就会发生这种情况。Claude Code 告诉 Claude 如何重写被拒绝的命令，例如将其分割成普通的单独命令。您无法关闭此检查。
@@ -216,7 +230,7 @@ config/secrets.json
 
 如果与您传递给 `--worktree` 的名称相同的 worktree 已存在，Claude Code 会打开它而不是创建一个新的。如果 Claude Code 因包含 `belongs to a different repository` 或 `is a leftover worktree` 的错误而停止，请参阅[worktree 目录 `belongs to a different repository`](#belongs-to-a-different-repository)。
 
-使用默认的 `"fresh"` [基础](#choose-the-base-branch)，当以下所有条件都成立时，重新打开的 worktree 会重置为仓库的默认分支而不是在其旧提示处继续：
+使用默认的 `"fresh"` [基础](#choose-the-base-branch)，当以下所有条件都成立时，重新打开的 worktree 会重置为仓库的默认分支而不是在其原来的顶端继续：
 
 * 它没有未提交的更改或未跟踪的文件。
 * 它仍然在 Claude Code 为其创建的分支上。
@@ -224,9 +238,9 @@ config/secrets.json
 
 Claude Code 仅从 git 状态检测合并的情况：worktree 推送到的远程分支不再存在，worktree 中的每个提交都已在默认分支上。
 
-在所有其他情况下，Claude Code 在其旧提示处重新打开 worktree：
+在所有其他情况下，Claude Code 在其原来的顶端重新打开 worktree：
 
-* worktree 未通过任何条件。
+* worktree 有任一条件不成立。
 * Claude Code 无法验证 worktree 的状态。
 * `worktree.baseRef` 是 `"head"`。
 * 名称是拉取请求或合并请求引用。

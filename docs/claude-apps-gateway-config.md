@@ -289,7 +289,7 @@ upstreams:
     base_url: https://upstream-gateway.internal.example.com
     auth:
       api_key: ${PROXY_KEY}
-    forward_user_identity: true        # 默认 false
+    forward_user_identity: true        # default false
 ```
 
 网关将这些标头添加到它转发到该上游的每个请求。
@@ -320,16 +320,16 @@ upstreams:
 upstreams:
   - provider: bedrock
     region: us-east-1
-    auth: {}                           # 首选：AWS 默认凭据链
-    # 或显式凭据：
+    auth: {}                           # preferred: AWS default credential chain
+    # OR explicit credentials:
     # auth:
     #   aws_access_key_id: ${AWS_AKID}
     #   aws_secret_access_key: ${AWS_SK}
     #   aws_session_token: ${AWS_ST}
-    # 或 Bedrock API 持有者令牌：
+    # OR a Bedrock API bearer token:
     # auth:
     #   aws_bearer_token: ${AWS_BEARER_TOKEN}
-    # 为 FIPS 或 VPC 端点部署覆盖 bedrock-runtime 端点：
+    # Override the bedrock-runtime endpoint for FIPS or VPC-endpoint deployments:
     # base_url: https://bedrock-runtime-fips.us-east-1.amazonaws.com
 ```
 
@@ -356,14 +356,10 @@ upstreams:
     region: us-east-1
     auth: {}
     guardrail:
-      id: gr-abc123                    # 防护栏 ID 或完整 ARN
-      version: "1"                     # 已发布的版本号或 DRAFT
- # 保留引号：裸 1 在启动时失败
+      id: gr-abc123                    # guardrail ID or full ARN
+      version: "1"                     # a published version number, or DRAFT
+ # keep the quotes: a bare 1 fails at boot
 ```
-
-> [!WARNING]
->
-> 网关不支持防护栏输入标签。它不向提示词添加防护内容标签，因此 Amazon Bedrock 仅应用于标记输入的防护栏过滤器不在通过网关的流量上运行。对于哪些过滤器依赖输入标签，请参阅 Amazon Bedrock 文档中的[输入标签](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-tagging.html)。
 
 也在防护栏上授予 `bedrock:ApplyGuardrail` 给签署此上游请求的主体：网关的 AWS 主体，或使用 [`assume_role`](#bedrock-in-another-aws-account) 的 `role_arn` 中命名的角色。
 
@@ -372,6 +368,57 @@ upstreams:
 防护栏仅覆盖 Bedrock 上游。如果您在 `upstreams` 中列出另一个提供商，网关将请求发送到该提供商而不带防护栏；如果该提供商是 [`mantle`](#amazon-bedrock-mantle-endpoint)，则网关拒绝启动。
 
 当 `/v1/messages` 请求的正文携带 `amazon-bedrock-*` 字段（如 `amazon-bedrock-guardrailConfig`）到达设置了 `guardrail` 的 Bedrock 上游时，网关应答 400 而不是转发它。
+
+> [!WARNING]
+>
+> 默认情况下，网关不会向提示词添加输入标签，因此 Amazon Bedrock 仅对带标签输入应用的防护栏过滤器不会在经过网关的流量上运行。要添加标签，请设置 [`input_tagging`](#add-guardrail-input-tags)。有关哪些过滤器依赖于输入标签，请参阅 Amazon Bedrock 文档中的[输入标签](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-tagging.html)。
+
+##### 添加防护栏输入标签
+
+要让网关添加 Amazon Bedrock 防护栏的[提示词攻击过滤器](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-prompt-attack.html)所需的输入标签，请在 `guardrail` 块中设置 `input_tagging` 并重启网关。在每个 `bedrock` 上游上设置相同的值，否则网关会拒绝启动。要求网关服务器上运行 Claude Code v2.1.316 或更高版本。不支持该键的版本的网关会在启动时以 `Unrecognized key(s) in object: 'input_tagging'` 退出。
+
+> [!WARNING]
+>
+> 根据 [Amazon Bedrock 的文档](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-tagging.html)，一旦请求携带输入标签，防护栏中的每个过滤器都会停止评估未加标签的内容。在开发者使用的网关上设置 `input_tagging` 之前，请先在测试网关上试用。
+
+`input_tagging` 接受以下值之一：
+
+| `input_tagging` | 网关为哪些文本加标签 | 防护栏拦截提示词之后 |
+| :- | :- | :- |
+| `last_message` | 自 Claude 上次回复以来的 `user` 消息 | 在 Claude Code 中，下一个提示词可以通过，随后 Claude 会将被拦截的提示词作为对话的一部分接收 |
+| `user_messages` | `user` 消息 | 会话中后续的提示词也可能被拦截，直到开发者删除被拦截的提示词 |
+| `all_messages` | `user` 和 `assistant` 消息 | 与 `user_messages` 相同 |
+| `all_messages_and_system` | 系统提示词和每条消息，包括[对话中途的系统消息](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#feature-pass-through) | 与 `user_messages` 相同 |
+
+使用 `last_message` 时，如果自 Claude 上次回复以来的 `user` 消息中没有可加标签的文本，网关会改为给自该回复以来的对话中途系统消息加标签。工具调用也算作一次回复。
+
+Amazon Bedrock 对提示词攻击过滤器的指导是[为用户输入加标签以排除系统提示词](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-prompt-attack.html)。如果您设置 `all_messages_and_system`，标记 Claude Code 自身系统提示词的过滤器可能会拦截请求。
+
+以下示例为每条 `user` 消息中的文本加标签：
+
+```yaml theme={null}
+upstreams:
+  - provider: bedrock
+    region: us-east-1
+    auth: {}
+    guardrail:
+      id: gr-abc123
+      version: "1"
+      input_tagging: user_messages
+```
+
+`user` 消息中还可能包含 Claude Code 添加的文本，例如[系统提醒](https://code.claude.com/docs/zh-CN/glossary.md#system-reminder)，因此请在测试网关上确认普通请求不会被拦截。
+
+在 Anthropic 的测试中，加了标签的会话在相邻提示词之间保持了[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md)读取，并且标签没有增加输入 token。
+
+##### 输入标签不覆盖的内容
+
+没有任何 `input_tagging` 值能阻止故意将文本放在不加标签位置的开发者。不要指望防护栏评估请求的以下部分：
+
+* **网关不加标签的内容**：您的 `input_tagging` 值未包含的消息、工具定义、工具调用输入、图像和 PDF 等。除非您设置 `all_messages_and_system`，否则系统提示词也不加标签。
+* **工具结果**：这些内容包含 Claude 的工具返回的内容，例如文件内容和网页。在 Anthropic 的测试中，无论是否加标签，字词过滤器都不会评估它们。
+
+如果您的 AWS 账号或组织强制执行防护栏，请参阅 [Amazon Bedrock 的文档](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-enforcements.html)，了解该防护栏如何处理输入标签。
 
 ##### 另一个 AWS 帐户中的 Bedrock
 
@@ -384,10 +431,10 @@ upstreams:
   - name: bedrock-isolated
     provider: bedrock
     region: us-east-1
-    auth: {}                           # 网关自己的角色：它仅调用 STS
+    auth: {}                           # the gateway's own role: it only calls STS
     assume_role:
       role_arn: arn:aws:iam::222222222222:role/claude-gateway-bedrock
-      # external_id: ${BEDROCK_ROLE_EXTERNAL_ID}   # 当角色的信任策略需要时
+      # external_id: ${BEDROCK_ROLE_EXTERNAL_ID}   # when the role's trust policy requires one
 ```
 
 `assume_role` 块采用三个键：
@@ -421,9 +468,9 @@ upstreams:
 
 ```yaml theme={null}
 models:
-  - id: restricted-claude-opus-4-8      # 自定义 id，不是内置模型名称
+  - id: restricted-claude-opus-4-8      # a custom id, not a built-in model name
     upstream_model:
-      bedrock-isolated: us.anthropic.claude-opus-4-8   # 唯一提供它的上游
+      bedrock-isolated: us.anthropic.claude-opus-4-8   # the only upstream that serves it
 ```
 
 ##### 每开发人员 AWS 成本属性
@@ -436,10 +483,10 @@ models:
 upstreams:
   - provider: bedrock
     region: us-east-1
-    auth: {}                           # 网关自己的角色：它仅调用 STS
+    auth: {}                           # the gateway's own role: it only calls STS
     assume_role:
       role_arn: arn:aws:iam::123456789012:role/claude-gateway-bedrock-user
-      session_name: email              # 或 sub
+      session_name: email              # or sub
 ```
 
 `session_name` 选择哪个已验证的声明成为 AWS `RoleSessionName`：`email` 或 `sub`。网关将除 ASCII 字母、数字和 `_+,.@-` 之外的任何字符写成 `=XX` 十六进制（按 UTF-8 字节），并将长于 64 字符的结果缩短为前缀加哈希，因此每个开发人员的会话名称保持有效且唯一。来自其令牌缺少声明的开发人员的请求不通过此上游发送，操作员日志说切换到 `sub` 或设置 [`oidc.email_claim`](#oidc)。
@@ -460,8 +507,8 @@ upstreams:
 upstreams:
   - provider: mantle
     region: us-east-1
-    models: [claude-opus-4-7, claude-haiku-4-5]   # 必需
-    auth: {}                           # AWS 默认凭据链
+    models: [claude-opus-4-7, claude-haiku-4-5]   # required
+    auth: {}                           # AWS default credential chain
   - provider: bedrock
     region: us-east-1
     auth: {}
@@ -499,14 +546,14 @@ upstreams:
     region: us-east-1
     workspace_id: wrkspc_...
     auth:
-      api_key: ${ANTHROPIC_AWS_API_KEY}   # 作为 x-api-key 发送
-    # 或通过 AWS 默认凭据链的 SigV4：
+      api_key: ${ANTHROPIC_AWS_API_KEY}   # sent as x-api-key
+    # OR SigV4 via the AWS default credential chain:
     # auth: {}
-    # 或显式 SigV4 凭据：
+    # OR explicit SigV4 credentials:
     # auth:
     #   aws_access_key_id: ${AWS_ACCESS_KEY_ID}
     #   aws_secret_access_key: ${AWS_SECRET_ACCESS_KEY}
-    # 覆盖派生的端点：
+    # Override the derived endpoint:
     # base_url: https://aws-external-anthropic.us-east-1.api.aws
 ```
 
@@ -531,10 +578,10 @@ upstreams:
   - provider: vertex
     region: us-east5
     project_id: example-prod
-    auth: {}                           # 首选：应用默认凭据
-    # 或服务帐户密钥文件：
+    auth: {}                           # preferred: Application Default Credentials
+    # OR a service account key file:
     # auth: { service_account_json: /secrets/sa.json }
-    # 为私有服务连接覆盖 aiplatform 端点：
+    # Override the aiplatform endpoint for Private Service Connect:
     # base_url: https://us-east5-aiplatform.p.googleapis.com
 ```
 
@@ -558,8 +605,8 @@ upstreams:
 upstreams:
   - provider: foundry
     resource: example-foundry              # https://example-foundry.services.ai.azure.com
-    auth: { use_azure_ad: true }        # 首选：DefaultAzureCredential / 托管身份
-    # 或 API 密钥：
+    auth: { use_azure_ad: true }        # preferred: DefaultAzureCredential / Managed Identity
+    # OR an API key:
     # auth:
     #   api_key: ${FOUNDRY_API_KEY}
 ```
@@ -808,7 +855,7 @@ models:
 
 ### `managed`
 
-`managed` 块定义基于 IdP 组或电子邮件域的基于角色的访问策略。策略按顺序评估；选中第一个匹配项，然后将其合并到 `match: {}` 兜底基础层上。这些策略按用户在 `GET /managed/settings` 提供，并使用 ETag/304 缓存。
+`managed` 块定义基于 IdP 组或电子邮件域的基于角色的访问策略。策略按顺序评估；默认情况下选择第一个匹配项，然后将其合并到 `match: {}` 兜底基础层上。匹配两个角色策略的用户只会获得第一个，因此除非您[应用所有匹配的策略](#apply-every-matching-policy)，否则第二个策略的拒绝规则不会生效。策略按用户在 `GET /managed/settings` 提供，并使用 ETag/304 缓存。
 
 ```yaml theme={null}
 managed:
@@ -849,6 +896,8 @@ managed:
 
 未匹配任何策略的已通过身份验证的用户将获得网关的默认值，即目录中的所有模型且没有托管设置。如果您希望有一个确定的默认策略，请在最后添加一个 `match: {}` 兜底策略。
 
+请将组织范围的拒绝规则放在 `match: {}` 策略中，因为组策略的规则仅在用户的令牌携带该组时才适用。
+
 > [!NOTE]
 >
 > 网关本身不保存用户目录。它根据用户的 IdP 令牌对每个请求进行授权，从令牌的 `groups` 声明中读取组成员身份，并据此评估策略。没有可枚举的名单，也没有需要预先创建的账户，因此也没有 SCIM 端点，因为没有任何内容可供 SCIM 同步。
@@ -861,6 +910,52 @@ managed:
 > * **组成员身份**：更改用户的组成员身份会改变与其匹配的策略。这在下一次会话重新签发时生效，即下一次静默刷新，最长不超过 `session.ttl_hours`。
 >
 > Claude Desktop 遵循[其自身的时间安排](#when-a-policy-change-reaches-claude-desktop)。
+
+#### 应用所有匹配的策略
+
+匹配多个角色策略的用户只会获得第一个，除非您在 `policies` 旁边设置 `policy_mode: layered`。使用 `layered` 时，与用户匹配的每个策略都会生效，直到第一个 `match: {}` 策略为止。
+
+`policy_mode` 要求网关服务器上的 Claude Code 为 v2.1.316 或更高版本。不支持该键的版本的网关在发现该键时会拒绝启动。请在添加该键之前升级每个副本，并在回滚到更早版本之前删除该键。此示例中，一个组失去 `WebFetch`，另一个组获得 Opus：
+
+```yaml theme={null}
+managed:
+  policy_mode: layered
+  policies:
+    - match: { groups: [no-web] }
+      cli:
+        permissions: { deny: ["WebFetch"] }
+    - match: { groups: [opus-users] }
+      cli:
+        availableModels: [opus, sonnet]
+    - match: {}
+      cli:
+        availableModels: [sonnet]
+        enforceAvailableModels: true
+```
+
+下表显示同时属于 `no-web` 和 `opus-users` 的用户在默认的 `first_match` 和 `layered` 下分别收到的内容。
+
+| 设置 | `first_match` | `layered` |
+| - | - | - |
+| `availableModels` | `sonnet` | `opus`、`sonnet` |
+| `enforceAvailableModels` | `true` | `true` |
+| `permissions.deny` | `WebFetch` | `WebFetch` |
+
+网关按照与基础层相同的[合并规则](#managed)，将每个匹配的策略合并到列在其下方的策略上：
+
+* **允许列表、单值以及 `sandbox` 等块**：每一项完整地取自设置了它的、列在最前面的匹配策略，因此两个组的 `availableModels` 列表不会叠加。
+* **拒绝列表和 hook 数组**：这些在所有匹配的策略之间叠加，因此属于两个组的用户会获得两个组的拒绝规则。
+* **`env`、`modelOverrides` 和 `skillOverrides`**：条目按名称合并，由设置了该名称的、列在最前面的匹配策略提供其值。
+* **`desktop` 键**：这些按照[基础 `desktop` 块的规则](#how-a-role-policy-inherits-the-base-desktop-block)合并。
+
+> [!WARNING]
+>
+> 多个策略叠加后的规则可能比其中任何一个单独给出的规则更宽松。例如，`match: {}` 策略设置了 `sandbox.enabled: true`，一个组的策略设置了 `permissions.allow: ["Bash"]`，另一个组的策略设置了 `sandbox.enabled: false`。同时属于两个组的用户将获得允许 `Bash` 且关闭沙箱的设置。这种情况下，请将允许 `Bash` 的策略列在最前面，并将 `match: {}` 策略的整个 `sandbox` 块复制到其中。
+
+使用 `layered` 时，网关会因某些设置而拒绝启动，包括以下设置：
+
+* **`!` 模式**：任何策略（包括 `match: {}` 策略）的 `permissions.deny` 或 `permissions.ask` 列表中，`Read` 或 `Edit` 规则里的 [`!` 否定](https://code.claude.com/docs/zh-CN/permissions#special-characters-and-negation)
+* **兜底策略之外对 hook 的限制**：除 `match: {}` 以外的任何策略中的 `disableAllHooks`、`allowedHttpHookUrls` 或 `httpHookAllowedEnvVars`
 
 #### 让会话在策略允许的模型上启动
 
