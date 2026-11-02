@@ -1372,8 +1372,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-01T22:58:22.393211",
-    "fetch_duration_seconds": 138.162865,
+    "last_fetch_completed": "2026-11-02T07:55:23.163048",
+    "fetch_duration_seconds": 124.839868,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-01T22:58:22.393251",
+  "last_updated": "2026-11-02T07:55:23.163070",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
