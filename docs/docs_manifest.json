@@ -1107,8 +1107,8 @@
     "setup.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/setup",
       "original_md_url": "https://code.claude.com/docs/zh-CN/setup.md",
-      "hash": "2cabc71ee15824eb13ddbe9a5446a35608a550a386cdef741f7bae4ff8ada180",
-      "last_updated": "2026-11-01T22:57:55.960781"
+      "hash": "225f0d65836f4c972a40fa667189a7735cf04a6a8fd2e91e4ecf8a1c9734e489",
+      "last_updated": "2026-11-03T20:14:44.460929"
     },
     "skills.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/skills",
@@ -1372,8 +1372,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-03T12:11:42.582713",
-    "fetch_duration_seconds": 133.916993,
+    "last_fetch_completed": "2026-11-03T20:15:15.755999",
+    "fetch_duration_seconds": 183.864646,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-03T12:11:42.582746",
+  "last_updated": "2026-11-03T20:15:15.756037",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
