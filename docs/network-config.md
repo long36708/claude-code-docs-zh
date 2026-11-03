@@ -131,7 +131,11 @@ Claude Code 根据失败的请求重新读取文件，而不是通过监视文�
 
 Claude Code 在会话的调试日志中记录每个被忽略的密钥。
 
-在[Claude Desktop](https://code.claude.com/docs/zh-CN/desktop.md)会话中，应用管理提供商连接，例如[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上的代码选项卡和 Cowork 会话，Claude Code 仅从[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)和 `~/.claude/settings.json` 读取这些变量和代理变量 `HTTP_PROXY`、`HTTPS_PROXY` 和 `NO_PROXY`：它忽略存储库自己的设置文件中的这些变量，因此已检出的存储库无法重定向凭证来自应用的会话的 TLS 或代理路径。在通过 claude.ai 登录的本地、SSH 或 WSL 代码选项卡会话中，应用不管理连接，Claude Code 从每个设置范围读取这些变量，就像任何终端会话一样；[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)无论您在何处启动它们，都遵循上述云会话规则。在 v2.1.217 之前，当应用管理连接时，Claude Code 忽略每个设置文件中的这些变量。
+在由应用管理提供商连接的 [Claude Desktop](https://code.claude.com/docs/zh-CN/desktop.md) 会话中（例如[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上的 Code 选项卡以及 Cowork 会话），Claude Code 仅从[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)和 `~/.claude/settings.json` 读取这些变量（`CLAUDE_CODE_OAUTH_SCOPES` 除外）以及代理变量 `HTTP_PROXY`、`HTTPS_PROXY` 和 `NO_PROXY`。它会忽略仓库自身设置文件中的这些变量，因此已检出的仓库无法重定向凭据来自应用的会话的 TLS 或代理路径。在 v2.1.217 之前，当应用管理连接时，Claude Code 会忽略每个设置文件中的这些变量。
+
+在通过 claude.ai 登录的本地、SSH 或 WSL Code 选项卡会话中，您可以在任何设置文件中设置这些变量和代理变量，`CLAUDE_CODE_OAUTH_SCOPES` 除外。Desktop 会在 Code 选项卡和 Cowork 会话中自行设置 `CLAUDE_CODE_OAUTH_SCOPES`，因此您无法设置它。
+
+当会话的启动环境已设置某个变量时，Claude Code 会[忽略设置文件中的值](https://code.claude.com/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)，并在[调试日志](https://code.claude.com/docs/zh-CN/debug-your-config.md)中注明该变量的名称。要在本地会话中使用您自己的代理或证书值，请[将其添加到已保存的本地环境](https://code.claude.com/docs/zh-CN/desktop.md#set-environment-variables-for-local-sessions)。[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)无论您在何处启动，都遵循上述云端会话规则。
 
 ## 验证你的配置
 

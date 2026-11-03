@@ -1048,7 +1048,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 如果您想要可复用的提示词或工作流，并希望它们在主对话上下文中而不是隔离的子代理上下文中运行，请考虑改用 [Skills](https://code.claude.com/docs/zh-CN/skills.md)。
 
-对于关于对话中已有内容的问题，请使用 [`/btw`](https://code.claude.com/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw) 而不是子代理。它能看到您的完整上下文，但无法使用工具，且答案不会添加到历史记录中。
+对于关于对话中已有内容的问题，请使用 [`/btw`](https://code.claude.com/docs/zh-CN/interactive-mode#side-questions-with-%2Fbtw) 而不是子代理。它无法使用工具，且答案不会添加到历史记录中。
 
 ### 让子代理生成自己的子代理
 
@@ -1242,7 +1242,7 @@ autoCompactWindow: 200000
 | `x` | 如果分叉正在运行，停止它；如果不再运行，关闭其行。在主会话行或您使用 `Enter` 打开其转录的分叉行上，`x` 会输入到提示中 |
 | `Esc` | 将焦点返回到提示输入 |
 
-打开分叉或子代理的会话记录后，后续消息和 [skill](https://code.claude.com/docs/zh-CN/skills.md) 会发送到该 Agent，而内置命令会发送到您的主对话，并有以下保护措施：
+打开分叉或子代理的会话记录后，后续消息和 [skill](https://code.claude.com/docs/zh-CN/skills.md) 会发送到该 Agent。在 Claude Code v2.1.314 或更高版本上，[`/btw`](https://code.claude.com/docs/zh-CN/interactive-mode#ask-btw-about-a-subagent) 会根据当前打开的会话记录作答。其他内置命令会发送到您的主对话，并有以下保护措施：
 
 * `/compact`、`/clear` 和 `/rewind` 作用于主对话，因此 Claude Code 在从该视图运行其中任何一个之前会要求您确认。
 * `/model` 和 `/fast` 设置的是主对话的模型和快速模式，而不是所查看 Agent 的，因此它们不会从该视图运行。一条通知会告诉您原因。

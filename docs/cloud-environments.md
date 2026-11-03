@@ -335,6 +335,7 @@ EOF
 | **C/C++** | GCC、Clang、cmake、ninja、conan |
 | **Docker** | docker、dockerd、docker compose |
 | **Databases** | PostgreSQL 16、Redis 7.0 |
+| **Browser** | Chrome for Testing，位于 `/usr/bin/google-chrome`，`CHROME_PATH` 环境变量设置为该路径 |
 | **Utilities** | git、gh、jq、yq、ripgrep、tmux、vim、nano |
 
 ¹ Bun 已安装，但在包获取时存在已知的[代理兼容性问题](#install-dependencies-with-a-sessionstart-hook)。

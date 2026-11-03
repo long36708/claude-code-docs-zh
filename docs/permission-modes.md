@@ -532,7 +532,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 无论您如何回答，Claude 都会继续工作：
 
 * **是，并继续允许读取工作目录之外的任何内容**：读取会运行，之后对工作目录之外内容的读取照常运行，并且 Claude Code 会记录您的回答，使该提示不再出现
-* **否，并从现在起阻止读取工作目录之外的内容**：读取会被拒绝，并且 Claude Code 会在您的用户设置中将 [`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 设置为 `true`，这会使文件工具在之后的每个会话和每种权限模式中拒绝此类读取。如果之后要让 Claude 读取此类路径，请使用 `/add-dir` 添加其目录，或移除该设置。
+* **否，并从现在起阻止读取工作目录之外的内容**：读取会被拒绝，并且 Claude Code 会在您的用户设置中将 [`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 设置为 `true`，这会使文件工具在本会话及之后的每个会话、每种权限模式中拒绝此类读取。要解除该阻止，请从设置了该项的每个[设置文件](https://code.claude.com/docs/zh-CN/settings.md#settings-files-and-who-they-affect)中移除该设置，然后重启每个正在运行的会话。如果只需在本会话中放开某一个目录，请使用 `/add-dir`。
 * **否，下次再询问**：读取会被拒绝，下一次读取工作目录之外的内容时会再次提示
 * **是，但下次再询问**：读取会运行，不会保存任何内容，下一次读取工作目录之外的内容时会再次提示
 

@@ -105,7 +105,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 **5. 选择环境**
 
-选择仓库后，其下方会出现 **Cloud environment**。为任务选择一个[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)。环境控制云端会话可以访问的内容：
+选择仓库后，其下方会出现 **Cloud environment**。为任务选择一个[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)。如果已选中某个环境，您可以保留它或选择其他环境。环境控制云端会话可以访问的内容：
 
 * **Network access**：设置每次运行期间可用的互联网访问级别
 * **Environment variables**：提供 Claude 在每次运行期间可以使用的值。它们[对使用该环境的任何人都可见](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)，因此在 Anthropic 托管的环境中，请改为将 Claude 在运行期间调用的 API 的密钥存储为[网络密钥](https://code.claude.com/docs/zh-CN/cloud-environments.md#add-network-secrets)。该部分还列出了永远不会获得密钥的请求

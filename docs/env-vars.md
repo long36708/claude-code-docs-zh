@@ -126,7 +126,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 > * `CLAUDE_CODE_TMUX_TRUECOLOR`
 > * `IS_DEMO`
 >
-> 另有一个变量有其自己的规则：`FORCE_HYPERLINK` 读取一个数字，因此只有 `0` 会将其关闭。每个变量所在行也会说明其自身的规则。
+> 每个变量所在行也会说明其自身的规则。
 
 | 变量 | 用途 |
 | :- | :- |
@@ -239,7 +239,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_DISABLE_BG_EXIT_HANDOFF` | 设置为 `1` 可在[监督进程](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)停止、重启或更新某个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)的进程时，停止该会话正在进行的工作，而不是将其移交给该会话的下一个进程。这些工作是该会话正在运行的后台 shell 命令，自 v2.1.198 起还包括后台子代理。仅影响该移交：使用 `←` 或 [`/background`](https://code.claude.com/docs/zh-CN/agent-view#from-inside-a-session) 将会话转入后台时，仍会将正在进行的后台工作延续过去。需要 Claude Code v2.1.196 或更高版本 |
 | `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP` | 设置为 `1` 可阻止 Claude Code 在内存压力下终止[后台 shell 命令](https://code.claude.com/docs/zh-CN/interactive-mode.md#background-bash-commands)。默认情况下，在 macOS 和 Linux 上，当操作系统报告严重内存压力，且会话已空闲 30 分钟、没有轮次或子代理在运行时，Claude Code 会终止后台 shell。Windows 没有内存压力信号，因此此变量在 Windows 上不起作用。需要 Claude Code v2.1.193 或更高版本 |
 | `CLAUDE_CODE_DISABLE_BUNDLED_SKILLS` | 设置为 `1` 可禁用 Claude Code 随附的 [skill](https://code.claude.com/docs/zh-CN/skills.md) 和工作流：随附 skill 和工作流会被完全移除，而 `/init` 等内置命令仍可输入，但会对模型隐藏。`/doctor` 与内置命令一样仍可输入；请改用 `DISABLE_DOCTOR_COMMAND` 将其隐藏。来自插件、`.claude/skills/` 和 `.claude/commands/` 的 skill 不受影响。等同于 [`disableBundledSkills`](https://code.claude.com/docs/zh-CN/settings-reference#disablebundledskills) 设置 |
-| `CLAUDE_CODE_DISABLE_CFC_PROMPT` | 设置为 `1` 可保留 [Claude in Chrome](https://code.claude.com/docs/zh-CN/chrome.md) 浏览器工具可用，同时省略系统提示词中的 Chrome 部分以及 `/claude-in-chrome` [随附 skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。适用于嵌入 Claude Code 并提供自己的浏览器指导的宿主。需要 Claude Code v2.1.257 或更高版本 |
+| `CLAUDE_CODE_DISABLE_CFC_PROMPT` | 适用于嵌入 Claude Code 并提供自己的浏览器指导的宿主。设置为 `1` 可在保留 [Claude in Chrome](https://code.claude.com/docs/zh-CN/chrome.md) 浏览器工具可用的同时，省略系统提示词中的 Chrome 部分以及 `/claude-in-chrome` [随附 skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。在 VS Code 中，v2.1.314 或更高版本的扩展还会将 Claude in Chrome 指令排除在会话消息之外。需要 Claude Code v2.1.257 或更高版本 |
 | `CLAUDE_CODE_DISABLE_CLAUDE_MDS` | 设置为 `1` 可阻止将任何 CLAUDE.md 记忆文件加载到上下文中，包括用户、项目和自动记忆文件 |
 | `CLAUDE_CODE_DISABLE_CRON` | 设置为 `1` 可禁用[会话范围的定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)。`/loop` skill 和 cron 工具将不可用，所有已安排的任务都会停止触发，包括会话中途已在运行的任务 |
 | `CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT` | 设为 `1` 可关闭 `auto` 和 `bypassPermissions` 模式下针对关键路径删除操作的[时间限制和拒绝](https://code.claude.com/docs/zh-CN/permission-modes.md#time-limits-and-denials-in-auto-and-bypasspermissions-modes)。这些删除操作随后在 `auto` 模式下交由分类器处理，在 `bypassPermissions` 模式下，只要 Claude Code 能够显示提示，就会显示不限时的提示。请在启动 Claude Code 的环境中设置它，因为 Claude Code 会忽略通过设置 `env` 块传递的副本。需要 Claude Code v2.1.281 或更高版本 |
@@ -307,7 +307,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_GIT_BASH_PATH` | 仅限 Windows：Git Bash 可执行文件（`bash.exe`）的路径。当已安装 Git Bash 但它不在 PATH 中时使用。如果该路径不存在，或文件名不是 `bash.exe`、`sh.exe`、`bash` 或 `sh`，Claude Code 会忽略此变量并像未设置一样自动检测 Git Bash，同时记录一条可通过 `--debug` 查看的警告。在 v2.1.219 之前，路径不存在时 Claude Code 会在启动时退出，并且会将任何现有文件用作 shell，而不检查它是否为 bash 或 sh。请参阅 [Windows 设置](https://code.claude.com/docs/zh-CN/setup.md#set-up-on-windows) |
 | `CLAUDE_CODE_GLOB_HIDDEN` | 设置为 `false` 可在 Claude 调用 [Glob 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#glob-tool-behavior)时从结果中排除点文件。默认包含。不影响 `@` 文件自动补全、`ls`、Grep 或 Read |
 | `CLAUDE_CODE_GLOB_NO_IGNORE` | 设置为 `false` 可使 [Glob 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#glob-tool-behavior)遵循 `.gitignore` 模式。默认情况下，Glob 会返回所有匹配的文件，包括被 gitignore 忽略的文件。不影响 `@` 文件自动补全，后者有自己的 [`respectGitignore` 设置](https://code.claude.com/docs/zh-CN/settings-reference#respectgitignore) |
-| `CLAUDE_CODE_GLOB_TIMEOUT_SECONDS` | Glob 工具文件发现的超时时间（秒）。在大多数平台上默认为 20 秒，在 WSL 上为 60 秒 |
+| `CLAUDE_CODE_GLOB_TIMEOUT_SECONDS` | [Glob](https://code.claude.com/docs/zh-CN/tools-reference.md#glob-tool-behavior) 和 Grep 工具搜索的超时时间（秒）。在大多数平台上默认为 20 秒，在 WSL 上默认为 60 秒 |
 | `CLAUDE_CODE_GOAL_CHECKIN_MINUTES` | 后台工作可以让活动目标等待多少分钟，超过后 Claude Code 会[要求 Claude 检查该目标](https://code.claude.com/docs/zh-CN/goal.md#background-work-defers-evaluation)。默认为 `30`。设置为 `0` 可关闭检查。请以纯数字给出整数分钟数，最大为 `10080`，即一周。Claude Code 会将其他任何值视为未设置并使用默认值。需要 Claude Code v2.1.234 或更高版本 |
 | `CLAUDE_CODE_GZIP_REQUEST_BODIES` | 设置为 `0` 可关闭对发送到 `api.anthropic.com` 的 Claude API、遥测和 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 发布请求体的 gzip 压缩。默认情况下，Claude Code 会在直接连接时压缩较大的请求体，而在您通过代理发送请求、配置客户端证书或设置 `NODE_EXTRA_CA_CERTS` 时跳过压缩。如果 Claude Code 无法检测到的 [TLS 检查代理](https://code.claude.com/docs/zh-CN/network-config.md#ca-certificate-store)无法正确处理压缩请求，请使用 `0` |
 | `CLAUDE_CODE_HIDE_CWD` | 设置为 `1` 可在启动徽标中隐藏工作目录。适用于路径会暴露您操作系统用户名的屏幕共享或录制场景 |
@@ -335,9 +335,9 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_NONBLOCKING_STDOUT` | 设置为 `1` 可通过第二个非阻塞文件描述符写入终端输出，这样停止读取的终端（例如已暂停的 tmux 控制模式窗格或停滞的 SSH 连接）就不会在会话中途冻结 Claude Code。在 stdout 为终端时适用于 macOS、Linux 和 WSL。需要 Claude Code v2.1.261 或更高版本 |
 | `CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES` | 限制 Claude Code 重新发送超时的[非流式请求](https://code.claude.com/docs/zh-CN/errors.md#streaming-response-ended-before-any-complete-data-was-received)的次数。设置为 `0` 时，请求在第一次超时时即失败。有关超时时间，请参阅[调整重试行为](https://code.claude.com/docs/zh-CN/errors.md#tune-retry-behavior)。需要 Claude Code v2.1.285 或更高版本 |
 | `CLAUDE_CODE_NO_FLICKER` | 设置为 `1` 可启用[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)，这是一项研究预览功能，可减少闪烁并在长对话中保持内存占用平稳。覆盖 [`tui`](https://code.claude.com/docs/zh-CN/settings-reference#tui) 设置；您也可以使用 `/tui fullscreen` 进行切换 |
-| `CLAUDE_CODE_OAUTH_REFRESH_TOKEN` | 用于 Claude.ai 身份验证的 OAuth 刷新令牌。设置后，`claude auth login` 会直接交换此令牌，而不是打开浏览器。需要同时设置 `CLAUDE_CODE_OAUTH_SCOPES`。适用于在自动化环境中预配身份验证 |
-| `CLAUDE_CODE_OAUTH_SCOPES` | 颁发刷新令牌时使用的以空格分隔的 OAuth 作用域，例如 `"user:profile user:inference user:sessions:claude_code"`。设置 `CLAUDE_CODE_OAUTH_REFRESH_TOKEN` 时必需 |
-| `CLAUDE_CODE_OAUTH_TOKEN` | 用于 claude.ai 身份验证的 OAuth 访问令牌。是 SDK 和自动化环境中 `/login` 的替代方案。优先于钥匙串中存储的凭据。可使用 [`claude setup-token`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 生成。除非您运行 [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence)，否则 Claude Code 会在整个会话中使用您设置的令牌。要替换过期的令牌，请生成新令牌并重新启动 |
+| `CLAUDE_CODE_OAUTH_REFRESH_TOKEN` | 用于 claude.ai 身份验证的 OAuth 刷新令牌。设置后，`claude auth login` 会直接交换此令牌，而不是打开浏览器。需要 `CLAUDE_CODE_OAUTH_SCOPES`。适用于在自动化环境中预置身份验证。在[项目设置和本地设置](https://code.claude.com/docs/zh-CN/settings-reference.md#variables-claude-code-ignores-in-env)中会被忽略 |
+| `CLAUDE_CODE_OAUTH_SCOPES` | 签发刷新令牌时使用的 OAuth 作用域，以空格分隔，例如 `"user:profile user:inference user:sessions:claude_code"`。设置 `CLAUDE_CODE_OAUTH_REFRESH_TOKEN` 时必需。在[项目设置和本地设置](https://code.claude.com/docs/zh-CN/settings-reference.md#variables-claude-code-ignores-in-env)中会被忽略 |
+| `CLAUDE_CODE_OAUTH_TOKEN` | 用于 claude.ai 身份验证的 OAuth 访问令牌。在 SDK 和自动化环境中可替代 `/login`。在[项目设置和本地设置](https://code.claude.com/docs/zh-CN/settings-reference.md#variables-claude-code-ignores-in-env)中会被忽略。优先于存储在钥匙串中的凭据。使用 [`claude setup-token`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 生成。除非您运行 [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence)，否则 Claude Code 会在整个会话中使用您设置的令牌。要替换已过期的令牌，请生成新令牌并重新启动 |
 | `CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE` | 已在 v2.1.160 中移除，现在不起作用。此前用于将[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)固定到 Claude Opus 4.6，而不是当前默认模型。Opus 4.6 不再支持快速模式 |
 | `CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH` | 承载内容的 OpenTelemetry 属性（模型响应、工具内容、系统提示词、原始 API 正文）的最大长度，包含截断标记，以 UTF-16 代码单元计（默认：61440，即 60 KB）。仅当您的遥测后端接受大于 64 KB 的属性值时才调高此值，也可以调低此值以减少遥测数据量。需要 Claude Code v2.1.214 或更高版本。请参阅[监控](https://code.claude.com/docs/zh-CN/monitoring-usage.md) |
 | `CLAUDE_CODE_OTEL_DIAG_STDERR` | 设置为 `1` 可将 OpenTelemetry 导出器的诊断错误写入 stderr。默认情况下，这些错误仅在使用 `--debug` 时显示，因此配置错误的导出器（例如 Prometheus 端口冲突）否则会静默失败。需要 Claude Code v2.1.179 或更高版本。请参阅[监控](https://code.claude.com/docs/zh-CN/monitoring-usage.md) |
@@ -469,7 +469,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `ENABLE_PROMPT_CACHING_1H_BEDROCK` | 已弃用。请改用 `ENABLE_PROMPT_CACHING_1H`。对 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话无效，即使网关路由到 Amazon Bedrock 也是如此 |
 | `ENABLE_TOOL_SEARCH` | 控制 [MCP 工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)。未设置或为 `true` 时会延迟加载 MCP 工具，但[保持工具搜索关闭的情况](https://code.claude.com/docs/zh-CN/mcp.md#configure-tool-search)除外。`auto` 会在工具定义达到上下文窗口的 10% 时开启工具搜索。`auto:N` 设置自定义阈值，例如 `auto:5` 表示 5%。`false` 会预先加载所有工具。如果网关拒绝工具搜索，请参阅[通过 LLM 网关使用工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway) |
 | `FORCE_AUTOUPDATE_PLUGINS` | 设置为 `1` 可在主自动更新程序已通过 `DISABLE_AUTOUPDATER` 禁用时仍强制插件自动更新 |
-| `FORCE_HYPERLINK` | 设置为 `1` 可在您的终端支持可点击的 OSC 8 超链接但未被自动检测到时启用它们，设置为 `0` 可禁用它们。未设置时，Claude Code 仅在检测到终端支持时启用超链接。Claude Code 将此值解析为数字而非布尔值，因此 `false`、`no` 或 `off` 之类的值会启用超链接，而不是禁用它们。即使 Claude Code 无法检测到终端支持（例如通过 SSH 时），页脚的 [PR 或合并请求徽章](https://code.claude.com/docs/zh-CN/interactive-mode.md#pr-review-status)也会渲染为超链接。设置为 `0` 可将该徽章渲染为纯文本 |
+| `FORCE_HYPERLINK` | 设置为 `1` 以在终端支持但未被自动检测到时启用可点击的 OSC 8 超链接。未设置时，Claude Code 仅在检测到终端支持时才启用大多数超链接。底部栏中的 [PR 或合并请求徽章](https://code.claude.com/docs/zh-CN/interactive-mode.md#pr-review-status)和较长的登录 URL 无论如何都是链接。设置为 `0`、`false`、`no` 或 `off` 可将它们全部渲染为纯文本。在 v2.1.314 之前，`false`、`no` 和 `off` 反而会启用超链接 |
 | `FORCE_PROMPT_CACHING_5M` | 设置为 `1` 可强制使用 5 分钟的提示缓存 TTL，即使原本会应用 1 小时 TTL。覆盖 `CLAUDE_CODE_PROMPT_CACHE_TTL`、`CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL`、`ENABLE_PROMPT_CACHING_1H` 以及 `promptCacheTtl` 和 `subagentPromptCacheTtl` 设置 |
 | `HTTP_PROXY` | 为网络连接指定 HTTP 代理服务器 |
 | `HTTPS_PROXY` | 为网络连接指定 HTTPS 代理服务器 |
@@ -586,7 +586,6 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * 获得 [Claude 起草的反馈](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)，该功能由 Claude Code 通过获取的标志启用
 * 让 Claude [将大段粘贴内容视为粘贴而非键入的文本](https://code.claude.com/docs/zh-CN/terminal-config.md#how-claude-treats-pasted-text)；`[Pasted text #N]` 占位符背后的内容将以无标记形式传给 Claude
 * 让 Claude Code [排除其输入 schema 会被 API 拒绝的 MCP 工具](https://code.claude.com/docs/zh-CN/mcp.md#tools-with-invalid-input-schemas)
-* 让 Claude Code [在终端会话空闲时压缩较长的对话](https://code.claude.com/docs/zh-CN/settings-reference.md#idlecompaction)，时机为一小时的提示词缓存即将过期前不久
 
 ### 安装或升级后的首个会话
 

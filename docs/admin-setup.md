@@ -79,6 +79,8 @@ Desktop 在每次 WSL 会话启动时读取策略，因此在部署后无需重�
 * 通过 HKLM 注册表或 `C:\Program Files\ClaudeCode` 文件部署 `wslInheritsWindowsSettings: true`，以便 WSL 会话继承与主机会话相同的策略。
 * 通过在 WSL 会话内运行 `/status` 进行验证，并读取 `Setting sources` 行。要解释它列出的内容，请参阅[在 /status 中读取来源](https://code.claude.com/docs/zh-CN/managed-settings.md#read-the-source-in-/status)。
 
+如果 WSL 会话在配有 Claude Desktop [`allowedWorkspaceFolders`](https://claude.com/docs/third-party/claude-desktop/configuration#allowedworkspacefolders) 列表的设备上启动，则 `~` 条目表示发行版内的主目录。
+
 WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见。要观察发行版内的进程和文件活动，请查看您的端点检测供应商的 WSL 指南，了解您可以在发行版内运行的 Linux 传感器及其需要的排除项。Claude Code 的 [OpenTelemetry 工具执行遥测](https://code.claude.com/docs/zh-CN/monitoring-usage.md) 对 WSL 和本机会话的发出方式相同。
 
 ## 决定要强制执行的内容

@@ -952,7 +952,12 @@ claude mcp add --transport stdio db -- npx -y @bytebase/dbhub \
 * 对于您在 `headers` 中配置了 `Authorization` 标头的服务器，或通过 [`headersHelper`](#use-dynamic-headers-for-custom-authentication) 配置的服务器，连接时的 `401` 或 `403` 不会标记服务器，因为要修复的凭据是您配置的凭据。Claude Code 改为报告连接失败。如果您从 `${VAR}` 引用设置该标头，请检查该变量是否是 Claude Code [读取为空](#credential-variables-that-read-as-empty) 的变量之一。
 * 对于 [传递到云端会话的连接器](#how-connectors-reach-claude-code)，Claude Code 不运行登录流程，因为会话的代理使用您在 claude.ai 中授予的授权向连接器进行身份验证。当那里的连接器需要再次授权时，请在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 重新连接它，而不是从会话中连接。
 
-当您已登录的 OAuth 服务器以 `401 Unauthorized` 拒绝您存储的令牌时，Claude Code 会刷新令牌、重新连接并重试请求一次。只有在该重试也失败时，它才会在 `/mcp` 中标记服务器。在 macOS 上的 `claude -p` 或 Agent SDK 运行中，Claude Code 在无法读取您存储的令牌时发送的请求会改为以 [存储凭据错误](https://code.claude.com/docs/zh-CN/errors.md#couldnt-read-the-stored-credentials-for-mcp-server) 失败。
+当您已登录的 OAuth 服务器以 `401 Unauthorized` 拒绝您存储的令牌时，无论是否获得新令牌，Claude Code 都会重新连接：
+
+* **您存储的登录信息包含刷新令牌**：它会刷新令牌、重新连接并重试请求一次。只有在该重试也失败时，服务器才会在 `/mcp` 中被标记。
+* **您存储的登录信息不包含刷新令牌**：它会在不带令牌的情况下连接一次。如果服务器作出响应，其工具在您未登录的状态下也能正常工作，并且被拒绝的令牌会被删除。如果服务器也拒绝了该连接，`/mcp` 会显示该服务器需要身份验证。
+
+在 macOS 上的 `claude -p` 或 Agent SDK 运行中，Claude Code 在无法读取您存储的令牌时发送的请求会以 [存储凭据错误](https://code.claude.com/docs/zh-CN/errors.md#couldnt-read-the-stored-credentials-for-mcp-server) 失败。
 
 当服务器拒绝存储的刷新令牌时，Claude Code 会立即显示一条指向 `/mcp` 的通知。打开 `/mcp` 并在服务器上选择 **Re-authenticate** 以在下一个工具调用失败之前再次登录。
 
@@ -1640,7 +1645,7 @@ Claude Code 对任何只有终端对话框才能完整呈现的权限请求（�
 
 ## 响应 MCP 引出请求
 
-MCP 服务器可以在任务进行中使用引出功能向你请求结构化输入。当服务器需要无法自行获取的信息时，Claude Code 会显示一个交互式对话框，并将你的响应传回服务器。你无需进行任何配置：当服务器请求引出对话框时，它们会自动出现。
+MCP 服务器可以在任务进行中使用引出功能向您请求结构化输入。当服务器需要无法自行获取的信息时，Claude Code 会在终端中显示一个交互式对话框，并将您的响应传回服务器。您无需进行任何配置：当服务器请求引出对话框时，它们会自动出现。
 
 服务器可以通过两种方式请求输入：
 
@@ -1652,6 +1657,17 @@ MCP 服务器可以在任务进行中使用引出功能向你请求结构化输�
 要在不显示对话框的情况下自动响应引出请求，请使用 [`Elicitation` hook](https://code.claude.com/docs/zh-CN/hooks#elicitation)。
 
 如果你正在构建使用引出功能的 MCP 服务器，请参阅 [MCP 引出规范](https://modelcontextprotocol.io/docs/learn/client-concepts#elicitation) 了解协议详情和架构示例。
+
+### 在云端会话中回答引出请求
+
+当 Claude 在您的云端会话中的任务正在等待 MCP 服务器的请求时，说明该服务器需要您提供某些内容，例如某个值或登录操作。如果该请求在 claude.ai/code 或 Desktop 应用的 **Code** 标签页中以卡片形式显示，请在卡片上作答：
+
+* **表单模式**：填写字段，然后点击 **Submit**
+* **URL 模式**：点击 **Open link**，完成其打开的流程，然后点击卡片上的 **I’m done, continue**
+
+要拒绝该请求，请点击 **Decline**。服务器响应后，Claude 会继续。
+
+如果在这两个位置都看不到卡片，则无法在那里回答该请求。在您自己的会话中，点击其中的停止按钮以结束当前轮次。
 
 ### Claude Code 声明的引出模式
 
@@ -1815,9 +1831,9 @@ ENABLE_TOOL_SEARCH=false claude
 > * **您已设置 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS`**：请参阅[它如何影响工具搜索](#configure-tool-search)
 > * **请求失败，且错误中提到 `defer_loading` 或 `tool_reference`**：请参阅 [Extra inputs are not permitted](https://code.claude.com/docs/zh-CN/errors.md#extra-inputs-are-not-permitted)
 
-当 `ANTHROPIC_BASE_URL` 指向网关时，工具搜索默认开启，因此请求会包含 `defer_loading` 工具字段和 `tool_reference` 块，供网关转发。工具搜索开启时，MCP 工具会被[延迟](#scale-with-mcp-tool-search)。如需改为预先加载所有工具，请在 shell 或您的 [settings `env`](https://code.claude.com/docs/zh-CN/settings-reference#env) 中设置 `ENABLE_TOOL_SEARCH=false`。在 v2.1.304 之前，在网关后面工具搜索处于关闭状态，除非 `ENABLE_TOOL_SEARCH` 为 `true`、`auto` 或 `auto:N`。
+当 `ANTHROPIC_BASE_URL` 指向网关时，Claude Code 期望网关[连同 `anthropic-beta` 标头一起](https://code.claude.com/docs/zh-CN/llm-gateway-protocol#beta-header-and-body-field-pairs)转发 `defer_loading` 工具字段和 `tool_reference` 块。在网关后面，工具搜索默认开启，因此 MCP 工具会被[延迟](#scale-with-mcp-tool-search)，请求中也会包含这些字段和块。在 v2.1.304 之前，在网关后面工具搜索处于关闭状态，除非 `ENABLE_TOOL_SEARCH` 为 `true`、`auto` 或 `auto:N`。
 
-在 v2.1.305 或更高版本上，当出现原因无法识别的 `400` 或 `422` 时，Claude Code 可以[在不使用工具搜索的情况下重试请求](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#retry-without-tool-search)。重试成功时，屏幕上不会显示任何内容，您也无需执行任何操作：MCP 工具会改为预先加载。Claude Code 稍后会再次尝试工具搜索，代价是再产生一次被拒绝的请求。要跳过这些请求，请设置 `ENABLE_TOOL_SEARCH=false`。
+在 v2.1.305 或更高版本上，出现 `400` 或 `422` 后，Claude Code 可以[在不使用工具搜索的情况下重试请求](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#retry-without-tool-search)。重试成功时，屏幕上不会显示任何内容，您也无需执行任何操作：MCP 工具会改为预先加载。Claude Code 稍后会再次尝试工具搜索，代价是再产生一次被拒绝的请求。
 
 #### 低于 `ENABLE_TOOL_SEARCH=auto` 阈值时仍保持延迟的工具
 

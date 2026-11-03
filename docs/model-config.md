@@ -933,7 +933,7 @@ Claude Code 跳过对 `ANTHROPIC_CUSTOM_MODEL_OPTION` 中设置的模型 ID 的�
 | `ANTHROPIC_DEFAULT_FABLE_MODEL` | 用于 `fable` 的模型，以及 Claude Code 识别为 Fable 模型的模型 ID，用于[第三方提供商上的自动模型回退](#automatic-model-fallback) |
 | `ANTHROPIC_DEFAULT_OPUS_MODEL` | 用于 `opus` 的模型，或在计划模式活跃时用于 `opusplan` 的模型。 |
 | `ANTHROPIC_DEFAULT_SONNET_MODEL` | 用于 `sonnet` 的模型，或在计划模式不活跃时用于 `opusplan` 的模型。 |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | 用于 `haiku` 的模型，或[后台功能](https://code.claude.com/docs/zh-CN/costs.md#background-token-usage) |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | 用于 `haiku` 的模型，或用于后台功能的模型 |
 | `CLAUDE_CODE_SUBAGENT_MODEL` | [子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)、[agent team](https://code.claude.com/docs/zh-CN/agent-teams.md#specify-teammates-and-models) 队友和[工作流](https://code.claude.com/docs/zh-CN/workflows.md) Agent 的默认模型，适用于未以其他方式分配模型的情况。接受别名（如 `haiku`）或完整模型名称。每次调用的模型或定义的 `model` 字段（包括 `inherit`）优先。要改变这一点，请设置 [`CLAUDE_CODE_SUBAGENT_MODEL_FORCE`](https://code.claude.com/docs/zh-CN/sub-agents#run-every-subagent-on-one-model) |
 
 在第三方提供商上，[自定义固定模型显示和功能](#customize-pinned-model-display-and-capabilities)描述了固定模型在 `/model` 选择器中的行显示的内容。

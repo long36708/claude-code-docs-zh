@@ -925,8 +925,9 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 选择 Claude Code 是否在计划模式下使用自动模式分类器审查 shell 命令。在默认值 `true` 下，当自动模式可用时，分类器会在规划期间审查每条命令，您不会看到提示，[关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)除外。设置为 `false` 后，对于内置只读命令集之外的每条命令，您都会收到权限提示。在 `/config` 中显示为 **Use auto mode during plan**。
 
 * **作用域**：[`User, local, or managed`](#scopes)。仓库无法替您关闭它。
+  * 这些文件中任何一个或 `--settings` 中的 `false` 都会将其关闭，除非您使用 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 等选项排除了该用户或本地文件。忽略被排除的文件需要 Claude Code v2.1.314 或更高版本
 * **类型**：Boolean
-  * `true`：与未设置相同；当自动模式可用时，分类器会在规划期间审查每条 shell 命令，而不是向您发出提示，[关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)除外。这些文件中任何一个设置为 `false` 仍会将其关闭
+  * `true`：与未设置相同；当自动模式可用时，分类器会在规划期间审查 shell 命令
   * `false`：对于内置只读命令集之外的每条命令，您都会收到权限提示
 * **默认值**：`true`
 
@@ -1063,11 +1064,11 @@ shell 解析器无法追踪的 Bash 命令（例如多次切换目录或运行�
 }
 ```
 
+要解除阻止，请从所有设置了此键的设置文件中删除该键，然后重启每个正在运行的会话。
+
 您通过 `--add-dir`、`/add-dir` 或用户设置或托管设置中的 `additionalDirectories` 添加的目录，在该阻止中均视为工作目录。仅在仓库设置中添加的目录不计入：即 `.claude/settings.json` 中的目录，以及 `.claude/settings.local.json` 中的目录（除非 git 将该文件报告为未跟踪）。在不是 git 仓库的目录中，或当 git 跟踪该文件时，Claude Code 会将 `.claude/settings.local.json` 视为仓库设置，因此请将您希望保持可读的目录放在用户设置中。
 
 当 [`autoMemoryDirectory`](#automemorydirectory) 来自项目的 `.claude/settings.json`，或来自[被视为由仓库提供](https://code.claude.com/docs/zh-CN/permissions.md#when-your-local-settings-file-needs-trust)的 `.claude/settings.local.json` 时，Claude Code 不会从该目录加载任何[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#storage-location)，也不会向其中保存任何内容。
-
-要解除阻止，请从所有设置了此键的设置文件中删除该键，然后启动新会话。
 
 #### 阻止状态下的沙箱命令
 
@@ -2073,7 +2074,7 @@ Claude Code 会在各设置作用域之间合并数组子键，因此除非适�
 
 ### `sandbox.network.allowMachLookup`
 
-列出 macOS 沙箱可以查找的其他 XPC 和 Mach 服务名称。通过 XPC 通信的工具（如 iOS Simulator 或 Playwright）需要在此处列出其服务。
+列出 macOS 沙箱可以查找的额外 XPC 和 Mach 服务名称。通过 XPC 通信的工具（例如 iOS Simulator 或 Playwright）需要在此处列出其服务。沙箱化命令可以访问沙箱外您列出的每个服务，而沙箱[不会限制这些服务为这些命令所做的事情](https://code.claude.com/docs/zh-CN/sandboxing.md#security-limitations)。
 
 * **作用域**：[`Any file`](#scopes)，[对项目设置和本地设置有限制](https://code.claude.com/docs/zh-CN/sandboxing.md#repository-settings-under-an-admin-required-sandbox)
 * **类型**：字符串数组，每项是一个服务名称；单个末尾 `*` 匹配前缀，单独的 `"*"` 匹配所有服务
@@ -2422,6 +2423,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 
     在项目设置和本地设置中忽略此组变量需要 Claude Code v2.1.282 或更高版本。
   * 改变 Claude Code 启动或同步方式的变量，例如 `CLAUDE_CODE_PROCESS_WRAPPER`、`CLAUDE_CODE_SYNC_SKILLS`、`CLAUDE_CODE_SYNC_PLUGINS`、`CLAUDE_CODE_PLUGIN_CACHE_DIR` 和 `CLAUDE_CODE_PLUGIN_SEED_DIR`。
+  * 设置您的 claude.ai 登录信息的变量，例如 [`CLAUDE_CODE_OAUTH_TOKEN`、`CLAUDE_CODE_OAUTH_REFRESH_TOKEN` 和 `CLAUDE_CODE_OAUTH_SCOPES`](https://code.claude.com/docs/zh-CN/env-vars#variables)。
   * [屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)变量 `CLAUDE_AX_SCREEN_READER`，以及其他名称以 `CLAUDE_AX_` 开头的变量，例如 [`CLAUDE_AX_STARTUP_QUIET_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)。
   * [`CLAUDE_CODE_USER_DIALOG_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)，用于设置未响应对话框的计时器。
   * [`CLAUDE_CODE_DISABLE_ATTACHMENTS`](https://code.claude.com/docs/zh-CN/env-vars#variables)，用于关闭附件处理。
@@ -2469,7 +2471,6 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 * **会话**：您处于交互式终端会话中、VS Code 扩展的聊天面板中，或者在会话运行于您的计算机上或通过 SSH 运行时处于桌面应用的 Code 标签页中
 * **自动压缩**：[`autoCompactEnabled`](#autocompactenabled) 已开启
 * **提示缓存**：该对话使用[一小时提示缓存 TTL](https://code.claude.com/docs/zh-CN/prompt-caching.md#which-ttl-each-request-gets)
-* **功能标志**：Claude Code 可以[从 Anthropic 获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)
 * **大小**：对话的上下文已达到 token 阈值，您可以将其从默认的 200,000 进行[更改](#change-the-idle-compaction-threshold)
 * **空闲时间**：自上次请求以来已过去约一小时，且在此期间您的计算机保持唤醒状态
 
@@ -2491,7 +2492,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 要在终端会话中开启或关闭空闲压缩，请运行 `/config` 并更改 **Idle compaction** 行。您的选择会保存到用户设置中并立即生效。该行需要 Claude Code v2.1.302 或更高版本。如果您使用的是这些版本之一，但 `/config` 中未显示该行，请检查以下原因：
 
 * **其他设置来源设置了此键**：托管设置、`--settings` 标志或项目或本地设置文件中的值覆盖了您的用户设置。请改为在该来源中更改此键
-* **功能标志不可用**：当 Claude Code 无法[从 Anthropic 获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)时，空闲压缩不会运行，因此没有需要关闭的内容
+* **在 v2.1.314 之前的版本中功能标志不可用**：当 Claude Code 无法[从 Anthropic 获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)时，空闲压缩不会运行，因此没有需要关闭的内容
 
 此键需要 Claude Code v2.1.290 或更高版本。较早版本会忽略此键，要停止空闲压缩，请关闭 [`autoCompactEnabled`](#autocompactenabled)。
 

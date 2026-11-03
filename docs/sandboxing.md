@@ -1074,6 +1074,7 @@ git remote set-url origin https://git.example.com/example-org/example-repo.git
 * **文件系统权限提升**：过于宽泛的文件系统写入权限可能导致权限提升攻击。允许写入包含 `$PATH` 中的可执行文件、系统配置目录或用户 shell 配置文件（例如 `.bashrc` 或 `.zshrc`）的目录可能导致当其他用户或系统进程访问这些文件时在不同的安全上下文中执行代码。
 * **Linux 沙箱强度**：Linux 实现提供强大的文件系统和网络隔离，但包括一个 `enableWeakerNestedSandbox` 模式，使其能够在 Docker 环境中工作而无需特权命名空间。此选项大大削弱了安全性，应仅在其他隔离被强制执行时使用。
 * **macOS 上的 Apple Events**：macOS 沙箱默认阻止 Apple Events。`allowAppleEvents` 设置解除此限制，以便 `open` 和 `osascript` 等工具可以工作，但它移除了代码执行隔离：沙箱化命令可以在没有用户提示的情况下启动其他未沙箱化的应用程序，并可以向运行的应用程序发送 AppleScript 命令，受限于每个应用程序的 macOS 自动化同意提示 (TCC)。它仅从用户、托管或 CLI 设置中被遵守。项目设置无法启用它。
+* **macOS 上的 Mach 和 XPC 服务**：沙箱化命令可以访问沙箱外您在 [`network.allowMachLookup`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-allowmachlookup) 中列出的每个服务，并且沙箱不会限制这些服务为这些命令执行的操作。
 * **Linux 和 WSL2 上的用户命名空间**：默认情况下，沙箱化命令无法创建用户命名空间。如果您将 [`allowNestedUserNamespaces`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-allownestedusernamespaces) 设置为 `true`，就会关闭一道安全边界：来自沙箱化命令的代码最终可能在沙箱外运行。在启用此设置之前，请阅读 [Linux 上 Chromium 或 rootless Podman 在沙箱内运行失败](#chromium-or-rootless-podman-fails-inside-the-sandbox-on-linux)中的警告。
 
 ### 范围

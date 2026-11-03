@@ -59,6 +59,7 @@
 | `Could not resolve authentication method` | [身份验证](#could-not-resolve-authentication-method) |
 | `Invalid API key` | [身份验证](#invalid-api-key) |
 | `Your apiKeyHelper script is failing` | [身份验证](#your-apikeyhelper-script-is-failing) |
+| `Claude Code didn't send your claude.ai login, because the API key helper your administrator set isn't in effect` | [身份验证](#claude-code-didnt-send-your-claude-ai-login) |
 | `Invalid auth token · Fix external auth token` | [身份验证](#invalid-request-header-value) |
 | `Invalid ANTHROPIC_CUSTOM_HEADERS · Fix the environment variable` | [身份验证](#invalid-request-header-value) |
 | `Invalid request header from the environment · Fix the environment variable` | [身份验证](#invalid-request-header-value) |
@@ -551,7 +552,7 @@ API 本身的 5xx 表示 API 内部出现了意外故障。它不是由您的提
 
 * 检查 [status.claude.com](https://status.claude.com) 或消息中指出的提供商状态页面，查看是否有活跃事件
 * 等待一分钟，然后再次发送您的消息。您的原始消息仍在对话中，因此对于较长的提示词，您可以输入 `try again` 而不是粘贴整个内容。
-* 如果 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars) 指向 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)，并且每个请求都以这种方式失败，请检查您的网关是否拒绝了 Claude Code 默认发送的工具搜索字段。要进行检查，请按照[通过 LLM 网关使用工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)中的说明设置 `ENABLE_TOOL_SEARCH=false`，然后重试。在 v2.1.304 之前，除非您使用 `ENABLE_TOOL_SEARCH` 启用工具搜索，否则在网关后面工具搜索处于关闭状态。
+* 如果 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars) 指向 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)，并且每个请求都以这种方式失败，请检查您的网关及其上游是否接受[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)字段。默认情况下，Claude Code 会发送 `defer_loading` 工具字段和 `tool_reference` 块，并附带启用它们的 `anthropic-beta` 标头。在 v2.1.304 之前，除非您使用 `ENABLE_TOOL_SEARCH` 启用工具搜索，否则在网关后面工具搜索处于关闭状态。
 * 如果错误持续存在且没有发布事件，请运行 `/feedback` 以便 Anthropic 可以使用您的请求详情进行调查。如果您的环境中 `/feedback` 不可用，请参阅[报告错误](#report-an-error)。
 
 ### API Error: Repeated 529 Overloaded errors
@@ -836,7 +837,7 @@ Claude Code 会阻止进一步的请求，直到消息中显示的重置时间�
 * 运行 `/usage-credits` 在 Pro、Max 和 Ultra 上购买额外用量，或在 Team 和 Enterprise 上向您的管理员请求。有关如何计费的信息，请参阅 [usage credits for paid plans](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)。
 * 要升级您的套餐以获得更高的基础限制，请参阅 [claude.com/pricing](https://claude.com/pricing)
 
-在窗口用完之前，Claude Code 可以警告您已使用了大部分额度，显示类似 `You've used 85% of your session limit · resets 3:45pm` 的消息。要持续监视您的剩余额度，请将 `rate_limits` 字段添加到 [custom status line](https://code.claude.com/docs/zh-CN/statusline.md#rate-limit-usage)，或在 Desktop app 中单击模型选择器旁边的 [usage ring](https://code.claude.com/docs/zh-CN/desktop.md#check-usage)。
+在窗口用完之前，Claude Code 可以警告您已使用了大部分额度，显示类似 `You've used 85% of your session limit · resets 3:45pm` 的消息。要持续监视您的剩余额度，请将 `rate_limits` 字段添加到 [custom status line](https://code.claude.com/docs/zh-CN/statusline.md#rate-limit-usage)，或在 Desktop app 中单击 [usage ring](https://code.claude.com/docs/zh-CN/desktop.md#check-usage)。
 
 ### Usage credits required for 1M context
 
@@ -1076,6 +1077,19 @@ Your apiKeyHelper script is failing · This usually means you need to re-authent
 * 修正命令，使其只向 stdout 输出密钥（一个由可打印 ASCII 字符组成、最多 16,384 个字符的单一令牌），并以退出码 0 退出。请参阅[使用 apiKeyHelper 轮换凭据](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#rotate-credentials-with-apikeyhelper)了解可用的设置方式。
 * 运行 `/status` 查看失败情况，并确认 `apiKeyHelper` 是当前生效的凭据来源。`apiKeyHelper` 行会显示 `Failing` 以及上一次失败的详细信息，例如退出码和命令的错误输出，并会在下一次成功运行后消失。在 v2.1.274 之前，`/status` 只显示凭据来源，不显示失败情况。
 * 每次命令失败时，其退出码和错误输出也会显示在终端的 `Authentication` 面板中。在 v2.1.212 之前，该面板的标题为 `Cloud authentication`。
+
+### Claude Code didn't send your claude.ai login
+
+请将这条完整消息发送给您的管理员，其中列出了他们可以进行的更改。此消息表示 Claude Code 拒绝了您的提示词。在您使用 claude.ai 登录期间，Claude Code 会持续拒绝提示词，重启后也是如此：
+
+```text theme={null}
+Claude Code didn't send your claude.ai login, because the API key helper your administrator set isn't in effect. Your organization's managed settings may be overriding it. Ask your administrator to keep the key helper and its API address in effect, to name Anthropic's API address in those managed settings, or to remove the key helper. Run /status to see your setting sources.
+```
+
+**处理方法：**
+
+* 要告诉管理员您的机器有哪些托管来源，请在 Claude Code 提示符处运行 `/status`，并复制 [`Setting sources` 行](https://code.claude.com/docs/zh-CN/managed-settings#read-the-source-in-/status)。如果出现 `Skipped sources` 行，也请一并复制
+* 如果您负责管理这些设置，请参阅[为什么机器的密钥 helper 未生效](https://code.claude.com/docs/zh-CN/server-managed-settings.md#machine-apikeyhelper-not-in-effect)
 
 ### 请求标头值无效
 
@@ -1336,7 +1350,7 @@ Please run /login · API Error: 401 Invalid authentication credentials
 * 如果 `/status` 只显示您的登录，请运行一次 `/login`。如果凭据已被撤销，新的登录会替换它。
 * 如果同一登录账户再次出现相同消息，说明该账户或组织已不再活跃。请检查 `/status` 报告的账户和组织，并请您的组织管理员恢复访问权限。
 * 如果 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars) 指向 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)，`401` 之后的文本是您网关的消息而不是 Anthropic 的消息，`/login` 不会改变它。请改为修正网关所需的凭据。
-* 如果在网关已获得所需凭据后，每个请求仍以 `401` 失败，请检查网关是否拒绝了 Claude Code 默认发送的工具搜索字段。要进行检查，请按照[通过 LLM 网关进行工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)中的说明设置 `ENABLE_TOOL_SEARCH=false`，然后重试。在 v2.1.304 之前，除非您使用 `ENABLE_TOOL_SEARCH` 启用，否则在网关后工具搜索处于关闭状态。
+* 如果您的网关已获得其所需的凭据，但每个请求仍以 `401` 失败，请检查网关及其上游是否接受[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)字段。默认情况下，Claude Code 会发送 `defer_loading` 工具字段和 `tool_reference` 块，以及启用它们的 `anthropic-beta` 标头。在 v2.1.304 之前，在网关之后工具搜索默认关闭，除非您通过 `ENABLE_TOOL_SEARCH` 将其打开。
 
 ### 登录已过期
 
@@ -1939,7 +1953,7 @@ Claude Code 无法识别的错误代码会显示为 `Unable to connect to API`�
 * 在同一个 shell 中运行 `curl -I https://api.anthropic.com`，确认可以访问 API 主机。在 Windows PowerShell 中请使用 `curl.exe -I https://api.anthropic.com`，以避免使用内置的 `Invoke-WebRequest` 别名。
 * 如果您位于企业代理之后，请在启动 Claude Code 之前设置 `HTTPS_PROXY`，并参阅[网络配置](https://code.claude.com/docs/zh-CN/network-config.md)
 * 如果您通过 LLM 网关或中继进行路由，请将 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars) 设置为其地址。有关设置方法，请参阅[将 Claude Code 连接到 LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md)。
-* 如果 `ANTHROPIC_BASE_URL` 已指向您的网关，而每个请求都以 `Connection dropped` 结束，请检查您的网关是否拒绝了 Claude Code 默认发送的工具搜索字段。要进行检查，请按照[通过 LLM 网关使用工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)中的说明设置 `ENABLE_TOOL_SEARCH=false`，然后重试。在 v2.1.304 之前，在网关之后工具搜索默认处于关闭状态，除非您通过 `ENABLE_TOOL_SEARCH` 将其启用。
+* 如果 `ANTHROPIC_BASE_URL` 已指向您的网关，而每个请求都以 `Connection dropped` 结束，请检查您的网关及其上游是否接受[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)字段。默认情况下，Claude Code 会发送 `defer_loading` 工具字段和 `tool_reference` 块，以及启用它们的 `anthropic-beta` 标头。在 v2.1.304 之前，在网关之后工具搜索默认处于关闭状态，除非您通过 `ENABLE_TOOL_SEARCH` 将其启用。
 * 确保您的防火墙允许[网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)中列出的主机
 * 间歇性失败会[自动重试](#automatic-retries)
 
@@ -2474,9 +2488,7 @@ Claude Code 会发送仅限 beta 的字段（例如 `context_management` 和工�
 **要做什么：**
 
 * 如果消息包含 `context_management: Extra inputs are not permitted`，请将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.304 或更高版本。更新后，Claude Code 会在遇到此拒绝时，不带该字段再发送一次请求。在 v2.1.304 之前，Claude Code 不会针对此拒绝进行重试。
-* 如果消息指出 `defer_loading` 或 `tool_reference`，请更新 Claude Code 或关闭[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)：
-  * 将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.305 或更高版本。之后 Claude Code 会在遇到此拒绝时，不带工具搜索字段再发送一次请求。
-  * 如果您无法更新，或更新后消息仍然出现，请在 shell 中或您的[设置 `env`](https://code.claude.com/docs/zh-CN/settings-reference#env) 中设置 `ENABLE_TOOL_SEARCH=false`。如果某个设置文件已设置了该变量，请在那里修改，因为该值[可能覆盖 shell 中的 export](https://code.claude.com/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)。之后 Claude Code 会预先加载 MCP 工具。
+* 如果消息指出 `defer_loading` 或 `tool_reference`，请将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)至 v2.1.305 或更高版本。之后 Claude Code 会通过不带工具搜索字段[再发送一次请求](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#retry-without-tool-search)来应对这种拒绝。
 * 如果您的网关丢弃了该标头，请将其配置为转发 `anthropic-beta` 标头。有关网关必须转发的内容，请参阅[功能透传](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#feature-pass-through)。
 * 作为回退方案，在启动前设置 [`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`](https://code.claude.com/docs/zh-CN/env-vars)。[禁用预发布功能](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#disable-pre-release-capabilities)涵盖确切范围。
 
@@ -2555,7 +2567,7 @@ There's an issue with the selected model (claude-...). It may not exist or you m
 * 使用别名（如 `sonnet` 或 `opus`）而不是完整的版本化 ID。别名解析为维护的默认值，因此它们不会过时。请参阅[模型配置](https://code.claude.com/docs/zh-CN/model-config.md)。
 * 如果错误的模型在 CLI 中不断返回，则某处设置了过时的 ID。按[优先级顺序](https://code.claude.com/docs/zh-CN/model-config.md#setting-your-model)检查您可以设置模型的位置，并删除过时的值。
 * Claude Code 将过期的 claude.ai 登录报告为[登录过期](#login-expired)，而不是此错误。在 v2.1.206 之前，无法再刷新的过期登录对每个模型都失败，显示此错误；如果您在较旧版本上看到这种情况，请运行 `/login`。
-* 如果 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars) 指向 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)，且所有模型都以这种方式失败，请检查您的网关是否拒绝了 Claude Code 默认发送的工具搜索字段。要进行检查，请按照[通过 LLM 网关使用工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)中的说明设置 `ENABLE_TOOL_SEARCH=false`，然后重试。在 v2.1.304 之前，在网关后面工具搜索默认关闭，除非您使用 `ENABLE_TOOL_SEARCH` 将其启用。
+* 如果 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars) 指向 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)，且每个模型都以这种方式失败，请检查您的网关及其上游是否接受[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)字段。默认情况下，Claude Code 会发送 `defer_loading` 工具字段和 `tool_reference` 块，以及启用它们的 `anthropic-beta` 标头。在 v2.1.304 之前，在网关后面时工具搜索是关闭的，除非您通过 `ENABLE_TOOL_SEARCH` 开启它。
 * 对于 Google Cloud 的 Agent Platform 部署，请参阅 [Google Cloud 的 Agent Platform 故障排除](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#troubleshooting)。
 
 ### 模型不是公认的模型 ID
@@ -6190,14 +6202,14 @@ Claude Code 针对您的 Claude Code 版本无法识别的模型 ID 发送了请
 在读取 stderr 的脚本或测试框架中，请匹配 `[claude-code:unrecognized_model]` 前缀。在前缀和一个空格之后，Claude Code 会写入一个单行 JSON 对象。Claude Code 可能会在后续版本中向其中添加字段，因此请忽略任何您未预期的字段。它至少会写入以下两个字段：
 
 * `model`：您配置的模型字符串
-* `query_source`：使用该模型的请求路径。对于 `-p` 运行，Claude Code 报告 `sdk`；对于子代理，报告以 `agent:` 开头的值。
+* `query_source`：使用该模型的请求路径。例如，对于 `-p` 运行的主对话，该值为 `sdk`；对于子代理，该值以 `agent:` 开头。
 
 根据运行方式，Claude Code 会将该行写入以下两个位置之一：
 
 * 在使用 `-p` 的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下，Claude Code 在任何 `--output-format` 下都会将其写入 stderr，因此您无需过滤该行即可解析 stdout
 * 在交互式会话或[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，Claude Code 会改为将其写入调试日志；使用 `--debug` 运行可在 `~/.claude/debug/<session-id>.txt` 中捕获它
 
-Claude Code 每个进程对每个模型字符串只写入一次该行。对于其他每个无法识别的 ID，例如[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)或[后台功能](https://code.claude.com/docs/zh-CN/costs.md#background-token-usage)使用的 ID，它会单独写入一行。
+Claude Code 每个进程对每个模型 ID 只写入一次该行。对于其他每个无法识别的 ID，例如[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)或[后台功能](https://code.claude.com/docs/zh-CN/model-config.md#environment-variables)使用的 ID，它会单独写入一行。
 
 对于能解析到可识别模型的提供商 ID，Claude Code 不会写入该行，例如 Amazon Bedrock 的 `us.anthropic.claude-...` ID、带有 `@` 版本后缀的 Google Cloud Agent Platform ID，以及包含 Claude 模型 ID 的 Microsoft Foundry 部署名称。对于 Amazon Bedrock [应用推理配置文件 ARN](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#map-each-model-version-to-an-inference-profile)，Claude Code 检查的是其背后的模型，而不是 ARN 本身。对于无法解析的 ARN（例如输入错误的 ARN），它不会写入任何行。
 

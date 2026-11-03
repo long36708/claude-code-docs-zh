@@ -157,6 +157,15 @@ Hooks 使用与 `settings.json` 中相同的格式。
 * **第一方登录键**：[`forceLoginOrgUUID`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginorguuid) 以及 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 的 `"claudeai"` 和 `"console"` 值。如果您还部署了 MDM 策略或托管设置文件，请在其中以及在 claude.ai 的服务器托管设置中同时设置这些键，直到每个客户端都运行 v2.1.299 或更高版本。有关之后应在何处设置这些键以及哪个来源的值生效，请参阅[哪个托管来源提供登录键](https://code.claude.com/docs/zh-CN/managed-settings.md#which-managed-source-supplies-login-keys)。
 * **网关登录键**：Claude Code 从不从服务器托管设置中读取 [`forceLoginGatewayUrl`](https://code.claude.com/docs/zh-CN/settings-reference#forcelogingatewayurl)、[`gatewayInternalNetworks`](https://code.claude.com/docs/zh-CN/settings-reference#gatewayinternalnetworks) 或 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值，因此那里的值既不会生效，也不会遮蔽在 MDM 策略或托管设置文件中设置的值。[`managedSourcesBehavior` 条目](https://code.claude.com/docs/zh-CN/settings-reference#managedsourcesbehavior)说明了由机器上的哪个管理员来源提供这些键。
 
+#### 当机器的 `apiKeyHelper` 未生效时
+
+当您的服务器托管设置是所选来源时，机器的托管设置文件或 MDM 策略中的 `apiKeyHelper` 不会生效。此时，只要以下两点同时成立，Claude Code 就会在将使用已保存 claude.ai 登录的会话中[拒绝提示词](https://code.claude.com/docs/zh-CN/errors.md#claude-code-didnt-send-your-claude-ai-login)：
+
+* 该文件或策略启用了云提供商，或者任何来源设置了 Anthropic 以外的 API 地址
+* 服务器托管设置未设置 helper，也未指定 Anthropic 的 API 地址
+
+要解除拒绝，请保持该 helper 及其 API 地址生效，在服务器托管设置中指定 Anthropic 的 API 地址，或从机器的策略中移除该 helper。该拒绝行为需要 Claude Code v2.1.314 或更高版本。
+
 ### 获取和缓存行为
 
 Claude Code 在启动时从 Anthropic 的服务器获取设置，并在活动会话期间每小时轮询一次更新。

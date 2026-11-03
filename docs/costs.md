@@ -20,7 +20,9 @@ Claude Code 按 API token 消耗收费。有关订阅套餐定价（Pro、Max、
 >
 > `/usage` 中的 Session 块显示 API token 使用情况，适用于 API 用户。Claude Pro、Max 和 Ultra 订阅者的使用量包含在订阅中，因此会话成本数据与计费无关。订阅者会在同一屏幕上看到套餐使用条、活动统计以及使用情况明细。
 
-`/usage` 顶部的 Session 块显示当前会话的详细令牌使用统计。Claude Code 从令牌计数本地计算美元数字，按列表价格计算，除非 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 表生效。管理员在您组织的托管设置中设置一个表，以便该数字使用您的合同费率，当表生效时，`Total cost` 行会带有注释 `at your organization's configured rates`。该数字是估计值，有关权威计费，请参阅 [Claude Console](https://platform.claude.com/usage) 中的使用情况页面。
+`/usage` 顶部的 Session 块显示当前会话的详细 token 使用统计。
+
+Claude Code 根据 token 计数按列表价格在本地计算美元数字，除非 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 表生效。管理员会在您组织的托管设置中设置此表，使该数字使用您的合同费率；当表生效时，`Total cost` 行会带有注释 `at your organization's configured rates`。该数字是估计值，有关权威计费信息，请参阅[管理组织的成本](#manage-costs-for-your-organization)。
 
 ```text theme={null}
 Total cost:            $0.55
@@ -138,7 +140,7 @@ Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同
 
 如果您在早期请求等待管理员时再次运行 `/usage-credits`，Claude Code 会告诉您已经发送了请求，而不是发送重复请求。在管理员驳回您的请求后，再次运行该命令会发送新请求。在 v2.1.222 之前，被驳回的请求也会阻止新请求。
 
-在 Pro 和 Max 计划上，当您达到支出限制且仍有使用额度可用时，Claude Code 会提示您提高或移除限制，而无需离开 CLI。如果服务器拒绝更改，请参阅[无法更新您的支出限制](https://code.claude.com/docs/zh-CN/errors.md#could-not-update-your-spend-limit)。
+在 Pro、Max 和 Ultra 计划上，当您达到支出限制且仍有使用额度可用时，Claude Code 会提示您提高或移除限制，而无需离开 CLI。如果服务器拒绝更改，请参阅[无法更新您的支出限制](https://code.claude.com/docs/zh-CN/errors.md#could-not-update-your-spend-limit)。
 
 ## 管理组织的成本
 
@@ -149,7 +151,7 @@ Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同
 | 您的设置 | 查看支出 | 限制支出 | 按用户报告 |
 | :- | :- | :- | :- |
 | [Claude for Teams 或 Enterprise](#claude-for-teams-and-enterprise) | [组织分析中的支出报告](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans) | 管理设置中的支出限制 | [支出报告 CSV](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)；Enterprise 套餐可使用 [Enterprise Analytics API](https://platform.claude.com/docs/en/api/admin/analytics) |
-| [Claude Console (API)](#claude-console) | [Console 用量页面](https://platform.claude.com/usage) | 工作区支出限制 | [Console 仪表板](https://platform.claude.com/claude-code)、[Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) |
+| [Claude Console (API)](#claude-console) | [Console 成本页面](https://platform.claude.com/cost) | 工作区支出限制 | [Console 仪表板](https://platform.claude.com/claude-code)、[Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) |
 | [Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry](#cloud-providers) | 您的云计费控制台 | 您的云预算控制 | [OpenTelemetry](https://code.claude.com/docs/zh-CN/monitoring-usage.md) 或 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway) |
 
 [OpenTelemetry 导出](https://code.claude.com/docs/zh-CN/monitoring-usage.md)适用于所有设置，并且是唯一能将按用户统计的 token 和成本指标近乎实时地流式传输到您自己的可观测性平台的选项。
@@ -193,7 +195,7 @@ API 组织通过[工作区](https://platform.claude.com/docs/en/build-with-claud
 >
 > 对于具有自定义速率限制的组织，该工作区中的 Claude Code 流量会计入您组织的整体 API 速率限制。您可以在 Claude Console 中该工作区的 Limits 页面上设置[工作区速率限制](https://platform.claude.com/docs/en/api/rate-limits#setting-lower-limits-for-workspaces)，以限制 Claude Code 的占用份额并保护其他生产工作负载。
 
-对于按用户报告，[Console 仪表板](https://platform.claude.com/claude-code)显示每位成员的支出和已接受的代码行数，[Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) 则可通过 [Admin API 密钥](https://platform.claude.com/settings/admin-keys)以编程方式返回相同的每日按用户指标。请参阅[面向 API 客户的分析](https://code.claude.com/docs/zh-CN/analytics.md#access-analytics-for-api-customers)。
+对于按用户报告，[Console 仪表板](https://platform.claude.com/claude-code)显示每位成员的支出和已接受的代码行数，[Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) 则可通过 [Admin API 密钥](https://platform.claude.com/settings/admin-keys)以编程方式返回每日按用户指标。请参阅[面向 API 客户的分析](https://code.claude.com/docs/zh-CN/analytics.md#access-analytics-for-api-customers)。
 
 #### 速率限制建议
 

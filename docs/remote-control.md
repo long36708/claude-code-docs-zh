@@ -51,7 +51,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 >
 > 在您接受 Remote Control 的一次性确认之前，`claude remote-control` 会先说明其作用，并在启动服务器前询问 `Enable Remote Control? (y/n)`。回答 `y` 即可接受并启动服务器。如果您拒绝，Claude Code 会退出而不启动服务器，并在您下次运行该命令时再次询问。
 >
-> 在服务器模式下，该进程会在终端中持续运行，等待远程连接。它会显示一个会话 URL，您可以用它[从另一台设备连接](#connect-from-another-device)，还可以按空格键显示二维码，以便从手机快速访问。远程会话处于活动状态时，终端会显示连接状态和工具活动。
+> 在服务器模式下，该进程会在终端中持续运行，等待远程连接。它会显示一个 URL，您可以用它[从另一台设备连接](#connect-from-another-device)，还可以按空格键显示二维码，以便从手机快速访问。远程会话处于活动状态时，终端会显示连接状态和工具活动。
 >
 > 在 `remote-control` 之后传入以下任意标志：
 >
@@ -151,8 +151,8 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 
 Remote Control 会话处于活动状态后，您可以通过以下几种方式从另一台设备连接：
 
-* 在任意浏览器中**打开会话 URL**，直接进入 [claude.ai/code](https://claude.ai/code) 上的会话。
-* **扫描**会话 URL 旁显示的**二维码**，直接在 Claude 应用中打开它。使用 `claude remote-control` 时，按空格键可切换二维码显示。
+* 在任意浏览器中**打开 Claude Code 显示的 URL**，即可进入 [claude.ai/code](https://claude.ai/code)。
+* **扫描 URL 旁显示的二维码**，在 Claude 应用中打开它。使用 `claude remote-control` 时，按空格键可切换二维码显示。
 * **打开 [claude.ai/code](https://claude.ai/code) 或 Claude 应用**，在会话列表中按名称找到该会话。在 Claude 移动应用中，点击导航中的 **Code** 进入会话列表。Remote Control 会话在线时会显示带有绿色状态点的电脑图标。
 
 连接后，设备会显示该会话已在后台运行的所有子代理和工作流。从设备上停止其中一个，Claude Code 就会在您的机器上停止该任务。

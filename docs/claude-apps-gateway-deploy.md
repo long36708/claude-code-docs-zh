@@ -169,6 +169,7 @@ rate_limits:
   * `access.public_client` 携带每个进程从公共地址到达的第一个请求的客户端 IP，而 `access_control.allow_cidrs` 为空。网关照常提供请求；该事件表示网关可能可从公共互联网访问。请参阅 [`access_control` 参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning) 了解什么被视为公共以及推荐的允许列表。
   * `inference` 记录哪个上游提供了请求以及响应状态
   * `desktop_bootstrap.denied` 记录被拒绝的 Claude Desktop bootstrap 获取，包含原因（`not_configured`、`policy_not_opted_in` 或 `no_policy_matched`）和用户的身份
+  * `guardrail.trace` 记录[触发了哪个过滤器](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#log-which-guardrail-filter-fired)，不包含匹配的文本
   * `admin.denied` 记录被拒绝的管理员 API 身份验证尝试，包括客户端 IP、方法、路径和原因，不包括呈现的密钥材料：当呈现了 `x-api-key` 但与配置的密钥不匹配时为 `invalid_key`，当仅呈现了 `Authorization` 标头且其未验证为 `admin.admin_groups` 中的网关会话时为 `bearer_rejected`，或当两个标头都未呈现时为 `no_credentials`
 * **运维日志**：人类可读的 `[gateway]` 前缀行，用于启动、警告和上游错误。`CLAUDE_GATEWAY_LOG_LEVEL` 环境变量控制详细程度，接受 `debug`、`info`、`warn` 或 `error`，默认为 `info`。在 `debug` 时，每次登录和刷新也记录 id\_token 中声明的名称（不是值），加上当 `userinfo_fallback` 提供任何时 userinfo 声明的名称，因此您可以诊断 `email_claim` 和 `groups_claim` 设置而不记录 PII。它不影响审计事件，这些事件总是被发出。
 
@@ -311,6 +312,10 @@ export CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS=60000
 
 迁移是仅追加的，因此回滚到知道较少迁移的先前二进制文件是安全的；它忽略额外的行。回滚也重新验证 YAML 针对较旧二进制文件的架构，因此采用由较新版本引入的密钥的配置在较旧版本上启动失败。在回滚前移除新密钥。
 
+> [!WARNING]
+>
+> 仅从上游中移除 `groups` 键会使其对每个开发者开放。请参阅[回滚前需要移除的内容](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#roll-back-a-gateway-that-uses-groups)。
+
 因为您在自己的镜像中固定网关的版本，新 Claude Code 版本中的修复，包括安全修复，仅在您更新固定并重新部署时才到达您的部署。在您用于持有生产凭证的其他服务的相同修补周期中包括网关。
 
 ## 安全
@@ -422,6 +427,7 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 | 在峰值负载下，响应开始缓慢或似乎挂起，或在上游健康时失败，显示 502 `all upstreams failed` | 副本打开的请求比它一次发送到上游的请求多，所以额外的请求在网关内等待。在 `provider: anthropic` 上游上，等待时间超过 `timeouts.upstream_ttfb_ms` 的请求放弃该上游，当没有后续上游提供服务时会产生 502。日志显示包含 `client requests are open` 的警告。 | 添加副本，或提高每个副本上的限制。请参阅[并发上游请求](#concurrent-upstream-requests)。 |
 | 在 `provider: anthropic` 以外的上游上，包含较长思考停顿的轮次失败。网关前面的代理记录了一个保持打开约 12.5 分钟的请求，随后是一连串 `504` 错误 | Claude Code 结束了一个已传送首个响应事件、此后仅携带 keepalive ping 的流。它以非流式方式重新发送该请求，而每个回复所需的时间都超过了代理的超时时间。 | 为您的开发者提高 `CLAUDE_STREAM_IDLE_TIMEOUT_MS`。请参阅[长时间思考导致代理超时](#long-thinking-ends-in-proxy-timeouts)。 |
 | 在 `provider: anthropic` 上，包含较长思考停顿的轮次失败。代理记录了一个保持打开约 20 分钟的请求，随后是 `502` 或 `504` 错误 | Claude Code 结束了一个已传送首个响应事件、此后仅携带 keepalive ping 的流。它以非流式方式重新发送该请求，而每个回复所需的时间都超过了网关对上游的等待时间 `timeouts.upstream_ttfb_ms` 或代理的超时时间。 | 为您的开发者提高 `CLAUDE_STREAM_IDLE_TIMEOUT_MS`。请参阅[Anthropic API 上游上的长时间思考](#long-thinking-on-an-anthropic-api-upstream)。 |
+| 开发者的请求失败，显示 `API Error: 400 you aren't in a group that can use this gateway. Ask your administrator to add you to one` | 每个上游都有 [`groups` 列表](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#what-happens-when-a-developer-is-in-no-listed-group)，而开发者的会话不包含任何列出的组。 | 在您的 IdP 中将开发者添加到某个列出的组，或将一个没有 `groups` 的上游列在最后，为其他所有人提供服务。网关会在开发者下次刷新令牌时重新读取组。如果 IdP 省略了组，而其 userinfo 端点会返回组，请设置 [`oidc.userinfo_fallback: true`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#oidc)。 |
 | IdP 错误：unknown or unsupported scope | IdP 拒绝它不识别的作用域 | 将 `oidc.scopes` 设置为您的 IdP 接受的确切列表；它必须包含 `openid`。默认值为 `openid profile email offline_access`。 |
 | 设置 `oidc.scopes` 后会话不会静默续订 | `offline_access` 从覆盖中删除了 | 如果您的 IdP 支持，添加 `offline_access` 回来。没有刷新令牌，开发者每 `session.ttl_hours` 重新运行浏览器登录。 |
 | 浏览器显示"This request came from another site and was blocked" | 跨站点表单 POST，作为 CSRF 保护被阻止。对于嵌入或代理的页面是预期的 | 直接打开验证链接 |
@@ -449,11 +455,12 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 * **设置了 `limits.max_request_header_bytes`**：提高该值或删除该键
 * **以上均不适用，或之后仍出现 `431`**：让您的 IdP 发出更少的组。[身份提供者设置](#identity-provider-setup)介绍了 Okta、Microsoft Entra ID 和 Google Workspace 如何提供组
 
-精简组声明时，请保留您在以下设置中指定的组，这些设置决定开发者的访问权限、策略和支出上限：
+精简组声明时，请保留您在以下设置中指定的组，这些设置决定开发者的访问权限、策略、上游和支出上限：
 
 * **[`oidc.allowed_groups`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#oidc)**：决定谁可以登录
 * **[`admin.admin_groups`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#admin)**：决定谁可以使用其网关会话调用管理 API
 * **[`managed.policies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#managed) 中的 `match.groups`**：决定哪个策略适用于开发者
+* **[上游](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#send-each-team-to-its-own-upstream)上的 `groups`**：决定哪些上游为开发者提供服务
 * **`rbac_group` [支出上限](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)**：决定哪些组上限适用于开发者
 
 ### 长时间思考导致代理超时

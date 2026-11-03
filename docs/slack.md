@@ -49,8 +49,8 @@ Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack
 
 1. 通过单击您的应用程序部分中的"Claude"在 Slack 中打开 Claude 应用程序
 2. 打开应用程序主页选项卡
-3. 单击"Connect"将您的 Slack 账户与您的 Claude 账户链接
-4. 在浏览器中完成认证流程
+3. 单击 **Connect Claude account** 将您的 Slack 账户与您的 Claude 账户链接
+4. 在浏览器中完成身份验证流程
 
 **3. 配置云会话**
 
@@ -71,7 +71,7 @@ Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack
 
 > [!NOTE]
 >
-> 在代码 + 聊天模式下，如果 Claude 将消息路由到聊天但您想要编码会话，您可以单击"Retry as Code"来创建 Claude Code 会话。类似地，如果它被路由到代码但您想要聊天会话，您可以在该线程中选择该选项。
+> 在代码 + 聊天模式下，如果 Claude 在聊天中作答，但您想要的是编码会话，请单击该回复上的 **Switch to code repo...** 并选择一个仓库。随后 Claude 会改为使用您的消息启动 Claude Code 会话。
 
 **5. 将 Claude 添加到频道**
 
@@ -107,21 +107,20 @@ Slack 中的 Claude Code 将 Claude Code 的强大功能直接引入您的 Slack
 2. **检测**：Claude 分析您的消息并检测编码意图
 3. **会话创建**：在 claude.ai/code 上创建新的 Claude Code 会话
 4. **进度更新**：Claude 在工作进行时向您的 Slack 线程发布状态更新
-5. **完成**：完成后，Claude @mentions 您并提供摘要和操作按钮
-6. **审查**：单击"View Session"查看完整记录，或单击"Create PR"打开拉取请求
+5. **完成**：完成后，Claude 会在线程中更新其消息，附上最终回复和操作按钮，并向您发送一条链接到该消息的直接消息
+6. **审查**：单击 **View session** 查看完整会话记录，或单击 **Create PR** 打开 Pull Request
 
 ## 用户界面元素
 
 ### 消息操作
 
-* **View Session**：在浏览器中打开完整的 Claude Code 会话，您可以在其中查看所有执行的工作、继续会话或提出其他请求。
-* **Create PR**：直接从会话的更改创建拉取请求。
-* **Retry as Code**：如果 Claude 最初作为聊天助手响应但您想要编码会话，请单击此按钮将请求重试为 Claude Code 任务。
-* **Change Repo**：如果 Claude 选择不正确，允许您选择不同的存储库。
+* **View session**：在浏览器中打开完整的 Claude Code 会话，您可以在其中查看所有执行的工作、继续会话或提出其他请求。
+* **Create PR**：打开该会话分支在 GitHub 上的比较页面，您可以在该页面创建 Pull Request。会话完成后，此按钮会出现在 Claude 于会话开始时发布的状态消息上。
+* **Switch to code repo...**：如果 Claude 在 Chat 中响应，但您想要的是编码会话，请单击此按钮并选择一个仓库，Claude 将使用您的原始请求启动 Claude Code 会话。
 
 ### 存储库选择
 
-Claude 根据 Slack 对话中的上下文自动选择存储库。如果多个存储库可能适用，Claude 可能会显示一个下拉菜单，允许您选择正确的存储库。
+Claude 根据 Slack 对话中的上下文自动选择仓库。如果 Claude 无法判断您指的是哪个仓库，它会请您进行选择：单击 **Select repository** 并从列表中选择一个仓库。
 
 ## 访问和权限
 
@@ -219,8 +218,7 @@ Claude Tag 适用于 Team 和 Enterprise 计划。要连接工作区，请先使
 
 ### 选择了错误的仓库
 
-1. 单击"Change Repo"按钮选择不同的仓库
-2. 在您的请求中包括仓库名称以获得更准确的选择
+在您的请求中包括仓库名称以获得更准确的选择。
 
 ### 身份验证错误
 

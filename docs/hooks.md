@@ -580,7 +580,7 @@ Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 的�
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
 | `prompt` | 是 | 发送给模型的提示文本。使用 `$ARGUMENTS` 作为 hook 输入 JSON 的占位符。用反斜杠转义以包含文字文本：`\$1.00` 呈现为 `$1.00` |
-| `model` | 否 | 用于评估的模型。默认为 Claude Code 用于 [后台功能](https://code.claude.com/docs/zh-CN/costs.md#background-token-usage) 的模型 |
+| `model` | 否 | 用于评估的模型。默认为 Claude Code 用于 [后台功能](https://code.claude.com/docs/zh-CN/model-config.md#environment-variables) 的模型 |
 
 ### 按路径引用脚本
 
@@ -3912,7 +3912,7 @@ fi
 
 基于提示的 hooks 不执行 Bash 命令，而是：
 
-1. 将 hook 输入和您的提示发送到 Claude 模型，默认为 Claude Code 用于[后台功能](https://code.claude.com/docs/zh-CN/costs.md#background-token-usage)的模型
+1. 将 hook 输入和您的提示词发送到 Claude 模型，默认为 Claude Code 用于[后台功能](https://code.claude.com/docs/zh-CN/model-config.md#environment-variables)的模型
 2. LLM 使用包含决定的结构化 JSON 响应
 3. Claude Code 自动处理决定
 
@@ -3945,7 +3945,7 @@ fi
 | :- | :- | :- |
 | `type` | 是 | 必须是 `"prompt"` |
 | `prompt` | 是 | 要发送给 LLM 的提示文本。使用 `$ARGUMENTS` 作为 hook 输入 JSON 的占位符。如果 `$ARGUMENTS` 不存在，输入 JSON 被追加到提示 |
-| `model` | 否 | 用于评估的模型。默认为 Claude Code 用于[后台功能](https://code.claude.com/docs/zh-CN/costs.md#background-token-usage)的模型 |
+| `model` | 否 | 用于评估的模型。默认为 Claude Code 用于[后台功能](https://code.claude.com/docs/zh-CN/model-config.md#environment-variables)的模型 |
 | `timeout` | 否 | 超时（秒）。默认值：30 |
 | `continueOnBlock` | 否 | 在适用的事件上，`true` 将 `ok: false` 原因反馈给 Claude 并继续而不是结束转轮。默认值：`false`。有关每个事件的行为，请参阅[响应架构](#response-schema) |
 

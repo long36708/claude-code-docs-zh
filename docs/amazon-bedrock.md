@@ -308,15 +308,29 @@ export ANTHROPIC_MODEL='arn:aws:bedrock:us-east-2:your-account-id:application-in
 
 当 Claude Code 配置了 Amazon Bedrock 时，它会验证其打算使用的模型在您的账户中是否可访问。
 
-如果您已固定的模型版本比 Claude Code 当前默认版本更旧，且您的账户可以调用较新版本，Claude Code 会提示您更新该固定版本。接受会将新的模型 ID 写入您的[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)并重启 Claude Code。拒绝会被记住，直到下一次默认版本更改。指向[应用推理配置文件 ARN](#map-each-model-version-to-an-inference-profile) 的固定版本会被跳过，因为这些由您的管理员管理。
+您可能已固定了比 Claude Code 当前默认版本更旧的模型版本。如果您的账户可以调用较新版本，Claude Code 会提示您更新该固定版本。接受会将新的模型 ID 写入您的[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)并重启 Claude Code。拒绝会被记住，直到下一次默认版本更改。
+
+Claude Code 不会检查以下固定版本，也不会针对它们进行提示：
+
+* [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)的 `env` 块中的固定版本
+* 指向[应用推理配置文件 ARN](#map-each-model-version-to-an-inference-profile) 的固定版本，因为这些由您的管理员管理
+
+如果针对托管设置中的固定版本仍出现更新提示，请将 Claude Code 更新到 v2.1.314 或更高版本。在 v2.1.314 之前，接受后托管的固定版本仍然有效，因此下次启动时该提示会再次出现。
 
 如果您未固定模型且当前默认模型在您的账户中不可用，Claude Code 会为当前会话进行回退并显示通知。它首先尝试默认模型的早期版本，当默认模型是 Opus 模型且没有可用的 Opus 版本时，会回退到默认 Sonnet 模型。回退不会被保留。在您的 Amazon Bedrock 账户中启用较新的模型或[固定一个版本](#4-pin-model-versions)以使选择永久生效。
 
+### 在特定模型上启动会话
+
 当您在特定 Sonnet 或 Opus 版本上启动会话时，例如使用 `--model`、`ANTHROPIC_MODEL` 或[`model` 设置](https://code.claude.com/docs/zh-CN/settings-reference#model)，该版本将作为会话针对匹配的 `sonnet` 或 `opus` 别名的固定默认版本。Claude Code 会跳过对您的模型替换的内置默认版本的可用性检查，并在您配置的模型上启动，不显示回退通知。
 
-模型别名（如 `opus`）不充当固定版本，Claude Code 无法识别的模型 ID（如应用推理配置文件 ARN）也不充当固定版本。
+在以下对象上启动会话时，它们不充当固定版本：
 
-当这些检查发现您的账户无法调用的模型时，Claude Code 会在这台机器上记住该拒绝长达一天，在此期间启动时会跳过记住的模型，而不再询问 Amazon Bedrock。Claude Code 会在距离上次检查已过十分钟后再次检查当前默认模型的记住拒绝，因此您的管理员重新启用的默认模型会恢复。要关闭此记忆功能，请设置 [`CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`](https://code.claude.com/docs/zh-CN/env-vars)。
+* 模型别名，例如 `opus`
+* Claude Code 无法识别的模型 ID，例如应用推理配置文件 ARN
+
+### 记住的模型拒绝
+
+当启动模型检查发现您的账户无法调用的模型时，Claude Code 可以在这台机器上记住该拒绝长达一天。距离上次检查已过十分钟后，Claude Code 会在启动时再次检查当前默认模型的记住拒绝。这样，您的管理员重新启用的默认模型就会恢复。要关闭此记忆功能，请设置 [`CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`](https://code.claude.com/docs/zh-CN/env-vars)。
 
 ### 当您的组织强制执行模型允许列表时
 

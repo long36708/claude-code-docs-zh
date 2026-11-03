@@ -251,7 +251,7 @@ Claude Code 安全地管理您的身份验证凭证：
 2. `ANTHROPIC_AUTH_TOKEN` 环境变量。作为 `Authorization: Bearer` 标头发送。当通过[LLM 网关或代理](https://code.claude.com/docs/zh-CN/llm-gateway)进行路由时使用此选项，该网关或代理使用持有者令牌而不是 Anthropic API 密钥进行身份验证。
 3. `ANTHROPIC_API_KEY` 环境变量。作为 `X-Api-Key` 标头发送。用于直接 Anthropic API 访问，使用来自 [Claude Console](https://platform.claude.com) 的密钥。在交互模式下，系统会提示您一次批准或拒绝该密钥，您的选择会被记住。要稍后更改它，请使用 `/config` 中的"使用自定义 API 密钥"切换。该切换仅在 `ANTHROPIC_API_KEY` 在您的环境中设置时出现。在非交互模式（`-p`）下，当密钥存在时始终使用该密钥。
 4. [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 脚本输出。用于动态或轮换凭证，例如从保管库获取的短期令牌。
-5. `CLAUDE_CODE_OAUTH_TOKEN` 环境变量。由 [`claude setup-token`](#generate-a-long-lived-token) 生成的长期 OAuth 令牌。用于 CI 管道和脚本，其中浏览器登录不可用。如果您在设置了该变量时运行 `/login`，Claude Code 会将当前会话切换到新登录，但在每个新会话中都会再次读取该变量，直到您从 shell 配置文件或[设置文件](https://code.claude.com/docs/zh-CN/settings.md)的 `env` 块中删除它。
+5. `CLAUDE_CODE_OAUTH_TOKEN` 环境变量。由 [`claude setup-token`](#generate-a-long-lived-token) 生成的长期 OAuth 令牌。用于无法进行浏览器登录的 CI 管道和脚本。如果您在设置了该变量时运行 `/login`，Claude Code 会将当前会话切换到新登录。要在新会话中保留该登录，请从您的 shell 配置文件以及[可以设置该变量的设置文件](https://code.claude.com/docs/zh-CN/settings-reference.md#variables-claude-code-ignores-in-env)（例如您的用户设置）中删除该变量。
 6. Anthropic 配置文件和联合凭证，即 `ant` CLI 和 Workload Identity Federation 使用的凭证。`ant auth login` 写入的配置文件仅在您在 `ANTHROPIC_PROFILE` 中命名它时才排在此处；否则它排在 `/login` 下方。请参阅 [Anthropic 配置文件和联合凭证](#anthropic-profiles-and-federation-credentials)。
 7. 来自 `/login` 的订阅 OAuth 凭据。这是 Claude Pro、Max、Ultra、Team 和 Enterprise 用户的默认设置。
 

@@ -214,7 +214,7 @@ export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
 
 ### `upstreams`
 
-`upstreams` 是一个有序列表。网关将推理转发到解析请求的模型的第一个上游。
+`upstreams` 是一个有序列表。网关会将推理请求转发到第一个能解析所请求模型的上游，并跳过任何其 [`groups` 列表](#send-each-team-to-its-own-upstream)不包含该开发者的上游。
 
 在 `5xx`、`429`、`401`、`403`、`404` 或超时时，网关故障转移到下一个上游；其他 `4xx` 不会，因为这些错误可归因于请求而不是上游。`401` 或 `403` 意味着上游拒绝了网关使用的凭据，或拒绝其访问，例如对所请求模型的访问。`404` 意味着该上游不提供请求的模型，因此列表中的后续上游仍然可以。
 
@@ -231,7 +231,7 @@ Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform �
 网关返回一个上游的错误响应或其自己的 `502`，取决于上游如何应答：
 
 * **上游返回网关不[故障转移](#multiple-upstreams)的状态**：该上游的响应。网关不尝试进一步的上游。
-* **网关尝试的每个上游都以网关[故障转移](#multiple-upstreams)的方式失败**：最后一个 `429`。当没有返回 `429` 时，网关按顺序优先选择最后一个 `401` 或 `403`、最后一个 `404` 和最后一个 `501`。当没有返回任何这些时，网关自己的 `502`，`all upstreams failed (N attempted)`，其中 N 计算 [`upstreams`](#upstreams) 中的每个条目，包括网关跳过的条目，因为它们不提供请求的模型。
+* **网关尝试的每个上游都以会触发[故障转移](#multiple-upstreams)的方式失败**：返回最后一个 `429`。如果没有任何上游返回 `429`，网关按顺序优先返回最后一个 `401` 或 `403`、最后一个 `404`、最后一个 `501`。如果都没有返回这些状态，则返回网关自身的 `502`，即 `all upstreams failed (N attempted)`。N 统计您的 [`upstreams`](#upstreams) 条目（包括被跳过的条目），减去 [`groups`](#send-each-team-to-its-own-upstream) 列表不包含该开发者的条目。
 
 当网关返回上游的响应时，它保持上游的状态代码。它是否保持上游的消息取决于提供商。Anthropic API 上游的错误正文不变地到达开发人员。
 
@@ -420,6 +420,39 @@ upstreams:
 
 如果您的 AWS 账号或组织强制执行防护栏，请参阅 [Amazon Bedrock 的文档](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-enforcements.html)，了解该防护栏如何处理输入标签。
 
+##### 记录触发的防护栏过滤器
+
+要找出是哪个 Amazon Bedrock 防护栏过滤器拦截了开发者的请求，请在 Bedrock 上游上设置 `guardrail_trace: true`，重启网关，然后让开发者重新发送该请求。接着在[审计日志](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#logs)中找到该请求的 `guardrail.trace` 事件。需要网关服务器上运行 Claude Code v2.1.314 或更高版本。更早版本的网关在发现 `guardrail_trace` 时会拒绝启动。
+
+```yaml theme={null}
+upstreams:
+  - provider: bedrock
+    region: us-east-1
+    auth: {}
+    guardrail:
+      id: gr-abc123
+      version: "1"
+    guardrail_trace: true              # default false; beside guardrail, not inside it
+```
+
+当某个过滤器触发或防护栏的操作为 `INTERVENED` 时，网关会写入一个 `guardrail.trace` 事件，其中不包含匹配的文本。可通过 `email` 或 `sub` 查找开发者的事件。一个流式请求可能产生多个事件，其中一个的 `filters` 列表可能为空，因此请阅读具有相同 `request_id` 的所有事件：
+
+| 字段 | 内容 |
+| - | - |
+| `request_id` | 请求的 ID |
+| `sub`、`email` | 开发者的用户 ID 和电子邮件 |
+| `upstream` | 回复来自的上游 |
+| `action` | 防护栏的操作，例如 `INTERVENED` |
+| `filters` | 触发的过滤器。当 AWS 未发送过滤器详情时，列表为空 |
+| `filters[].side` | `input` 或 `output` |
+| `filters[].guardrail` | 防护栏的 ID |
+| `filters[].policy` | Bedrock 策略和列表，例如 `contentPolicy.filters` 或 `sensitiveInformationPolicy.piiEntities` |
+| 其他 `filters[]` 字段 | 条目还可能包含 `action`、`name`、`type`、`confidence`、`filterStrength`、`score` 和 `threshold` 等字段 |
+
+该事件不包含过滤器匹配的文本，包括 Bedrock 跟踪中的 `match` 字段。开发者不会收到 Bedrock 的跟踪数据，因为网关会从每个回复（无论是否流式）中将其删除。
+
+如果客户端在 `/v1/messages` 请求正文中发送 `amazon-bedrock-*` 字段，网关在设置了 `guardrail_trace` 的上游上会返回 400。
+
 ##### 另一个 AWS 帐户中的 Bedrock
 
 在 Bedrock 上游上设置 `assume_role`，网关仅使用其自己的 AWS 身份来调用您命名的角色上的 `sts:AssumeRole`，该角色可以在与网关不同的 AWS 帐户中。该上游的每个 Bedrock 请求都使用 STS 返回的一小时凭据签署，因此没有长期访问密钥跨帐户。
@@ -462,7 +495,9 @@ upstreams:
 * 如果 STS 拒绝或无法到达，网关不使用上游自己的凭据发送请求。它记录 STS 错误和要检查的内容，然后尝试您列出的下一个上游。[上游错误消息](#upstream-error-messages)覆盖当没有上游成功时客户端接收的内容。没有 `assume_role` 的后续上游将使用其自己的凭据提供请求，因此仅在这是您想要的情况下列出一个。
 * 网关调用区域 STS 端点 `sts.<region>.amazonaws.com`，其网络必须到达。对于 FIPS 端点，在网关的环境中设置 `AWS_USE_FIPS_ENDPOINT=true` 而不是在 AWS 配置文件中的 `use_fips_endpoint`。
 * `assume_role` 仅适用于 `provider: bedrock` 并需要 SigV4 源凭据：当它在 `aws_bearer_token` 旁边设置时，网关拒绝启动。
-* 网关允许的每个开发人员都可以使用此上游；[`managed`](#managed) 控制哪些开发人员可能使用哪些模型。要保持通过角色提供的模型也不从另一个帐户提供，给它一个自定义 id，其 `upstream_model` 映射仅具有此上游的名称。对于这样的 id，网关跳过每个其他上游，因此请求和放弃请求的 token 计数都无法故障转移到另一个帐户。对内置模型名称的请求仍可能[到达此上游](#multiple-upstreams)，网关会使用同一角色对其签名。除非其帐户也应该提供这些模型，否则请将此上游列在最后。
+* 如果没有 [`groups` 列表](#send-each-team-to-its-own-upstream)，网关允许的每位开发者都可以使用此上游。要限制开发者可以使用的模型，请在 [`managed`](#managed) 策略中设置 `availableModels`。
+* 要防止通过该角色提供的模型也从其他账号提供，请为其指定一个自定义 id，使其 `upstream_model` 映射仅包含此上游的名称。对于这样的 id，网关会跳过所有其他上游，因此无论是请求本身还是针对被中止请求的 token 计数，都不会故障转移到其他账号。
+* 对内置模型名称的请求仍可能[到达此上游](#multiple-upstreams)，网关会使用同一角色对其签名。除非该账号也应提供这些模型，否则请将此上游列在最后。
 
 此示例给一个模型一个自定义 id，仅隔离上游提供：
 
@@ -674,7 +709,11 @@ upstreams:
 
 `429` 是按上游容量，因此预配吞吐量 (PT) 耗尽故障转移到按需。如果您在上游上设置 [`forward_user_identity: true`](#per-user-identity-headers-for-a-proxy-you-run)，对携带开发人员电子邮件的请求的 `429` 是按用户拒绝而不是故障转移。
 
-每个请求从第一个上游开始。请求仅在它前面的每个上游都失败或不提供请求的模型时才到达后续上游。
+仅在以下情况下，请求才会越过某个上游：
+
+* 该上游已失败
+* 该上游不提供所请求的模型
+* 该上游的 [`groups` 列表](#send-each-team-to-its-own-upstream)不包含该开发者
 
 网关不保持失败上游的记录，因此当上游关闭时，到达它的每个请求仍然尝试它并等待它失败后再继续。
 
@@ -727,13 +766,83 @@ models:
 | - | - |
 | 不同区域 | 每个区域一个 Amazon Bedrock 上游，每个都有自己的 `region:`。使用 [`auto_include_builtin_models: true`](#models) 跨区域推理配置文件自动路由；对于区域固定部署，使用 `models:` 块。 |
 | 不同帐户 | 每个帐户一个 Amazon Bedrock 上游。默认链 (`auth: {}`) 使用 pod 的身份；对于第二个帐户，添加 [`assume_role`](#bedrock-in-another-aws-account) 以使用短期凭据到达它，或在 `auth:` 中设置显式凭据或持有者令牌。 |
+| 不同团队 | 为每个团队的上游提供一个 `groups` 列表，使只有这些 IdP 组中的开发者才能访问它。请参阅[将每个团队发送到各自的上游](#send-each-team-to-its-own-upstream)。 |
 | 预配吞吐量 | 将模型映射到该上游名称的 `models:` 中的预配吞吐量 ARN。其他上游保持按需 ID，因此 PT 容量在故障转移前耗尽。 |
 | VPC / FIPS 端点 | 在上游上设置 `base_url:` 到您的 VPC 端点或 FIPS 端点 URL |
-| 模型范围路由 | 仅自定义模型 `id`（即不是内置 Claude 模型的 id）会跳过其 `upstream_model:` 映射中不存在的上游。`mantle` 上游仅针对其 [`models` 字段](#amazon-bedrock-mantle-endpoint)中列出的模型被尝试。在其他每个上游上，网关按顺序尝试内置模型，并在映射没有条目时使用提供商的默认 ID，因此对于内置模型，映射改变上游接收的 ID 而不是它是否被尝试；拒绝 ID 的上游遵循与任何其他上游错误相同的[故障转移规则](#upstreams)。 |
+| 按模型路由 | 自定义模型 `id`（即非内置 Claude 模型的 ID）会跳过其 `upstream_model:` 映射中未列出的上游。带有 `models` 列表的上游（[`mantle` 上游](#amazon-bedrock-mantle-endpoint)必须有此列表）仅会针对这些模型进行尝试。 |
+| 内置模型路由 | 对于没有 `models` 或 `groups` 列表的上游，网关会按顺序尝试内置模型，并在 `upstream_model:` 映射中没有条目时使用提供商的默认 ID。对于提供商有默认 ID 的内置模型，该映射改变的是上游接收的 ID，而不是是否尝试该上游。拒绝该 ID 的上游遵循与其他任何上游错误相同的[故障转移规则](#upstreams)。 |
 
 在云提供商之间或直接 Anthropic API 之间故障转移改变哪个协议、地理位置和其他条款控制请求。
 
 CLI 对网关应用相同的功能门控，无论哪个上游提供给定请求，因此默认情况下故障转移不会发送上游会拒绝的正文字段。如果您在策略中设置了[一小时缓存 TTL](#one-hour-prompt-cache)，它会发送到列表中的每个上游，因此仅当所有上游都接受它时才设置。
+
+#### 将每个团队发送到各自的上游
+
+要将每个团队的请求发送到其各自的 AWS 账户或 Google Cloud 项目，请为每个团队列出一个上游，并为每个上游提供一个 `groups` 列表。只有所列 IdP 组中的开发者才能访问该上游，无论是首次尝试还是[故障转移](#multiple-upstreams)。所有提供商都支持 `groups`。网关服务器上需要 Claude Code v2.1.314 或更高版本。
+
+以下示例为 `payments-eng` 和 `search-eng` 组各分配一个 AWS 账户，并添加一个没有 `groups` 列表、所有开发者都可使用的上游：
+
+```yaml theme={null}
+upstreams:
+  - name: bedrock-payments
+    provider: bedrock
+    region: us-east-1
+    auth: {}
+    assume_role:
+      role_arn: arn:aws:iam::111111111111:role/claude-gateway-bedrock
+    groups: [payments-eng]
+  - name: bedrock-search
+    provider: bedrock
+    region: us-east-1
+    auth: {}
+    assume_role:
+      role_arn: arn:aws:iam::222222222222:role/claude-gateway-bedrock
+    groups: [search-eng]
+  - name: bedrock-shared               # no groups: open to everyone, so listed last
+    provider: bedrock
+    region: us-east-1
+    auth: {}
+```
+
+使用该示例配置时，每个开发者的请求从其所在行的第一个上游开始，并在故障转移时移至下一个：
+
+| 开发者所属组 | 上游（按顺序） |
+| - | - |
+| `payments-eng` | `bedrock-payments`，然后 `bedrock-shared` |
+| `search-eng` | `bedrock-search`，然后 `bedrock-shared` |
+| `payments-eng` 和 `search-eng` | `bedrock-payments`，然后 `bedrock-search`，然后 `bedrock-shared` |
+| 均不属于 | `bedrock-shared` |
+
+当团队的上游以 `403` 拒绝所请求的模型时，网关会尝试该团队所在行中提供该模型的下一个上游。要将团队限定在一个上游，请为每个上游提供 `groups` 列表，并确保没有其他上游列出该团队开发者所属的组。这样该团队将没有故障转移，而不属于任何所列组的开发者发出的请求将[以 `400` 失败](#what-happens-when-a-developer-is-in-no-listed-group)。
+
+要让每个开发者到达您预期的上游，请编写完全匹配的条目，并将开放的上游放在最后：
+
+* **条目**：按照您的 IdP 在 [groups 声明](#oidc)中发送的形式准确编写每个组，[`match.groups`](#managed) 也会读取该声明。当网关发现空列表或空条目时会拒绝启动。网关不会根据您的 IdP 检查条目，因此不匹配任何人的条目不会引发警告。
+* **顺序**：将没有 `groups` 列表的上游放在最后。它为所有人提供服务，因此如果排在前面，它会抢在团队自己的上游之前接收该团队的请求。
+
+> [!WARNING]
+>
+> 早于 v2.1.314 的网关在发现 `groups` 时会拒绝启动，因此请在添加它之前升级每个副本。
+>
+> 回滚之前，请删除每个带有 `groups` 列表的上游，以及每个引用该上游的 `upstream_model` 键或定价覆盖，并至少保留一个上游。如果只删除 `groups` 键，该上游将对所有开发者开放。仍引用已删除上游的键或覆盖会导致网关无法启动，并显示 `references unknown upstream`。
+
+##### 开发者不属于任何所列组时会发生什么
+
+如果每个上游都有 `groups` 列表，不属于其中任何组的开发者会看到以下错误，并且网关不会联系任何提供商：
+
+```text theme={null}
+API Error: 400 you aren't in a group that can use this gateway. Ask your administrator to add you to one
+```
+
+请在您的 IdP 中将该开发者添加到所列的某个组，或添加一个没有 `groups` 列表的上游。
+
+网关会在每次令牌刷新时重新读取开发者所属的组。如果您的 IdP 在刷新时未包含组信息，该开发者将不属于任何组：
+
+* **已设置 [`oidc.allowed_groups`](#oidc)**：网关拒绝该刷新，会话结束
+* **否则，如果某个上游没有 `groups` 列表**：该开发者的请求会转到该上游
+* **否则，如果每个上游都有 `groups` 列表**：该开发者的请求会以上述错误失败
+
+如果您的 IdP 的 userinfo 端点返回 groups 声明，且未设置 `oidc.google_groups`，请将 [`oidc.userinfo_fallback`](#oidc) 设置为 `true`，以便从该端点补充组信息。
 
 ## 可选部分
 
@@ -829,9 +938,12 @@ pricing:
 
 #### 将费率发送到已登录的客户端
 
-在网关服务器上使用 v2.1.268 或更高版本时，网关还会将 `pricing` 中的费率作为 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 托管设置放入其提供的 [`managed`](#managed) 策略中。随后，被策略匹配的开发者会在 `/usage`、状态栏和 OpenTelemetry 中看到为每个模型 ID 提供服务的第一个上游的 `pricing` 费率。未匹配任何策略的开发者不会收到托管设置，因此其数据保持标价。客户端在 Claude Code v2.1.242 或更高版本中应用该设置。
+在网关服务器上使用 v2.1.268 或更高版本时，网关还会将 `pricing` 中的费率作为 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 托管设置，放入其提供的 [`managed`](#managed) 策略中。
+
+被某个策略匹配的开发者随后会在 `/usage`、状态栏和 OpenTelemetry 中看到 `pricing` 费率。未匹配任何策略的开发者不会收到托管设置，因此其数据保持按标价计算。客户端在 Claude Code v2.1.242 或更高版本中应用此设置。
 
 * 网关添加的内容：除非策略的 `cli` 块已设置 `modelPricing`，否则网关会添加 `multiplier`，并针对客户端可以请求的每个模型 ID，添加为该 ID 提供服务的第一个上游的覆盖行。仅由故障转移上游收取的费率保留在网关上。
+* 带有 [`groups` 列表](#send-each-team-to-its-own-upstream)的上游：当它是为某个模型 ID 提供服务的第一个上游时，网关不会为该 ID 添加行。开发者随后会看到 Claude Code 自己为该 ID 设定的费率（当 Claude Code 识别该 ID 时，即该模型的标准费率）乘以 `multiplier`。
 * 让某个策略退出：在该策略的 `cli` 块中将 `modelPricing` 设置为 `{}`，其开发者将保持标价。
 * 保留策略自身的费率：如果策略的 `cli` 块使用自己的 `multiplier` 或 `overrides` 设置了 `modelPricing`，则该 `modelPricing` 会完整保留，网关不会向其中添加自己的任何费率。
 

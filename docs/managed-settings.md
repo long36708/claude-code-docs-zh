@@ -171,7 +171,9 @@ Claude Code 按此顺序检查源，优先级最高的优先：
 * 沙箱二进制路径 `sandbox.bwrapPath` 和 `sandbox.socatPath`
 * 沙箱 `ripgrep` 二进制文件，[`sandbox.ripgrep`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-ripgrep)
 * `sandbox.filesystem.disabled` 和 `sandbox.network.strictAllowlist`
-* [`useAutoModeDuringPlan`](https://code.claude.com/docs/zh-CN/settings-reference#useautomodeduringplan)、[`syncClaudeAiSkills`](https://code.claude.com/docs/zh-CN/settings-reference#syncclaudeaiskills) 和 [`syncClaudeAiPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#syncclaudeaiplugins)，其中任何管理员源的 `false` 都会关闭该行为。开发人员的用户或本地设置中的 `false` 也会关闭它；每个键只能拒绝
+* [`useAutoModeDuringPlan`](https://code.claude.com/docs/zh-CN/settings-reference#useautomodeduringplan)、[`syncClaudeAiSkills`](https://code.claude.com/docs/zh-CN/settings-reference#syncclaudeaiskills) 和 [`syncClaudeAiPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#syncclaudeaiplugins)，其中任何管理员源的 `false` 都会关闭该行为。每个键只能拒绝：
+  * 开发人员的用户或本地设置中的 `false` 也会关闭它
+  * 对于 `useAutoModeDuringPlan`，开发人员通过 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 等选项排除的用户或本地文件中的 `false` 不计数。忽略被排除的文件需要 Claude Code v2.1.314 或更高版本
 * [`enableArtifact`](https://code.claude.com/docs/zh-CN/settings-reference#enableartifact)，其中任何管理员源的 `false` 都会关闭 [Artifact 工具](https://code.claude.com/docs/zh-CN/artifacts.md)。开发人员的用户、项目或本地设置中的 `false` 也会关闭它，没有源会将其打开；请参阅 [哪些较低级别的值仍然计数](https://code.claude.com/docs/zh-CN/settings.md#exceptions-to-managed-settings-precedence)。需要 Claude Code v2.1.242 或更高版本
 * [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel)，其中任何管理员源中的最低上限适用。如果开发人员在自己的设置或使用 `--settings` 中设置了较低的上限，Claude Code 会应用该上限；没有源可以提高上限。需要 Claude Code v2.1.267 或更高版本
 * `attribution` 中的提交预告片选择退出，或在已弃用的 `includeCoAuthoredBy` 中，来自任何层级

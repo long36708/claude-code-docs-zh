@@ -303,7 +303,7 @@ Claude 结束交互式会话后，会话被锁定。新提示和大多数命令�
 
 EnterWorktree 工具会创建一个隔离的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 并切换到其中。如果提供了 `path`，它会切换到一个现有的 worktree，而不是创建新的 worktree。
 
-* **`path` 可以指定哪些 worktree**：首次进入时，目标可以是当前仓库的 worktree。在包含其他仓库的仓库中，目标也可以是嵌套在其中的仓库的 worktree。在 v2.1.203 之前，嵌套仓库的 worktree 会被拒绝。
+* **`path` 可以指定哪些 worktree**：首次进入时，目标可以是当前仓库的 worktree。在包含其他仓库的仓库中，目标也可以是嵌套在其中的仓库的 worktree。
 * **何时会提示您**：位于 `.claude/worktrees/` 之外的 `path` 会在进入前请求您的批准，因为这会将会话的工作目录和写入权限移至该位置。创建新 worktree 以及 `.claude/worktrees/` 下的路径不会提示。在 v2.1.206 之前，Claude 进入 `.claude/worktrees/` 之外的路径时不会提示。
 * **在 worktree 内部时**：在 worktree 会话中，只能使用 `path` 形式，且目标必须位于该会话所属仓库的 `.claude/worktrees/` 下。对于固定了工作目录的子代理（例如 [`isolation: worktree`](https://code.claude.com/docs/zh-CN/sub-agents#supported-frontmatter-fields)），同样如此。
 * **工具缺失时**：一旦启用 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories)，Claude Code 会移除 `EnterWorktree` 和 `ExitWorktree`，或拒绝对它们的调用。如需继续在 worktree 中工作，请参阅 [Claude 没有 `EnterWorktree` 工具](https://code.claude.com/docs/zh-CN/worktrees#claude-has-no-enterworktree-tool)。

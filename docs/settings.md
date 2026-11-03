@@ -184,6 +184,8 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 * [`model`](https://code.claude.com/docs/zh-CN/settings-reference#model)：使用 [`/model`](https://code.claude.com/docs/zh-CN/model-config#setting-your-model) 在会话中期切换。每个模型有自己的提示缓存，因此切换后的第一个请求重新读取整个对话未缓存；请参阅[切换模型](https://code.claude.com/docs/zh-CN/prompt-caching.md#switching-models)
 * [`effortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#effortlevel) 和 [`modelSettings`](https://code.claude.com/docs/zh-CN/settings-reference#modelsettings)：使用 [`/effort`](https://code.claude.com/docs/zh-CN/model-config#adjust-effort-level) 在会话中期更改努力
 
+如果您在会话中期移除 [`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories)，文件工具会在运行的会话中保留该阻止。要解除它，请从设置它的每个设置文件中移除该键，然后重启每个运行中的会话。
+
 ### 确认已加载的内容
 
 在 Claude Code 内运行 `/status` 以查看哪些设置来源处于活跃状态。**状态**选项卡包含一个 `Setting sources` 行，列出 Claude Code 为当前会话加载的每个设置文件，如 `User settings` 或 `Project local settings`。当[托管设置](https://code.claude.com/docs/zh-CN/admin-setup.md#decide-how-settings-reach-devices)生效时，托管设置条目在括号中显示它们如何到达您的机器。
@@ -311,7 +313,7 @@ Settings precedence, highest first: managed settings, command line, project loca
 | [`autoMode.classifyAllShell`](https://code.claude.com/docs/zh-CN/settings-reference#automode-classifyallshell) | `~/.claude/settings.json` 或 `--settings` 中的 `true` | 即使托管来源设置为 `false` 也会采用 |
 | [`remoteControlAtStartup`](https://code.claude.com/docs/zh-CN/settings-reference#remotecontrolatstartup) | `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `false` | 即使托管来源设置为 `true` 也会采用；项目或本地设置中的 `true` 会被忽略 |
 | [`crossSessionInbound`](https://code.claude.com/docs/zh-CN/settings-reference#crosssessioninbound) | `.claude/settings.json` 或 `.claude/settings.local.json` 中更严格的值，严格程度依次为 `accept` \< `hold` \< `refuse` | 优先于托管、`--settings` 和用户设置中的值；项目或本地设置中不更严格的值会被忽略 |
-| [`useAutoModeDuringPlan`](https://code.claude.com/docs/zh-CN/settings-reference#useautomodeduringplan) | 任何托管来源、`--settings`、`~/.claude/settings.json` 或 `.claude/settings.local.json` 中的 `false` | 即使最终采用的托管来源设置为 `true` 也会采用；`.claude/settings.json` 中的 `false` 会被忽略 |
+| [`useAutoModeDuringPlan`](https://code.claude.com/docs/zh-CN/settings-reference#useautomodeduringplan) | 任何托管来源、`--settings`、`~/.claude/settings.json` 或 `.claude/settings.local.json` 中的 `false` | 即使最终采用的托管来源设置为 `true` 也会采用；`.claude/settings.json` 中的 `false` 会被忽略。对于启动时省略的文件，请参阅[该键的条目](https://code.claude.com/docs/zh-CN/settings-reference.md#useautomodeduringplan) |
 | [`syncClaudeAiSkills`](https://code.claude.com/docs/zh-CN/settings-reference#syncclaudeaiskills) | 任何托管来源、`--settings`、`~/.claude/settings.json` 或 `.claude/settings.local.json` 中的 `false` | 即使最终采用的托管来源设置为 `true` 也会采用；`.claude/settings.json` 中的 `false` 会被忽略 |
 | [`syncClaudeAiPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#syncclaudeaiplugins) | 任何托管来源、`--settings`、`~/.claude/settings.json` 或 `.claude/settings.local.json` 中的 `false` | 即使最终采用的托管来源设置为 `true` 也会采用；`.claude/settings.json` 中的 `false` 会被忽略 |
 | [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) | 任何作用域（包括 `--settings`）中更低的上限 | 即使 Claude Code 应用的托管设置设置了更高的上限也会采用；以最低的上限为准。需要 Claude Code v2.1.267 或更高版本 |

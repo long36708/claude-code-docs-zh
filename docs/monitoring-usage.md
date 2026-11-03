@@ -1559,7 +1559,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 > [!NOTE]
 >
-> 成本指标是近似值。有关官方计费数据，请参阅您的 API 提供商（Claude 控制台、Amazon Bedrock 或 Google Cloud 的 Agent Platform）。
+> 成本指标是近似值。有关官方计费数据，请参阅[管理组织的成本](https://code.claude.com/docs/zh-CN/costs.md#manage-costs-for-your-organization)。
 
 Claude Code 将每个流式响应计入成本和 token 指标，恰好一次，包括当网关或代理在 `ANTHROPIC_BASE_URL` 后面跨多个帧逐步流式传输使用情况时。
 

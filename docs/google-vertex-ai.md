@@ -192,15 +192,24 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 
 当 Claude Code 启动并配置了 Google Cloud 的 Agent Platform 时，它会验证它打算使用的模型在您的项目中是否可访问。
 
-如果您固定了一个比当前 Claude Code 默认值更旧的模型版本，并且您的项目可以调用较新版本，Claude Code 会提示您更新固定。接受会将新的模型 ID 写入您的[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)并重启 Claude Code。拒绝会被记住，直到下一个默认版本更改。
+您可能固定了一个比当前 Claude Code 默认值更旧的模型版本。如果您的项目可以调用较新版本，Claude Code 会提示您更新固定：
+
+* **如果您接受**：Claude Code 会将新的模型 ID 写入您的[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)并重启
+* **如果您拒绝**：Claude Code 会记住您的选择，直到下一次默认版本更改
+
+对于[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)的 `env` 块中的固定，Claude Code 不会运行检查，也不会显示提示。如果针对此固定仍然出现更新提示，请将 Claude Code 更新到 v2.1.314 或更高版本。在 v2.1.314 之前，您接受后托管固定仍然有效，因此下次启动时提示会再次出现。
 
 如果您没有固定模型，并且当前默认值在您的项目中不可用，Claude Code 会在当前会话中回退并显示通知。它首先尝试默认模型的早期版本，当默认值是 Opus 模型且没有可用的 Opus 版本时，会回退到默认 Sonnet 模型。回退不会被持久化。在 [Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 中启用较新的模型或[固定一个版本](#5-pin-model-versions)以使选择永久化。
 
+### 在特定模型上启动会话
+
 当您在特定的 Sonnet 或 Opus 版本上启动会话时，例如使用 `--model`、`ANTHROPIC_MODEL` 或 [`model` 设置](https://code.claude.com/docs/zh-CN/settings-reference#model)，该版本充当会话的固定默认值，用于匹配的 `sonnet` 或 `opus` 别名。Claude Code 跳过对您的模型替换的内置默认值的可用性检查，并在您配置的模型上启动，没有回退通知。
 
-模型别名（如 `opus`）不充当固定值，Claude Code 不识别的模型 ID 也不充当固定值。
+当您在模型别名（如 `opus`）或 Claude Code 不识别的模型 ID 上启动会话时，该值不充当固定值。
 
-当这些检查发现您的项目无法调用的模型时，Claude Code 会在这台机器上记住该拒绝长达一天，并在此期间启动时跳过记住的模型，而不再询问 Agent Platform。Claude Code 会在距离上次检查已过十分钟后，再次检查当前默认模型的记住拒绝，因此管理员重新启用的默认值会恢复。要关闭此内存，请设置 [`CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`](https://code.claude.com/docs/zh-CN/env-vars)。
+### 记住的模型拒绝
+
+当启动模型检查发现您的项目无法调用的模型时，Claude Code 可以在这台机器上记住该拒绝长达一天。距离上次检查已过十分钟后，Claude Code 会在启动时再次检查当前默认模型的记住拒绝。这样，管理员重新启用的默认值就会恢复。要关闭此记忆，请设置 [`CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`](https://code.claude.com/docs/zh-CN/env-vars)。
 
 ### 当您的组织强制执行模型允许列表时
 

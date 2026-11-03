@@ -30,7 +30,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 [网关概述](https://code.claude.com/docs/zh-CN/gateways.md)涵盖网关的功能以及为什么要运行它。Claude apps gateway 是 Anthropic 自己的网关，内置于 `claude` 二进制文件中，并与每个 Claude Code 版本一起测试，因此它转发 Claude Code 发送的 `anthropic-beta` 值和请求字段，无需操作员维护单独的允许列表。部署后，它为您提供：
 
 * **凭据**：上游 API 密钥或云凭据仅存在于您的基础设施中。开发人员使用公司 SSO 进行身份验证并接收短期的持有者令牌，因此离职发生在您的 IdP 中。取消配置用户，其网关访问权限在会话生命周期内过期，默认为一小时。
-* **访问控制**：您的 IdP 组映射到模型允许列表和[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)策略。网关在服务器端强制执行模型访问，拒绝非授予模型的请求，并选择每个组的托管设置策略，CLI 在[托管设置层](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)应用该策略。不同的团队获得不同的模型、工具和权限，开发人员无法覆盖其策略锁定的内容。
+* **访问控制**：您的 IdP 组映射到模型允许列表、[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)策略和[上游](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#send-each-team-to-its-own-upstream)。网关在服务器端强制执行模型访问，拒绝非授予模型的请求，并选择每个组的托管设置策略，CLI 在[托管设置层](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)应用该策略。不同的团队获得不同的模型、工具和权限，开发人员无法覆盖其策略锁定的内容。
 * **设置交付**：网关本身将托管设置交付给已登录的客户端，取代来自 claude.ai 管理员控制台的[服务器管理设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)。
 * **遥测**：每个配置的目标接收[OpenTelemetry Protocol (OTLP) 指标](https://code.claude.com/docs/zh-CN/monitoring-usage.md)，默认包含 token 计数、模型、用户身份和延迟，日志和跟踪作为按目标的选择加入。
 * **上游路由**：客户端向网关发送 Anthropic Messages API，网关为每个上游进行转换，无论是 Amazon Bedrock、[AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、Google Cloud 的 Agent Platform、Microsoft Foundry 还是 Anthropic API，并在它们之间进行故障转移。您可以更改区域、提供商或故障转移顺序，而开发人员无需注意或重新配置。

@@ -708,7 +708,13 @@ Claude 从对话中已有的内容回答附加问题：你的消息、它的回�
 
 在附加的 [后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#attach-to-a-session)中，`Left` 分离并将你返回到代理视图，即使答案仍在到达。附加问题在你离开时继续运行。下次你附加到会话时，覆盖层会重新打开，显示附加问题或其答案。在 v2.1.257 之前，`Left` 在那里不分离。
 
-`/btw` 可以看到你的完整对话，但没有工具。[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)有工具，从它接收的提示开始，或者对于 [分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，从此对话的副本开始。使用 `/btw` 询问 Claude 从此会话中已知的内容；使用子代理去发现新的东西。
+`/btw` 可以看到您的完整对话，或[您已打开的子代理会话记录](#ask-btw-about-a-subagent)，但没有工具。[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)有工具，从它接收的提示词开始。[分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)从此对话的副本开始。使用 `/btw` 询问 Claude 从此会话中已知的内容；使用子代理去发现新的东西。
+
+### 就子代理使用 /btw 提问
+
+当打开了[子代理的会话记录](https://code.claude.com/docs/zh-CN/sub-agents.md#observe-and-steer-running-forks)时，Claude 会根据该会话记录而不是主对话来回答 `/btw`，因此您可以询问该子代理做了什么。之后从该会话记录发出的 `/btw` 只会看到您从该会话记录中提出的附加问题。需要 Claude Code v2.1.314 或更高版本。
+
+在 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友的会话记录中，Claude 会根据主对话进行回答。
 
 ## 任务列表
 
@@ -749,7 +755,9 @@ Continuing automatically at 3:45pm · Esc to cancel
 * **计算机睡眠后**：如果睡眠超过约 30 分钟，并且限制在睡眠期间重置，第一行显示 `Your usage limit has reset`，第二行显示 `Press enter to continue`。按 `Enter` 继续。如果睡眠时间较短，或睡眠在重置之前结束，Claude Code 会自动继续。
 * **提前**：当您使用 `/usage-credits` 完成添加 [使用额度](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)、在 `/upgrade` 后重新登录或在等待期间使用 `/model` 切换模型时，Claude Code 会检查使用情况是否再次可用，如果可用则立即继续。它不会在您在浏览器中自行进行的升级或购买后进行检查。在 [`opusplan`](https://code.claude.com/docs/zh-CN/model-config#opusplan-model-setting) 和其他在不同模型上运行计划模式的模型设置下，Claude Code 会等待重置。
 
-继续的任务像任何其他轮次一样运行。Claude Code 仍然照常要求 [权限](https://code.claude.com/docs/zh-CN/permissions.md)，因此任务可能在您离开时在提示处停止。如果再次达到限制，Claude Code 最多会自动重新启动等待两次，然后停止并显示 `Automatic continue stopped after repeated usage-limit hits · /rate-limit-options to try again`。
+在继续的任务中，Claude Code 仍然照常请求 [权限](https://code.claude.com/docs/zh-CN/permissions.md)，因此任务可能在您离开时停在权限提示处。如果任务再次达到限制，等待会重新开始。
+
+自动继续三次后，自动继续会停止，并显示 `Automatic continue stopped after repeated usage-limit hits` 通知。运行 `/rate-limit-options` 选择接下来的操作。当您发送另一条提示词，或从该菜单中选择一种等待方式时，计数会重新开始。对于跨越多个重置窗口运行的 [`/goal`](https://code.claude.com/docs/zh-CN/goal) 或 [会话范围的定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)，自动继续同样会在三次继续后停止。
 
 ### 取消等待
 

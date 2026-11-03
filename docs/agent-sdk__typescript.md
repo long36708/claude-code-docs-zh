@@ -52,7 +52,10 @@ for await (const message of query({
 
 如果您的应用程序将 Agent SDK 与其自己的依赖项一起捆绑，请从 `@anthropic-ai/claude-agent-sdk/core` 而不是包根目录导入。`/core` 入口需要 TypeScript Agent SDK v0.3.282 或更高版本，其类型需要 TypeScript 5.0 或更高版本。
 
-`/core` 入口导出与根入口相同的 `query()`、`startup()`、`tool()`、`createSdkMcpServer()` 和 `resolveSettings()`，以及重命名、标记和删除会话的函数、`AbortError`、运行时常量和每种类型。它不添加自己的名称。为了保持应用程序加载的代码较小，`/core` 省略了一些根导出，包括 `prewarm()`、`InMemorySessionStore` 类以及列出、读取、分叉、导入和总结会话的辅助函数。如果您需要其中之一，请改用根入口。
+为了保持应用程序加载的代码较小，`/core` 入口省略了一些根导出：
+
+* **导出**：与根入口相同的 `query()`、`startup()`、[`prewarm()`](#prewarm)、`tool()`、`createSdkMcpServer()` 和 `resolveSettings()`，以及重命名、标记和删除会话的函数、`AbortError`、运行时常量和每种类型。从 `/core` 导入 alpha 版 `prewarm()` 需要 Agent SDK v0.3.314 或更高版本。
+* **省略**：包括 `InMemorySessionStore` 类以及列出、读取、分叉、导入和总结会话的辅助函数在内的根导出。如果您需要其中之一，请改用根入口。
 
 根入口内联了自己的 `zod` 和 `@modelcontextprotocol/sdk` 副本。`/core` 入口从您的 `node_modules` 按照 Agent SDK 的 `peerDependencies` 声明的范围导入它们，因此已经包含它们的捆绑包不会携带第二个副本。在给定的进程中从根或 `/core` 导入，而不是两者：它们是单独的捆绑包，加载两者会给您两个 Agent SDK 类和状态的副本。
 
@@ -2002,6 +2005,9 @@ Claude Code 拒绝启动的原因，以便您的应用程序可以提供修复�
 
 * Claude Code 停止的恢复，因为它[无法将会话返回到其 worktree](https://code.claude.com/docs/zh-CN/worktrees.md#the-session-resumes-outside-its-worktree)，带有 `worktree_unverified` 或 `worktree_resume_refused`。该部分说明哪个错误携带哪个值。
 * 拒绝后台会话持有的对话的 [`continue`](#options)，带有 `session_held_by_background`。对于这样的对话的拒绝 [`resume`](#options)，Claude Code 仅在设置了变量时写入结果。
+* 由于 [`failIfUnavailable`](#sandboxsettings) 开启且沙箱无法启动而被 Claude Code 拒绝的启动，值为 `sandbox_required_unavailable`。
+
+`SDKStartupFailureReason` 类型列出了 `startup_failure_reason` 可以取的值：
 
 ```typescript theme={null}
 type SDKStartupFailureReason =
@@ -2023,7 +2029,8 @@ type SDKStartupFailureReason =
   | "cli_version_too_old"
   | "bypass_root"
   | "org_config_required_unavailable"
-  | "org_config_refused";
+  | "org_config_refused"
+  | "sandbox_required_unavailable";
 ```
 
 每个值命名一个拒绝：
@@ -2049,6 +2056,7 @@ type SDKStartupFailureReason =
 | `bypass_root` | 在以 root 身份运行时请求了绕过权限模式 |
 | `org_config_required_unavailable` | 会话在启动前需要组织的策略和托管设置，但无法加载它们，例如由于网络故障或 Anthropic 服务器错误。需要 Agent SDK v0.3.293 或更高版本 |
 | `org_config_refused` | Anthropic 拒绝为此次登录提供组织的策略和托管设置，例如因为登录已过期或被吊销，或组织不允许此账户使用 Claude Code。需要 Agent SDK v0.3.293 或更高版本 |
+| `sandbox_required_unavailable` | [`failIfUnavailable`](#sandboxsettings) 已开启且沙箱无法启动。`errors` 中的文本以 `Set sandbox.failIfUnavailable=false to allow unsandboxed execution.` 结尾。需要 Agent SDK v0.3.314 或更高版本 |
 
 ### `SDKSystemMessage`
 

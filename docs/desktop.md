@@ -131,6 +131,8 @@ Claude 可以启动开发服务器并在浏览器窗格中打开它以验证其�
 * 从浏览器窗格标题栏中的 **Dev servers** 菜单启动或停止服务器，或一次停止所有服务器
 * 通过浏览器窗格 **⋮** 菜单中的 **Keep cookies**，选择浏览器在您退出应用后是否保留 cookie，这样您就不必在开发期间重新登录
 
+在 SSH 会话中，退出 Desktop 时会丢失该窗格的 cookie。您无法通过 **Keep cookies** 更改这一点。
+
 Claude 根据您的项目创建初始服务器配置。如果您的应用使用自定义开发命令，编辑 `.claude/launch.json` 以匹配您的设置。有关完整参考，请参阅[配置预览服务器](#configure-preview-servers)。
 
 要清除浏览器保存的数据，请在浏览器窗格的 **⋮** 菜单中选择 **Clear browsing data**。要完全关闭浏览器，请在 **Settings > Code** 或 **Settings > Claude Code** 中关闭 **Browser tools**。
@@ -312,7 +314,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 在任一布局中，在输入框中输入 `/context`，即可在聊天中打印此会话上下文窗口的按类别细分。
 
-两种布局的模型选择器旁都有使用环形图。点击它可查看您的计划使用情况，该使用情况在您所有的 Claude Code 使用入口之间共享。
+在两种布局中，使用环形图都位于输入框下方的那一行。点击它可查看您的计划使用情况，该使用情况在您所有的 Claude Code 使用入口之间共享。
 
 ## 让 Claude 使用您的计算机
 
@@ -409,9 +411,9 @@ Claude 首次需要使用某个应用时，您的会话中会出现一个权限�
 
 #### 在独立的 worktree 中运行会话
 
-在属于 Git 仓库的项目中，请在启动会话前打开 **Worktree**，使会话在其自己的 [Git worktree](https://code.claude.com/docs/zh-CN/worktrees.md)（项目的隔离副本）中运行。默认情况下，**Worktree** 处于关闭状态，Claude 直接在项目文件夹中工作。在[当前布局](#check-which-layout-you-have)中，打开[输入框下方一行](#start-a-session)中的 **Worktree** 按钮。
+在作为 Git 仓库的项目中，请在开始会话之前启用 **Worktree**，以便在其专属的 [Git worktree](https://code.claude.com/docs/zh-CN/worktrees.md)（项目的一个隔离副本）中运行该会话。默认情况下，**Worktree** 处于关闭状态，Claude 直接在项目文件夹本身中工作。在[当前布局](#check-which-layout-you-have)中，请在[提示词输入框下方的一行](#start-a-session)中启用 **Worktree**。
 
-* **使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)时**：如果输入框下方一行显示了项目文件夹控件但没有 **Worktree** 按钮，请点击该控件并打开 **Worktree**
+* **使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)时**：如果输入框下方的行中显示了项目文件夹控件，但没有显示 **Worktree**，请点击项目文件夹控件并启用 **Worktree**
 * **作为[已保存的本地或 SSH 环境](#create-a-saved-environment)的默认值**：在创建或编辑环境时设置 **Worktree**
 * **[早期布局](#check-which-layout-you-have)**：选中输入框上方分支名称旁边的 **worktree** 复选框
 
@@ -1094,11 +1096,11 @@ Linux 或 macOS 远程计算机需要受支持的处理器、带 SFTP 的 SSH �
 
 ##### 在 Windows 上不使用 OpenSSH 客户端进行连接
 
-在 Windows 上，如果您的计算机不满足 [OpenSSH 客户端的要求](#use-your-ssh-configuration)，您将通过 Desktop 的内置 SSH 客户端进行连接。使用第三方提供商时，默认通过内置客户端连接，您的管理员可以更改此设置。有关该设置，请参阅 [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
+在 Windows 上，如果您的计算机不满足 [OpenSSH 客户端的要求](#use-your-ssh-configuration)，您将通过 Desktop 的内置 SSH 客户端进行连接。使用第三方提供商时，您通过哪个客户端连接还取决于您的 Desktop 版本和管理员的设置。请参阅 [SSH remote sessions in Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
 
 使用内置客户端时，如果您的 `PATH` 中有 `ssh` 命令，您仍可以在 **SSH host** 字段中输入 SSH 配置中的 `Host` 名称，但有以下限制：
 
-* **条目中的设置**：Desktop 会采用 `HostName`、`User`、`Port` 和 `IdentityFile`。如果您的 `PATH` 上有 `sh` shell，它还会采用 `ProxyCommand`。
+* **条目中的设置**：Desktop 会采用 `HostName`、`User`、`Port`、`IdentityFile` 和 `ConnectTimeout`。如果您的 `PATH` 上有 `sh` shell，它还会采用 `ProxyCommand`。
 * **SSH key (optional)**：将此字段留空以保留条目的 `IdentityFile`，因为您在此处选择的密钥文件会替换 `IdentityFile`
 * **`CertificateFile` 和 `ProxyJump`**：Desktop 会忽略 `CertificateFile`，如果条目设置了 `ProxyJump`，连接会失败。要使用其中任一设置，请[通过 OpenSSH 客户端连接](#use-your-ssh-configuration)。
 
@@ -1123,7 +1125,7 @@ Host devbox
 
 **1. 添加条目**
 
-将以下条目添加到 `~/.ssh/config` 的末尾，如果您有 `Host *` 条目，则添加到第一个 `Host *` 条目的正上方。将 Docker 容器 `devbox`、其用户 `dev` 和计算机 `build.example.com` 替换为您自己的值。该条目的命令会为每个连接在容器内启动一个 SSH 服务器：
+将以下条目添加到 `~/.ssh/config` 的末尾，如果有第一个 `Host *` 条目，则添加到其正上方。将 Docker 容器 `devbox`、其用户 `dev` 和计算机 `build.example.com` 替换为您自己的值。该条目的命令会为每个连接在容器内启动一个 SSH 服务器：
 
 ```text ~/.ssh/config theme={null}
 Host devbox-container
@@ -1198,7 +1200,7 @@ Host i-*
 
 ##### 提高 SSH 连接超时时间
 
-如果您的 SSH 配置没有为该主机设置 `ConnectTimeout`，Desktop 会给 `ssh` 30 秒的连接时间。通过跳板机或 `ProxyCommand` 连接时，该时间包括路由建立连接所需的时间。如果您的路由需要更长时间，请在条目中添加更高的值：
+如果您的会话在通过跳板机或 `ProxyCommand` 连接时超时，请在 `~/.ssh/config` 中远程计算机的条目里提高 `ConnectTimeout`。请使用超过 90 秒的值。再加上跳板机或 `ProxyCommand` 等待您操作的任何时间，例如在登录提示处或等待手机推送：
 
 ```text ~/.ssh/config theme={null}
 Host devbox
@@ -1210,7 +1212,15 @@ Host devbox
 
 `ssh` 会使用它为主机找到的第一个值，因此请将该条目放在任何设置了 `ConnectTimeout` 的 `Host *` 条目之上。若要确认，请在您计算机上的终端中运行 `ssh -G devbox`。其输出包含 `connecttimeout 120`。更改该值后，请退出并重新打开 Desktop。
 
-如果远程计算机本身等待您在手机上批准，无论您设置的 `ConnectTimeout` 是多少，都请在 45 秒内批准。您无法提高此限制，因为 Desktop 会自行设置 `ServerAliveInterval` 和 `ServerAliveCountMax`，之后 `ssh` 会关闭远程计算机在这么长时间内未发送任何内容的登录。如果是跳板机或 `ProxyCommand` 在等待您，请在远程计算机的条目中提高 `ConnectTimeout` 以涵盖该时间。
+如果您的 SSH 配置没有为该主机设置 `ConnectTimeout`，Desktop 会给 `ssh` 30 秒的连接时间。通过跳板机或 `ProxyCommand` 连接时，该时间包括该路由建立连接所需的时间。
+
+| `ConnectTimeout` | 连接 | 您拥有的时间 |
+| - | - | - |
+| 未设置 | 您在 macOS 或 Linux 上使用 Claude Desktop v4.4212.0 或更高版本，通过跳板机或 `ProxyCommand` 启动会话 | 30 秒，然后第二次尝试有 90 秒。如果 Desktop 在第一次尝试期间向您显示了提示，则没有第二次尝试。在 Desktop 为 `ProxyJump` 主机显示的登录提示处花费的时间不计入。路由上的其他等待时间则计入。 |
+| 未设置 | Windows 上的 Desktop 或更早版本、设置了 `MaxSessions 1` 的远程计算机，或 Desktop 自行发起的重新连接 | 30 秒。路由上的所有等待时间都计入。 |
+| 已设置 | 每次连接和重新连接 | 您设置的值。路由上的所有等待时间都计入。 |
+
+如果远程计算机本身需要等待您在手机上批准，请在 45 秒内批准，无论您设置的 `ConnectTimeout` 是多少。您无法提高此限制，因为 Desktop 会自行设置 `ServerAliveInterval` 和 `ServerAliveCountMax`，如果远程计算机在这段时间内没有发送任何内容，`ssh` 就会关闭该登录。
 
 ##### 修复仅由 Desktop 应用的 `Match host` 块
 
@@ -1334,7 +1344,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 >
 > 在某些情况下编辑仍会失败，包括以下情况：
 >
-> * **内置 SSH 客户端**：Desktop 使用了它，例如在 Microsoft Store 安装版本中、在没有 Microsoft OpenSSH 9.4 或更高版本的 Windows 计算机上，或在使用第三方提供商的 Windows 上默认使用
+> * **内置 SSH 客户端**：Desktop 使用了它，例如在通过 Microsoft Store 安装的版本中，或在没有 Microsoft OpenSSH 9.4 或更高版本的 Windows 计算机上
 > * **仓库位置**：仓库是您的主目录、其上层文件夹或 `~/.claude`
 > * **macOS 路径**：在 macOS 远程计算机上，仓库位于 `/Volumes` 下，或者仓库或 worktree 路径中的某个文件夹名称包含 `~` 或非 ASCII 字符
 > * **文件夹限制**：您的组织限制了会话可以使用的文件夹
@@ -1369,11 +1379,12 @@ Claude Code 在任何权限模式（包括 Bypass permissions）下都不会自�
 * **记住的密码**：您让 Desktop 记住的密码也可以无需提示登录，但若长时间离开，最好使用由您的 SSH agent 持有的密钥。如果使用该密码的登录中断或挂起，Desktop 可能会停止重新连接并等待您。
 * **任何其他提示**：如果远程计算机提示输入其他内容（例如一次性验证码），您可能会在计算机上收到通知。点击该通知或在会话中发送消息，Desktop 就会显示该提示。
 
-> [accordion] 如果跳板机要求登录、中断时间较长、输出缺失或进程已不存在
+> [accordion] 如果跳板机要求登录、中断时间较长、消息未发送、输出缺失或进程已不存在
 >
 > * **跳板机，您不在时推送停止**：当无人响应跳板机的登录（例如向手机发送的推送）时，macOS 或 Linux 上的 Desktop 可能会出现这种情况。此时，在无人使用您的计算机期间，Desktop 会停止重新连接。当您解锁或使用计算机时，您可能会收到另一条推送，因为 Desktop 可能会再次尝试。在三次无人响应的尝试后，它会等到您重试或发送消息。
 > * **跳板机，推送持续不断**：在 Desktop 无法判断无人响应的情况下（例如 Windows 上的 Desktop），只要有可重新接入的进程，无论该进程是否仍在运行，它都会持续尝试。每次尝试您都可能收到另一条推送。若要结束尝试，请退出 Desktop，但这[可能会让您失去正在运行的任务](#reopen-a-session-after-you-quit-desktop)。
-> * **长时间中断**：Desktop 会放慢到大约每五分钟尝试一次。若要更快重新连接，请在会话中重试或发送消息，Desktop 会在连接后投递该消息。
+> * **长时间中断**：Desktop 会放慢到约每五分钟尝试一次。要更快地重新连接，请在会话中重试或发送消息。Desktop 会在连接后尝试投递该消息。
+> * **消息未发送**：如果您的消息下方出现 `Your organization's settings haven't loaded, so your message to <host> wasn't sent. Retry to send it.` 这一行，说明 Desktop 已重新连接，但因为您组织的设置尚未加载而暂扣了您的消息。选择 **Retry** 即可立即发送该消息。如果您不做任何操作，Desktop 会在设置加载后再次尝试。
 > * **输出缺失**：在 Desktop 断开连接期间，辅助程序会在 16 MiB 缓冲区中保留每个会话最近的 Claude Code 输出，并丢弃较早的输出。Desktop 重新连接后，会话可能会显示 `Loading recent output from <host>…`。如果 Desktop 无法加载全部输出，您会看到一行 `Some output produced while you were disconnected may be missing here.`。该行并不表示任务已停止。
 > * **进程已不存在**：进程在 Desktop 断开连接期间结束了，例如远程机器重启时。Desktop 随后可以根据对话保存的历史记录启动一个新进程，并让 Claude 继续该任务。如果任务仍处于停止状态，请发送消息。使用第三方提供商时，请更新到 Claude Desktop v2.42304.0 或更高版本，因为较早的版本从不会自行继续任务。
 
@@ -2290,6 +2301,8 @@ Desktop 拒绝密钥，通常是因为它与您计算机上保存的密钥不同
 | `<host> is out of disk space` | `[ENOSPC]` 或 `[EDQUOT]` | 在远程机器上的主目录或 `/tmp` 中释放空间或配额 |
 | `Free up disk space on this computer` | `[ENOSPC]` 或 `[EDQUOT]`，出现在以 `Couldn't prepare the deploy locally` 开头的消息中 | 释放您计算机上的空间 |
 | `Claude Code won't start on <host>` | `[CLI_UNRESPONSIVE]` | 等待一分钟，然后重试。如果仍然失败，请在远程机器上运行消息中提到的命令，查看 Claude Code 在那里是否有响应。 |
+| `Ask <host>'s administrator to let Claude's server run` | `[SERVER_NOT_RUNNABLE]` 或 `[SETUP_DIR_NOEXEC]` | 请远程机器的管理员允许程序从该机器上的 `~/.claude/remote/` 运行，如[要求](#remote-machine-requirements-for-ssh-sessions)中所述 |
+| `Try again in a few minutes` | `[DOWNLOAD_BUSY]` | 等待几分钟，然后重试。Anthropic 的下载服务器或您计算机所在网络上的代理报告其正忙。如果该卡片反复出现，请询问该网络的管理员是否有代理限制了下载。 |
 
 对于任何其他消息，请查看[远程机器要求](#remote-machine-requirements-for-ssh-sessions)。
 

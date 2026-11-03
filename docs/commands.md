@@ -35,7 +35,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 下表列出了 Claude Code 中包含的所有命令。大多数是内置命令，其行为编码在 CLI 中。有两类条目带有标记：
 
 * **[Skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)**：随附 skill。它的工作方式与您自己编写的 skill 相同：是交给 Claude 的提示词。
-  * `/verify` 仅在您调用时运行。在 v2.1.215 之前，Claude 也可以自行运行 `/verify`。
+  * `/verify` 仅在您调用时运行。
 * **[工作流](https://code.claude.com/docs/zh-CN/workflows.md#bundled-workflows)**：随附的[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)，会将工作分发到多个子代理并在后台运行。
   * `/deep-research` 仅在您调用时运行。
 

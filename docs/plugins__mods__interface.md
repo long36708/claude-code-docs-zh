@@ -738,7 +738,7 @@ on('session.start', async ($, e, next) => {
 })
 ```
 
-Claude Code 现在每秒运行您的 `ui.render` hook 一次。当模块重新加载时计时器停止，模块的新实例会启动其自己的计时器。
+Claude Code 现在每秒运行您的 `ui.render` hook 一次。模块重新加载后计时器停止，模块的新实例会启动其自己的计时器。
 
 ### 站点可以重绘的频率
 

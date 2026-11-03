@@ -20,7 +20,7 @@ Claude Agent SDK 为每次与 Claude 的交互提供详细的令牌使用信息�
 >
 > SDK 建模的一个计费规则是 [数据驻留定价](https://platform.claude.com/docs/en/about-claude/pricing#data-residency-pricing)。当响应的 `usage` 报告 `inference_geo: "us"` 时，SDK 将该响应令牌的列表价格乘以 1.1。网络搜索等按请求收费的费用不会被乘以该系数。需要 TypeScript Agent SDK v0.3.239 或更高版本，或 Python Agent SDK v0.2.144 或更高版本。
 >
-> 使用这些字段进行开发洞察和大致预算编制。对于权威计费，请使用 [使用情况和成本 API](https://platform.claude.com/docs/en/build-with-claude/usage-cost-api) 或 [Claude 控制台](https://platform.claude.com/usage) 中的使用情况页面。不要向最终用户计费或根据这些字段触发财务决策。
+> 使用这些字段进行开发洞察和大致预算编制。对于权威计费，请参阅 [管理组织的成本](https://code.claude.com/docs/zh-CN/costs.md#manage-costs-for-your-organization)。不要向最终用户计费或根据这些字段触发财务决策。
 
 ## 理解令牌使用情况
 

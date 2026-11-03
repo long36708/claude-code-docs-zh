@@ -206,7 +206,7 @@ paths:
 - Include OpenAPI documentation comments
 ```
 
-没有 `paths` 字段的规则无条件加载并适用于所有文件。当 Claude 对匹配的文件使用 Read、Write 或 Edit 工具时，路径范围规则会加载。当 Claude 使用[算作读取](https://code.claude.com/docs/zh-CN/tools-reference.md#edit-tool-behavior)的 Bash 命令查看匹配的文件时（例如对单个文件使用 `cat` 或 `head`），该规则也会加载。当 Claude 通过项目目录的符号链接路径到达文件时，匹配也有效，例如在符号链接检出中。
+当 Claude 对匹配的文件使用 Read、Write 或 Edit 工具时，路径范围规则会加载。当 Claude 使用[算作读取](https://code.claude.com/docs/zh-CN/tools-reference.md#edit-tool-behavior)的 Bash 命令查看匹配的文件时（例如对单个文件使用 `cat` 或 `head`），该规则也会加载。当 Claude 通过项目目录的符号链接路径到达文件时，匹配也有效，例如在符号链接检出中。
 
 每个模式都相对于规则的基准目录：
 
@@ -219,10 +219,11 @@ paths:
 
 | 模式 | 匹配 |
 | - | - |
-| `**/*.ts` | 任何目录中的所有 TypeScript 文件 |
-| `src/**/*` | `src/` 目录下的所有文件 |
-| `*.md` | 项目根目录中的 Markdown 文件 |
-| `src/components/*.tsx` | 特定目录中的 React 组件 |
+| `**/*.ts` | 基准目录下任意位置的 `.ts` 文件 |
+| `src/**/*` | 基准目录的 `src/` 下的所有文件 |
+| `*.md` | 基准目录下任意位置的 `.md` 文件 |
+| `/*.md` | 直接位于基准目录中的 `.md` 文件，不包括子文件夹中的文件 |
+| `src/components/*.tsx` | 直接位于基准目录的 `src/components/` 中的 `.tsx` 文件，不包括子文件夹中的文件 |
 
 您可以指定多个模式并使用大括号扩展在一个模式中匹配多个扩展名：
 

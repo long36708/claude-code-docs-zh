@@ -77,7 +77,7 @@ Claude 所有者导航到 [claude.ai/admin-settings/claude-code](https://claude.
 * **带 CC 的代码行**：所有已合并 PR 中使用 Claude Code 协助编写的代码行总数。仅计算"有效行"：规范化后超过 3 个字符的行，不包括空行和仅包含括号或琐碎标点符号的行。
 * **带 Claude Code 的 PR (%)**：包含 Claude Code 协助代码的所有已合并 PR 的百分比
 * **建议接受率**：用户接受 Claude Code 代码编辑建议的次数百分比，包括 Edit、Write 和 NotebookEdit 工具使用
-* **接受的代码行**：Claude Code 编写且用户在其会话中接受的代码行总数。这不包括被拒绝的建议，也不跟踪后续删除。
+* **接受的代码行**：Claude Code 的 Edit 和 Write 工具在已接受的编辑中添加或删除的代码行总数。这不包括被拒绝的建议，且之后删除的行不会减少该总数。
 
 ### 探索图表
 
@@ -192,7 +192,7 @@ PR 合并日期前 21 天到后 2 天的会话被考虑用于归属匹配。
 
 ## 访问 API 客户的分析
 
-使用 Claude Console 的 API 客户可以在 [platform.claude.com/claude-code](https://platform.claude.com/claude-code) 访问分析。您需要 UsageView 权限来访问仪表板，该权限授予开发者、计费、管理员、所有者和主要所有者角色。要以编程方式拉取相同的每日每用户指标，请使用 [Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) 和管理员 API 密钥。
+使用 Claude Console 的 API 客户可以在 [platform.claude.com/claude-code](https://platform.claude.com/claude-code) 访问分析。您需要 UsageView 权限来访问仪表板。开发者、计费、管理员、所有者和主要所有者角色拥有此权限。要以编程方式拉取每日每用户指标，请使用 [Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) 和管理员 API 密钥。
 
 > [!NOTE]
 >
@@ -200,22 +200,22 @@ PR 合并日期前 21 天到后 2 天的会话被考虑用于归属匹配。
 
 Console 仪表板显示：
 
-* **接受的代码行**：Claude Code 编写且用户在其会话中接受的代码行总数。这不包括被拒绝的建议，也不跟踪后续删除。
+* **接受的代码行**：Claude Code 的 Edit 和 Write 工具在已接受的编辑中添加或删除的代码行总数。这不包括被拒绝的建议，之后删除的代码行也不会减少总数。
 * **建议接受率**：用户接受代码编辑工具使用的次数百分比，包括 Edit、Write 和 NotebookEdit 工具。
-* **活动**：图表上显示的日活跃用户和会话。
-* **支出**：每日 API 成本（美元）与用户计数一起显示。
+* **活跃用户**和**会话**：活跃用户和 Claude Code 会话的每日计数。
+* **支出**：每日 API 成本（美元）。
 
 ### 查看团队洞察
 
-团队洞察表显示每个用户的指标：
+团队洞察表显示您在仪表板顶部所选日期范围内的以下每用户列，默认为最近 30 天：
 
-* **成员**：所有已向 Claude Code 进行身份验证的用户。API 密钥用户按密钥标识符显示，OAuth 用户按电子邮件地址显示。
-* **本月支出**：每个用户当前月份的 API 成本总计。
-* **本月代码行**：每个用户当前月份接受的代码行总数。
+* **成员**：在该范围内有 Claude Code 使用记录的用户和 API 密钥。API 密钥用户按密钥名称显示，OAuth 用户按电子邮件地址显示。
+* **支出**：每个用户的 API 成本总计。
+* **接受的代码行**：每个用户通过 Edit 和 Write 工具在已接受的编辑中添加或删除的代码行总数。
 
 > [!NOTE]
 >
-> Console 仪表板中的支出数字是用于分析目的的估计值。有关实际成本，请参阅您的计费页面。
+> Console 仪表板中的支出数字是用于分析目的的估计值。有关实际成本，请参阅[成本页面](https://platform.claude.com/cost)。
 
 ## 相关资源
 

@@ -256,7 +256,7 @@ on('turn.complete', ($, e, next) => {
 
 ### 停止后台工作
 
-当模块重新加载时，计时器停止。对于 hook 内的长时间运行工作，[`next.signal`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#the-hook-function) 是一个 `AbortSignal`，当您的 hook 处理的事件被放弃时中止，例如当用户中断时，因此将其传递给任何长时间运行的内容。
+模块重新加载后，计时器会停止。对于 hook 内的长时间运行工作，[`next.signal`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#the-hook-function) 是一个 `AbortSignal`，当您的 hook 处理的事件被放弃时（例如用户中断时）会中止。请将其传递给任何长时间运行的内容。
 
 ### 用户中断轮次后的调用和后台工作
 
