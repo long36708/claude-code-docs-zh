@@ -131,6 +131,8 @@ From the Browser pane, you can:
 * Start or stop servers, or stop them all at once, from the **Dev servers** menu in the Browser pane's header
 * Choose whether the Browser keeps cookies after you quit the app with **Keep cookies** in the Browser pane's **⋮** menu, so you don't have to sign in again during development
 
+In an SSH session, you lose the pane's cookies when you quit Desktop. You can't change that with **Keep cookies**.
+
 Claude creates the initial server configuration based on your project. If your app uses a custom dev command, edit `.claude/launch.json` to match your setup. See [Configure preview servers](#configure-preview-servers) for the full reference.
 
 To clear the Browser's saved data, select **Clear browsing data** in the Browser pane's **⋮** menu. To turn the Browser off entirely, turn off **Browser tools** in **Settings > Code** or **Settings > Claude Code**.
