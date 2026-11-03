@@ -651,8 +651,8 @@
     "jetbrains.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/jetbrains",
       "original_md_url": "https://code.claude.com/docs/zh-CN/jetbrains.md",
-      "hash": "b32d39b7eccd07172a78b615ee328873153588f0907e6a07d2dc98a98ef3f45d",
-      "last_updated": "2026-10-30T23:05:17.159239"
+      "hash": "aa9f08dfdb7e3845066763b7456ee62493d0b4762c6dbaa388711ab6af8a8c11",
+      "last_updated": "2026-11-03T12:10:33.139574"
     },
     "keybindings.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/keybindings",
@@ -1372,8 +1372,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-03T03:35:42.522094",
-    "fetch_duration_seconds": 159.242399,
+    "last_fetch_completed": "2026-11-03T12:11:42.582713",
+    "fetch_duration_seconds": 133.916993,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-03T03:35:42.522116",
+  "last_updated": "2026-11-03T12:11:42.582746",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
