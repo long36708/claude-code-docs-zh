@@ -176,7 +176,7 @@ Claude Code 在启动时从 Anthropic 的服务器获取设置，并在活动会
 
 * 当开发者在启动时登录（例如首次运行或执行 `/logout` 之后），Claude Code 会在打开会话前等待获取最多五秒。如果策略及时到达，Claude Code 会从第一个屏幕开始执行它，并在该屏幕上显示您的 [`companyAnnouncements`](https://code.claude.com/docs/zh-CN/settings-reference#companyannouncements)。当负载需要[安全批准](#security-approval-dialogs)时，Claude Code 会结束等待，并在开发者批准后应用该负载
 * 在任何其他启动情况下，以及当这五秒等待结束时，Claude Code 会在获取继续进行的同时打开会话，因此在设置加载和限制生效之前会有一段短暂的时间窗口
-* 如果获取失败，Claude Code 会在没有服务器托管设置的情况下继续运行，并在交互式会话中警告没有远程策略生效；端点托管设置仍然生效。如果某个托管来源设置了 [`forceRemoteSettingsRefresh`](#enforce-fail-closed-startup)，Claude Code 则会退出
+* 如果获取失败，Claude Code 会在没有服务器托管设置的情况下继续运行，并在交互式会话和 [Claude Desktop 的 Code 标签页](https://code.claude.com/docs/zh-CN/desktop.md)中警告没有远程策略生效；端点托管设置仍然生效。如果某个托管来源设置了 [`forceRemoteSettingsRefresh`](#enforce-fail-closed-startup)，Claude Code 则会退出
 
 **后续启动且有缓存设置：**
 
@@ -186,7 +186,7 @@ Claude Code 在启动时从 Anthropic 的服务器获取设置，并在活动会
 * 缓存的 [`prependPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#prependplugins)、[`appendPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#appendplugins) 或 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 值在会话的获取确认负载之前，无法移除内置守卫、更改其位置或将其关闭
 * 在[端点托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#choose-a-delivery-mechanism)自行列出或启用插件的机器上，仅由缓存列表启用的插件在获取确认负载之前被视为[用户的](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)插件，而不是您组织的插件
 * Claude Code 在后台获取最新设置
-* 缓存的设置在网络故障期间保持有效。如果启动时的获取失败，Claude Code 会在交互式会话中警告缓存的策略正在生效
+* 缓存的设置在网络故障期间保持有效。如果启动时的获取失败，Claude Code 会在交互式会话和 Code 标签页中警告缓存的策略正在生效
 * 在获取成功之前，启动时暂缓的值保持暂缓
 
 Claude Code 会暂缓缓存的 `env` 块中的若干类变量，直到服务器为该会话确认负载。这可以防止缓存的代理、证书颁发机构、端点或凭据值对确认负载的设置获取进行重定向、拦截或重新身份验证。这项加固仅适用于从服务器获取的设置缓存：通过 MDM 或 `managed-settings.json` 部署的[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)不受影响。被暂缓的类别包括：

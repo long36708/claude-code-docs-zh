@@ -2183,6 +2183,7 @@ type SDKInformationalMessage = {
   level: "info" | "notice" | "suggestion" | "warning";
   tool_use_id?: string;
   prevent_continuation?: boolean;
+  tag?: string;
   uuid: UUID;
   session_id: string;
 };
@@ -2558,8 +2559,11 @@ interface HookCallbackMatcher {
   matcher?: string;
   hooks: HookCallback[];
   timeout?: number; // 此匹配器中所有 hooks 的超时时间（秒）
+  onFailure?: "continue" | "block"; // "block" 在回调失败时阻止该操作
 }
 ```
+
+要确定 `onFailure` 涵盖哪些情况，请参阅[在回调失败时阻止操作](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md#block-the-action-when-a-callback-fails)。
 
 ### `HookInput`
 

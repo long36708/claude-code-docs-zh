@@ -416,6 +416,10 @@ Claude Code 会根据您组织的 [`availableModels`](https://code.claude.com/do
 
 当您要求 Claude 以特定 effort 级别运行非分叉子代理时，它还可以为该次调用传入 `effort` 参数。该参数会覆盖 `effort` 字段，并在子代理被[恢复](#resume-subagents)时保持有效。[`CLAUDE_CODE_EFFORT_LEVEL`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量优先于这两者。单次调用参数需要 Claude Code v2.1.292 或更高版本。
 
+#### 当子代理没有 `effort` 字段或参数时
+
+在主对话的模型上，子代理以您在会话中选择的级别运行，例如通过 `/effort` 选择或通过 `--effort` 设置的级别。在其他模型上，[该级别不适用](https://code.claude.com/docs/zh-CN/model-config.md#effort-level-of-subagents-and-teammates)。若要选择其级别，请设置 `effort` 字段。
+
 ### 控制子代理的能力
 
 您可以通过工具访问、权限模式和条件规则来控制子代理能做什么。

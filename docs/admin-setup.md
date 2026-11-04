@@ -129,11 +129,11 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 ### 已连接的 GitHub 账户
 
-在 Team 和 Enterprise 计划中，[**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 的 GitHub 部分列出了通过 [Claude GitHub App](https://github.com/apps/claude) 关联到您 Claude 组织的 GitHub 组织和个人账户。Claude Code、[Claude Tag](https://claude.com/docs/claude-tag/admins/configure-github) 和 Claude Security 共享该列表。打开此页面需要您在 Claude 组织中拥有管理员角色。
+在 Team 和 Enterprise 计划中，[**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 的 GitHub 部分列出了通过 [Claude GitHub App](https://github.com/apps/claude) 关联到您 Claude 组织的 GitHub 组织和个人账户。Claude Code、[Claude Tag](https://claude.com/docs/claude-tag/admins/configure-github) 和 Claude Security 共享该列表。打开此页面需要您在 Claude 组织中拥有[所有者角色](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control)。管理员角色无法打开此页面。
 
-管理员或成员都可以关联账户：
+可以通过 Git 提供商页面关联账户，也可以通过将 GitHub 连接到 Claude 来关联账户：
 
-* **管理员连接**：管理员在该部分点击 **Connect**，或在已连接账户后点击 **Add organization**，然后在 GitHub 组织上安装 Claude GitHub App。以这种方式关联组织，需要一个既是该 GitHub 组织所有者、又是您 Claude 组织管理员的人员。
+* **所有者连接**：所有者在该部分点击 **Connect**，或在已连接账户后点击 **Add organization**，然后在 GitHub 组织上安装 Claude GitHub App。以这种方式关联组织，需要一位同时拥有该 GitHub 组织的您 Claude 组织的所有者。
 * **成员连接**：当成员将其 GitHub 账户连接到 Claude 时（例如在[设置云端会话](https://code.claude.com/docs/zh-CN/web-quickstart.md#connect-github)时），Claude 会关联该成员所拥有且已安装 Claude GitHub App 的 GitHub 账户。这可能包括其个人账户以及其拥有的 GitHub 组织。
 
 标记为 **Not linked** 的行来自您自己的 GitHub 登录。它是您在 GitHub 上可以看到且已安装 Claude GitHub App 的账户。

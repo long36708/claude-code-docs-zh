@@ -153,7 +153,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 }
 ```
 
-在自定义探针中使用 `last_poll_age_ms` 作为活跃信号；无限增长的值表示轮询循环卡住。`last_poll_at` 和 `last_poll_age_ms` 都是 `null`，直到第一次轮询完成。
+基于 `last_poll_age_ms` 设置警报，但不要在存活探针中使用它；存活探针应继续依据 HTTP 状态代码。该值是自上次成功轮询以来经过的时间，因此当运行器无法连接到 Anthropic 时它也会上升。在第一次轮询成功之前，`last_poll_at` 和 `last_poll_age_ms` 都是 `null`。要捕获从一开始就失败的轮询，还应针对 `claude_code_self_hosted_runner_poll_errors_total` 设置警报，该指标列在 [Prometheus 指标](#prometheus-metrics)下。
 
 编排器自己的 `/healthz`（位于其健康端口上）始终返回 `200`。正文携带报告最近一次轮询是否成功的 `connected` 字段，加上 `queue_counts` 中的每个状态生成队列计数。要了解 `connected` 为何是 `false`，请读取顶层 `last_error` 字段，每次成功轮询都会将其重置为 `null`。使用 `connected` 而不是状态代码来控制就绪和警报。
 

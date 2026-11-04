@@ -224,6 +224,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](https://code.claude.com/docs
 | `matcher` | `string` | `undefined` | 针对事件的过滤字段匹配的模式，遵循[设置文件中匹配器的规则](https://code.claude.com/docs/zh-CN/hooks.md#matcher-patterns)。对于工具 hook，该字段是工具名称。内置工具包括 `Bash`、`Read`、`Write`、`Edit`、`Glob`、`Grep`、`WebFetch`、`Agent` 等。请参阅[工具输入类型](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#tool-input-types)以获取完整列表。MCP 工具使用模式 `mcp__<server>__<action>`，其中 `<server>` 是您在 `mcpServers` 配置中使用的键，其拼写方式遵循[工具命名约定](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#tool-naming-convention)中的说明。 |
 | `hooks` | `HookCallback[]` | - | 必需。当模式匹配时执行的回调函数数组 |
 | `timeout` | `number` | `undefined` | 超时时间（秒）。省略时，Claude Code 应用[事件的默认超时](#hook-timeout)。您的 SDK 回调遵循 `command` hook 默认值 |
+| `onFailure` | `"continue" \| "block"` | `undefined` | 回调失败时的行为。设置为 `"block"` 可[在回调失败时阻止操作](#block-the-action-when-a-callback-fails)。在 Python 中，使用 `on_failure` |
 
 尽可能使用 `matcher` 模式来针对特定工具。带有 `'Bash'` 的匹配器仅对 Bash 命令运行，而省略模式会为事件的每次出现运行您的回调。
 
@@ -282,6 +283,53 @@ const asyncHook: HookCallback = async (input, toolUseID, { signal }) => {
 > [!NOTE]
 >
 > 异步输出无法阻止、修改或将上下文注入到操作中，因为 Agent 已经继续。仅将它们用于日志记录、指标或通知等副作用。
+
+### 在回调失败时阻止操作
+
+在大多数事件上，如果回调抛出异常或返回未通过验证的输出，操作会继续进行，并且您的应用程序会收到一条 `tag` 为 `hook_callback_failed` 的 [`SDKInformationalMessage`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage) 警告。这样一来，崩溃的 `PreToolUse` 守卫会让工具调用进入正常的权限流程。不返回任何内容的回调（例如某条没有 `return` 的路径）也算作失败。在 Python 中，请从 `SystemMessage.data` 读取 `tag`。
+
+要改为阻止操作，请在匹配器上设置 `onFailure: "block"`（TypeScript）或 `on_failure="block"`（Python）。需要 TypeScript Agent SDK v0.3.317 或更高版本，或 Python Agent SDK v0.2.177 或更高版本。此示例在 Python 中的 `check_policy` 或 TypeScript 中的 `checkPolicy` 失败时阻止 Bash 调用：
+
+```python Python theme={null}
+options = ClaudeAgentOptions(
+    hooks={
+        "PreToolUse": [
+            HookMatcher(matcher="Bash", hooks=[check_policy], on_failure="block")
+        ]
+    }
+)
+```
+
+```typescript TypeScript theme={null}
+import type { Options } from "@anthropic-ai/claude-agent-sdk";
+
+const options: Options = {
+  hooks: {
+    PreToolUse: [{ matcher: "Bash", hooks: [checkPolicy], onFailure: "block" }]
+  }
+};
+```
+
+要进行测试，请让回调抛出错误，然后让 Claude 运行一条 Bash 命令。工具结果会包含 `failed; blocking because onFailure is "block"`，并且 Claude 看不到您的错误文本。
+
+当回调没有意见时，请返回 `{}`。设置 `"block"` 后，没有 `return` 的路径会阻止操作。捕获自身错误并返回 `{}` 的回调不算失败，因此请让错误从守卫中向上传播。
+
+#### 行为不同的事件
+
+设置 `"block"` 后，以下事件并不总是会阻止：
+
+* **`Stop`、`SubagentStop`、`TaskCompleted` 和 `TeammateIdle`**：这些事件会忽略该选项，因此操作会继续进行。
+* **`PermissionRequest`**：仅当阻止在您的 `canUseTool` 回调作出响应之前到达时才生效。
+* **`PostToolUse`**：工具已经运行，因此 Claude 会将失败作为反馈接收。
+
+超出超时时间的回调遵循 [Hook 超时](#hook-timeout)。设置 `"block"` 后，超时还会阻止 `PreCompact`、`Elicitation` 和 `WorktreeCreate`。
+
+#### `onFailure` 的启动错误
+
+设置 `"block"` 后，如果无法遵循该选项，查询会在启动时失败，并且不会发送任何提示词：
+
+* **Claude Code 不支持该选项**：错误包含 `does not honor`。请更新 Claude Code，或移除该选项。
+* **会话已在运行且未注册您的 hook**：错误包含 `did not register your hooks`。请启动新会话。
 
 ## 示例
 
@@ -779,7 +827,7 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 * `Stop` 和 `SubagentStop`：超时的回调计为不返回任何决定。Agent 或子代理停止，就像该回调已允许它一样，您在该事件上的其他 hook 的决定仍然适用。在 Claude Code v2.1.273 之前，超时的 `Stop` 或 `SubagentStop` 回调计为失败的 hook 运行，Claude Code 丢弃了您在该事件上的其他 hook 的决定。
 * `SessionStart`：超时的回调计为不返回任何输出，会话继续使用您的其他 `SessionStart` hook 的输出。
 * `PreModelSwitch`：Claude Code 阻止模型切换。未回答的 hook 尚未批准切换。
-* 其他事件，如 `Notification`、`PreCompact` 和 `PostModelSwitch`：Claude Code 记录失败并继续。
+* 其他事件，如 `Notification`、`PreCompact` 和 `PostModelSwitch`：Claude Code 记录失败并继续。使用 [`onFailure: "block"`](#block-the-action-when-a-callback-fails) 时，`PreCompact`、`Elicitation` 或 `WorktreeCreate` 上的超时会阻止该操作。
 
 主会话中 `Stop` 或 `SessionStart` 回调第一次超时时，Claude Code 还会向消息流添加一个 [`SDKInformationalMessage`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)，说明驱动会话的应用未响应。当您的应用保持无响应时，后续超时不会重复该消息。
 

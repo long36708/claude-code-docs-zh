@@ -494,7 +494,7 @@ upstreams:
 
 * 如果 STS 拒绝或无法到达，网关不使用上游自己的凭据发送请求。它记录 STS 错误和要检查的内容，然后尝试您列出的下一个上游。[上游错误消息](#upstream-error-messages)覆盖当没有上游成功时客户端接收的内容。没有 `assume_role` 的后续上游将使用其自己的凭据提供请求，因此仅在这是您想要的情况下列出一个。
 * 网关调用区域 STS 端点 `sts.<region>.amazonaws.com`，其网络必须到达。对于 FIPS 端点，在网关的环境中设置 `AWS_USE_FIPS_ENDPOINT=true` 而不是在 AWS 配置文件中的 `use_fips_endpoint`。
-* `assume_role` 仅适用于 `provider: bedrock` 并需要 SigV4 源凭据：当它在 `aws_bearer_token` 旁边设置时，网关拒绝启动。
+* `assume_role` 需要 SigV4 源凭据：当它与 `aws_bearer_token` 一起设置时，网关会拒绝启动。
 * 如果没有 [`groups` 列表](#send-each-team-to-its-own-upstream)，网关允许的每位开发者都可以使用此上游。要限制开发者可以使用的模型，请在 [`managed`](#managed) 策略中设置 `availableModels`。
 * 要防止通过该角色提供的模型也从其他账号提供，请为其指定一个自定义 id，使其 `upstream_model` 映射仅包含此上游的名称。对于这样的 id，网关会跳过所有其他上游，因此无论是请求本身还是针对被中止请求的 token 计数，都不会故障转移到其他账号。
 * 对内置模型名称的请求仍可能[到达此上游](#multiple-upstreams)，网关会使用同一角色对其签名。除非该账号也应提供这些模型，否则请将此上游列在最后。
@@ -556,6 +556,7 @@ upstreams:
 | `region` | 是 | AWS 区域。网关从它派生端点为 `https://bedrock-mantle.<region>.api.aws/anthropic`。 |
 | `models` | 是 | 您的 AWS 帐户在 Mantle 上获授权的模型，按客户端发送的名称命名，如 `claude-haiku-4-5`。只有这些模型会发送到此上游，其他每个模型都跳到下一个上游。 |
 | `auth` | 否 | 接受与 [Amazon Bedrock](#amazon-bedrock) 上游的 `auth` 块相同的键，遵循相同的规则。 |
+| `assume_role` | 否 | 此上游的请求所经由的角色，键与[`bedrock` 上游上的](#bedrock-in-another-aws-account)相同，包括用于[按开发者归属](#per-developer-aws-cost-attribution)的 `session_name`。为该角色授予 Mantle 的 IAM 操作权限。要求网关运行 Claude Code v2.1.318 或更高版本。更早的网关会在启动时退出并报告 `Unrecognized key(s) in object: 'assume_role'`。 |
 | `base_url` | 否 | 覆盖派生的端点。在末尾保留 `/anthropic` 路径。 |
 
 为上游的 AWS 身份授予 Mantle 自己用于推理和 token 计数的 IAM 操作，[使用 Mantle 端点](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#use-the-mantle-endpoint)中列出了这些操作。
@@ -565,7 +566,7 @@ upstreams:
 `bedrock` 上游的 `guardrail` 和 `assume_role` 设置不会扩展到 Mantle 提供的请求：
 
 * **`guardrail`**：网关不对发送到 Mantle 的请求应用 [Bedrock 防护栏](#apply-an-amazon-bedrock-guardrail)，因此当列出 `mantle` 上游而任何 `bedrock` 上游设置了 `guardrail` 时，网关拒绝启动。
-* **`assume_role`**：`mantle` 上游不接受 [`assume_role`](#bedrock-in-another-aws-account)。Mantle 提供的请求使用 `mantle` 上游自己的 `auth` 凭据发送，且不会[按开发人员归属](#per-developer-aws-cost-attribution)。
+* **`assume_role`**：请在 `mantle` 上游本身上设置。没有它时，Mantle 处理的请求会使用 `mantle` 上游自身的 `auth` 凭据发送。
 
 有关 Mantle 自身错误响应的含义，请参阅 [Mantle 端点错误](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#mantle-endpoint-errors)。
 

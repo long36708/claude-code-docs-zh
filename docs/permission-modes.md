@@ -383,6 +383,8 @@ claude --permission-mode plan
 * **服务器不审查该会话**：响应完成但没有审查结果，或服务器答复它不审查此会话。最常见的原因是 LLM 网关或代理丢弃了审查请求或结果，以及平台、区域或凭据尚不支持服务器端检查。Claude Code 会回退到其自身的分类器请求。一旦该回退在会话剩余时间内保持生效，在这些请求需要计费的账户上，它会显示[关于分类器请求费用的通知](https://code.claude.com/docs/zh-CN/auto-mode-classifier-billing.md)。
 * **服务器未对某个操作给出裁决**：Claude Code 会拒绝该操作，而不是在未经审查的情况下运行它。在任何连接上，当响应在审查结果到达前结束，或结果以 Claude Code 无法读取的形式到达时，都会发生这种情况。截断响应或改写结果的 LLM 网关或代理可能导致上述任一情况。在直接连接到 Anthropic API 时，当服务器对该操作的检查失败（例如超时）时也会发生这种情况。[服务器未返回安全裁决](https://code.claude.com/docs/zh-CN/errors.md#the-server-returned-no-safety-verdict)介绍了拒绝消息、拒绝反复发生时的情况以及处理方法。
 
+  如果 [hook](https://code.claude.com/docs/zh-CN/hooks.md#pretooluse-updatedinput-in-auto-mode) 或 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 在服务器审查之后更改了操作的输入，Claude Code 可能会在没有裁决的情况下拒绝该操作。在直接连接到 Anthropic API 的交互式终端和 VS Code 会话中，拒绝消息的文本包含 `a hook changed this call's input after auto mode reviewed it`。[其错误条目](https://code.claude.com/docs/zh-CN/errors.md#hook-changed-input-after-review)介绍了处理方法。
+
 要跳过请求服务器审查并始终使用 Claude Code 自身的分类器请求，请设置 [`CLAUDE_CODE_AUTO_MODE_SERVER=0`](https://code.claude.com/docs/zh-CN/env-vars)。在直接连接到 Anthropic API 时，该变量需要 Claude Code v2.1.281 或更高版本。在这种连接上将其设置为 `1`，会在尚未启用服务器审查的会话中启用它，除非您同时设置了 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`。如果您设置了 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 且未设置 `CLAUDE_CODE_AUTO_MODE_SERVER`，Claude Code 也会停止请求服务器审查，[禁用预发布功能](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#disable-pre-release-capabilities)中描述的情况除外。
 
 ### 默认分类器模型
@@ -557,7 +559,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 * **操作被阻止**：Claude Code 会显示通知，并在 `/permissions` 的 **Recently blocked** 选项卡下列出该操作，您可以在那里[批准该操作，以便 Claude 重试](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)。
 * **反复阻止**：如果分类器连续 3 次或累计 20 次阻止操作，自动模式会暂停，Claude Code 会恢复提示。批准被提示的操作后会恢复自动模式。有关阻止次数的计算方式，请参阅[反复阻止阈值](#repeated-block-thresholds)。
 * **分类器未给出裁决**：当独立于自动模式的安全检查拒绝了分类器自身的请求，或分类器的响应无法解析时，Claude Code 会阻止该操作，且不显示通知，也不会添加 **Recently blocked** 条目。有关每种情况显示的消息及处理方法，请参阅[自动模式无法确定操作的安全性](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)。
-* **服务器未给出裁决**：在[服务器端分类器审查](#server-side-classifier-review)下，Claude Code 会拒绝服务器未给出裁决的操作，并在连续十个响应均无裁决后停止当前轮次。请参阅[服务器未返回安全裁决](https://code.claude.com/docs/zh-CN/errors.md#the-server-returned-no-safety-verdict)。
+* **服务器未返回判定结果**：在[服务器端分类器审查](#server-side-classifier-review)下，如果服务器未对某项操作给出判定结果，Claude Code 会拒绝该操作；如果连续十次响应都没有判定结果，Claude Code 可能会停止当前轮次。请参阅[服务器未返回安全判定结果](https://code.claude.com/docs/zh-CN/errors.md#the-server-returned-no-safety-verdict)。
 * **检查期间切换模式**：如果您在分类器检查尚未完成时切换权限模式，Claude Code 会丢弃新模式本不会请求的裁决。此时会改为提示您批准，或者在 [`dontAsk` 模式](#allow-only-pre-approved-tools-with-dontask-mode)下自动拒绝该操作。
 
 #### 反复阻止阈值

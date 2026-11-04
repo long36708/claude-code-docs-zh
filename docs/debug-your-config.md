@@ -14,6 +14,8 @@
 
 `/context` 命令会显示当前会话中占用上下文窗口的所有内容，并按类别细分：系统提示词、系统工具、MCP 工具、自定义子代理（及其各自的加载来源）、记忆文件、skill 以及对话消息。请首先运行此命令，以确认您的 `CLAUDE.md`、规则或 skill 描述是否已加载。`/context` 中的 skill 部分还包括 [随附 skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)，而 `/skills` 不会列出这些内容。
 
+在[全屏模式](https://code.claude.com/docs/zh-CN/fullscreen.md)下，`/context` 会折叠逐项细分，因此请运行 `/context all` 将其展开。
+
 如需查看特定类别的详细信息，请继续使用相应的专用命令：
 
 | 命令 | 显示内容 |

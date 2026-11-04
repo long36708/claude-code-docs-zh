@@ -71,7 +71,7 @@ Claude Code 基于开源的 [`@anthropic-ai/sandbox-runtime`](https://github.com
 * **Overrides**：选择在沙箱中失败的命令是否可以回退到在沙箱外运行。这对应 [`allowUnsandboxedCommands`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-allowunsandboxedcommands) 设置
 * **Config**：查看解析后的沙箱设置
 
-如果面板只显示 Dependencies 选项卡，则表示缺少必需的软件包。请按照[设置 Linux 和 WSL2](#set-up-linux-and-wsl2) 中的说明进行安装，重启 Claude Code，然后再次运行 `/sandbox`。
+如果面板只显示 Dependencies 选项卡，则表示沙箱尚无法启动。请按照[设置 Linux 和 WSL2](#set-up-linux-and-wsl2) 中的说明修复该选项卡报告的问题，重启 Claude Code，然后再次运行 `/sandbox`。
 
 **2. 选择模式**
 
@@ -97,7 +97,7 @@ claude --settings '{"sandbox": {"enabled": true, "allowUnsandboxedCommands": fal
 
 > [!WARNING]
 >
-> 默认情况下，如果由于缺少依赖或平台不受支持而导致沙箱无法启动，Claude Code 会在不使用沙箱的情况下运行命令。要让 Claude Code 改为在启动时退出，请将 [`sandbox.failIfUnavailable`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-failifunavailable) 设置为 `true`。需要将沙箱隔离作为安全关卡的托管部署可以使用此设置。
+> 默认情况下，如果平台不支持沙箱或启动时的依赖检查失败，Claude Code 会在不使用沙箱的情况下运行命令。要让 Claude Code 改为在启动时退出，请将 [`sandbox.failIfUnavailable`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-failifunavailable) 设置为 `true`。需要将沙箱隔离作为安全关卡的托管部署可以使用此设置。
 
 ### 确认命令在沙箱内运行
 
@@ -135,37 +135,47 @@ claude --settings '{"sandbox": {"enabled": true, "allowUnsandboxedCommands": fal
 
 Ripgrep 已随原生 Claude Code 二进制文件捆绑提供。seccomp 过滤器是可选的，用于增加对 Unix 域套接字的阻止。如果缺少该过滤器，请使用 `npm install -g @anthropic-ai/sandbox-runtime` 进行安装。
 
-当缺少必需的依赖时，在安装之前 Dependencies 选项卡是唯一显示的选项卡。当仅缺少可选的 seccomp 过滤器时，Dependencies 选项卡会与其他选项卡一起显示。依赖检查在启动时运行，因此安装软件包后请重启 Claude Code，以便 `/sandbox` 检测到它们。
+* **Dependencies 是唯一的选项卡**：沙箱无法启动。请安装该选项卡列为缺失的内容；如果它报告了 Ubuntu 的 AppArmor 限制，请[为 bubblewrap 添加 AppArmor 配置文件](#add-an-apparmor-profile-for-bubblewrap)
+* **Dependencies 与其他选项卡一起显示**：该选项卡列出了缺失的可选项，例如 seccomp 过滤器。沙箱在没有它的情况下也可以启动，因此仅当您需要它所增加的功能时才需安装
 
-> [accordion] Ubuntu 24.04 及更高版本：允许 bubblewrap 创建用户命名空间
->
-> 在 Ubuntu 24.04 及更高版本上，默认的 AppArmor 策略会阻止 bubblewrap 创建其隔离所需的用户命名空间。
->
-> 要检查您的环境（包括 WSL2 内部）是否强制执行此限制，请运行 `sysctl kernel.apparmor_restrict_unprivileged_userns`。如果该命令返回 `0`，请跳过此步骤。如果输出 `No such file or directory` 错误，则表示该键不存在，也可以跳过此步骤。如果返回 `1`，请添加一个授予 `bwrap` 此能力的 AppArmor 配置文件：
->
-> ```bash theme={null}
-> sudo tee /etc/apparmor.d/bwrap > /dev/null <<'EOF'
-> abi <abi/4.0>,
-> include <tunables/global>
->
-> profile bwrap /usr/bin/bwrap flags=(unconfined) {
->   userns,
->   include if exists <local/bwrap>
-> }
-> EOF
-> ```
->
-> 该配置文件仅适用于 `bwrap` 本身，而不适用于它在沙箱内运行的命令。重新加载 AppArmor 以使其生效：
->
-> ```bash theme={null}
-> sudo systemctl reload apparmor
-> ```
+依赖检查在启动时运行，因此安装软件包后请重启 Claude Code，以便 `/sandbox` 检测到它们。
 
 > [accordion] WSL2 注意事项
 >
 > 在 PowerShell 中使用 `wsl -l -v` 检查您的 WSL 版本。如果看到 `Sandboxing requires WSL2`，则说明您的发行版运行的是 WSL1。请将其升级到 WSL2，或在不使用沙箱隔离的情况下运行 Claude Code。
 >
 > 在 WSL2 上，WSL 会通过 Unix 套接字将 Windows 二进制文件（例如 `cmd.exe`、`powershell.exe` 或 `/mnt/c/` 下的任何内容）的启动交给 Windows 主机处理，因此沙箱命令能否启动这些程序取决于沙箱的 [Unix 套接字设置](https://code.claude.com/docs/zh-CN/settings-reference.md#sandbox-network-allowunixsockets)：必须先安装可选的 seccomp 过滤器，才能阻止该套接字。要允许这些启动，请设置 `allowAllUnixSockets`，这会向沙箱命令开放所有 Unix 套接字。
+
+#### 为 bubblewrap 添加 AppArmor 配置文件
+
+如果 Claude Code 运行的是 `/usr/bin/bwrap`，并且出现以下任一情况，请添加该配置文件：
+
+* Claude Code [报告 Ubuntu 对用户命名空间的 AppArmor 限制](#apparmor-restriction-stops-bubblewrap)
+* 在[该限制开启时](#bwrap-uid-map-permission-denied)，沙箱命令失败并显示 `bwrap: setting up uid map: Permission denied` 或 `bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`
+
+Claude Code 会运行 `PATH` 上的第一个 `bwrap`，除非托管设置在 [`sandbox.bwrapPath`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-bwrappath) 中指定了一个。要查看排在最前面的是哪个 `bwrap`，请在用于启动 Claude Code 的 shell 中运行 `which bwrap`。如果 Claude Code 运行的是 `/usr/bin/bwrap` 以外的任何路径，请改为[使用 `sysctl` 解除该限制](#apparmor-restriction-stops-bubblewrap)。
+
+要为 `/usr/bin/bwrap` 添加配置文件，请运行以下命令：
+
+```bash theme={null}
+sudo tee /etc/apparmor.d/bwrap > /dev/null <<'EOF'
+abi <abi/4.0>,
+include <tunables/global>
+
+profile bwrap /usr/bin/bwrap flags=(unconfined) {
+  userns,
+  include if exists <local/bwrap>
+}
+EOF
+```
+
+重新加载 AppArmor 以使其生效：
+
+```bash theme={null}
+sudo systemctl reload apparmor
+```
+
+然后重启 Claude Code，并[确认沙箱正常工作](#confirm-commands-run-inside-the-sandbox)。
 
 ### 沙箱模式
 
@@ -716,7 +726,7 @@ Claude Code 在您的计算机上、沙箱之外运行沙箱代理，并通过 `
 
 除 `enabled` 之外的两个设置项控制沙箱无法运行命令时会发生什么：
 
-* **`failIfUnavailable`**：缺少依赖（例如 Linux 上的 bubblewrap）时会阻止 Claude Code 启动，而不是回退到非沙箱化执行
+* **`failIfUnavailable`**：当平台不支持沙箱或启动时的依赖检查失败时，Claude Code 会拒绝启动，而不是回退到非沙箱化执行
 * **`allowUnsandboxedCommands: false`**：Claude Code 忽略 `dangerouslyDisableSandbox` 逃生舱，因此当命令在沙箱下失败时，Claude 无法在沙箱外重试该命令
 
 请考虑同时添加以下内容：
@@ -901,6 +911,28 @@ Claude Code 会忽略在其他任何位置设置的端口。在 v2.1.285 之前�
 ### Bubblewrap 在容器内启动失败
 
 在无特权容器中，[bubblewrap](#os-level-enforcement) 无法挂载新的 `/proc` 文件系统，因此沙箱化命令会因 `bwrap` 错误（如 `Can't mount proc on /newroot/proc: Operation not permitted`）而失败。将 [`enableWeakerNestedSandbox`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-enableweakernestedsandbox) 设置为 `true`，以便沙箱改为绑定挂载容器现有的 `/proc`。仅当外部容器已提供您需要的隔离边界时才使用此设置，因为该设置会向沙箱化命令公开进程信息，而新的 `/proc` 挂载会隐藏这些信息。
+
+### Ubuntu 的 AppArmor 限制阻止了 bubblewrap
+
+在 Linux 和 WSL2 上，消息 `Ubuntu's AppArmor restriction on user namespaces stops bubblewrap here` 表示 Ubuntu 的 AppArmor 限制导致沙箱无法启动。
+
+要让沙箱启动，请通过以下两种方式之一解除该限制：
+
+* 如果 Claude Code 运行的是 `/usr/bin/bwrap`，请[为 bubblewrap 添加 AppArmor 配置文件](#add-an-apparmor-profile-for-bubblewrap)
+* 在您的 shell 中运行 `sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0`，这会为机器上的所有程序解除该限制，并持续到您重新启动为止
+
+然后重新启动 Claude Code 并[确认沙箱正常工作](#confirm-commands-run-inside-the-sandbox)。
+
+在您解除该限制之前，命令会在常规权限流程下不使用沙箱运行；如果 [`sandbox.failIfUnavailable`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-failifunavailable) 为 `true`，Claude Code 则会拒绝启动。
+
+### 沙箱化命令因 `bwrap: setting up uid map: Permission denied` 失败
+
+在 Linux 和 WSL2 上，此错误或 `bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted` 可能意味着 Ubuntu 对用户命名空间的 AppArmor 限制正在阻止 bubblewrap。要进行检查，请在您的 shell 中运行 `sysctl kernel.apparmor_restrict_unprivileged_userns`：
+
+* `kernel.apparmor_restrict_unprivileged_userns = 1`：该限制已启用。如果 Claude Code 运行的是 `/usr/bin/bwrap`，请[添加 AppArmor 配置文件](#add-an-apparmor-profile-for-bubblewrap)，或运行 `sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0`，这会为所有程序解除该限制，直到您重新启动为止。然后重新启动 Claude Code 并[确认沙箱正常工作](#confirm-commands-run-inside-the-sandbox)
+* 任何其他输出：该限制不是原因。要报告此故障，请在 Claude Code 提示符处运行 [`/feedback`](https://code.claude.com/docs/zh-CN/commands#all-commands)
+
+在 v2.1.310 之前，Claude Code 不会在启动时检查此限制，因此 `/sandbox` 不会报告它。
 
 ### 0 字节只读文件出现在 `.claude` 设置路径中，且"是的，不要再问"无法保存
 

@@ -31,7 +31,7 @@
 >
 > 另有两项功能会在您的计算机上而非云端安排工作：[Desktop 定时任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md)和 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks)。要在这三者之间进行选择，请参阅[比较调度选项](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#compare-scheduling-options)。
 
-Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 中的 **Scheduled tasks (Was Routines)** 开关为所有成员关闭定时任务。关闭该开关后，现有定时任务将停止运行，成员也无法创建新的定时任务。
+Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 中的 **Scheduled tasks (Was Routines)** 或 **Routines** 开关为所有成员关闭定时任务。关闭该开关后，现有定时任务将停止运行，成员也无法创建新的定时任务。
 
 如果您的 Enterprise 组织通过[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，您还需要一个包含定时任务权限的角色。Owner 可以在 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles) 中角色的 **Remote sessions** 部分添加该权限。
 
@@ -485,7 +485,7 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 * **网址**：`claude.ai/code/routines`
 * **CLI**：`/schedule` 的别名 `/routines`、该命令的描述，以及 Claude 在设置任务时的回复
 * **API**：`/fire` 端点路径、其 beta 标头、其响应中的 `type`、`<routine-fire-payload>` 标签，以及 [Trigger a routine through the API](https://platform.claude.com/docs/en/api/claude-code/routines-fire) 参考页面
-* **组织设置**：**Scheduled tasks (Was Routines)** 开关
+* **组织设置**：**Scheduled tasks (Was Routines)** 或 **Routines** 开关
 
 ## 故障排除
 
@@ -504,9 +504,9 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 
 如果原因在于您的 CLI 登录方式或您处于云端会话中，您仍可以在 [claude.ai/code/routines](https://claude.ai/code/routines) 创建和管理定时任务。您需要在该处使用 Pro、Max、Ultra、Team 或 Enterprise 账户。如果您的组织关闭了定时任务或云端会话，或者您的角色中缺少相应权限，您也无法在 Web 端创建定时任务。
 
-### "Routines are disabled by your organization's policy"
+### 您的组织已关闭定时任务
 
-您 Team 或 Enterprise 组织中的 Owner 可能已在 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 关闭了 **Scheduled tasks (Was Routines)** 开关。在 Claude Code v2.1.227 或更高版本中，同一开关还会在 CLI 中隐藏 `/schedule`。这是一项服务器端的组织设置，因此无法通过您的本地配置覆盖。请联系 Owner 为您的组织重新启用定时任务。
+您的组织已关闭云端定时任务，且您无法通过本地配置更改这一点。请询问您 Team 或 Enterprise 组织的 Owner 能否在 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 打开 **Scheduled tasks (Was Routines)** 或 **Routines** 开关。
 
 ### "The last run" 警告
 

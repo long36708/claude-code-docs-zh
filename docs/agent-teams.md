@@ -158,17 +158,17 @@ Claude Code 会根据您组织的 [`availableModels`](https://code.claude.com/do
 * **系列别名，例如 `opus`**：在 Anthropic API 和 Claude Platform on AWS 上，Claude Code 会在允许列表允许的该系列最新版本上运行队友。在使用提供商特定模型 ID 的提供商上，[替换机制不起作用](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)，被阻止的别名会像其他被阻止的值一样，按照下一条规则回退
 * **任何其他被阻止的值，包括在替换机制不起作用的提供商上的系列别名，或其系列没有允许版本的别名**：Claude Code 会改为在负责人的模型上运行队友。如果您设置了 `CLAUDE_CODE_SUBAGENT_MODEL`，Claude Code 会先尝试该模型，并遵循同样的规则
 
-默认情况下，队友继承负责人的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)。在分屏窗格模式下，此行为从 v2.1.186 起适用；早期版本不会将负责人的会话 effort 传递给分屏窗格队友。
+默认情况下，使用负责人模型的队友会继承负责人的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)。在分屏窗格模式下，此行为从 v2.1.186 起适用；早期版本不会将负责人的会话 effort 传递给分屏窗格队友。对于使用其他模型的队友，请参阅[子代理和队友的 effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#effort-level-of-subagents-and-teammates)。
 
 ### 让队友在实施前先制定计划
 
-对于复杂或有风险的任务，您可以让队友在实施前先制定计划。当负责人处于[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)时由 Claude 生成的队友，会在只读的计划模式下工作，直到其计划准备就绪。先将负责人切换到计划模式，然后请求生成队友：
+对于复杂或有风险的任务，您可以让队友在实施前先制定计划。当负责人处于[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)时由 Claude 生成的队友，同样会在计划模式下工作，直到其计划准备就绪。先将负责人切换到计划模式，然后请求生成队友：
 
 ```text wrap theme={null}
 Spawn an architect teammate to refactor the authentication module.
 ```
 
-当该队友完成计划后，它会向负责人发送计划批准请求。如果自该队友生成以来您未更改其权限模式，Claude Code 会在请求到达后立即批准该计划，无需负责人审查。队友的编辑和命令仍需经过[权限](#permissions)中所述的权限提示。获得批准后，队友退出计划模式并开始实施。
+当该队友完成计划后，它会向负责人发送计划批准请求。如果自该队友生成以来您未更改其权限模式，Claude Code 会在请求到达后立即批准该计划，无需负责人审查。获得批准后，队友退出计划模式并开始实施。Claude Code 会将负责人当前的[权限模式](#permissions)传递给该队友；如果负责人当前处于计划模式，则传递 Manual。
 
 如果您在查看某个正在运行的进程内队友的会话时按 [`Shift+Tab`](https://code.claude.com/docs/zh-CN/permission-modes#switch-permission-modes) 将其置于计划模式，则该次运行的计划将由负责人审查，而不是由 Claude Code 批准。系统不会要求您批准；负责人会批准该计划或将其退回修改。
 
@@ -288,7 +288,15 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 
 ### 权限
 
-队友从负责人的权限模式开始，除了 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)，他们不继承该模式。如果负责人使用 `--dangerously-skip-permissions` 运行，所有队友也会这样做。生成后，你可以更改个别队友的权限模式，但在生成时无法设置每个队友的权限模式。
+要循环切换正在运行的队友的权限模式，请按 [`Shift+Tab`](https://code.claude.com/docs/zh-CN/permission-modes#switch-permission-modes)，不过进程内队友可能会改为以负责人的模式运行。对于分割窗格队友，请在其窗格中按该键。对于 [进程内](#choose-a-display-mode) 队友，请在 [查看其会话](#talk-to-teammates-directly) 时按该键，队友会在开始下一轮次时检查其模式。
+
+> [!NOTE]
+>
+> 不处于 [计划模式](#have-teammates-plan-before-implementing) 的进程内队友，在负责人处于 [`acceptEdits`](https://code.claude.com/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)、[`auto`](https://code.claude.com/docs/zh-CN/permission-modes#eliminate-prompts-with-auto-mode) 或 [`bypassPermissions`](https://code.claude.com/docs/zh-CN/permission-modes#skip-all-checks-with-bypasspermissions-mode) 模式时，会以负责人的模式运行。将该队友切换到 Manual 不会改变这一点，即使其状态栏显示 Manual。
+>
+> 要让它在编辑前询问，请在 Agent 面板中的 `main` 行上按 Enter，并将负责人也切换到 Manual 模式。之后负责人也会询问，任何其他处于 Manual 模式的队友同样如此。
+
+您无法在生成时设置每个队友的权限模式。新队友以负责人的模式启动，包括由 `--dangerously-skip-permissions` 开启的 `bypassPermissions` 模式。如果负责人处于 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)，队友则改为以 [Manual 模式](https://code.claude.com/docs/zh-CN/permission-modes.md#available-modes) 启动。
 
 [进程内](#choose-a-display-mode)队友在负责人实时的允许和拒绝规则下运行，因此 [`--disallowedTools`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)、`--tools` 和 `--allowedTools` 都适用于它。对于分割窗格队友，请逐一检查各个标志：
 
@@ -488,7 +496,7 @@ Agent teams 是实验性的。需要注意的当前限制：
 * **没有嵌套团队**：队友无法生成自己的队友。只有负责人可以管理团队。
 * **没有来自 in-process 队友的后台子代理**：in-process 队友自己的子代理在前台运行，因为队友的后台工作无法超越负责人的进程。Claude Code 在队友生成定义设置 `background: true` 的子代理时返回错误。队友的 `run_in_background: true` 请求也会失败，要么返回错误，要么在前台静默运行。从主对话启动的子代理遵循[后台默认值](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)。
 * **负责人是固定的**：主会话在其生命周期内是其团队的负责人。你无法将队友提升为负责人或转移领导权。
-* **权限在生成时设置**：队友从 [权限](#permissions) 下描述的权限模式开始。你可以在生成后更改个别队友的权限模式，但在生成时无法设置每个队友的权限模式。
+* **生成时无法为每个队友设置权限模式**：队友以 [权限](#permissions) 下描述的权限模式启动。
 * **分割窗格需要 tmux 或 iTerm2**：默认 in-process 模式在任何终端中工作。VS Code 的集成终端、Windows Terminal 或 Ghostty 不支持分割窗格模式。
 
 ## 后续步骤

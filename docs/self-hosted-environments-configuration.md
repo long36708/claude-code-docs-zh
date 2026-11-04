@@ -16,7 +16,14 @@
 
 ## 包装脚本
 
-当每个会话需要运行器无法自行完成的设置时，使用包装脚本：为会话创建者配置作用域的短期凭据、导出特定于环境的密钥、准备语言工具链或围绕子进程应用资源限制。运行器每个会话启动一次您的包装脚本，而不是 Claude Code 二进制文件。通过 `exec` 进入 `$CLAUDE_RUNNER_CLAUDE_BIN`（运行器自己的二进制文件）来结束包装脚本，以便信号和退出码正确传播。
+当每个会话需要运行器无法自行完成的设置时，使用包装脚本：
+
+* 配置作用域限定为会话创建者的短期凭据
+* 导出特定于环境的密钥
+* 准备语言工具链
+* 围绕子进程应用资源限制
+
+运行器每次启动会话时（包括会话恢复或重新排队时），都会启动您的包装脚本来代替 Claude Code 二进制文件。通过 `exec` 进入 `$CLAUDE_RUNNER_CLAUDE_BIN`（运行器自己的二进制文件）来结束包装脚本，以便信号和退出码正确传播。
 
 启动运行器时，使用 `--exec-path` 或 `SELF_HOSTED_RUNNER_EXEC_PATH` 指向包装脚本，并按照[快速入门](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-manually)中的说明替换 `<writable-dir>`：
 
@@ -139,7 +146,9 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 
 ### checkout
 
-每个仓库运行一次，代替运行器的内置克隆和获取。使用此 hook 从您通过 HTTPS 或 SSH 访问的读通镜像克隆、从存档为工作树设置种子，或应用按会话的 git 身份验证。运行器设置以下变量，并且可能设置表中未列出的其他 `CLAUDE_RUNNER_` 变量：
+每次运行器启动会话时（包括会话恢复或重新排队时），都会针对每个仓库运行，代替运行器的内置克隆和获取。使用此 hook 从您通过 HTTPS 或 SSH 访问的读通镜像克隆、从存档为工作树设置种子，或应用按会话的 git 身份验证。
+
+运行器设置以下变量，并且可能设置表中未列出的其他 `CLAUDE_RUNNER_` 变量：
 
 | 变量 | 描述 |
 | :- | :- |
@@ -179,7 +188,12 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 
 ### post-session
 
-每个会话运行一次，在 Claude Code 子进程退出后和运行器拆卸工作区之前。此钩子是保存未提交工作的唯一机会：在 `--capacity` 高于 1 时，运行器在钩子返回后立即删除按会话工作树，在 `--capacity 1` 时重用的 [canonical clone](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#reuse-a-pre-warmed-checkout) 在下一个会话启动时硬重置，因此未提交的跟踪更改在两条路径上都不会存活。典型用途是推送未提交更改的快照分支、存档日志或向您自己的系统发出会话结束事件。
+在 Claude Code 子进程退出后、运行器拆卸工作区之前运行。此 hook 是保存未提交工作的唯一机会，因为未提交的跟踪更改在以下两条路径上都不会保留：
+
+* **在 `--capacity` 高于 1 时**：运行器在 hook 返回后立即删除按会话的 worktree
+* **在 `--capacity 1` 时**：重用的 [canonical clone](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#reuse-a-pre-warmed-checkout) 会在下一个会话启动时被硬重置
+
+典型用途是推送未提交更改的快照分支、存档日志或向您自己的系统发出会话结束事件。
 
 钩子在每个会话结束时触发，其中生成了子进程，无论原因如何；下面的 `CLAUDE_RUNNER_EXIT_REASON` 值枚举了这些情况。当运行器突然终止时（例如 VM 抢占或断电）它无法触发；如果您需要针对突然终止的保证，请改为使用 Claude Code `PostToolUse` 钩子从会话内定期快照。运行器设置：
 
@@ -275,7 +289,7 @@ hook 中的 git 仍会从每个配置文件（包括会话可以写入的配置�
 
 ### command
 
-每个会话在检出后运行一次，代替内置子进程生成。钩子接收与 [wrapper script](#wrapper-scripts) 相同的环境，应该以相同的方式 `exec` 进入 `"$CLAUDE_RUNNER_CLAUDE_BIN"`。使用 `command` 钩子将所有自定义保留在一个钩子目录中；当包装脚本在其他地方时使用 `--exec-path`。如果也设置了 `--exec-path`，标志优先，`command` 钩子被忽略。
+每次会话启动或恢复时，在检出之后运行，代替内置子进程生成。钩子接收与 [wrapper script](#wrapper-scripts) 相同的环境，应该以相同的方式 `exec` 进入 `"$CLAUDE_RUNNER_CLAUDE_BIN"`。使用 `command` 钩子将所有自定义保留在一个钩子目录中；当包装脚本在其他地方时使用 `--exec-path`。如果也设置了 `--exec-path`，标志优先，`command` 钩子被忽略。
 
 始终 `exec` 运行器自己的二进制文件，而不是 PATH 解析的 `claude`；否则您会破坏 [version pinning](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#pin-the-version)。
 
@@ -523,7 +537,7 @@ runner 仍会向 Anthropic 轮询会话，且每个会话仍会将其事件流�
 
 * **元数据端点**：如果您完全禁止会话访问[云元数据端点](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#harden-your-deployment)，则由该端点提供的凭据（例如实例配置文件）也无法到达 Claude Code。基于文件的 Web 身份（例如 Amazon EKS 上的 IAM Roles for Service Accounts (IRSA) 或 Workload Identity Federation 凭据文件）不依赖于该端点。
 * **续期**：会话的持续时间可能超过凭据的有效期，因此请使用能够自动续期的方法，例如基于文件的 Web 身份
-* **包装脚本**：runner 每个会话只启动一次您的[包装脚本](#provision-credentials-scoped-to-the-session-creator)，因此它导出的凭据不会续期。Claude Code 会从其环境中读取 AWS 凭据，因此如果您的包装脚本已为其他工作导出了 AWS 凭据，Claude Code 可能会使用这些凭据对模型请求进行签名。
+* **包装脚本**：您的[包装脚本](#provision-credentials-scoped-to-the-session-creator)导出的凭据值在 Claude Code 运行期间不会续期，因此对于长时间运行的会话，请使用能够自动续期的方法。Claude Code 会从其环境中读取 AWS 凭据，因此如果您的包装脚本已为其他工作导出了 AWS 凭据，Claude Code 可能会使用这些凭据对模型请求进行签名。
 
 **3. 在 runner 的环境中设置一个提供商的变量**
 

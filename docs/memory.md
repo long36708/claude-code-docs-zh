@@ -67,7 +67,9 @@ CLAUDE.md 文件可以位于多个位置，每个位置具有不同的作用域�
 
 ### 设置项目 CLAUDE.md
 
-项目 CLAUDE.md 可以存储在 `./CLAUDE.md` 或 `./.claude/CLAUDE.md` 中。创建此文件并添加适用于在项目上工作的任何人的指令：构建和测试命令、编码标准、架构决策、命名约定和常见工作流。这些指令通过版本控制与您的团队共享，因此请关注项目级标准而不是个人偏好。要确认文件已加载，请在会话中运行 `/context` 并检查 **Memory files** 下的列表。
+项目 CLAUDE.md 可以存储在 `./CLAUDE.md` 或 `./.claude/CLAUDE.md` 中。创建此文件并添加适用于在项目上工作的任何人的指令：构建和测试命令、编码标准、架构决策、命名约定和常见工作流。这些指令通过版本控制与您的团队共享，因此请关注项目级标准而不是个人偏好。
+
+要确认文件已加载，请在会话中运行 [`/context all`](https://code.claude.com/docs/zh-CN/commands#all-commands) 并检查 **Memory files** 下的列表。在[全屏模式](https://code.claude.com/docs/zh-CN/fullscreen.md)下，仅运行 `/context` 会折叠该列表。
 
 > [!TIP]
 >
@@ -461,7 +463,7 @@ ln -s AGENTS.md CLAUDE.md
 * **编辑**：Claude 通过链接读取 `CLAUDE.md`，但 Edit 和 Write 工具[拒绝通过符号链接写入](https://code.claude.com/docs/zh-CN/errors.md#refusing-after-a-symlink-changed)，拒绝指示 Claude 编辑链接的目标 `AGENTS.md`
 * **Windows**：如果您或克隆存储库的任何人在 Windows 上工作，请改用 `@AGENTS.md` 导入。在那里创建符号链接需要管理员权限或开发人员模式，Git 会将提交的符号链接检出为纯文本文件，除非启用了 `core.symlinks`，这会使该克隆具有一行 `CLAUDE.md` 代替您的说明
 
-使用任一方法，在您的下一个会话中运行 `/context` 并确认 `CLAUDE.md` 出现在**内存文件**下。
+使用任一方法，在您的下一个会话中运行 `/context all` 并确认 `CLAUDE.md` 出现在**记忆文件**下。
 
 ### 从其他工具迁移说明
 
@@ -567,7 +569,7 @@ Claude 在你的会话中读取和写入记忆文件。当你在 Claude Code 界
 
 ## 使用 `/memory` 查看和编辑
 
-`/memory` 命令列出您的 CLAUDE.md、CLAUDE.local.md 和其他记忆文件在用户和项目作用域内的位置，包括尚不存在的文件的用户和项目 CLAUDE.md 条目。它还允许您开启或关闭自动记忆，并提供打开自动记忆文件夹的选项。选择任何文件即可在您的编辑器中打开它；选择一个尚不存在的文件会先创建它。要检查启动时加载了哪些 `CLAUDE.md` 和规则文件，请运行 `/context`。
+`/memory` 命令列出您的 CLAUDE.md、CLAUDE.local.md 和其他记忆文件在用户和项目作用域内的位置，包括尚不存在的文件的用户和项目 CLAUDE.md 条目。它还允许您开启或关闭自动记忆，并提供打开自动记忆文件夹的选项。选择任何文件即可在您的编辑器中打开它；选择一个尚不存在的文件会先创建它。
 
 VS Code 等 GUI 编辑器在单独的窗口中打开文件，您可以在文件打开时继续使用会话。Vim 等终端编辑器会接管终端，直到您退出。
 
@@ -583,7 +585,7 @@ CLAUDE.md 内容作为用户消息在系统提示词之后传递，而不是系�
 
 要调试：
 
-* 运行 `/context` 并检查 **Memory files** 下的列表，以验证应在启动时加载的 CLAUDE.md 和 CLAUDE.local.md 文件。如果其中某个文件不在列表中，Claude 就看不到它。使用 `/memory` 打开和编辑文件。
+* 运行 `/context all` 并检查 **Memory files** 下的列表，以验证应在启动时加载的 CLAUDE.md 和 CLAUDE.local.md 文件。如果其中某个文件不在列表中，Claude 就看不到它。使用 `/memory` 打开和编辑文件。
 * 如果出现 `Instruction file not loaded` 提示，请参阅[其含义及处理方法](https://code.claude.com/docs/zh-CN/errors.md#instruction-file-not-loaded)。
 * 工作目录的子目录中的 `CLAUDE.md` 不会出现在 **Memory files** 下，因为它是按需加载而不是在启动时加载的。加载时，终端中会出现一行带有其路径的 `Loaded`。要测试新建的此类文件，请从 shell 中创建它，而不是让 Claude 编写它，然后让 Claude 读取该子目录中的某个文件。
 * 检查相关 CLAUDE.md 是否在为您的会话加载的位置（参见 [选择 CLAUDE.md 文件的位置](#choose-where-to-put-claude-md-files)）。

@@ -199,6 +199,10 @@ mod 已加载，其 hooks 运行，它接触的工具调用被拒绝。
 
 消息告诉 Claude 再次发出记录的调用。如果也被拒绝，hook 每次都更改输入，因此关闭 mod 或 hook，或离开自动模式并自己批准调用。
 
+> [!NOTE]
+>
+> 在[部分交互式终端会话和 VS Code 会话](https://code.claude.com/docs/zh-CN/hooks.md#pretooluse-updatedinput-in-auto-mode)中，同样的拒绝会给出原因 `a hook changed this call's input after auto mode reviewed it`。在这些会话中，重复的调用会携带 mod 的第一次更改，并且 `tool.call` hook 仍会在其上运行，但进一步的更改会被丢弃。除非 Claude 在回复中告诉您[自动模式无法检查该调用](https://code.claude.com/docs/zh-CN/errors.md#hook-changed-input-after-review)，否则无需更改您的 mod。
+
 ### 关于您的设置中的拒绝规则的消息
 
 `tried to lift a deny rule in your settings` 和 `the deny rules in your settings could not be checked for this call, so it is refused` 都来自内置保护。

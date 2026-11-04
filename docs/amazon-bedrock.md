@@ -463,9 +463,11 @@ Claude Code 在每个请求上将此作为 `X-Amzn-Bedrock-Service-Tier` 标头�
 
 ## AWS Guardrails
 
-[Amazon Bedrock Guardrails](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html) 让您为 Claude Code 实现内容过滤。在 [Amazon Bedrock 控制台](https://console.aws.amazon.com/bedrock/)中创建 Guardrail，发布一个版本，然后将 Guardrail 标头添加到您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md)。如果您使用跨区域推理配置文件，请在您的 Guardrail 上启用跨区域推理。
+[Amazon Bedrock Guardrails](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html) 让您为 Claude Code 实现内容过滤。在 [Amazon Bedrock 控制台](https://console.aws.amazon.com/bedrock/)中创建 Guardrail 并发布一个版本。如果您使用跨区域推理配置文件，请在您的 Guardrail 上启用跨区域推理。
 
-示例配置：
+要通过 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 应用 Guardrail，请按照[应用 Amazon Bedrock guardrail](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#apply-an-amazon-bedrock-guardrail) 中的说明操作。如果没有 Claude apps gateway，请将 Guardrail 标头添加到您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md)。
+
+设置文件配置示例：
 
 ```json theme={null}
 {
@@ -474,8 +476,6 @@ Claude Code 在每个请求上将此作为 `X-Amzn-Bedrock-Service-Tier` 标头�
   }
 }
 ```
-
-如果您的组织通过 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 策略传递 guardrail 标头，它们将被视为[需要批准的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#environment-variables-and-the-approval-dialog)。
 
 当 guardrail 在中途阻止响应时，已流式传输的文本会保留，并且回复将以 guardrail 上为被阻止响应配置的消息结尾。
 

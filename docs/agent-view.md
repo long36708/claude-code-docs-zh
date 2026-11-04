@@ -442,7 +442,7 @@ Skill、您自己的命令以及会展开为提示词的内置命令（如 `/ini
 
 运行 `/background` 或其别名 `/bg` 将当前对话移到后台会话。传递一个提示词，例如 `/bg run the test suite and fix any failures`，可以先再给出一条指令。如果您运行 `/bg` 时 Claude 正在回复，回复会在后台会话中继续。
 
-退出仍有后台工作运行的会话（例如子代理、后台 shell 命令、工作流或 [monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)）时，会显示 `Background work is running` 对话框，而不是立即退出。选择 `Move to background and exit` 可以像 `/background` 一样将会话移到后台并返回到您的 shell。当 Agent 视图 [已关闭](#turn-off-agent-view) 时不显示该选项。
+如果您在某些类型的后台工作（例如子代理或工作流）正在运行时退出会话，`Background work is running` 对话框会警告这些工作将会停止。选择 `Move to background and exit` 可以像 `/background` 一样将会话移到后台并返回到您的 shell。当 Agent 视图 [已关闭](#turn-off-agent-view) 时不显示该选项。
 
 如果列表上的后台会话已使用该对话的名称，Claude Code 会为新行的名称编号，例如 `my-session (2)`，并保持现有行的名称不变。要重命名新行，请在 Agent 视图中选择它并按 `Ctrl+R`。
 

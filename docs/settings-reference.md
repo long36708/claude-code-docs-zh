@@ -40,7 +40,7 @@
 | [`autoCompactWindow`](#autocompactwindow) | 设置上下文达到多满时 Claude Code 执行[压缩](https://code.claude.com/docs/zh-CN/context-window.md) | 记忆与上下文 | 任意文件 |
 | [`autoConnectIde`](#autoconnectide) | 从外部终端自动连接到正在运行的 [VS Code](https://code.claude.com/docs/zh-CN/vs-code.md) 或 [JetBrains](https://code.claude.com/docs/zh-CN/jetbrains.md#from-external-terminals) IDE | 全局配置设置 | 全局配置 |
 | [`autoContinueAtUsageLimit`](#autocontinueatusagelimit) | 在 claude.ai 用量限制重置后，在已打开的会话中等待并[自动继续任务](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset) | 界面与终端 | 用户或托管 |
-| [`autoInstallIdeExtension`](#autoinstallideextension) | 关闭从 VS Code 终端自动安装 [IDE 扩展](https://code.claude.com/docs/zh-CN/vs-code.md#install-the-extension) | 全局配置设置 | 全局配置 |
+| [`autoInstallIdeExtension`](#autoinstallideextension) | 允许 `/ide` 从外部终端安装 [IDE 扩展](https://code.claude.com/docs/zh-CN/vs-code.md#install-the-extension) | 全局配置设置 | 全局配置 |
 | [`autoMemoryDirectory`](#automemorydirectory) | 将[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)存储在您选择的目录中 | 记忆与上下文 | 任意文件 |
 | [`autoMemoryEnabled`](#automemoryenabled) | 关闭或开启[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory) | 记忆与上下文 | 任意文件 |
 | [`autoMode`](#automode) | 为[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器添加您自己的允许和拒绝规则 | 权限设置 | 用户或托管 |
@@ -1267,7 +1267,7 @@ Claude Code 自身的部分文件仍可写入，例如计划文件、[草稿区]
 
 ### `sandbox.failIfUnavailable`
 
-当 `sandbox.enabled` 为 `true` 但由于缺少依赖或平台不受支持而导致沙箱无法启动时，让 Claude Code 在启动时报错退出。没有此键时，Claude Code 会在沙箱外运行命令。将沙箱隔离作为安全门槛的托管部署可以使用此设置。
+当 `sandbox.enabled` 为 `true`，但由于平台不支持或依赖检查失败而导致沙箱无法启动时，让 Claude Code 在启动时报错退出。如果没有此键，Claude Code 会在沙箱外运行命令。将沙箱隔离作为安全关卡的托管部署可以使用此设置。
 
 在沙箱不支持的平台上，启用此键后 Claude Code 将无法启动。请参阅[使用托管设置强制沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md#enforce-sandboxing-with-managed-settings)。
 
@@ -5087,10 +5087,12 @@ Desktop 无法读取为主机列表的值（例如 `true` 或对象）在您更�
 
 ### `sshHostCommands`
 
-向 [Desktop](https://code.claude.com/docs/zh-CN/desktop.md#create-an-ssh-connection-from-a-command) 环境选择器添加其主机来自某个命令的 SSH 连接。当您创建连接或替换其主机时，Desktop 会在您的计算机上运行该条目的命令，并连接到该命令输出的主机。需要在 macOS 或 Linux 上使用 Claude Desktop v3.6556.0 或更高版本，并使用 Claude 账户登录。
+向 [Desktop](https://code.claude.com/docs/zh-CN/desktop.md#create-an-ssh-connection-from-a-command) 环境选择器添加其主机来自某个命令的 SSH 连接。当您创建连接或为其创建另一台机器时，Desktop 会在您的计算机上运行该条目的命令，并连接到该命令输出的主机。
+
+需要在 macOS 或 Linux 上使用 Claude Desktop v3.6556.0 或更高版本，或在 Windows 上使用 v4.16336.0 或更高版本，并使用 Claude 账户登录。在 Windows 上，Desktop 还必须[通过 OpenSSH 客户端连接](https://code.claude.com/docs/zh-CN/desktop.md#use-your-ssh-configuration)。
 
 * **作用域**：[`User or managed`](#scopes)。只有桌面应用读取此设置项。它从计算机上的[一个托管设置文件或 MDM 策略](https://code.claude.com/docs/zh-CN/desktop.md#distribute-commands-to-your-team)读取托管条目，并忽略[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中的此设置项。
-* **类型**：对象数组，每个对象包含必需的 `id`、`name` 和 `command`，以及可选的 `sshIdentityFile` 和 `startDirectory`。Desktop 在不使用 shell 的情况下启动 `command`，因此请[将其写为程序加普通参数](https://code.claude.com/docs/zh-CN/desktop.md#write-the-command)。
+* **类型**：对象数组，每个对象包含必需的 `id`、`name` 和 `command`，以及可选的 `sshIdentityFile` 和 `startDirectory`。Desktop 不会将 `command` 作为 shell 语法读取，因此管道和变量不起作用：请[将其写为程序及其参数](https://code.claude.com/docs/zh-CN/desktop.md#write-the-command)。
 * **默认值**：未设置
 
 此示例添加一个名为 `Dev box` 的连接，其中 `acme-dev create` 代表您自己的工具：
@@ -5106,6 +5108,8 @@ Desktop 无法读取为主机列表的值（例如 `true` 或对象）在您更�
   ]
 }
 ```
+
+在 Windows 上，像 `acme-dev` 这样的单纯名称不起作用，因此请[以程序的完整路径作为命令开头](https://code.claude.com/docs/zh-CN/desktop.md#write-the-command-on-windows)。
 
 在 Claude Code v2.1.307 之前，Edit 工具会拒绝向有效设置文件添加此设置项的更改，并报错 `Unrecognized field: sshHostCommands`。在这些版本上，请改用文本编辑器添加此设置项；Claude Code 可以加载包含此设置项的文件。在 Desktop 中，起作用的版本是 [Code 标签页的 Claude Code 版本](https://code.claude.com/docs/zh-CN/desktop.md#claude-code-version-in-the-code-tab)，而不是您终端中的版本。
 
@@ -5823,12 +5827,12 @@ Claude Code 会忽略 `settings.json` 中的此键。
 
 ### `autoInstallIdeExtension`
 
-从 VS Code 终端运行 Claude Code 时，自动安装 Claude Code IDE 扩展。在 VS Code 或 JetBrains 终端内运行 Claude Code 时，此项在 `/config` 中显示为 **Auto-install IDE extension**。
+从外部终端运行 [`/ide`](https://code.claude.com/docs/zh-CN/commands) 命令时，允许该命令在正在运行的 VS Code、Cursor 或 Devin Desktop 中安装 Claude Code IDE 扩展。Claude Code 启动时不会安装该扩展。在 VS Code 或 JetBrains 终端内运行 Claude Code 时，此项在 `/config` 中显示为 **Auto-install IDE extension**。
 
 * **作用域**：[`Global config`](#scopes)
 * **类型**：Boolean
-  * `true`：从 VS Code 终端运行 Claude Code 时，它会自动安装 IDE 扩展
-  * `false`：Claude Code 不会自动安装扩展
+  * `true`：`/ide` 会安装该扩展
+  * `false`：`/ide` 不会安装该扩展
 * **默认值**：`true`
 * **单会话覆盖**：将 [`CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `1` 可在单个会话中跳过安装，即使此键为 `true`
 

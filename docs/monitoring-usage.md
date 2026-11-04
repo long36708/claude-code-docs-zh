@@ -330,6 +330,10 @@ Claude Code 从工具调用的成功返回时写入此事件，因此引发错�
 
 在交互式 CLI 会话中，详细测试版跟踪还需要您的组织被列入该功能的白名单。Agent SDK 和非交互式 `-p` 会话不需要白名单。
 
+> [!WARNING]
+>
+> 请仅在调试时设置 `ENABLE_BETA_TRACING_DETAILED`，不要在生产环境中设置。详细测试版跟踪的导出量很大，并且其[内容属性](#new-context-gates)不属于稳定跨度 schema 的一部分。
+
 | 属性 | 描述 | 门控 |
 | - | - | - |
 | `hook_event` | 钩子事件类型，例如 `PreToolUse` | |

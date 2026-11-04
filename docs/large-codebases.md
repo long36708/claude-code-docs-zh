@@ -96,7 +96,7 @@ Write database queries with the Knex query builder. Never put raw SQL strings in
 Never edit a migration after it has merged. Add a new migration instead.
 ```
 
-当你从 `packages/api/` 启动 Claude 时，它加载 `packages/api/CLAUDE.md` 和根 `CLAUDE.md`。Claude 看到本地指令与存储库范围的规则一起，上下文中没有来自 `packages/web/` 的指令。对于非 monorepo 树中的任何子目录也是如此。要确认加载了哪些文件，请运行 `/context` 并检查 **Memory files** 下的列表。
+当您从 `packages/api/` 启动 Claude 时，它会同时加载 `packages/api/CLAUDE.md` 和根 `CLAUDE.md`。Claude 会同时看到本地指令和仓库范围的规则，上下文中不会有来自 `packages/web/` 的指令。对于非 monorepo 目录树中的任何子目录也是如此。要确认加载了哪些文件，请运行 [`/context all`](https://code.claude.com/docs/zh-CN/commands#all-commands) 并检查 **Memory files** 下的列表。
 
 保持文件随着代码库和模型变化而最新的几种方法：
 

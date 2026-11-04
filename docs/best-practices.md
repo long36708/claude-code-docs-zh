@@ -155,7 +155,7 @@ Claude Code 会将 [`CLAUDE.md`](https://code.claude.com/docs/zh-CN/memory) 加�
 - Integration tests need DATABASE_URL set, see .env.example
 ```
 
-在会话中运行 `/context` 以确认 Claude 已加载该文件。
+在会话中运行 [`/context all`](https://code.claude.com/docs/zh-CN/commands#all-commands) 以确认 Claude 已加载该文件。
 
 请注意，类型检查那一行只是命令本身。Claude 需要知道这个命令，以便在工作过程中检查自己的工作。如果您还希望 Claude Code 在 Claude 完成之前*强制*要求类型检查通过，那是 [`Stop` hook](#enforce-the-check-with-a-stop-hook) 的工作。在这个文件中写 `Always typecheck before you finish` 这样的一行，大多数时候有效，但并非每次都有效。
 
@@ -603,7 +603,7 @@ config/dev-credentials.json
 >
 > `claude -p --worktree` 运行需要您自己清理，因为它退出时不会询问。使用 `git worktree remove <path>` 删除它们；如果 git 因 worktree 被锁定而拒绝，请先执行 `git worktree unlock <path>`。
 
-对于跨许多文件的一次大型机械性更改，[`/batch migrate every handler to the v2 response helpers`](https://code.claude.com/docs/zh-CN/commands) 会将工作拆分为 5 到 30 个单元并向您展示计划。然后它会在各自的 worktree 中运行每个单元，并为其创建 PR。从 shell 中，[`claude agents`](https://code.claude.com/docs/zh-CN/agent-view)（目前仍为研究预览版）可以在一个屏幕上显示您机器后台运行的所有内容。
+对于跨许多文件的一次大型机械性更改，[`/batch migrate every handler to the v2 response helpers`](https://code.claude.com/docs/zh-CN/commands) 会将工作拆分为 5 到 30 个单元并向您展示计划。您批准后，每个单元都会获得自己的 worktree，并创建一个 PR 或报告执行情况。从 shell 中，[`claude agents`](https://code.claude.com/docs/zh-CN/agent-view)（目前仍为研究预览版）可以在一个屏幕上显示您机器后台运行的所有内容。
 
 第二个会话也是您能获得的最简单的独立审查者。一个会话编写速率限制器，另一个会话在没有看到编写过程的情况下审查 `@src/middleware/rateLimiter.ts`，然后您将发现粘贴回第一个会话。这与 `/code-review` 的思路相同，只是由您来传递消息。
 

@@ -66,7 +66,8 @@
 | `This organization has been disabled` | [身份验证](#this-organization-has-been-disabled) |
 | `Your organization has disabled API key authentication` | [身份验证](#your-organization-has-disabled-api-key-authentication) |
 | `Your organization has disabled Claude subscription access` | [身份验证](#your-organization-has-disabled-claude-subscription-access) |
-| `Routines are disabled by your organization's policy` | [身份验证](#routines-are-disabled-by-your-organizations-policy) |
+| `Scheduled tasks are off for your organization` | [身份验证](#routines-are-disabled-by-your-organizations-policy) |
+| `Routines are off for your organization` | [身份验证](#routines-are-disabled-by-your-organizations-policy) |
 | `Remote Control is only available when using Claude via api.anthropic.com` | [身份验证](#remote-control-requires-the-anthropic-api) |
 | `OAuth token refresh failed — run /login to re-authenticate` | [身份验证](#remote-control-couldnt-refresh-your-login) |
 | `JWT refresh failed: no OAuth token — run /login` | [身份验证](#remote-control-couldnt-refresh-your-login) |
@@ -421,6 +422,9 @@
 | `Ignoring N permissions.allow entries from ... this workspace has not been trusted` | [配置警告](#workspace-has-not-been-trusted) |
 | `is a network path, which cannot be added as a working directory` | [配置警告](#working-directory-is-a-network-path) |
 | `Remote managed settings failed to load (<cause>)` | [配置警告](#remote-managed-settings-failed-to-load) |
+| `Your organization requires remote managed settings to load, but they could not be loaded` | [强制执行故障关闭式启动](https://code.claude.com/docs/zh-CN/server-managed-settings.md#enforce-fail-closed-startup) |
+| `Remote managed settings are still loading` | [配置警告](#remote-managed-settings-failed-to-load) |
+| `Remote managed settings did not load` | [配置警告](#remote-managed-settings-failed-to-load) |
 | `Managed settings were not approved; exiting without applying them.` | [配置警告](#managed-settings-were-not-approved) |
 | `Your organization's managed settings need your approval, which couldn't be asked for here.` | [配置警告](#managed-settings-need-your-approval) |
 | `Claude Code can't start: your organization's managed settings block the default model` / `Claude Code can't start: your organization allows only the models listed in "availableModels"` | [配置警告](#managed-settings-block-the-default-model) |
@@ -453,6 +457,8 @@
 | `is ignored — managed settings set allowManagedReadPathsOnly` / `is ignored — managed settings set allowManagedDomainsOnly` | [配置警告](#sandbox-allow-entries-are-ignored-under-a-managed-lock) |
 | `Sandbox mask files left behind at write-deny paths` | [配置警告](#stale-sandbox-mask-files-left-by-a-killed-session) |
 | `Stale sandbox mask files left by a killed session` | [配置警告](#stale-sandbox-mask-files-left-by-a-killed-session) |
+| `Ubuntu's AppArmor restriction on user namespaces stops bubblewrap here` | [沙箱隔离故障排除](https://code.claude.com/docs/zh-CN/sandboxing.md#apparmor-restriction-stops-bubblewrap) |
+| `bwrap: setting up uid map: Permission denied` / `bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted` | [沙箱隔离故障排除](https://code.claude.com/docs/zh-CN/sandboxing.md#bwrap-uid-map-permission-denied) |
 | 响应质量似乎比平时低 | [响应质量](#responses-seem-lower-quality-than-usual) |
 
 ## 自动重试
@@ -755,6 +761,8 @@ The server-side auto mode classifier gave no verdict (timed out), so auto mode c
 Auto mode is unavailable — the server returned no safety verdict for the last 10 responses, so Claude stopped. Send a message to try again, or switch out of auto mode.
 ```
 
+某些拒绝不计入这十次，包括[因 hook 或 mod 的更改而导致的拒绝](#hook-changed-input-after-review)。
+
 停止消息在每种会话中出现在不同的位置：
 
 * 在交互式会话中，消息作为警告出现在会话记录中，轮次结束
@@ -773,6 +781,21 @@ Auto mode is unavailable — the server returned no safety verdict for the last 
 在 v2.1.280 之前，Claude Code 立即拒绝来自没有判决的响应的每个操作，从不停止轮次。
 
 在 v2.1.302 之前，在直接连接到 Anthropic API 时，Claude Code 不会压缩已增长到对服务器检查而言过长的对话。
+
+#### `a hook changed this call's input after auto mode reviewed it`
+
+此拒绝表示 hook 或 mod 在服务器审查该调用之后[更改了该调用的输入](https://code.claude.com/docs/zh-CN/hooks.md#pretooluse-updatedinput-in-auto-mode)，因此审查并未覆盖将要运行的内容。这并不是对该操作不安全的判断。
+
+同一 Claude 回复中的后续调用可能会以此原因被拒绝：
+
+```text theme={null}
+another call in this response was changed by a hook after auto mode reviewed it, or could not be confirmed unchanged
+```
+
+Claude 随后可以再次发出每个被拒绝的调用，以便服务器对其进行审查。如果打开了权限提示，请作出回应。除非 Claude 在回复中说明自动模式无法检查该调用，否则您无需执行其他任何操作。在这种情况下，请停止该更改或自行批准该调用，然后让 Claude 再次尝试该调用：
+
+* **停止该更改**：关闭更改了该调用或同一 Claude 回复中较早调用的 [hook](https://code.claude.com/docs/zh-CN/hooks.md#disable-or-remove-hooks) 或 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off)，或请您的管理员将其关闭。要查找 hook，请在 Claude Code 提示符处运行 [`/hooks`](https://code.claude.com/docs/zh-CN/hooks#the-%2Fhooks-menu)。在终端会话中，运行 `/plugin` 查看已启用的 mod。
+* **自行批准该调用**：[切换到手动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)
 
 ### Was not reviewed and did not run
 
@@ -1188,19 +1211,20 @@ Agent SDK 和 `-p` 非交互模式会将其呈现为 `oauth_org_not_allowed` 错
 * 改用 Console API 密钥而不是订阅进行身份验证。设置方法请参阅 [Claude Console 身份验证](https://code.claude.com/docs/zh-CN/authentication.md#claude-console-authentication)。
 * 如果您是管理员但找不到启用访问的选项，请联系 [Anthropic 支持](https://support.claude.com)
 
-### Routine 已被您组织的策略禁用
+### Scheduled tasks are off for your organization
 
-您的 Team 或 Enterprise 组织中的 Owner 已在组织级别关闭了[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)（原 Routine）。当您尝试创建或运行定时任务时（例如在 [claude.ai/code/routines](https://claude.ai/code/routines) 上），会出现此错误。在 Claude Code v2.1.227 或更高版本中，同一设置还会在 CLI 中[隐藏 `/schedule`](https://code.claude.com/docs/zh-CN/routines#troubleshooting)。
+您的组织已关闭[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)，因此您无法创建或运行它们。来自 claude.ai 的消息会将其称为 scheduled tasks 或 routines，后面跟着一句关于您的管理员的说明：
 
 ```text theme={null}
-Routines are disabled by your organization's policy.
+Scheduled tasks are off for your organization. …
+Routines are off for your organization. …
 ```
 
-这是服务器端设置，因此无法通过本地设置、环境变量或 CLI 标志覆盖。
+您无法通过本地设置、环境变量或 CLI 标志启用它们。
 
 **解决方法：**
 
-* 请组织中的 Owner 在 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 中打开 **Scheduled tasks (Was Routines)** 开关
+* 询问您的 Team 或 Enterprise Owner 能否在 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 中打开标记为 **Scheduled tasks (Was Routines)** 或 **Routines** 的开关
 
 ### Remote Control 需要 Anthropic API
 
@@ -5799,7 +5823,7 @@ Claude Code 以这种方式拒绝的路径包括：
 
 ### Remote managed settings failed to load
 
-您的会话符合使用[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)的条件，但 Claude Code 无法获取这些设置，或无法应用服务器返回的内容，因此会在交互式会话中显示此警告。
+您的会话符合使用[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)的条件，但 Claude Code 无法获取这些设置，或无法应用服务器返回的内容，因此会在交互式会话以及 Claude Desktop 的 Code 标签页中显示此警告。
 
 括号中的原因说明了失败的内容，例如 `network error`、`request timed out` 或 `authentication rejected (401)`。原因 `no setting in the server response could be applied as written` 表示服务器已响应，但其返回的设置均未通过[验证](https://code.claude.com/docs/zh-CN/server-managed-settings.md#invalid-entries-in-delivered-settings)。在 v2.1.282 之前，此原因显示为 `server returned invalid settings`。
 
@@ -5807,6 +5831,12 @@ Claude Code 以这种方式拒绝的路径包括：
 
 * **存在此前成功获取时缓存的设置**：Claude Code 使用该缓存策略运行会话（[被保留的环境变量](https://code.claude.com/docs/zh-CN/server-managed-settings.md#fetch-and-caching-behavior)除外），该行显示 `using cached policy`。
 * **无缓存**：Claude Code 在没有服务器托管设置的情况下运行会话，该行显示 `no remote policy applied`。
+
+在 Code 标签页中，当您发送消息时，该警告会以一行的形式出现在对话中；当获取状态发生变化时，会出现新的一行。以下三条相关消息也以相同方式出现：
+
+* `Remote managed settings are still loading`：会话继续进行时，获取仍在运行
+* `Remote managed settings did not load`：获取已结束，但未得到响应
+* `Remote managed settings have now loaded`：设置在上述某条警告之后加载完成，该行的其余部分说明是否应用了远程策略
 
 **解决方法：**
 

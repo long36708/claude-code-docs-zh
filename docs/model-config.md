@@ -613,7 +613,7 @@ Claude Code 按此顺序解析会话的 effort 级别，采用首先适用的：
 4. 您的设置：您为模型保存的级别或 [`effortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#effortlevel) 键，在 [`modelSettings`](https://code.claude.com/docs/zh-CN/settings-reference#modelsettings) 中说明它们之间和跨设置文件的优先级
 5. 模型的默认 effort：在支持 effort 的每个模型上为 `high`，除了 Opus 5.5、Sonnet 5.5 和 Haiku 5.5 默认为 `medium`、Opus 4.7 默认为 `xhigh`。如果您的组织为其[组织默认模型](#organization-default-model)设置了默认 effort 级别，则当您运行该模型时，该级别即为默认值。
 
-自动模型回退后适用的级别，请参阅[回退后的 effort 级别](#effort-level-after-a-fallback)。
+自动模型回退后适用的级别，请参阅[回退后的 effort 级别](#effort-level-after-a-fallback)。关于子代理和队友，请参阅[子代理和队友的 effort 级别](#effort-level-of-subagents-and-teammates)。
 
 Opus 5.5 从 `medium` 开始，除非上面的源之一为其设置级别，您的用户设置文件中的顶级 `effortLevel` 不计入 Opus 5.5。该键是较旧的形式 `/effort` 在 Claude Code 按模型保存级别之前写入的：它继续在它之前应用的地方应用，在 Opus 5、Fable 5.1 和更早的模型上，而 Opus 5.5 和在它之后发布的模型从它们自己的默认开始，直到您使用 `/effort` 或 `/model` 选择器为它们选择级别。项目、本地或托管设置中的顶级 `effortLevel`，或使用 `--settings` 传递的，适用于每个模型。
 
@@ -699,6 +699,10 @@ Opus 5.5 [默认为 `medium`](#adjust-effort-level)，比 Opus 5 的默认值 `h
 skill 的 `effort` 在其运行所在的轮次结束前一直适用；使用 `context: fork` 时，则在分叉出的子代理运行期间适用。子代理的 `effort` 在子代理运行期间适用，除非[其调用覆盖了它](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-an-effort-level)。当其中任一项适用时，skill 或子代理都以其级别运行，无论您启动时使用、保存或选择的是什么级别。如果设置了 `CLAUDE_CODE_EFFORT_LEVEL`，则改为应用该级别。
 
 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) 或[组织 effort 上限](#organization-effort-limits)仍然限制 skill 或子代理运行的级别。如果您在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `effortLevel`，Claude Code 在 [effort 解析顺序](#adjust-effort-level)的设置步骤处应用它，用户仍然可以使用 `/effort` 或 `--effort` 更改级别。要将用户保持在或低于某个级别，设置 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel)。
+
+#### 子代理和队友的 effort 级别
+
+在主对话的模型上，没有自己 `effort` 的[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-an-effort-level)或[队友](https://code.claude.com/docs/zh-CN/agent-teams.md#specify-teammates-and-models)以您在会话中选择或使用 `--effort` 设置的级别运行。在其他模型上，该级别不适用。要选择子代理的级别，请在其定义中设置 `effort`。
 
 #### 检查您设置的 effort 级别
 

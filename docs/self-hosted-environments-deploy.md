@@ -827,7 +827,7 @@ Anthropic 从其自己的基础设施而不是从您的运行器调用连接器�
 
 ### 某些会话不计为空闲
 
-持有永不完成的后台任务的会话不计为空闲，所以 `--release-idle-session-min` 不会释放该会话的槽。等待从运行中工具调用内请求的批准的会话也不计为空闲。始终将 `--kill-session-after-min` 与其一起设置作为硬后挡，以便没有会话可以无限期地持有槽。
+持有持续运行的后台任务的会话不计为空闲，所以 `--release-idle-session-min` 不会释放该会话的槽。等待从运行中工具调用内请求的批准的会话也不计为空闲。请同时设置 `--kill-session-after-min` 作为硬后挡。
 
 `--kill-session-after-min` 是失控会话的后挡。在 v2.1.260 或更高版本的运行器上，达到限制的会话不会立即终止。运行器给它一个宽限窗口，默认 15 分钟，您可以使用 [`SELF_HOSTED_RUNNER_MAX_LIFETIME_GRACE_MS`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#environment-variable-only-settings) 更改：
 

@@ -2161,7 +2161,12 @@ class HookMatcher:
         None  # Timeout in seconds. When omitted, the per-event default applies:
         # 600 for most events, 30 for UserPromptSubmit
     )
+    on_failure: Literal["continue", "block"] | None = (
+        None  # "block" blocks the action when a callback fails
+    )
 ```
+
+要确定 `on_failure` 涵盖的范围，见 [回调失败时阻止操作](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md#block-the-action-when-a-callback-fails)。
 
 ### `HookInput`
 

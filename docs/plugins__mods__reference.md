@@ -154,9 +154,15 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | 事件 | 触发时机 | hook 可以返回 |
 | :- | :- | :- |
 | `agent.offer` | 向 Claude 提供某个子代理类型 | `{ isOffered: false }` 以不提供它 |
-| `agent.spawn` | 子代理或 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友即将启动。对于队友，`e.isTeammate` 为 `true`。 | `next({ ...e, model })` 以选择其模型，或 `{ deny: reason }` |
+| `agent.spawn` | 子代理或 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友即将启动，或者已完成或已停止的子代理即将再次运行。对于队友，`e.isTeammate` 为 `true`。对于恢复的运行，会设置 `e.resume`。 | `next({ ...e, model })` 以选择即将启动者的模型，或 `{ deny: reason }` |
 
-当 Claude 使用 [`SendMessage`](https://code.claude.com/docs/zh-CN/sub-agents#resume-subagents) 工具恢复子代理时，您的 `agent.spawn` hook 不会再次运行。要拒绝恢复子代理的 `SendMessage` 调用，请在 [`tool.call`](https://code.claude.com/docs/zh-CN/plugins/mods/events#guard-or-change-a-tool-call) hook 中匹配该工具。
+当已完成或已停止的子代理即将再次运行时，例如 Claude 使用 [`SendMessage`](https://code.claude.com/docs/zh-CN/sub-agents#resume-subagents) 工具向其发送消息时，您的 `agent.spawn` hook 也会运行。在该事件中，`e.resume` 为 `{ agentId }`。如果您的 hook 会统计子代理数量，请跳过设置了 `e.resume` 的事件，以免恢复的子代理被重复计数。
+
+返回 `{ deny: reason }` 可拒绝恢复的运行。该运行不会开始，子代理保持原样。当运行是由 `SendMessage` 调用请求的时，Claude 读取到的该调用结果为 `a plugin declined the resume:` 后跟您给出的原因。如果您为恢复的运行向 `next` 传递更改后的事件，例如不同的 `model`，Claude Code 会忽略该更改。
+
+> [!NOTE]
+>
+> 恢复运行的事件需要 Claude Code v2.1.299 或更高版本。在 v2.1.299 之前，子代理恢复时您的 `agent.spawn` hook 不会运行。在这些版本上，要拒绝恢复子代理的 `SendMessage` 调用，请在 [`tool.call`](https://code.claude.com/docs/zh-CN/plugins/mods/events#guard-or-change-a-tool-call) hook 中匹配该工具。
 
 ### 界面
 

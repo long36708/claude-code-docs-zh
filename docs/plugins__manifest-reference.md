@@ -571,7 +571,7 @@ Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析�
 | :- | :- | :- |
 | Hook 命令 | 在 `command` 和 `args` 中的任何地方 | `CLAUDE_PLUGIN_ROOT`、`CLAUDE_PLUGIN_DATA`、`CLAUDE_PROJECT_DIR` 和 `CLAUDE_PLUGIN_OPTION_<KEY>` |
 | Monitor 命令 | 在 `command` 中的任何地方 | 未导出 |
-| MCP `stdio` 服务器 | `command`、`args`、`env` | `CLAUDE_PLUGIN_ROOT`、`CLAUDE_PLUGIN_DATA` |
+| MCP `stdio` 服务器 | `command`、`args`、`env` | `CLAUDE_PLUGIN_ROOT`、`CLAUDE_PLUGIN_DATA`、`CLAUDE_PROJECT_DIR` |
 | MCP `http`、`sse`、`ws` 服务器 | `url`、`headers`、`headersHelper` | 不适用 |
 | LSP 服务器 | `command`、`args`、`env`、`workspaceFolder` | `CLAUDE_PLUGIN_ROOT`、`CLAUDE_PLUGIN_DATA`、`CLAUDE_PROJECT_DIR` |
 | Skill、command 和 agent 内容 | Markdown 体中的任何地方 | 不适用 |

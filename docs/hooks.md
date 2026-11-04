@@ -901,7 +901,7 @@ Failed with non-blocking status code: /bin/sh: /path/to/hook.sh: No such file or
 
 #### hook 失败时阻止操作
 
-在大多数事件上，当 hook 失败或超时时，Claude Code 仍会执行该操作。这样一来，路径错误或脚本崩溃的策略 hook 会放行一切。要改为阻止操作，请在 `command` 或 `http` hook 上设置 `"onFailure": "block"`。需要 Claude Code v2.1.295 或更高版本。
+在大多数事件上，当 hook 失败或超时时，Claude Code 仍会执行该操作。这样一来，路径错误或脚本崩溃的策略 hook 会放行一切。要改为阻止操作，请在 `command` 或 `http` hook 上设置 `"onFailure": "block"`。需要 Claude Code v2.1.295 或更高版本。关于 Agent SDK 回调 hook，请参阅[回调失败时阻止操作](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md#block-the-action-when-a-callback-fails)。
 
 > [!NOTE]
 >
@@ -1960,7 +1960,7 @@ Windows 上的 `Write` 调用会传递：
 | :- | :- |
 | `permissionDecision` | `"allow"` 会跳过权限提示，但[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)和[从网络路径读取](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)除外。对于[Agent SDK 应用标记为 `always_ask` 的工具](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools#require-approval-for-specific-tools)的调用，它同样不会跳过批准，除非[权限模式批准该调用](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#permission-modes-that-can-approve-an-always_ask-call)。`AskUserQuestion` 和 `ExitPlanMode` 需要[将 `updatedInput` 与 `"allow"` 搭配使用](#allow-with-updatedinput)。有关计划模式，请参阅[计划模式中的 hook 批准](https://code.claude.com/docs/zh-CN/permissions.md#hook-approvals-in-plan-mode)。`"deny"` 会阻止工具调用。`"ask"` 会提示用户确认。`"defer"` 会结束当前轮次，以便稍后恢复该工具，并且需要在使用 `-p` 标志的[非交互模式](#defer-a-tool-call-for-later)下运行。无论 hook 返回什么，[拒绝和询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)仍会被评估 |
 | `permissionDecisionReason` | 对于 `"ask"`，在权限提示中显示给用户。当 Claude Code 在无人能回应该提示的 `-p` 运行中[拒绝该调用](https://code.claude.com/docs/zh-CN/headless.md#turn-off-permission-prompts-in-unattended-runs)时，Claude 会在工具结果中读取该原因。对于 `"deny"`，显示给 Claude。对于 `"allow"` 和 `"defer"`，仅写入[调试日志](#debug-hooks) |
-| `updatedInput` | 在执行前修改工具的输入参数。会替换整个输入对象，因此请将未更改的字段与修改后的字段一起包含。Claude Code 会针对您的 hook 返回的输入（而非 Claude 发送的输入）评估权限规则以及 Bash 命令的[自动转入后台资格](https://code.claude.com/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)。与 `"allow"` 结合可自动批准，与 `"ask"` 结合可向用户显示修改后的输入。对于 `"defer"`，会被忽略 |
+| `updatedInput` | 在执行前修改工具的输入参数。会替换整个输入对象，因此请将未更改的字段与修改后的字段一并包含。Claude Code 会根据您的 hook 返回的输入（而不是 Claude 发送的输入）评估权限规则和 Bash 命令的[自动转入后台资格](https://code.claude.com/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)。与 `"allow"` 组合可自动批准，与 `"ask"` 组合可向用户显示修改后的输入。对于 `"defer"`，会被忽略。如果没有 `permissionDecision`，[自动模式可能会拒绝更改后的调用](#pretooluse-updatedinput-in-auto-mode) |
 | `additionalContext` | 与工具结果一起添加到 Claude 上下文中的字符串。当 `permissionDecision` 为 `"defer"` 时会被忽略。请参阅[为 Claude 添加上下文](#add-context-for-claude) |
 
 当多个 PreToolUse hook 返回不同的决策时，优先级为 `deny` > `defer` > `ask` > `allow`。
@@ -1986,6 +1986,23 @@ Windows 上的 `Write` 调用会传递：
 > [!NOTE]
 >
 > PreToolUse 以前使用顶层的 `decision` 和 `reason` 字段，但这些字段在此事件中已弃用。请改用 `hookSpecificOutput.permissionDecision` 和 `hookSpecificOutput.permissionDecisionReason`。已弃用的值 `"approve"` 和 `"block"` 分别映射到 `"allow"` 和 `"deny"`。PostToolUse 和 Stop 等其他事件继续使用顶层 `decision` 和 `reason` 作为其当前格式。
+
+#### 自动模式下的 PreToolUse `updatedInput`
+
+在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，当您的 hook 返回 `updatedInput` 而没有 `permissionDecision` 时，Claude Code 可能会拒绝更改后的调用。[服务器审查的](https://code.claude.com/docs/zh-CN/permission-modes.md#server-side-classifier-review)是 Claude 编写的输入，而不是您的 hook 返回的输入。在直接连接到 Anthropic API 的交互式终端会话和 VS Code 会话中，拒绝信息包含以下文本：
+
+```text theme={null}
+a hook changed this call's input after auto mode reviewed it
+```
+
+在出现带有此文本的拒绝后，Claude 可以再次发出更改后的调用，以便服务器审查它。如果 Claude 在下一条回复中原样重复更改后的输入，您的 hook 仍会运行：
+
+* 它可以拒绝该调用或将其发送到权限提示
+* 它返回的任何 `updatedInput` 都会被丢弃，因此实际运行的是服务器审查过的内容
+
+除非 [Claude 在回复中告诉您自动模式无法检查该调用](https://code.claude.com/docs/zh-CN/errors.md#hook-changed-input-after-review)，否则您无需为此拒绝更改您的 hook。
+
+在显示此文本的会话中，设置或插件 hook 文件中的 [`command` hook](#command-hook-fields) 可以更改 Bash、PowerShell、Monitor、Edit、Write 和 NotebookEdit 调用而不触发此拒绝。该拒绝仍可能出现，例如当任何 hook 更改了同一条 Claude 回复中较早的调用，或者 Bash 命令请求在沙箱之外运行时。
 
 #### 自动模式下的 PreToolUse `ask` 决策
 

@@ -1602,7 +1602,7 @@ Desktop 会在链接打开时填入提示词，替换您尚未发送的任何文
 
 > [!NOTE]
 >
-> 通过命令创建的连接需要在 macOS 或 Linux 上使用 Claude Desktop v3.6556.0 或更高版本，并使用 Claude 账户登录。管理员可以[将命令分发给团队](#distribute-commands-to-your-team)。
+> 通过命令创建的连接需要在 macOS 或 Linux 上使用 Claude Desktop v3.6556.0 或更高版本，或在 Windows 上使用 v4.16336.0 或更高版本，并使用 Claude 账户登录。在 Windows 上，Desktop 还必须[通过 OpenSSH 客户端连接](#use-your-ssh-configuration)。管理员可以[向团队分发命令](#distribute-commands-to-your-team)。
 
 Desktop 仅在您创建连接或[创建另一台机器](#create-another-machine)时运行该命令，而不是每次连接时都运行。每个条目对应一个连接，指向 Desktop 最近一次从该条目的命令中保存的主机。
 
@@ -1632,6 +1632,8 @@ Desktop 仅在您创建连接或[创建另一台机器](#create-another-machine)
 }
 ```
 
+在 Windows 上，诸如 `acme-dev` 这样的纯名称不起作用，因此请[以程序的完整路径开头编写命令](#write-the-command-on-windows)。
+
 每个条目接受以下字段，其中 `id`、`name` 和 `command` 是必需的：
 
 | 字段 | 值 |
@@ -1646,11 +1648,14 @@ Desktop 仅在您创建连接或[创建另一台机器](#create-another-machine)
 
 ##### 编写命令
 
-Desktop 直接启动程序，不经过 shell，也没有终端：
+在 Windows 上，请从[在 Windows 上编写命令](#write-the-command-on-windows)开始，其中说明了以下哪些规则适用于 Windows。
 
-* **程序**：写出其名称，或从 `/` 开始的完整路径，不含空格。对于裸名称，Desktop 会在您的登录 shell 导出的 `PATH` 中查找。相对路径（例如 `./acme-dev`）、以 `~` 开头的路径以及 shell 别名和函数都不起作用。
-* **参数**：用空格分隔普通参数。命令只能包含空格、ASCII 字母、数字以及字符 `+,-./:=@_~`，并且任何单词都不能以 `~` 开头。
-* **脚本**：如果命令需要其他内容，例如引号、管道、变量或包含 `?` 或 `&` 的 URL，请将其放入脚本中。使脚本可执行，以 `#!` 行开头，并将 `command` 设置为其完整路径，例如 `/Users/you/bin/make-devbox`。在 macOS 上，请勿将脚本放在 Documents、Desktop 和 Downloads 文件夹中，macOS 可能会阻止其运行。
+在 macOS 和 Linux 上，Desktop 直接启动程序，不使用 shell，也不使用终端：
+
+* **程序**：写出其名称，或从 `/` 开始的完整路径。Desktop 会在您的登录 shell 导出的 `PATH` 中查找纯名称。诸如 `./acme-dev` 之类的相对路径、以 `~` 开头的路径以及 shell 别名和函数都不起作用。
+* **路径中的空格**：将程序的完整路径放在单引号中，例如 `'/Users/you/My Tools/make-devbox' create`。引号（单引号或双引号）需要 Claude Desktop v4.16336.0 或更高版本，并且只能用于包裹程序的路径。
+* **参数**：用空格分隔参数。在引号之外，命令只能包含空格、ASCII 字母、数字以及字符 `+,-./:=@_~`，并且任何单词都不能以 `~` 开头。带引号的路径还可以包含一些其他字符，例如 `(`、`)` 和 `&`。
+* **脚本**：如果命令需要其他任何内容，例如带引号的参数、管道、变量，或包含 `?` 或 `&` 的 URL，请将其放入脚本中。使脚本可执行，以 `#!` 行开头，并将 `command` 设置为其完整路径，例如 `/Users/you/bin/make-devbox`。在 macOS 上，请勿将脚本放在“文稿”、“桌面”和“下载”文件夹中，macOS 可能会阻止它在这些位置运行。
 * **输入**：程序没有输入，也没有终端，因此无法在那里提示您。如果您的工具通过浏览器或提示让您登录，请先在终端中登录，并在每次登录失效时重新登录。
 * **环境**：程序在您的主目录中运行，使用您的登录 shell 导出的变量。Desktop 在启动时读取这些变量，与[`ProxyCommand`](#use-variables-from-your-shell-in-a-proxycommand) 的处理方式相同，因此更改变量后请退出并重新打开 Desktop。
 * **时间限制**：程序运行超过 10 分钟仍未结束时，Desktop 会将其停止。Desktop 的进度消息不会显示程序的输出。要更早停止程序，请选择该消息旁边的 **Cancel**。
@@ -1680,11 +1685,60 @@ tail -n 1 "$out"
 
 如果命令失败，Desktop 消息中的 **View details** 会显示命令写入标准错误的最后一行（如果有）。
 
+##### 在 Windows 上编写命令
+
+在 Windows 上，`command` 必须以 `.exe`、`.cmd` 或 `.bat` 文件的完整路径开头，从驱动器号开始。Desktop 不会在您的 `PATH` 中查找纯名称，因此 `command` 为 `acme-dev create` 的条目会显示为[灰色](#if-a-command-is-missing-or-gray)。
+
+`%USERPROFILE%\.claude\settings.json` 中的以下条目使用参数 `create` 运行 `C:\Program Files\Acme\acme-dev.exe`。在 JSON 中，每个反斜杠都要写两次，或改用 `/`。使用单引号是因为路径中有空格：
+
+```json settings.json theme={null}
+{
+  "sshHostCommands": [
+    {
+      "id": "devbox",
+      "name": "Dev box",
+      "command": "'C:\\Program Files\\Acme\\acme-dev.exe' create"
+    }
+  ]
+}
+```
+
+关于路径中的空格、输入、时间限制以及程序打印的内容，请遵循[编写命令](#write-the-command)中的规则。对于其中的其他规则，请改为遵循以下规则：
+
+* **程序**：不要使用诸如 `\\server\share` 之类的网络路径、诸如 `%USERPROFILE%` 之类的变量，或 ASCII 之外的字母。路径中包含其中任何一种时，条目会显示为灰色。如果您的用户文件夹名称中包含此类字母，请将程序放在该文件夹之外。
+* **参数**：遵循“编写命令”中的“参数”规则。命令还可以包含 `\`，但任何单词都不能以它结尾。
+* **脚本**：使用 `.cmd` 或 `.bat` 文件，Desktop 会通过 `cmd.exe` 运行它。即使在引号中，文件路径也不能包含 `&`、`^` 或 `;`。在您编写的文件中，请使用 `%*` 读取参数，因为 `%1` 到 `%9` 会在 `,` 和 `=` 处拆分参数。
+* **环境**：程序获得的是 Desktop 应用的环境变量，而不是 shell 配置文件中的环境变量。更改变量后，请退出并重新打开 Desktop。
+* **测试**：要查看 Desktop 读取的输出，请在命令提示符中运行命令。将包含空格的路径放在双引号中，并使用 `NUL` 表示无输入，例如 `"C:\Program Files\Acme\acme-dev.exe" create < NUL > host.txt`。该文件必须只包含主机。测试也会创建一台机器，因此请在之后使用您的工具将其删除。
+
+##### 包装会打印其他行的 Windows 工具
+
+如果您的工具在主机之前打印其他行（例如进度消息），请用一个只打印主机的批处理文件将其包装起来。以下文件打印您的工具输出的最后一行，如果您的工具失败，则以您的工具的代码退出：
+
+```batch make-devbox.cmd theme={null}
+@echo off
+setlocal
+set "host="
+set "out=%TEMP%\acme-dev-%RANDOM%.txt"
+call "C:\Program Files\Acme\acme-dev.exe" create > "%out%"
+set "code=%ERRORLEVEL%"
+for /f "usebackq delims=" %%L in ("%out%") do set "host=%%L"
+del "%out%"
+if not "%code%"=="0" exit /b %code%
+setlocal EnableDelayedExpansion
+echo(!host!
+```
+
+将 `command` 设置为该文件的完整路径，例如在 JSON 中写为 `C:\\tools\\make-devbox.cmd`。请保持其最后两行不变，因为它们打印主机而不会将其作为命令运行。
+
 ##### 连接到新主机
 
 首次连接到每个新主机时，需要回答两个问题：
 
-* **主机密钥**：在 OpenSSH 的默认主机密钥检查下，检查密钥的指纹，然后选择是否连接。要跳过此问题，请让您的命令在打印主机之前，使用您的工具在创建机器时获得的密钥，将其添加到 `~/.ssh/known_hosts`。对于 22 以外的端口，该行以 `[host]:port` 开头。如果您的工具会重复使用主机名，也请删除旧密钥所在的行。
+* **主机密钥**：在 OpenSSH 默认的主机密钥检查下，请检查密钥的指纹，然后选择是否连接。要跳过此问题，请让您的命令在打印主机之前将密钥添加到 `~/.ssh/known_hosts`（在 Windows 上为 `%USERPROFILE%\.ssh\known_hosts`）：
+  * 使用您的工具在创建机器时获知的密钥
+  * 对于 22 以外的端口，以 `[host]:port` 作为该行的开头
+  * 如果您的工具会重用主机名，也请移除旧密钥所在的行
 * **文件夹**：选择是否信任您在那里打开的文件夹
 
 请为这些主机保持启用主机密钥检查，并为它们保留 `known_hosts` 文件。如果 `StrictHostKeyChecking` 为 `no` 或 `accept-new`，且 `UserKnownHostsFile` 也为 `/dev/null` 或 `none`，则不会记录任何密钥。之后当您的工具重复使用某个名称时，您可能会在没有任何警告的情况下连接到另一台机器。
@@ -1746,7 +1800,8 @@ tail -n 1 "$out"
 
 * **键放在哪里**：如果您针对 Claude Code 的 MDM 策略已经设置了某个[策略键](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)，请将其放在那里。否则，请将其放在托管设置文件中。默认情况下，此类策略的优先级高于该文件，此时 Desktop 会忽略文件中的条目。即使在适用[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)的计算机上，也请在计算机上设置它：Desktop 会忽略那里以及项目和本地设置中的该键。
 * **`id`**：如果用户的 `sshHostCommands` 条目使用了您的 `id`，则只有您的条目生效。如果其他任何 SSH 连接使用了它（例如用户 `sshConfigs` 中的连接），您的条目会显示为灰色。请选择用户不太可能使用的 `id`。
-* **程序**：请提供其完整路径，因为 Desktop 会在每个用户自己的 `PATH` 中查找裸名称。程序以该用户身份运行，使用其登录 shell 导出的变量。
+* **程序**：提供其完整路径，因为在 macOS 和 Linux 上，Desktop 会在每个用户的 `PATH` 中查找纯名称，而在 Windows 上，使用纯名称的条目会显示为灰色。程序以该用户身份运行，并使用[该用户的变量](#write-the-command)。
+* **每个平台**：为 Windows 计算机部署一个条目，为 macOS 和 Linux 计算机部署另一个条目。使用 [Windows 路径](#write-the-command-on-windows)的条目在 macOS 和 Linux 上会显示为灰色，使用 macOS 或 Linux 路径的条目在 Windows 上会显示为灰色。
 * **用户自己的条目**：Desktop 将用户的条目视同 [hook](https://code.claude.com/docs/zh-CN/hooks.md)，因为两者都会在计算机上运行程序。要仅允许您的条目，请将 [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization) 设置为 `["hooks"]`，或将 `"hooks"` 添加到其列表中。这样也会阻止来自用户、项目和本地设置的 Claude Code hook，且无法保留它们。如果您改为将该键或 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 设置为 `true`，则会阻止更多内容，具体见每个键的条目说明。
 * **所有条目**：要同时关闭您的条目，请在托管设置中设置 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/settings-reference#disableallhooks)。如果您设置了 [`disableDesktopLocalSessions`](https://code.claude.com/docs/zh-CN/settings-reference#disabledesktoplocalsessions)，或设置了不允许任何主机的 `sshHostAllowlist`，选择器将不会列出任何 **Create** 或 **Create another** 项。
 * **锁定在哪里生效**：对于这些条目，Desktop 会从服务器托管设置以及计算机自身的文件或策略中读取 `allowManagedHooksOnly`、`strictPluginOnlyCustomization` 和 `disableAllHooks`，并应用更严格的结果。在 Desktop 检查 claude.ai 上的服务器托管设置之前，所有条目都保持灰色，即使您的组织没有任何服务器托管设置也是如此。
@@ -1759,13 +1814,14 @@ tail -n 1 "$out"
 在以下情况下，环境选择器不会列出任何 **Create** 或 **Create another** 项：
 
 * **文件**：`~/.claude/settings.json` 包含[无效的 JSON 或被 schema 拒绝的值](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file)、您拼错了键名，或者您将其放在了项目的设置中。请修复该文件。
-* **平台和账户**：您使用的是 Windows，或者使用的是[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)而非 Claude 账户。请自行将每个主机添加为 [SSH 连接](#ssh-sessions)。
+* **账户**：您使用的是[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)而不是 Claude 账户。请自行将每个主机添加为 [SSH 连接](#ssh-sessions)。
+* **Windows**：Desktop 版本早于 v4.16336.0，或未通过 OpenSSH 客户端连接。请更新 Desktop 并满足[使用 OpenSSH 客户端的要求](#use-your-ssh-configuration)，然后退出并重新打开 Desktop。
 * **您组织的设置**：您的管理员关闭了本地会话或 SSH 会话。请询问他们您是否可以使用命令。
 * **没有 `ssh` 程序**：Desktop 无法在您的计算机上启动 OpenSSH 客户端。请安装它，或请您的管理员允许它，然后重启 Desktop。
 
 无法选择的条目显示为灰色。将鼠标悬停其上即可查看原因：
 
-* **条目中有错误**：修复消息中指出的字段或命令。如果 `id` 已被使用，请为该条目指定另一个。
+* **条目中有错误**：修正消息中指出的字段或命令。如果 `id` 已被使用，请为条目指定另一个。在 Windows 上，命令必须[以程序的完整路径开头](#write-the-command-on-windows)。
 * **设置文件损坏**：当您自己的设置文件损坏时，管理员的条目可能显示为灰色，并附带指出该文件的消息。[修复该文件](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file)。
 * **新主机**：Desktop 保存主机后的一分钟内，[**Create another**](#create-another-machine) 显示为灰色。请在一分钟后再选择它。在 Claude Desktop v4.4212.0 之前，**Replace Dev box's host** 会显示为灰色 10 分钟。
 * **hook 已关闭或受限**：您自己的条目只在您自己的 hook 可以运行的地方生效。请从您的设置中移除 `disableAllHooks`，或询问您的管理员。
@@ -1940,7 +1996,7 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 | `disableMobileSimulatorTools` | 设置为 `true` 以阻止 Claude 在 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md#turn-off-simulator-access)中控制和捕获设备的工具。该窗格仍可用于用户自己的点击；仅删除 Claude 的访问权限。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `disableBrowserExternalNavigation` | 设置为 `true` 以完全关闭[浏览器窗格](#browse-external-sites)中的外部浏览。用户和 Claude 都无法导航到外部网站，localhost 开发服务器预览不受影响。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `sshConfigs` | 预配置[SSH 连接](#pre-configure-ssh-connections-for-your-team)，在环境选择器中显示。用户无法删除托管连接，也无法编辑除其自己的 **Worktree folder** 之外的任何内容。 |
-| `sshHostCommands` | 为用户提供[主机来自命令的 SSH 连接](#distribute-commands-to-your-team)，与用户自己的连接并存。Desktop 从计算机上的托管设置文件或 MDM 策略中读取它，并在[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中忽略它。需要 macOS 或 Linux 上的 Claude Desktop v3.6556.0 或更高版本，并使用 Claude 帐户登录。 |
+| `sshHostCommands` | 为用户提供[主机来自命令的 SSH 连接](#distribute-commands-to-your-team)，与用户自己的连接并存。Desktop 从计算机上的托管设置文件或 MDM 策略中读取它，并在[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中忽略它。需要 macOS 或 Linux 上的 Claude Desktop v3.6556.0 或更高版本，或 Windows 上的 v4.16336.0 或更高版本，并使用 Claude 帐户登录。在 Windows 上，Desktop 还必须[通过 OpenSSH 客户端连接](#use-your-ssh-configuration)。 |
 | `sshHostAllowlist` | 限制 [SSH 会话](#restrict-which-ssh-hosts-users-can-connect-to)连接到已解析主机名与这些模式之一匹配的主机。仅从托管设置中读取。 |
 | `disableDesktopLocalSessions` | 设置为 `true` 以关闭[在设备上运行的 Code 会话](#local-sessions-on-managed-devices)，仅保留到其他主机的 SSH 会话和云端会话可用。该值必须是 JSON 布尔值 `true`。仅从托管设置中读取。需要 Claude Desktop v1.37937.0 或更高版本。 |
 | `disableSshSavedPasswords` | 设置为 `true` 以阻止 Desktop 提供记住 SSH 密码的选项，并阻止其使用或显示之前保存的密码。启用此设置不会删除这些密码。仅从托管设置中读取。需要 Claude Desktop v1.49585.0 或更高版本。 |
