@@ -1020,7 +1020,7 @@ claude daemon stop --any --keep-workers
 
 在 macOS 上，后台会话主机作为其自己的进程运行，并与您的终端分别请求对受保护文件夹的访问。如果后台会话在读取 `~/Desktop`、`~/Documents`、`~/Downloads` 或其他受保护位置时报告 `Operation not permitted`，请在系统设置中的隐私和安全 > 文件和文件夹下授予访问权限，或为该条目启用完全磁盘访问。
 
-使用本机安装程序，该条目显示为 Claude Code，授予在更新中持续。使用其他安装方法（如 Homebrew 或 npm），该条目显示二进制路径，更新后可能需要再次授予。
+在这两个列表中，查找名为 Claude Code 的条目，或以 `claude` 二进制文件的路径或文件名命名的条目。该文件名可能是一个版本号，例如 `2.1.316`。如果 Claude Code 更新后再次出现 `Operation not permitted`，请查找新条目，例如以新版本命名的条目。如果存在这样的条目，请为其授予访问权限。
 
 ### 后台会话无法在 macOS 上访问本地网络主机
 
@@ -1067,7 +1067,7 @@ Agent view 在研究预览期间发展迅速。如果您使用的是较旧的 Cl
 | v2.1.296 | 您[在会话移到后台时](#switch-sessions-without-leaving-the-terminal)输入的提示词或 `!` shell 命令会被停止或保持未发送状态，其文本会保留在提示词历史中。在此版本之前，回复或命令会在您看不到的地方继续运行，并且在 `←` 之后立即发送的提示词可能会在您看不到的情况下运行第二次。在 `SessionStart` hook 仍在运行时键入的提示词会丢失：既不会发送，也不会出现在提示词历史中。 |
 | v2.1.295 | 在[附加的后台会话](#attach-to-a-session)的空闲输入框中按 `Ctrl+C` 不会影响[自定节奏的 `/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval) 的待处理唤醒，因此按两次会分离，而循环会继续运行。在该输入框中按 `Esc` 会[停止自定节奏的循环](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#stop-a-loop)并显示 `Pending wakeup cancelled` 通知。在此版本之前，第一次按 `Ctrl+C` 可能会在不提示的情况下结束自定节奏的循环，而 `Esc` 无法停止已随会话移到后台的循环。 |
 | v2.1.295 | 在 macOS 和 Linux 上，当 `claude agents` 在没有[监督进程](#keep-sessions-running-after-the-supervisor-stops)运行时退出，它不会自行启动新的监督进程。此后正在运行的会话会在大约一分钟后停止，除非您再次运行 `claude agents`，agent view 在退出时可能会打印一条说明此情况的通知。在此版本之前，退出的 `claude agents` 会启动新的监督进程。 |
-| v2.1.295 | 在使用原生安装程序的 macOS 上，更新后一起重启的后台会话会在持有您所授予的[受保护文件夹访问权限](#background-sessions-can’t-read-desktop-documents-or-downloads-on-macos)的同一 Claude Code 条目下运行。在此版本之前，这些会话可能会改为在二进制文件自身的路径下运行。macOS 会将该路径列为单独的条目，因此更新后可能会再次出现文件夹访问提示。 |
+| v2.1.295 | 在使用原生安装程序的 macOS 上，更新后一起重启的后台会话会从同一个 `~/.local/share/claude/ClaudeCode.app` 文件夹运行其主机进程。在此版本之前，这些进程可能会改为从二进制文件自身的路径运行。macOS 可能会将该路径列为单独的条目，因此更新后可能会再次出现[文件夹访问提示](#background-sessions-can’t-read-desktop-documents-or-downloads-on-macos)。 |
 | v2.1.290 | [`claude attach` 和 `claude logs`](#manage-sessions-from-the-shell) 可以使用会话名称的一部分来代替 ID。 |
 | v2.1.290 | `/model`、`/effort`、`/rename` 和 `/usage` 作为[窥视回复](#peek-and-reply)发送给正在工作的会话时会立即运行。 |
 | v2.1.290 | 无法投递的[窥视回复](#peek-and-reply)如果以 `/` 开头，或者在会话进程运行期间回答的是带有预定义选项的问题，则不再被保存以待下次重启时发送。 |

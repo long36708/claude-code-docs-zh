@@ -1340,7 +1340,7 @@ type PermissionMode =
   | "default" // Standard permission behavior
   | "acceptEdits" // Auto-accept file edits
   | "bypassPermissions" // Bypass permission checks; explicit ask rules still prompt
-  | "plan" // Planning mode - explore without editing
+  | "plan" // Planning mode - Claude explores and plans
   | "dontAsk" // Don't prompt for permissions, deny if not pre-approved
   | "auto"; // A model classifier reviews actions such as shell commands and network requests
 ```
@@ -1349,7 +1349,12 @@ type PermissionMode =
 
 用于控制工具使用的自定义权限函数类型。
 
-该函数是 SDK 中交互式权限提示的替代方案：仅当[权限评估流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)的结果为提示时才会调用它。已被 `allowedTools` 条目、设置中的允许规则或权限模式（例如 `acceptEdits` 或 `bypassPermissions`）批准的工具调用永远不会调用它。要对每个工具调用进行把关，请改用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)。
+该函数取代交互式权限提示。当[权限评估流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)最终需要提示时，SDK 会调用 `canUseTool`。通过以下任一方式批准的调用会直接运行，而不会调用 `canUseTool`：
+
+* 由 `allowedTools` 条目或设置中的 allow 规则批准的调用
+* 由权限模式批准的调用，例如 `acceptEdits` 模式下的文件编辑
+
+要检查这些调用，请使用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)，它也会针对这些调用运行。
 
 允许规则不会预先批准[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)；有关其中哪些操作会到达回调，以及在 `dontAsk` 和 `auto` 模式下会发生什么，请参阅[权限的评估方式](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。
 
@@ -6106,7 +6111,7 @@ type SandboxNetworkConfig = {
 
 > [!NOTE]
 >
-> 内置沙箱代理根据请求的主机名强制执行 `allowedDomains`，不会终止或检查 TLS 流量，因此[域前置](https://en.wikipedia.org/wiki/Domain_fronting)等技术可能会绕过它。有关详细信息，请参阅[沙箱隔离的安全限制](https://code.claude.com/docs/zh-CN/sandboxing.md#security-limitations)；有关配置 TLS 终止代理，请参阅[安全部署](https://code.claude.com/docs/zh-CN/agent-sdk/secure-deployment.md#traffic-forwarding)。
+> 内置沙箱代理根据请求的主机名强制执行 `allowedDomains`。默认情况下，该代理不会终止或检查 TLS 流量，因此[域前置](https://en.wikipedia.org/wiki/Domain_fronting)等技术可能会绕过 `allowedDomains`。有关详细信息，请参阅[沙箱隔离的安全限制](https://code.claude.com/docs/zh-CN/sandboxing.md#security-limitations)；有关配置 TLS 终止代理，请参阅[安全部署](https://code.claude.com/docs/zh-CN/agent-sdk/secure-deployment.md#traffic-forwarding)。
 
 ### `SandboxFilesystemConfig`
 

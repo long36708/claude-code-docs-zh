@@ -425,6 +425,9 @@
 | `Your organization requires remote managed settings to load, but they could not be loaded` | [强制执行故障关闭式启动](https://code.claude.com/docs/zh-CN/server-managed-settings.md#enforce-fail-closed-startup) |
 | `Remote managed settings are still loading` | [配置警告](#remote-managed-settings-failed-to-load) |
 | `Remote managed settings did not load` | [配置警告](#remote-managed-settings-failed-to-load) |
+| `Claude Code couldn't load your organization's settings` / `Claude Code couldn't reach Anthropic to load your organization's settings` / `requires them before a session can start` | [配置警告](#couldnt-load-your-organizations-settings) |
+| `Claude Code can't start this session yet` | [配置警告](#couldnt-load-your-organizations-settings) |
+| `Your Claude session has expired. Sign in again to continue (claude auth login).` | [配置警告](#couldnt-load-your-organizations-settings) |
 | `Managed settings were not approved; exiting without applying them.` | [配置警告](#managed-settings-were-not-approved) |
 | `Your organization's managed settings need your approval, which couldn't be asked for here.` | [配置警告](#managed-settings-need-your-approval) |
 | `Claude Code can't start: your organization's managed settings block the default model` / `Claude Code can't start: your organization allows only the models listed in "availableModels"` | [配置警告](#managed-settings-block-the-default-model) |
@@ -5845,6 +5848,26 @@ Claude Code 以这种方式拒绝的路径包括：
 * 运行 `/status` 或 `claude doctor` 获取完整诊断
 
 在 v2.1.248 之前，Claude Code 仅在调试日志中报告设置获取失败。
+
+### Claude Code couldn't load your organization's settings
+
+您的会话尚未启动，因为必须先加载您组织的设置（包括其[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)），而 Claude Code 无法加载它们。例如：
+
+```text theme={null}
+Claude Code couldn't reach Anthropic to load your organization's settings (could not connect). <Organization name> requires them before a session can start.
+```
+
+如果消息出现在标题为 `Claude Code can't start this session yet` 的对话框中，设置一旦加载完成，对话框就会关闭，会话随即启动。
+
+在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)和[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，Claude Code 会改为打印该消息并以状态 1 退出。
+
+**解决方法：**
+
+* **`could not connect` 或 `the reply came from a network proxy, not Anthropic`**：请检查您的网络连接；如果在企业网络中，请让 IT 允许通过 HTTPS 访问 `api.anthropic.com/api/claude_code/policy_limits` 和 `api.anthropic.com/api/claude_code/settings`。然后选择 **Retry now**，或再次运行您的命令。
+* **`timed out`、`Anthropic returned an error` 或 `Anthropic asked it to retry shortly`**：让对话框自动重试，或稍后再次运行您的命令。如果问题持续出现，请查看 [status.anthropic.com](https://status.anthropic.com)。
+* **`still loading` 或 `couldn't verify your sign-in with Anthropic yet`**：让对话框自动重试，或再次运行您的命令。如果登录相关消息反复出现，请在 shell 中运行 `claude auth login` 重新登录。
+* **`Your Claude session has expired`**：此计算机上存储的登录信息已失效，因此重试无济于事。在对话框中选择 **Sign in again** 关闭 Claude Code；然后在 shell 中运行 `claude auth login`，即使在会话无法启动时该命令也能正常工作。
+* **`none of the settings the server returned could be applied as written`**：请让管理员修正组织的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#invalid-entries-in-delivered-settings)，然后重试。
 
 ### Managed settings were not approved
 

@@ -139,13 +139,13 @@
 | [`outputStyle`](#outputstyle) | 通过[输出样式](https://code.claude.com/docs/zh-CN/output-styles.md)更改 Claude 的角色、语气和输出格式 | 模型与回复 | 任意文件 |
 | [`parentSettingsBehavior`](#parentsettingsbehavior) | 在部署[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)时，应用或丢弃 [SDK 或 IDE 宿主](https://code.claude.com/docs/zh-CN/managed-settings.md#let-an-embedding-host-add-policy)传入的限制 | 企业与托管设置 | 托管 |
 | [`permissionExplainerEnabled`](#permissionexplainerenabled) | 已在 v2.1.257 中移除，shell 权限提示上的 `Ctrl+E` 命令说明也一并移除 | 全局配置设置 | 全局配置 |
-| [`permissions`](#permissions) | 设置允许、询问和拒绝规则以及初始[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md) | 权限设置 | 任意文件 |
+| [`permissions`](#permissions) | 设置允许、询问和拒绝规则以及默认的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md) | 权限设置 | 任意文件 |
 | [`permissions.additionalDirectories`](#permissions-additionaldirectories) | 授予 Claude 访问[当前目录之外的目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)中文件的能力 | 权限设置 | 任意文件 |
 | [`permissions.allow`](#permissions-allow) | 无需确认提示即批准所列的[工具使用](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax) | 权限设置 | 任意文件 |
 | [`permissions.ask`](#permissions-ask) | 在所列的[工具使用](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)之前始终进行提示 | 权限设置 | 任意文件 |
 | [`permissions.blockReadsOutsideWorkingDirectories`](#permissions-blockreadsoutsideworkingdirectories) | 使文件工具在所有权限模式下拒绝读取[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的内容 | 权限设置 | 任意文件 |
 | [`permissions.blockWritesOutsideWorkingDirectories`](#permissions-blockwritesoutsideworkingdirectories) | 使 `Write`、`Edit` 和 `NotebookEdit` 工具在所有权限模式下拒绝[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的路径，[Claude Code 自身的部分文件](#what-the-write-block-refuses-and-what-stays-writable)除外 | 权限设置 | 任意文件 |
-| [`permissions.defaultMode`](#permissions-defaultmode) | 设置新会话启动时的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in) | 权限设置 | 任意文件 |
+| [`permissions.defaultMode`](#permissions-defaultmode) | 为新会话设置默认的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in) | 权限设置 | 任意文件 |
 | [`permissions.deny`](#permissions-deny) | 阻止所列的[工具使用](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)，包括读取包含机密的文件 | 权限设置 | 任意文件 |
 | [`permissions.disableBypassPermissionsMode`](#permissions-disablebypasspermissionsmode) | 阻止任何人进入 [bypassPermissions 模式](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode) | 权限设置 | 任意文件 |
 | [`plansDirectory`](#plansdirectory) | 选择[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)写入计划文件的位置 | 记忆与上下文 | 任意文件 |
@@ -804,7 +804,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 ## 权限设置
 
-决定 Claude 无需询问即可执行哪些操作、会话以哪种权限模式启动，以及自动模式的分类器允许哪些操作。有关规则语法和权限模型，请参阅[配置权限](https://code.claude.com/docs/zh-CN/permissions.md)。
+决定 Claude 无需询问即可执行哪些操作、新会话的默认权限模式，以及自动模式的分类器允许哪些操作。有关规则语法和权限模型，请参阅[配置权限](https://code.claude.com/docs/zh-CN/permissions.md)。
 
 ### `allowManagedPermissionRulesOnly`
 
@@ -899,7 +899,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 ### `permissions`
 
-控制 Claude 无需询问即可使用哪些工具、哪些工具始终需要提示、哪些工具被阻止，并设置会话启动时的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。下面的每个 `permissions.*` 键都嵌套在此对象下。
+控制 Claude 无需询问即可使用哪些工具、哪些工具需要提示、哪些工具被阻止。还可设置新会话的默认[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。下面的每个 `permissions.*` 键都嵌套在此对象下。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：包含 `allow`、`ask`、`deny`、`additionalDirectories`、`blockReadsOutsideWorkingDirectories`、`blockWritesOutsideWorkingDirectories`、`defaultMode`、`disableBypassPermissionsMode` 和 `disableAutoMode` 的对象
@@ -1137,7 +1137,7 @@ Claude Code 自身的部分文件仍可写入，例如计划文件、[草稿区]
 
 ### `permissions.defaultMode`
 
-设置新会话启动时的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。如果不设置，会话将以您的使用入口的[内置默认值](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)启动。
+设置新会话的默认[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。如果不设置，则采用您的使用入口的[内置默认值](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)。
 
 * **作用域**：[`Any file`](#scopes)。`auto` 和 `bypassPermissions` 在项目或本地设置中不生效，因此请改为在 `~/.claude/settings.json` 中设置它们。在 v2.1.257 之前，`bypassPermissions` 在任何文件中都会生效。对于 VS Code 扩展启动的对话，Claude Code 仅读取用户、托管和 `--settings` 中的值。
 * **类型**：字符串，取值之一：
@@ -5587,12 +5587,12 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 阻止 CLI 启动，直到 Claude Code 重新获取了最新的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)。如果获取失败，Claude Code 会退出，而不是使用缓存的设置或在没有设置的情况下继续运行。如果您的环境无法接受会话在没有托管策略的情况下运行，哪怕只是短暂的时间窗口，请设置此项。
 
-未设置此键时，Claude Code 不会因获取操作而阻止启动，不过当开发者在启动时登录时，它会最多等待五秒钟以完成获取。Cloud 网关会话始终会等待，如果无法连接到网关则会退出。
+未设置此键时，Claude Code 不会因获取操作而阻止启动，不过当开发者在启动时登录时，它会最多等待五秒钟以完成获取。[Anthropic 可以要求必须获取这些设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#fetch-and-caching-behavior)，此时在没有这些设置的情况下确实会阻止启动。Cloud gateway 会话会等待，如果无法连接到网关则会退出。
 
 * **作用域**：[`Managed`](#scopes)。Claude Code 会遵循任何管理员控制的托管来源中的 `true`，即使该来源不是最高优先级的来源。
 * **类型**：Boolean
   * `true`：Claude Code 阻止启动，直到重新获取了最新的服务器托管设置，如果获取失败则退出
-  * `false`：Claude Code 不会因获取操作而阻止启动，不过在登录启动时会最多等待五秒钟以完成获取
+  * `false`：除非 Anthropic 要求必须获取这些设置，否则 Claude Code 不会因获取操作而阻止启动，不过在登录启动时会最多等待五秒钟以完成获取
 * **默认值**：`false`
 
 ```json managed-settings.json theme={null}

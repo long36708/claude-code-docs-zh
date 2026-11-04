@@ -84,7 +84,7 @@ Claude 回复后，Code 选项卡可能会在空的输入框中以灰色文本�
 
 权限模式控制 Claude 在会话期间的自主程度：它是否在编辑文件、运行命令或两者之前询问。您可以随时使用输入框下方一行中的模式选择器切换权限模式。要自己批准每项更改，请切换到 Manual。
 
-要为新的本地会话设置默认模式，请将 `permissions.defaultMode` 添加到您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)。桌面应用读取与 CLI 相同的设置文件。您在选择器中选择的模式会被记住（按文件夹），并对该文件夹优先于 `defaultMode`，除了 Plan，它仅适用于当前会话。
+要为新的本地会话设置默认权限模式，请将 `permissions.defaultMode` 添加到您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)。您在本地会话中选择的模式会按文件夹被记住，并优先于项目 `.claude/` 设置中的 `defaultMode`。新的本地会话仍可能以 `~/.claude/settings.json` 或托管设置中的 `defaultMode` 启动，因此请在发送第一条消息之前检查选择器。如果您选择 Plan，它仅适用于当前会话。
 
 | 模式 | 设置键 | 行为 |
 | - | - | - |
@@ -1289,13 +1289,13 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 
 > [!WARNING]
 >
-> 如果您使用 Claude 账户登录 Desktop，请不要指望任务能通宵运行。Desktop 仅在自身运行且保持连接时才会为任务续期该登录，因此在您断开连接后，任务的登录可能会过期，随后任务停止。断开连接时剩余的时间不定，可能只有几分钟。
+> 如果您使用 Claude 账户登录 Desktop，请不要指望任务能通宵运行。只有在 Desktop 运行、已连接且已登录时，Desktop 才会为任务续期该登录，因此在您断开连接后，任务的登录可能会过期，任务随之停止。断开连接时剩余的时间不尽相同，可能只有几分钟。
 >
 > 到目前为止完成的工作会保留在远程计算机上，您回来后可以发送一条消息继续。
 >
 > 如果任务必须通宵运行：
 >
-> * [保持您的计算机唤醒](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md#how-scheduled-tasks-run)并在线，保持笔记本盖打开并让 Desktop 运行
+> * [让您的计算机保持唤醒](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md#how-scheduled-tasks-run)并在线，保持笔记本盖子打开，并让 Desktop 保持运行和登录状态
 > * 对远程计算机以及途中的任何跳板机使用无需提示即可工作的登录方式，例如由您的 SSH agent 持有的密钥。这样，Desktop 可以在连接中断后自行重新连接。
 >
 > 对于必须在您的计算机睡眠或关机时运行的任务，请改为启动[云端会话](#run-long-running-tasks-in-the-cloud)。
@@ -1303,8 +1303,9 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 * **睡眠或网络中断后**：如果进程[仍在运行](#limits-while-desktop-is-disconnected)且 Desktop 可以无需提示登录，您会重新获得正在运行的任务。如果无法登录，请[发送消息](#reconnect-after-sleep-or-a-network-loss)。
 * **退出之后**：任务会继续运行，但除非 Desktop 能重新接入其进程，否则当会话再次打开时您会失去该任务。退出之前，请查看 [Desktop 何时可以重新接入](#reopen-a-session-after-you-quit-desktop)。如果您失去了任务，请发送消息以继续。
 
-当您回来而任务尚未完成时，请检查是否有 Desktop 无法重新连接的提示、身份验证错误或等待中的请求：
+当您回来时，如果任务尚未完成，请检查是否出现了 Desktop 的登录页面、Desktop 无法重新连接的提示、身份验证错误或正在等待的请求：
 
+* **登录页面**：登录。如果任务已停止，请发送一条消息以继续。在 Enterprise 套餐中，无论您的活跃程度如何，您的组织都可以[在您登录一定天数后将您注销](https://support.claude.com/en/articles/13163631-configuring-session-security-settings)。使用 Claude 账户时，Desktop 在您注销期间不会为任务续期登录，因此任务可能会停止。
 * **Desktop 无法重新连接**：会话会说明原因，也可能会有通知说明。Desktop 可能[需要您登录](#reconnect-after-sleep-or-a-network-loss)。
 * **身份验证错误**：[登录令牌或凭据](#limits-while-desktop-is-disconnected)可能已过期。使用 Claude 账户时，请发送消息以继续。使用第三方提供商时，请参阅 [3P 上 Claude Desktop 中的 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
 * **等待中的请求**：[回应该请求](#handle-requests-that-arrive-while-you-are-away)

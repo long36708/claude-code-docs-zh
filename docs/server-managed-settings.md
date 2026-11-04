@@ -172,6 +172,15 @@ Claude Code 在启动时从 Anthropic 的服务器获取设置，并在活动会
 
 通过 [Claude apps 网关](#platform-availability)登录的客户端会从网关获取其设置，并在会话开始前等待该获取完成，因此下面列表中的获取不适用于它。[强制失败即关闭的启动](#enforce-fail-closed-startup)介绍了该获取失败时会发生什么。
 
+> [!NOTE]
+>
+> 对于存储在机器上的 Team 或 Enterprise claude.ai 登录，Anthropic 可能会要求在会话开始前获取您组织的设置。在这种情况下，无论下面的列表如何说明，开发者在以下情况下都[无法启动会话](https://code.claude.com/docs/zh-CN/errors.md#couldnt-load-your-organizations-settings)：
+>
+> * 其登录已过期，直到他们运行 `claude auth login`
+> * Claude Code 既没有这些设置，也没有最近的缓存副本。请检查机器是否能够访问 `api.anthropic.com`
+>
+> 如果启动消息中包含 `before a session can start` 或 `Your Claude session has expired`，则表示该要求适用。
+
 **首次启动且无缓存设置：**
 
 * 当开发者在启动时登录（例如首次运行或执行 `/logout` 之后），Claude Code 会在打开会话前等待获取最多五秒。如果策略及时到达，Claude Code 会从第一个屏幕开始执行它，并在该屏幕上显示您的 [`companyAnnouncements`](https://code.claude.com/docs/zh-CN/settings-reference#companyannouncements)。当负载需要[安全批准](#security-approval-dialogs)时，Claude Code 会结束等待，并在开发者批准后应用该负载
@@ -221,14 +230,14 @@ Claude Code 会将大多数设置更新应用到正在运行的会话中，无�
   * 其中没有任何设置回退到更严格的值。
   * 负载中包含除这两个保留期键之外的其他键。
 
-  此时，启动通知、`/status` 和 `claude doctor` 会报告[加载失败](https://code.claude.com/docs/zh-CN/errors.md#remote-managed-settings-failed-to-load)，原因为 `no setting in the server response could be applied as written`，该条目会说明会话基于哪个策略运行。[强制失败即关闭的启动](#enforce-fail-closed-startup)的客户端则会在启动时退出。
+  此时，启动通知、`/status` 和 `claude doctor` 会报告[加载失败](https://code.claude.com/docs/zh-CN/errors.md#remote-managed-settings-failed-to-load)，原因为 `no setting in the server response could be applied as written`，该条目会说明会话基于哪个策略运行。[强制失败即关闭的启动](#enforce-fail-closed-startup)的客户端则会在启动时退出。如果启动时停止并显示消息，提示您的组织要求 `before a session can start` 获取其设置，请参阅[Claude Code 无法加载您组织的设置](https://code.claude.com/docs/zh-CN/errors.md#couldnt-load-your-organizations-settings)。
 * [安全批准对话框](#security-approval-dialogs)评估的是修复后的负载，因此被剥离的无效条目永远不会被提交批准，也永远不会执行。
 
 要调试分发问题，请运行 `claude --debug-file <path>` 并在日志中搜索 `Remote settings`。在将负载更改推广到整个组织之前，请先在测试机器上使用 `claude doctor` 进行验证。
 
 ### 强制失败即关闭的启动
 
-默认情况下，如果启动时远程设置获取失败，CLI 会使用上一次成功获取时缓存的设置继续运行，但 Claude Code 在获取成功之前[暂缓的值](#fetch-and-caching-behavior)除外。在从未获取过这些设置的机器上，CLI 会在没有服务器托管设置的情况下继续运行，并仍然应用设备上的任何[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)。
+默认情况下，如果启动时远程设置获取失败，CLI 会使用上一次成功获取时缓存的设置继续运行。Claude Code [暂缓的值](#fetch-and-caching-behavior)在获取成功之前保持暂缓。在从未获取过这些设置的机器上，CLI 会在没有服务器托管设置的情况下继续运行，并仍然应用设备上的任何[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)。[Anthropic 也可能改为要求必须获取这些设置](#fetch-and-caching-behavior)。
 
 要阻止客户端在使用缓存的或缺失的服务器托管设置时启动，请在您的托管设置中设置 `forceRemoteSettingsRefresh: true`。
 
@@ -370,7 +379,7 @@ Claude Code 同样根据下发的值来决定 [`API_FORCE_IDLE_TIMEOUT`](https:/
 | 用户删除缓存的设置文件 | 发生[首次启动行为](#fetch-and-caching-behavior) |
 | 用户运行修改的 Claude Code 二进制文件 | 能够运行修改的客户端的用户可以绕过任何客户端控制 |
 | 用户运行较旧的 Claude Code 版本 | 早于服务器管理设置的版本不会获取或应用它们 |
-| API 不可用 | 如果可用，缓存的设置应用，但 Claude Code 在获取成功前暂扣的[值](#fetch-and-caching-behavior)除外。没有缓存的情况下，Claude Code 在下次成功获取前不强制执行任何服务器管理的设置，但仍然在设备上应用任何[端点管理的设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)。使用 `forceRemoteSettingsRefresh: true` 时，CLI 退出而不是继续，但[`claude auth` 子命令](#enforce-fail-closed-startup)除外。通过[Claude 应用网关](#platform-availability)登录的客户端在启动时退出而没有该设置，具有相同的 `claude auth` 豁免 |
+| API 不可用 | 如果可用，则应用缓存的设置。没有缓存的情况下，Claude Code 在下次成功获取前不强制执行任何服务器管理的设置。[获取和缓存行为](#fetch-and-caching-behavior)列出了例外情况，包括 Anthropic 要求这些设置的情况。使用 `forceRemoteSettingsRefresh: true` 时，CLI 退出而不是继续，但[`claude auth` 子命令](#enforce-fail-closed-startup)除外。通过[Claude 应用网关](#platform-availability)登录的客户端在启动时退出而没有该设置，具有相同的 `claude auth` 豁免 |
 | 用户使用不同的组织进行身份验证 | 不为托管组织外的账户传递设置，包括使用 [Console API 密钥](#platform-availability)进行身份验证的会话 |
 | 用户配置[第三方模型提供商](#platform-availability) | 服务器管理的设置被绕过。这包括设置 `CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_MANTLE`、`CLAUDE_CODE_USE_VERTEX`、`CLAUDE_CODE_USE_FOUNDRY`、`CLAUDE_CODE_USE_ANTHROPIC_AWS` 或非默认的 `ANTHROPIC_BASE_URL` |
 | 网络流量被拦截或重定向 | 禁用的 TLS 验证或拦截的流量可以改变客户端接收的设置 |

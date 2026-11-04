@@ -69,7 +69,7 @@ Deny 规则的行为取决于它们是命名工具还是在工具内范围化模
 
 ## 权限模式
 
-Claude Code 支持多种权限模式来控制工具调用的批准方式。请参阅[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)了解何时使用每种模式。要更改会话启动时的模式，请在您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中设置 `defaultMode`。[会话启动时的模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)涵盖了每个计划的内置默认值以及 VS Code 扩展读取的内容。
+Claude Code 支持多种权限模式来控制工具调用的批准方式。请参阅[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)了解何时使用每种模式。要更改新会话的默认权限模式，请在您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中设置 `defaultMode`。[会话启动时的模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)涵盖了每个计划的内置默认值以及 VS Code 扩展读取的内容。
 
 | 模式 | 描述 |
 | :- | :- |

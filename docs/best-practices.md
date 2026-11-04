@@ -544,7 +544,7 @@ and report only the gaps that affect correctness. Skip style.
 在脚本中，您几乎总是需要再加几个标志：
 
 * [`--bare`](https://code.claude.com/docs/zh-CN/headless#start-faster-with-bare-mode) 会跳过 hook、skill、插件、MCP 服务器和 `CLAUDE.md` 文件（包括仓库的和机器的），因此无论在哪里运行，结果都一样。它也从不触及您的 claude.ai 登录：身份验证来自 `ANTHROPIC_API_KEY`、您通过 `--settings` 传入的文件中的 `apiKeyHelper`，或您的云提供商的凭据。
-* `--append-system-prompt`、`--mcp-config` 和 `--settings` 会显式传入运行*确实*需要的内容。
+* `--append-system-prompt`、`--mcp-config` 和 `--settings` 会显式传入运行*确实*需要的内容。通过 `--settings` 传入的 hook [在 `--bare` 下不会运行](https://code.claude.com/docs/zh-CN/headless#start-faster-with-bare-mode)，因此对于需要这些 hook 的运行，不要使用 `--bare`。
 * `--allowedTools` 会预先批准其工具，而 [`--permission-mode dontAsk`](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode) 会拒绝其他任何原本会触发提示的操作。
 * `--output-format json` 会为您提供一个可供解析的单一结果对象，而搭配 `--verbose` 的 `stream-json` 会在事件发生时流式输出。
 

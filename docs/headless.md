@@ -48,7 +48,7 @@ claude --bare -p "Summarize README.md" --allowedTools "Read"
 
 在 bare 模式下，Claude Code 从不读取 OAuth 凭据或系统密钥链。对于 Anthropic API，请在环境中设置 `ANTHROPIC_API_KEY`（使用在 [Claude Console](https://platform.claude.com) 中创建的密钥），或在 `--settings` JSON 中提供 `apiKeyHelper`。Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 会继续照常读取各自的提供商凭据。
 
-在 bare 模式下，Claude 可以使用 Bash、文件读取和文件编辑工具。请使用标志传递您需要的任何上下文：
+在 bare 模式下，Claude 可以使用 Bash、文件读取和文件编辑工具。请通过标志传入所需的上下文：
 
 | 要加载的内容 | 使用 |
 | - | - |
@@ -57,6 +57,8 @@ claude --bare -p "Summarize README.md" --allowedTools "Read"
 | MCP 服务器 | `--mcp-config <file-or-json>` |
 | [自定义 Agent](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-the-subagent-scope) | `--agents <file-or-json>` |
 | 插件 | `--plugin-dir <path>`, `--plugin-url <url>` |
+
+在 bare 模式下，即使您通过 `--settings` 传递 hook，或者 hook 位于您通过标志加载的插件的 [`hooks/hooks.json`](https://code.claude.com/docs/zh-CN/plugins/components#hooks) 或 [`hooks` 清单键](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#hooks) 中，hook 仍然不会运行。对于需要 hook 的运行，请不要使用 bare 模式。
 
 bare 模式还会限制会话运行期间发生的事情：
 

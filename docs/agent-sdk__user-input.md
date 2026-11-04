@@ -47,13 +47,13 @@ const options = { canUseTool: handleToolRequest };
 回调在两种情况下触发：
 
 1. **工具需要批准**：Claude 想要使用不被[权限规则](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)或权限模式自动批准的工具。检查 `tool_name` 以获取工具（例如 `"Bash"`、`"Write"`）。
-2. **Claude 提出问题**：Claude 调用 `AskUserQuestion` 工具。检查 `tool_name == "AskUserQuestion"` 以不同方式处理它。如果您指定 `tools` 数组，请包含 `AskUserQuestion` 以使其工作。有关详细信息，请参阅[处理澄清问题](#handle-clarifying-questions)。
+2. **Claude 提出问题**：Claude 调用 `AskUserQuestion` 工具。检查 `tool_name == "AskUserQuestion"` 是否成立，以便对其进行不同的处理。如果指定了 `tools` 数组，则需要包含 `AskUserQuestion` 才能使其生效。有关更多信息，请参阅[处理澄清问题](#handle-clarifying-questions)。
 
 > [!WARNING]
 >
-> **回调永远不会对自动批准的工具触发。** [权限评估流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)中任何较早的批准、允许规则或 `acceptEdits` 或 `bypassPermissions` 等模式会在咨询 `canUseTool` 之前解决调用。如果您在 `allowed_tools` 中列出一个工具，仅当[评估流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)将调用路由回提示（例如询问规则或 `plan` 模式）时，该工具的 `canUseTool` 检查才会运行。对于必须应用于每个工具调用的逻辑，请使用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)，它在流程的其余部分之前执行，可以允许、拒绝或修改请求。
+> **较早的步骤可能会在 `canUseTool` 运行之前允许或拒绝调用。** [权限评估流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)会在您的回调之前检查拒绝规则、权限模式和允许规则。
 >
-> 允许规则不会预先批准[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)；有关其中哪些到达回调以及在 `dontAsk` 和 `auto` 模式下发生的情况，请参阅[权限如何评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。
+> 若要对已被规则或权限模式允许的调用运行您的检查，请使用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)，它会针对这些调用运行，并且可以允许、拒绝或修改它们。
 
 您还可以使用 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks#available-hooks) 在 Claude 等待批准时发送外部通知（Slack、电子邮件、推送）。
 

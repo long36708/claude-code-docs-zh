@@ -480,7 +480,7 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 * **"Unable to access your repository"**，由线程报告，当其克隆失败时：GitHub 拒绝了克隆、在项目拥有的名称下找不到代码库，或线程被要求启动的分支不存在。
 * **"Claude can't access"** 一个代码库，在您在 **New project** 对话框或 **Project settings** 中保存代码库时显示。消息继续带有安装链接和重新连接链接。如果 Claude GitHub App 不在该代码库上，使用安装链接，如果它在，使用重新连接链接，因为 GitHub App 可以在 GitHub 上安装而不链接到您连接到 Claude 的账户。如果消息说 GitHub App 已暂停或不包括此代码库，请按照其链接到 GitHub 修复。
 
-要修复任何一个，点击消息提供的按钮，例如 **Install GitHub App** 或 **Select repositories on GitHub**，然后 **Check again**。当受阻的原因在 GitHub 组织一侧时，例如尚未批准应用的所有者或排除 Claude 的 IP 允许列表，消息改为显示 **See how to fix** 链接。如果没有按钮，请按照[设置 GitHub 访问](#set-up-github-access)，然后发送另一条消息重试。
+要修复"Couldn't start the session"或"Unable to access your repository"的 GitHub 访问问题，请点击消息提供的按钮，例如 **Install on GitHub** 或 **Select repositories**。如果没有按钮，请按照[设置 GitHub 访问](#set-up-github-access)操作。修复后，在项目对话中要求 Claude 为相同的工作启动一个新线程。
 
 ### 线程达到使用限制
 
@@ -505,7 +505,7 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 
 | 消息 | 要做什么 |
 | :- | :- |
-| "Unable to connect to repository"，带有"Claude couldn't reach GitHub to fetch your repository" | 等一会儿，然后发送另一条消息重试 |
+| "Unable to connect to repository"，带有"Claude couldn't reach GitHub to fetch your repository" | 等一会儿，然后在项目对话中要求 Claude 为相同的工作启动一个新线程 |
 | "Unable to connect to repository"，带有"Claude couldn't access your repository or environment" | 您的 GitHub 账户需要对代码库的推送访问，环境必须仍然存在。在 **Project settings > Environment** 中检查两者，然后重试 |
 | "Couldn't show the setup proposal" | 您打开的应用比 Claude 发送的 **Setup recommendations** 更旧。刷新页面或重启桌面应用，或要求 Claude 再次提议设置 |
 | "The project's environment was removed" | 在 **Project settings > Environment** 中选择不同的环境；更改适用于新线程 |

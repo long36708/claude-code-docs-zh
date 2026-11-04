@@ -245,7 +245,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 >
 > **作为默认值**：在[设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中设置 `defaultMode`。桌面应用读取与 CLI 相同的设置文件，并将权限模式应用于新的本地会话。
 >
-> 您在模式选择器中选择的模式会按文件夹记住，并对该文件夹优先于 `defaultMode`。Plan 是例外：选择它仅适用于当前会话。
+> 您在本地会话中通过模式选择器选择的模式会按文件夹记住，并优先于项目 `.claude/` 设置中的 `defaultMode`。新的本地会话仍可能以 `~/.claude/settings.json` 或托管设置中的 `defaultMode` 启动，因此请在发送第一条消息之前检查选择器。如果您选择 Plan，它仅适用于当前会话。
 >
 > 有关 `defaultMode` 在设置文件中的位置，请参阅[以不同的权限模式启动](#start-in-a-different-mode)下的示例。
 
