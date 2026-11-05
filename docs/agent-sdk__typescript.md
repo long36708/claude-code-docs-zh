@@ -2011,6 +2011,7 @@ Claude Code 拒绝启动的原因，以便您的应用程序可以提供修复�
 * Claude Code 停止的恢复，因为它[无法将会话返回到其 worktree](https://code.claude.com/docs/zh-CN/worktrees.md#the-session-resumes-outside-its-worktree)，带有 `worktree_unverified` 或 `worktree_resume_refused`。该部分说明哪个错误携带哪个值。
 * 拒绝后台会话持有的对话的 [`continue`](#options)，带有 `session_held_by_background`。对于这样的对话的拒绝 [`resume`](#options)，Claude Code 仅在设置了变量时写入结果。
 * 由于 [`failIfUnavailable`](#sandboxsettings) 开启且沙箱无法启动而被 Claude Code 拒绝的启动，值为 `sandbox_required_unavailable`。
+* 因 `~/.claude.json` 不是有效 JSON 而被 Claude Code 拒绝的启动，带有 `config_file_invalid`。
 
 `SDKStartupFailureReason` 类型列出了 `startup_failure_reason` 可以取的值：
 
@@ -2035,7 +2036,8 @@ type SDKStartupFailureReason =
   | "bypass_root"
   | "org_config_required_unavailable"
   | "org_config_refused"
-  | "sandbox_required_unavailable";
+  | "sandbox_required_unavailable"
+  | "config_file_invalid";
 ```
 
 每个值命名一个拒绝：
@@ -2062,6 +2064,7 @@ type SDKStartupFailureReason =
 | `org_config_required_unavailable` | 会话在启动前需要组织的策略和托管设置，但无法加载它们，例如由于网络故障或 Anthropic 服务器错误。需要 Agent SDK v0.3.293 或更高版本 |
 | `org_config_refused` | Anthropic 拒绝为此次登录提供组织的策略和托管设置，例如因为登录已过期或被吊销，或组织不允许此账户使用 Claude Code。需要 Agent SDK v0.3.293 或更高版本 |
 | `sandbox_required_unavailable` | [`failIfUnavailable`](#sandboxsettings) 已开启且沙箱无法启动。`errors` 中的文本以 `Set sandbox.failIfUnavailable=false to allow unsandboxed execution.` 结尾。需要 Agent SDK v0.3.314 或更高版本 |
+| `config_file_invalid` | `~/.claude.json` 不是有效的 JSON。Claude Code 不会更改该文件，因此在有人修复它之前，重试会以同样的方式失败。`errors` 会指出该文件并说明如何恢复或修复它。请参阅 [\~/.claude.json 中的配置错误](https://code.claude.com/docs/zh-CN/errors.md#configuration-error-in-claude-json)。需要 TypeScript Agent SDK v0.3.318 或更高版本以及 Claude Code v2.1.318 或更高版本 |
 
 ### `SDKSystemMessage`
 

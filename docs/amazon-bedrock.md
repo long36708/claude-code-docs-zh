@@ -459,7 +459,9 @@ Fable 模型、Sonnet 5 及更高版本，以及 Opus 4.7 及更高版本在 Ama
 export ANTHROPIC_BEDROCK_SERVICE_TIER=priority
 ```
 
-Claude Code 在每个请求上将此作为 `X-Amzn-Bedrock-Service-Tier` 标头发送。层级可用性因模型和区域而异。预留容量使用[预配吞吐量](https://docs.aws.amazon.com/bedrock/latest/userguide/prov-throughput.html) ARN 作为模型 ID，而不是此设置。
+对于设置了该变量的会话，Claude Code 会在其发出的每个 [Invoke API](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModelWithResponseStream.html) 请求上将此值作为 `X-Amzn-Bedrock-Service-Tier` 标头发送，但[模型访问检查](#startup-model-checks)除外。对于发往 [Mantle 端点](#use-the-mantle-endpoint)或经由 [Claude apps 网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)的请求，此设置不起作用。层级可用性因模型和区域而异。预留容量使用[预配吞吐量](https://docs.aws.amazon.com/bedrock/latest/userguide/prov-throughput.html) ARN 作为模型 ID，而不是此设置。
+
+若要覆盖您从终端启动的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#settings-and-provider)，请在设置的 [`env`](https://code.claude.com/docs/zh-CN/settings-reference#env) 块中设置 `ANTHROPIC_BEDROCK_SERVICE_TIER`。只有当启动[监督进程](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)的 shell 导出了您 export 的值时，这些会话才会获得该值。
 
 ## AWS Guardrails
 
@@ -487,7 +489,7 @@ Mantle 在 `bedrock-mantle:` 前缀下有自己的 IAM 操作，因此 [IAM 配�
 
 ### 启用 Mantle
 
-配置了 AWS 凭证后，设置 `CLAUDE_CODE_USE_MANTLE` 以将请求路由到 Mantle 端点：
+配置好 AWS 凭据后，设置 `CLAUDE_CODE_USE_MANTLE` 和您的 AWS 区域：
 
 ```bash theme={null}
 export CLAUDE_CODE_USE_MANTLE=1
@@ -587,8 +589,6 @@ Claude Code 将您的[CA 证书存储](https://code.claude.com/docs/zh-CN/networ
 
 * 将模型指定为[推理配置文件](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html) ID
 
-Claude Code 使用 Amazon Bedrock [Invoke API](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModelWithResponseStream.html)，不支持 Converse API。
-
 ### 网关或代理后的流式传输错误
 
 Amazon Bedrock 以二进制事件流格式流式传输 `InvokeModelWithResponseStream` 响应，标头为 `Content-Type: application/vnd.amazon.eventstream`。Claude Code 和 Amazon Bedrock 之间的网关或代理必须转发响应正文及其标头，包括 `Content-Type`，就像 Amazon Bedrock 发送的那样。
@@ -618,7 +618,7 @@ Amazon Bedrock 以二进制事件流格式流式传输 `InvokeModelWithResponseS
 * 如果错误命名了 `bedrock-mantle:` 操作，请为您的 IAM 身份授予该操作。
 * 如果错误没有命名任何操作且您的凭证有效，您的 AWS 账户没有被授予访问您请求的模型的权限。联系您的 AWS 账户团队以请求访问。
 
-命名模型 ID 的 `400` 意味着该模型不在 Mantle 上提供。Mantle 有其自己的模型阵容，与标准 Amazon Bedrock 目录分开，因此推理配置文件 ID（如 `us.anthropic.claude-sonnet-4-6`）将不起作用。使用 Mantle 格式的 ID，或启用[两个端点](#run-mantle-alongside-the-invoke-api)，以便 Claude Code 将每个请求路由到模型可用的端点。
+指出模型 ID 的 `400` 意味着该模型不在 Mantle 上提供。Mantle 有其自己的模型阵容，与标准 Amazon Bedrock 目录分开，因此推理配置文件 ID（如 `us.anthropic.claude-sonnet-4-6`）不起作用。请使用 Mantle 格式的 ID，或启用[两个端点](#run-mantle-alongside-the-invoke-api)，以便 Claude Code 将推理配置文件 ID 发送到 Invoke API。
 
 ## 其他资源
 

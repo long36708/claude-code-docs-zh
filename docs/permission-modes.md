@@ -372,7 +372,8 @@ claude --permission-mode plan
 
 * **直接连接到 Anthropic API**：在交互式终端会话以及 `-p`、Agent SDK、[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)和[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)会话中，无论您的计划或账户类型如何，随 Anthropic 逐步推出而生效。请根据以下最低 Claude Code 版本核对您的会话类型：
   * 在交互式终端会话中，Pro、Max、Ultra 和 Team 计划请求服务器审查需要 Claude Code v2.1.271 或更高版本。在 Enterprise 计划和 Claude API 账户上，这些会话需要 v2.1.278 或更高版本。
-  * 在 `-p`、Agent SDK、VS Code 扩展和桌面应用会话中，请求服务器审查需要 Claude Code v2.1.281 或更高版本
+  * 在 `-p` 和 VS Code 扩展会话中，请求服务器审查需要 Claude Code v2.1.278 或更高版本
+  * 在 Agent SDK 和桌面应用会话中，请求服务器审查需要 Claude Code v2.1.281 或更高版本
   * 从 v2.1.282 起，[不获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话（例如因为您关闭了遥测）在任何类型的会话中都会默认请求服务器审查
 * **云提供商，或 LLM 网关或代理**：在 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、Amazon Bedrock、Google Cloud's Agent Platform 和 Microsoft Foundry 上，以及每当您将 `ANTHROPIC_BASE_URL` 指向 [LLM 网关或代理](https://code.claude.com/docs/zh-CN/llm-gateway)时，无论您的计划如何。默认请求服务器审查需要 Claude Code v2.1.278 或更高版本。
 * **已登录的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话**：需要 Claude Code v2.1.280 或更高版本

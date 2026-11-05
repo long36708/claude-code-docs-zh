@@ -472,6 +472,29 @@ trap 'rc=$?; [ "$rc" -eq 0 ] || [ -n "${PERMANENT:-}" ] || exit 1' EXIT
 
 要确认 trap 是否生效，请在 `trap` 行正下方添加一行，调用一个不存在的命令，例如 `no-such-command`。从您的 shell 运行 hook 文件，检查 `echo $?` 是否输出 `1`，然后删除该行。
 
+#### 了解发送生成请求的原因
+
+您的 hook 会在 `CLAUDE_RUNNER_SPAWN_REASON` 中收到每个生成请求的原因，因此您可以连同 `CLAUDE_RUNNER_SESSION_UUID` 一起记录 hook 运行的原因。需要编排器上安装 Claude Code v2.1.318 或更高版本。请以 `"${CLAUDE_RUNNER_SPAWN_REASON:-}"` 形式读取它，因为它可能未设置；无论其值为何，都请启动运行器。如果您的 hook 根据它进行分支，请保留一个默认分支，因为 Anthropic 可能会添加新的值。
+
+要查找早先请求的原因，请在每个编排器副本的日志中搜索 `session=` 以及该会话的 `CLAUDE_RUNNER_SESSION_UUID`，而不是其 `session_...` ID。`ok session=` 和 `nack session=` 行会在 `reason=` 之后显示 `CLAUDE_RUNNER_SPAWN_REASON` 的值；如果该变量未设置，则显示 `reason=-`：
+
+* **`[runner:orchestrator] ok session=`**：hook 以 0 退出
+* **`[runner:orchestrator] nack session=`**：编排器正在向 Anthropic 报告失败的生成请求
+
+每个值仅给出 Anthropic 为该会话记录的最后一个原因，而不是其历史记录：
+
+| 值 | 发生了什么 | 检查什么 |
+| :- | :- | :- |
+| `session_created` | 这是新会话的第一次生成请求 | 无需检查。不要依赖它来识别会话的第一次请求，因为在固定队列运行器或待命运行器持有过该会话之后，您的 hook 看到的第一次请求可能携带 `runner_lost`。 |
+| `no_runner_registered` | 在 `--expected-spawn-seconds` 内没有运行器为上一次请求注册，且 Anthropic 没有为其记录任何失败报告 | 该会话较早的日志行中出现 `stop: no nack for session=` 或 `nack failed session=`，表示未记录任何失败报告。请查看其之前的任何 hook 错误；如果编排器当时正在停止，请参阅[停止或重启编排器](#stop-or-restart-the-orchestrator)。在出现 `ok session=` 行之后，请检查其运行器是否已启动并在 `--expected-spawn-seconds` 内注册。如果没有任何副本记录该请求，请检查您的编排器是否发生重启以及是否有 `poll failed` 行。 |
+| `hook_failed` | 您的编排器报告上一次请求失败且可以重试，例如因为您的 hook 以 1 退出，或在 `--hook-timeout` 结束时仍在运行。当您的编排器未运行 hook 就将请求交还给 Anthropic 时（例如编排器正在停止时），该值也相同。 | 找到此请求之前该会话的最后一行 `[runner:orchestrator] nack session=` 或 `stop: handing back session=`。编排器发送的生成错误位于 `reason=` 值之后，并可能延续到后续几行。`handing back session=` 行表示编排器当时正在停止且未运行 hook，因此 hook 无需修复。 |
+| `runner_lost` | 持有该会话的运行器停止向 Anthropic 报告、已注销或已被删除 | 查找是什么停止了运行器或切断了它与 Anthropic 的连接，例如节点驱逐、内存不足终止、竞价实例回收，或您自己的发布或缩容 |
+| `runner_reported_failure` | 上一个运行器报告会话在其上失败，例如在检出期间 | 查看上一个运行器的日志。如果许多会话都得到此值，请检查镜像和仓库设置。 |
+| `resumed` | 会话曾被暂停，现在再次需要运行器。例如，其运行器在 [`--release-idle-session-min`](#make-on-demand-runners-exit-when-idle) 下释放了它，之后它收到了新消息。 | 无需检查 |
+| `requeued` | 会话被放回队列，例如当 Owner 选择 **Retry** 或被阻止的会话收到新消息时 | 如果同一会话反复得到此值，请查看其 `nack session=` 行上的错误。如果其 hook 以 0 退出，请查看运行器的日志。 |
+| `server_retry` | Anthropic 放弃了上一次请求，或放弃了在其运行器上启动该会话，并正在重试。您的 hook 没有失败。 | 单次请求无需检查。如果该值反复出现（无论是在一个会话上还是在许多会话上），请向[您的 Anthropic 客户团队](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#report-an-issue)报告。 |
+| `prewarm` | 这是预热请求，尚无会话 | 无需检查 |
+
 ### 停止或重启编排器
 
 要在不中断正在运行的 `spawn-runner` hook 的情况下停止或重启编排器，请使用 [`--shutdown-drain-sec`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 启动它。这样，收到 `SIGTERM` 时，编排器会给正在运行的 hook 最多您所设置的秒数来完成。要选择该值并相应地设置您的进程管理器，请参阅[确定 `--shutdown-drain-sec` 和编排器的停止超时时间](#size-shutdown-drain-sec-and-the-supervisors-stop-timeout-for-the-orchestrator)。

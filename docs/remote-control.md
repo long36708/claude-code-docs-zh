@@ -502,6 +502,21 @@ claude remote-control --verbose
 * 网络或代理问题：防火墙或代理可能阻止了出站 HTTPS 请求。Remote Control 需要访问端口 443 上的 Anthropic API。
 * 会话创建失败：如果您还看到 `Session creation failed — see debug log`，失败发生在设置的早期。检查您的订阅是否有效。
 
+### "working folder not found"
+
+在运行 [`claude remote-control`](#start-a-remote-control-session) 的终端中，`Session failed: working folder not found:` 后跟一个带引号的路径，表示由于该路径下不存在文件夹，会话无法启动。
+
+* **服务器仍在运行**：恢复该文件夹并再次启动会话，或停止服务器
+* **服务器已退出**：从一个存在的文件夹中再次运行 `claude remote-control`
+
+在 v2.1.318 之前，以这种方式失败的会话会显示 `Session failed: spawn error:` 以及一条 `ENOENT` 消息，该消息指出的是某个程序文件，而不是缺失的文件夹。
+
+### "The program file this Remote Control started from is gone"
+
+运行 [`claude remote-control`](#start-a-remote-control-session) 的终端中出现此警告，表示服务器启动时所用的程序文件已丢失，新会话会运行替换它的较新版本。要让服务器也切换到该版本，请停止服务器并再次运行 `claude remote-control`。如果 Claude Code 安装在网络存储上，请立即重新启动服务器，并按照[在网络存储上安装](https://code.claude.com/docs/zh-CN/setup.md#install-on-network-storage)操作。否则，新会话无需重新启动即可启动。
+
+当程序文件丢失且 Claude Code 找不到可运行的较新版本时，新会话会失败。终端会显示诸如 `Session failed: spawn error:` 后跟一条 `ENOENT` 消息之类的错误。请停止服务器，如果 `claude` 无法在您的 shell 中运行，请再次[安装 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#install-claude-code)，然后再次运行 `claude remote-control`。在 v2.1.318 之前，即使已安装较新版本，新会话也会以这种方式失败。
+
 ### "Couldn't reconnect to your Remote Control session"
 
 当您使用 `claude --resume` 或 `claude --continue` 恢复对话时，Claude Code 会重新连接到该对话中记录的 Remote Control 会话。此消息意味着重新连接因可能是临时的原因（例如网络中断或服务器错误）而失败，因此 Claude Code 无法确认远程会话是否仍然存在。

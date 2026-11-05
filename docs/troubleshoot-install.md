@@ -1264,6 +1264,20 @@ security unlock-keychain ~/Library/Keychains/login.keychain-db
 
 一旦 Keychain 再次可写，Claude Code 在下次写入凭据时将凭据移回。要立即强制执行，请运行 `/logout` 然后 `/login`。注销会删除所有存储的凭据，包括纯文本文件的内容、已保存的 MCP 服务器登录和插件敏感值，因此预期之后需要重新授权 MCP 服务器和重新输入插件密钥。再次登录会将您的登录存储在 Keychain 中。
 
+#### 在网络主目录上登录失败
+
+当请求失败并显示 `API Error: 401`，且您的[配置目录](https://code.claude.com/docs/zh-CN/claude-directory.md)位于网络文件系统上时，请检查该文件系统或您在其上的配额是否已满。如果没有剩余空间，Claude Code 将无法把新的或续期的登录保存到纯文本 [`.credentials.json` 文件](https://code.claude.com/docs/zh-CN/authentication#credential-management)，而 `claude auth login` 仍可能打印 `Login successful.`
+
+**1. 在文件系统上腾出空间**
+
+删除存放 `~/.claude` 或您在 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 中设置的目录的文件系统上不再需要的文件。
+
+**2. 再次登录**
+
+在 Claude Code 输入框中运行 `/login`，或在您的 shell 中运行 `claude auth login`。
+
+在 v2.1.318 之前，当 Claude Code 在已满的网络文件系统上保存登录文件时，可能会用空文件替换仍然有效的已存储登录。之后的命令随后会报告 `Not logged in`。
+
 ### Bedrock、Agent Platform 或 Foundry 凭据未加载
 
 如果您配置了 Claude Code 以使用云提供商，并在 Amazon Bedrock 上看到 `Could not load credentials from any providers`、在 Google Cloud 的 Agent Platform 上看到 `Could not load the default credentials` 或在 Microsoft Foundry 上看到 `ChainedTokenCredential authentication failed`，您的云提供商 CLI 可能在当前 shell 中未进行身份验证。

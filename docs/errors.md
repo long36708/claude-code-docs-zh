@@ -55,6 +55,8 @@
 | `spend limit reached` / `spend limit unavailable` | [使用限制](#spend-limit-reached) |
 | `Not logged in · Please run /login` | [身份验证](#not-logged-in) |
 | `Couldn't save your login` | [身份验证](#couldnt-save-your-login) |
+| `Sign in again to take your previous account or API key off the config file.` | [身份验证](#sign-in-again-to-take-your-previous-account-or-api-key-off-the-config-file) |
+| `Your account or API key may still be in the config file. Run claude auth logout.` | [身份验证](#your-account-or-api-key-may-still-be-in-the-config-file) |
 | `Authentication required · Sign in again to continue` | [身份验证](#not-logged-in) |
 | `Could not resolve authentication method` | [身份验证](#could-not-resolve-authentication-method) |
 | `Invalid API key` | [身份验证](#invalid-api-key) |
@@ -82,6 +84,9 @@
 | `Couldn't verify your organization's policy for remote control` | [Troubleshoot Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#couldnt-verify-your-organizations-policy-for-remote-control) |
 | `Remote Control is disabled by your organization's policy` | [Troubleshoot Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#remote-control-is-disabled-by-your-organizations-policy) |
 | `Remote Control was turned off by your organization's policy` | [Troubleshoot Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#remote-control-was-turned-off-by-your-organizations-policy) |
+| `Session failed: working folder not found:` | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#working-folder-not-found) |
+| `The program file this Remote Control started from is gone` | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#program-file-is-gone) |
+| `Session failed: spawn error:` 后跟一条 `ENOENT` 消息 | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#program-file-is-gone) |
 | `OAuth token revoked` / `OAuth token has expired` | [身份验证](#oauth-token-revoked-or-expired) |
 | `Failed to authenticate: OAuth token revoked` | [身份验证](#oauth-token-revoked-or-expired) |
 | `Your account does not have access to Claude. Please login again or contact your administrator.` | [身份验证](#oauth-token-revoked-or-expired) |
@@ -165,6 +170,7 @@
 | `Request too large for the API's 32MB request limit` | [请求错误](#request-too-large) |
 | `Image was too large` | [请求错误](#image-was-too-large) |
 | `API Error: an image in the conversation could not be processed and was removed` | [请求错误](#image-was-too-large) |
+| `An image in the conversation exceeds the dimension limit for many-image requests` | [请求错误](#image-was-too-large) |
 | `Unable to resize image` | [请求错误](#unable-to-resize-image) |
 | `Request rejected as unprocessable by the model` | [请求错误](#request-rejected-as-unprocessable-by-the-model) |
 | `PDF too large` / `PDF is password protected` / `pdftoppm is not installed` | [请求错误](#pdf-errors) |
@@ -229,6 +235,8 @@
 | `Error: --agents takes a JSON object, or a file path only with --print (-p)` | [命令行错误](#invalid-agents-configuration) |
 | `Error: --agents file not found` | [命令行错误](#invalid-agents-configuration) |
 | `Error: Settings file exceeds the 2MiB limit` | [命令行错误](#settings-file-exceeds-the-2mib-limit) |
+| `Configuration error in` | [命令行错误](#configuration-error-in-claude-json) |
+| `Claude configuration file at <path> was empty and no backup holds anything: starting with defaults.` | [命令行错误](#claude-configuration-file-was-empty) |
 | `The current directory no longer exists (it was deleted or moved)` / `Can't read the current directory` | [命令行错误](#the-current-directory-no-longer-exists) |
 | `Temp directory <dir> ... Refusing to use it` / `Claude Code's temporary directory <dir> could not be created` | [命令行错误](#temp-directory-refused-or-cannot-be-created) |
 | `ENOSPC: no space left on device, mkdir '<dir>'` | [命令行错误](#temp-directory-refused-or-cannot-be-created) |
@@ -334,6 +342,7 @@
 | `cannot contain null bytes (\0)` | [工具错误](#path-cannot-contain-null-bytes) |
 | `Path contains null bytes` | [工具错误](#path-cannot-contain-null-bytes) |
 | `command contains the invisible character U+FEFF (byte order mark) or U+180E (Mongolian vowel separator), and was not run` | [工具错误](#command-contains-an-invisible-character) |
+| `This call was not run. The command was approved before Claude Code restarted` | [工具错误](#command-approved-before-a-restart-was-not-run) |
 | `File is too large to read as an image (the limit is 128MB)` | [工具错误](#file-is-too-large-to-read-as-an-image) |
 | `Cannot read this as an image: <path> is a pipe or a device` | [工具错误](#file-is-too-large-to-read-as-an-image) |
 | `subagent_type is required: the general-purpose agent is not available in this session` | [工具错误](#subagent-type-is-required) |
@@ -420,6 +429,7 @@
 | `Not loaded: rename <path>, then restart — its name uses "<name>", a name reserved for the skills synced from your claude.ai account` | [配置警告](#a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved) |
 | `N skill or command names refused: run with --debug to see which ([names]), rename, then restart` | [配置警告](#skill-or-command-name-refused) |
 | `Ignoring N permissions.allow entries from ... this workspace has not been trusted` | [配置警告](#workspace-has-not-been-trusted) |
+| `Make this change again later: <path> could not be updated, so it applies to this session only` | [配置警告](#make-this-change-again-later) |
 | `is a network path, which cannot be added as a working directory` | [配置警告](#working-directory-is-a-network-path) |
 | `Remote managed settings failed to load (<cause>)` | [配置警告](#remote-managed-settings-failed-to-load) |
 | `Your organization requires remote managed settings to load, but they could not be loaded` | [强制执行故障关闭式启动](https://code.claude.com/docs/zh-CN/server-managed-settings.md#enforce-fail-closed-startup) |
@@ -1039,6 +1049,7 @@ Not logged in · Please run /login
 * 运行 `/login`，使用您的 Claude 订阅或 Console 账户进行身份验证
 * 如果您原本希望通过环境变量进行身份验证，请确认在启动 `claude` 的 shell 中已设置并导出 `ANTHROPIC_API_KEY`
 * 对于无法进行交互式登录的 CI 或自动化场景，请配置一个在启动时获取密钥的 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 脚本
+* 如果有人重新登录同一个 claude.ai 账户和组织时，`claude -p` 作业因此消息而退出，请更新执行该登录的 Claude Code。在 v2.1.318 之前，Claude Code 会在该登录过程中、保存新登录之前删除已存储的登录。
 * 请参阅[身份验证优先级](https://code.claude.com/docs/zh-CN/authentication.md#authentication-precedence)，了解存在多个凭据时 Claude Code 使用哪一个
 
 如果系统反复提示您登录，请参阅[未登录或令牌已过期](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#not-logged-in-or-token-expired)，了解系统时钟检查以及 macOS 凭据存储的恢复步骤。
@@ -1448,6 +1459,34 @@ Couldn't save your login. Try logging in again.
 * 在 macOS 上，解锁登录钥匙串，然后再次运行 `/login`
 * 在其他平台上，再次运行 `/login`
 * 如果登录仍然无法保存，请参阅[未登录或令牌已过期](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#not-logged-in-or-token-expired)，了解钥匙串解锁命令和其他凭据存储恢复步骤
+
+### Sign in again to take your previous account or API key off the config file
+
+登录后出现此警告，表示您之前登录过的任何账户可能仍存储在 [`~/.claude.json`](https://code.claude.com/docs/zh-CN/claude-directory#ce-claude-json) 中：
+
+```text theme={null}
+Sign in again to take your previous account or API key off the config file.
+```
+
+如果在 Linux 或 Windows 上通过 Console 登录创建了 API 密钥，该 API 密钥也可能仍在 `~/.claude.json` 中。
+
+**解决方法：**
+
+* 在 shell 中运行 `claude auth login` 重新登录。随后 Claude Code 会重试保存操作，将被替换的账户或 API 密钥从文件中移除。
+
+### Your account or API key may still be in the config file
+
+您运行了 `/logout` 或 `claude auth logout`，Claude Code 已让此进程退出登录，但无法确认 [`~/.claude.json`](https://code.claude.com/docs/zh-CN/claude-directory#ce-claude-json) 中不再保存您的账户。原因可能是保存未生效，或者无法读回文件进行检查。
+
+```text theme={null}
+Your account or API key may still be in the config file. Run claude auth logout.
+```
+
+如果在 Linux 或 Windows 上通过 Console 登录创建了 API 密钥，该 API 密钥也可能仍在 `~/.claude.json` 中。
+
+**解决方法：**
+
+* 在 shell 中运行 `claude auth logout` 再次尝试保存。保存成功后，该命令会输出 `Successfully logged out from your Anthropic account.`
 
 ### Couldn't start the local listener that receives the browser sign-in
 
@@ -2428,6 +2467,7 @@ Request too large (max 32MB). Accumulated images and attachments in the conversa
 Image was too large. Double press esc to go back and try again with a smaller image.
 API Error: 400 ... image dimensions exceed max allowed size
 API Error: an image in the conversation could not be processed and was removed.
+An image in the conversation exceeds the dimension limit for many-image requests (3000px). Run /compact to remove old images from context, or start a new session.
 ```
 
 `could not be processed and was removed` 行表示 API 拒绝了对话中的某张图片，例如超出大小或尺寸限制的图片。
@@ -2442,6 +2482,9 @@ API Error: an image in the conversation could not be processed and was removed.
 
 * 在粘贴之前调整图像大小。API 接受单个图像最长边最多 8000 像素的图像，或当上下文中有超过 20 张图像时最多 3000 像素。
 * 拍摄相关区域的更紧密屏幕截图，而不是整个屏幕
+* 对于 `dimension limit for many-image requests` 消息，如果消息提及了 `/compact`，请在 Claude Code 提示符处运行它，或以更少的图片开始新会话
+
+`dimension limit for many-image requests` 消息显示的是 API 错误中注明的像素限制。
 
 ### 无法调整图像大小
 
@@ -3231,6 +3274,43 @@ Error: Settings file exceeds the 2MiB limit: /path/to/settings.json
 
 * 将 `--settings` 指向一个小于 2 MiB 的常规 JSON 设置文件。有关格式，请参阅[设置](https://code.claude.com/docs/zh-CN/settings.md)。
 
+### Configuration error in \~/.claude.json
+
+Claude Code 无法解析 `~/.claude.json`，该文件保存您的账户详细信息、MCP 服务器和每个项目的状态。您的文件未被更改。在您修复该文件之前，每次[非交互式](https://code.claude.com/docs/zh-CN/headless.md)启动（例如 `claude -p`）都会以退出码 1 退出。
+
+当 Claude Code 找到[备份](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)时，输出会指出该备份，并打印一行用于将其复制回来的 `cp` 命令：
+
+```text wrap theme={null}
+Claude configuration file at /home/user/.claude.json is corrupted: <JSON parser's message>
+The corrupted file has been backed up to: /home/user/.claude/backups/.claude.json.corrupted.1793664000000
+A backup file exists at: /home/user/.claude/backups/.claude.json.backup.1793660400000
+You can manually restore it by running: cp -f "/home/user/.claude/backups/.claude.json.backup.1793660400000" "/home/user/.claude.json"
+
+Configuration error in /home/user/.claude.json: <JSON parser's message>
+```
+
+**解决方法：**
+
+* **输出中有 `cp` 行**：在终端中运行该行。在 Windows 上，请在 PowerShell 中运行。它会用备份（`~/.claude.json` 的较早版本）替换损坏的文件。
+* **输出中没有 `cp` 行，或运行后错误再次出现**：修复 `~/.claude.json` 中的 JSON；如果 [`~/.claude/backups/`](https://code.claude.com/docs/zh-CN/claude-directory#cleaned-up-automatically) 中有另一个 `.claude.json.backup.<timestamp>` 文件，可将其复制覆盖该文件；或者将该文件重命名。当 `~/.claude.json` 处没有文件时，Claude Code 会以默认设置启动，该文件中保存的内容都将不存在。
+
+在 v2.1.318 之前，非交互式启动打印此错误后，`~/.claude.json` 中会只剩下默认值，因此下一次启动将在没有您配置的情况下运行。
+
+### Claude configuration file was empty and no backup holds anything
+
+启动时出现此消息，表示其指出的文件为空，且该文件的所有 [`.backup` 副本](https://code.claude.com/docs/zh-CN/claude-directory#cleaned-up-automatically)中都没有任何内容。Claude Code 已为该文件所保存的内容使用默认值启动。您的 `settings.json` 文件和 `.mcp.json` 是单独的文件。
+
+```text wrap theme={null}
+Claude configuration file at /home/user/.claude.json was empty and no backup holds anything: starting with defaults.
+```
+
+**解决方法：**
+
+* 重新设置您之前在该文件中配置的内容。例如，在终端中使用 `claude mcp add` 添加您 `user` 和 `local` 作用域的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md#mcp-installation-scopes)。
+* 如果 Claude Code 要求您重新登录，请重新登录
+
+在 v2.1.318 之前，Claude Code 会将没有备份的空文件报告为[已损坏](#configuration-error-in-claude-json)。
+
 ### 当前目录已不存在
 
 您从一个在 shell 进入后被删除或移动的目录中启动了 `claude`，例如被另一个 shell 删除的 worktree 或临时目录。Claude Code 无法读取其工作目录，因此无论是交互模式还是[非交互](https://code.claude.com/docs/zh-CN/headless.md)模式，它都会在启动会话前以退出码 1 退出。在 v2.1.239 之前，Claude Code 会崩溃，并在 stderr 上输出压缩后的 bundle 源代码和原始的 `ENOENT ... uv_cwd` 堆栈，而不是此消息。
@@ -3342,7 +3422,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了标志以外的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。若要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3634,8 +3714,8 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查没有允许它。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何通过 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，而机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何通过 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求 bash，而机器上没有安装 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
 
 **解决方法：**
 
@@ -3788,7 +3868,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较前从 origin 获取了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会失败，报错 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 
@@ -4673,6 +4753,20 @@ Error: command contains the invisible character U+FEFF (byte order mark) or U+18
 
 * **对于 Claude 编写的命令**：您无需修复任何内容。该消息会告诉 Claude 如何重写该命令。
 * **对于 skill 或命令文件**：该消息跟在 `No shell command in <name> was run` 之后。请参阅[在何处找到该字符并将其移除](#no-shell-command-was-run)。
+
+### Claude Code 重启前批准的命令未运行
+
+您批准的一条 shell 命令没有运行，Claude 会收到以下消息作为该命令的结果：
+
+```text wrap theme={null}
+This call was not run. The command was approved before Claude Code restarted, and Claude Code could not confirm that the shell is back in the directory where it was approved. That directory may be gone or replaced, lie outside the directory where the session started, or be one that Claude Code needs approval to enter or is not allowed to examine. The shell's directory is <directory>. If the command still makes sense, cd to the directory it was meant for and make the call again; it may need approval again.
+```
+
+该消息的第三句也可能改为 `It does not keep track of that directory across a restart in a session that has been in a worktree.`
+
+**处理方法：**
+
+* 让 Claude 继续；如果系统要求您再次批准该命令，请回应该提示。
 
 ### File is too large to read as an image
 
@@ -6327,6 +6421,18 @@ sandbox.filesystem.allowRead is ignored — managed settings set allowManagedRea
 在 v2.1.309 之前，该警告显示为 `Stale sandbox mask files left by a killed session`。
 
 在 v2.1.257 之前，`claude doctor` 不会标记这些文件；当会话被终止时，更早的版本也会留下相同的占位文件。
+
+### Make this change again later: \~/.claude.json could not be updated
+
+stderr 上的此通知表示对 [`~/.claude.json`](https://code.claude.com/docs/zh-CN/claude-directory#ce-claude-json) 的某项更改（例如登录或对信任提示的回答）未保存到该文件：
+
+```text theme={null}
+Make this change again later: /home/user/.claude.json could not be updated, so it applies to this session only.
+```
+
+**解决方法：**
+
+* 在之后的会话中再次进行该更改。例如，再次运行 `/login` 或再次回答信任提示。
 
 ## 回复质量似乎低于预期
 
