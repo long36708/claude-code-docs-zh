@@ -227,6 +227,17 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 要隐藏或显示该面板，请点击会话标题栏中或标题栏 **⋮** 菜单中的 **Hide session rail** 或 **Show session rail**。如果仍然看不到该面板，请[检查您使用的是哪种 Code 选项卡布局](#check-which-layout-you-have)。
 
+### 最小化窗格
+
+要让终端、浏览器或 [iOS Simulator](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md) 以较小尺寸保持在视野中，请点击窗格标题中的 **Minimize**。该按钮需要 Claude Desktop v4.0.0 或更高版本，并且需要使用 Claude 账户而非[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)。浏览器窗格仅在本地会话中提供该按钮。
+
+当[会话详细信息面板](#see-session-details)显示在屏幕上时，最小化的窗格位于该面板中；否则，它会悬浮在聊天区域的一角：
+
+* **在面板中**：最小化的窗格位于面板卡片下方，此时无法移动或调整其大小。要改为让它悬浮在聊天区域上方，请[隐藏面板](#hide-or-show-the-session-details-panel)。
+* **在聊天区域的一角**：将鼠标悬停在最小化的窗格上以显示其标题。拖动标题可将其移动到另一个角落。要调整其大小，请拖动最小化窗格中最靠近聊天区域中心的那个角。
+
+要恢复完整窗格，请点击最小化窗格标题中的 **Expand**。要改为关闭最小化的窗格，请点击 **Expand** 旁的关闭按钮。
+
 ### 在终端中运行命令
 
 集成终端让您无需切换到另一个应用即可在会话旁运行命令。点击会话标题栏中的 **Terminal**，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在您的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。要打开第二个终端选项卡，点击终端窗格标题中的 **+** 或右键点击聊天中的文件夹来选择 **Open in terminal**。
