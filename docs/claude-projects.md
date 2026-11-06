@@ -95,8 +95,8 @@
 将项目范围限定为一个您将继续添加的工作流，例如保持一个 API 在其延迟目标下所需的一切。[何时使用项目](#when-to-use-a-project)有更多示例。然后填写对话框的字段：
 
 * **Name**：项目在 **Projects** 列表中的显示方式。
-* **Goal**（可选）：您试图完成的一行内容，例如"将 p95 API 延迟保持在 200 毫秒以下"。对话中的 Claude 朝着它工作。没有目标的情况下，Claude 从您发送的任务工作，您可以稍后在 **Project settings > General** 中添加目标。
-* **Context**（可选）：此项目处理的 GitHub 代码库，加上任何线程应该读取的文件、文件夹或 Google Drive 文件夹。为每个点击 **Add**。添加大多数任务需要的代码库而不是工作可能涉及的每一个；[决定要添加哪些代码库](#decide-which-repositories-to-add)涵盖了选择，您可以稍后在 **Project settings > Environment** 中添加更多。
+* **What do you want to work on?**（可选）：成为项目目标的一行内容，例如"将 p95 API 延迟保持在 200 毫秒以下"。对话中的 Claude 朝着它工作。没有目标的情况下，Claude 从您发送的任务工作，您可以稍后在 **Project settings > General** 中添加目标。
+* **Context**（可选）：此项目处理的 GitHub 仓库，加上任何线程应该读取的文件、文件夹或 Google Drive 文件夹。为每个点击 **Add**。添加大多数任务需要的仓库而不是工作可能涉及的每一个；[决定要添加哪些仓库](#decide-which-repositories-to-add)涵盖了选择，您可以稍后在 **Project settings > Environment** 中添加更多。
 
 关于线程应该如何工作的常规规则在[项目说明](#give-a-project-standing-context)中，您在项目存在后设置。
 
@@ -388,6 +388,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 | Plugins | Plugins | 加载到每个新线程的 plugins |
 | Usage | Usage | 按线程和按模型的[令牌使用](#usage-and-cost) |
 | Memory | Memory | 项目的[记忆文件](#give-a-project-standing-context) |
+| Auto-continue when usage limits reset | General | [因用量限制而停止](#usage-limit-reached)的线程或项目对话是否在限制重置时自行继续。默认开启。 |
 | Restart Claude | General | 当[Claude 在那里停止响应](#claude-hasnt-responded)时重启项目对话 |
 | Pause、Archive、Delete | General | 停止、隐藏或删除项目；请参阅[暂停、存档或删除项目](#pause-archive-or-delete-a-project) |
 
@@ -403,7 +404,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 
 项目使用计入与您其他 Claude Code 会话相同的[计划限制](https://code.claude.com/docs/zh-CN/errors.md#youve-hit-your-session-limit)，项目本身无法超过这些限制。
 
-达到您计划限制的线程等待并在限制重置时自己继续，因此您留下运行的工作在您的下一个使用窗口中开始使用，无需来自您的消息。[线程达到使用限制](#usage-limit-reached)涵盖了您看到的内容、如何停止它，以及不等待的一种情况。
+在达到您计划限制时停止的线程会等待，并默认在限制重置时自行继续。其工作随后计入您的下一个使用窗口。若要阻止线程继续，请参阅[线程达到用量限制](#usage-limit-reached)。
 
 工作仅在您为您的账户打开[使用信用](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)时才超过您的计划限制。线程无法为您打开它们。
 
@@ -484,9 +485,9 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 
 ### 线程达到使用限制
 
-当线程或项目对话达到您套餐的五小时或每周限制时，它会自动持续重试，并在限制重置后继续。由定时任务启动的线程不会等待：其轮次会因限制错误而停止，您需要在限制重置后向其发送消息。
+当线程或项目对话因达到您套餐的五小时或每周限制而停止时，它会等待，并默认在限制重置时自动继续。
 
-线程等待期间，会显示 **Service is busy** 以及"Claude is still retrying and will continue automatically."。您无需执行任何操作，工作即可继续。如果您不希望它占用您的下一个用量窗口，请点击线程中的 **Stop**，或[暂停项目](#pause-archive-or-delete-a-project)以暂停所有线程。[用量限制错误](https://code.claude.com/docs/zh-CN/errors.md#youve-hit-your-session-limit)解释了这些限制及其重置时间。
+若要阻止线程或对话在其消息显示的重置时间继续，请在此之前于 [**Project settings > General**](#project-settings-reference) 中关闭 **Auto-continue when usage limits reset**。该设置作用于整个项目，而不仅是您正在查看的线程。若要在关闭该设置的情况下继续，请在重置后向线程或对话发送消息。[用量限制错误](https://code.claude.com/docs/zh-CN/errors.md#youve-hit-your-session-limit)解释了这些限制及其重置时间。
 
 ### 需要额外的使用信用
 
@@ -509,7 +510,7 @@ Claude 不发布线程采取的每一步，因此显示为运行且项目对话�
 | "Unable to connect to repository"，带有"Claude couldn't access your repository or environment" | 您的 GitHub 账户需要对代码库的推送访问，环境必须仍然存在。在 **Project settings > Environment** 中检查两者，然后重试 |
 | "Couldn't show the setup proposal" | 您打开的应用比 Claude 发送的 **Setup recommendations** 更旧。刷新页面或重启桌面应用，或要求 Claude 再次提议设置 |
 | "The project's environment was removed" | 在 **Project settings > Environment** 中选择不同的环境；更改适用于新线程 |
-| "Setup script failed" | 点击错误上的 **Edit setup script**，在环境中修复脚本，然后发送另一条消息。[设置脚本失败](https://code.claude.com/docs/zh-CN/web-quickstart.md#setup-script-failed)列出常见原因 |
+| "Setup script failed" | [设置脚本失败](https://code.claude.com/docs/zh-CN/web-quickstart.md#setup-script-failed)列出了常见原因。在环境中修复脚本，然后在项目对话中要求 Claude 在新线程中运行该任务，以便脚本再次运行 |
 | "Claude ran out of context on this turn" | 线程填满了其上下文窗口。如果消息说线程在新会话中继续，它自己继续；否则在项目对话中要求 Claude 为剩余工作启动新线程 |
 | "Couldn't start in" 后跟您的文件夹名称 | 您允许线程在您的计算机上运行，但会话无法在那里启动。当消息下的一行给出原因时，修复它，然后要求 Claude 再次运行任务 |
 | "Claude is out of date on your device" | 您选择运行线程的计算机具有比 v2.1.280 更旧的 Claude Code 版本。在那里更新 Claude Code，或如果这是连接文件夹的内容，则更新桌面应用，然后要求 Claude 再次运行任务 |

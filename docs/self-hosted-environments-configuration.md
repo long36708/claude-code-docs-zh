@@ -46,7 +46,7 @@ claude self-hosted-runner --environment-secret-file /etc/claude/environment-secr
 | `CLAUDE_CODE_REMOTE_SLACK_CHANNEL_ID` | 对于 Claude Tag 会话，为该会话所服务的、或其线程所在的 Slack 频道或私信的 ID，例如 `C0123ABCDE`。Slack 时间戳只在单个频道内标识一条消息，因此请将此 ID 与 `CLAUDE_CODE_REMOTE_SLACK_THREAD_TS` 一起记录。其他会话未设置此变量，Claude Tag 会话也可能未设置。 |
 | `CLAUDE_SESSION_INGRESS_TOKEN_FILE` | 绝对路径，指向保存当前会话 JWT 的按会话文件，在令牌刷新时保持最新。Shell 子进程在下载用户添加到会话的附件时从中读取其 `Authorization` 标头。`exec` 自动保留该变量；重建子进程环境的包装脚本必须携带该变量，否则附件下载会无声地停止工作。 |
 | `CLAUDE_CONFIG_DIR` | 按会话 Claude 配置目录，在会话启动时从运行器在启动时捕获的运行器主机配置快照中写入；请参阅 [Permissions and tool approval](#permissions-and-tool-approval)。此处的写入仅限于此会话。除非您使用 [`--remove-session-state`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，否则会话结束后该目录仍会保留在 `<base-dir>/_sessions/` 下；请参阅 [Reuse a pre-warmed checkout](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#reuse-a-pre-warmed-checkout)。 |
-| `CLAUDE_CODE_REMOTE_MCP_CONFIG` | 指向 `CLAUDE_CONFIG_DIR` 中某个文件的路径，该文件保存 Anthropic 控制平面为此会话交付的 MCP 服务器定义。如果您的包装脚本重建子进程的环境，请携带此变量。如果缺少此变量，当控制平面更新交付的服务器时，子进程会关闭您的包装脚本通过 [`--mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 添加但不在更新中的任何 stdio、HTTP 或 SSE 服务器。需要 Claude Code v2.1.299 或更高版本。 |
+| `CLAUDE_CODE_REMOTE_MCP_CONFIG` | 指向 `CLAUDE_CONFIG_DIR` 中某个文件的路径，该文件保存控制平面交付的 MCP 服务器。如果您的包装脚本重建子进程的环境，请原样携带此变量、[`CLAUDE_CODE_REMOTE`](https://code.claude.com/docs/zh-CN/env-vars#variables) 和 `CLAUDE_CODE_ENVIRONMENT_KIND`；运行器会设置这三个变量。如果 `CLAUDE_CODE_REMOTE` 已传入，但此变量或 `CLAUDE_CODE_ENVIRONMENT_KIND` 未传入，那么对于您的包装脚本通过 [`--mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 添加、但交付服务器的更新中未包含的 stdio、HTTP 和 SSE 服务器，子进程会将其停止。需要 Claude Code v2.1.299 或更高版本。 |
 | `ANTHROPIC_BASE_URL` | 子进程将使用的 API 基础 URL，由控制平面按会话交付，通常为 `https://api.anthropic.com`。不要覆盖它：会话的推理凭据是 Anthropic 颁发的 OAuth 令牌，其他提供者不接受。 |
 | `CLAUDE_CODE_OAUTH_TOKEN` | 子进程用于模型推理的短期 OAuth 访问令牌，生命周期约为 30 分钟。运行器在过期前重新生成它，并通过子进程的 stdin 交付轮换，因此不 [keep stdin attached](#keep-stdin-and-file-descriptor-3-attached) 的包装脚本只看到初始值。不要依赖您的组织 IP 允许列表来限制此令牌的使用：将其视为持有者凭据，如果泄露，大约 30 分钟内仍可使用，不要记录它、写入磁盘或在会话容器外转发它。 |
 | `CLAUDE_RUNNER_ALIVE_EVERY_MS` | 当[轮次在子进程初始化之前开始](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#session-startup-timeout)时，运行器通过此变量设置子进程报告自身存活的频率（以毫秒为单位）。如果您的包装脚本重建子进程的环境，请携带此变量，否则运行器可能会在该轮次期间释放会话并记录 `no child output for <n> — releasing`。需要运行器和子进程均为 v2.1.309 或更高版本。 |
@@ -828,18 +828,26 @@ Stop hook 检查的是每个子模块所处的提交，而不是其中的文件�
 
 自托管会话没有连接的终端，因此未回答的权限提示会使当前轮次停滞，直到用户在 UI 中响应。Anthropic 的控制平面随工作负载一起发送每个会话的工具列表和权限规则；默认配置预批准常规工具调用（包括 `Bash`），并且云端会话[无论处于何种模式都会预批准文件编辑](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)。任何未被预批准的调用都会通过会话 UI 进行提示。
 
+### 从包装脚本固定权限模式
+
 > [!NOTE]
 >
 > 仅在会话容器运行时启用了[默认拒绝网络出口](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)并落实了[加固部分](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#harden-your-deployment)中其余措施的环境上固定自动模式。在默认预批准工具集和自动模式下，常规工具调用（包括 `Bash` 网络请求）都会在无人参与的情况下运行，因此网络边界才是限制这些调用可访问范围的关键。
 
-要无论控制平面发送什么都将提示保持在最低限度，请从您的包装脚本或 [`command` hook](#command) 固定[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)。自动模式让会话无需常规权限提示即可运行：单独的分类器模型在操作运行前对其进行审查，并阻止它拒绝的操作，而显式的询问规则仍会强制提示；权限模式页面介绍了分类器检查的内容。运行器在调用包装脚本前追加服务器计算的标志，对于单值标志（如 `--permission-mode`），解析器以最后一次出现的值为准，因此您在 `"$@"` 之后追加的标志会覆盖服务器发送的值：
+要让会话以[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)启动，直到 claude.ai/code 或其他客户端为其设置权限模式为止，请从您的包装脚本或 [`command` hook](#command) 固定该模式。运行器以其自身的标志作为参数调用包装脚本，而 Claude Code 采用命令行上最后一个 `--permission-mode`，因此请将您的标志追加在 `"$@"` 之后：
 
 ```bash theme={null}
 #!/bin/bash
 exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 ```
 
-要改为预批准特定工具，请追加 `--allowed-tools` 和您的规则，例如 `--allowed-tools "Bash(bazel *) Bash(yarn *) mcp__internal__*"`。列表标志（如 `--allowed-tools` 和 `--disallowed-tools`）会在多次出现时累积而不是覆盖，因此您的规则会叠加在控制平面发送的任何规则之上。要缩小范围，请追加 `--disallowed-tools`，即使其他规则允许某些工具，它也会拒绝这些工具。
+一旦客户端设置了模式，您追加的模式便不再适用，即使会话在运行器上重新启动后也是如此。例如，当 claude.ai/code 的模式下拉菜单显示 Auto，或有人在其中选择了某个模式时，claude.ai/code 会随会话的第一条消息设置模式。
+
+在自动模式下，单独的分类器模型会在操作运行前对其进行审查，并阻止它拒绝的操作。显式的询问规则仍会强制提示。被[拒绝规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)阻止的调用在任何模式下都保持被阻止。
+
+### 预批准特定工具
+
+要预批准特定工具，请在包装脚本中的 `"$@"` 之后追加 `--allowed-tools` 和您的规则，例如 `--allowed-tools "Bash(bazel *) Bash(yarn *) mcp__internal__*"`。列表标志（如 `--allowed-tools` 和 `--disallowed-tools`）会在多次出现时累积而不是覆盖，因此您的规则会叠加在控制平面发送的任何规则之上。要缩小范围，请追加 `--disallowed-tools`，即使其他规则允许某些工具，它也会拒绝这些工具。
 
 ### 每个会话的配置如何组装
 

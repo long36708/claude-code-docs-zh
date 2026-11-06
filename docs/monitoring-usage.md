@@ -217,7 +217,7 @@ claude_code.interaction
 | `user_prompt` | 提示文本。除非设置了门，否则值为 `<REDACTED>` | `OTEL_LOG_USER_PROMPTS` |
 | `user_prompt_length` | 提示长度（字符） | |
 | `interaction.sequence` | 交互的 1 基计数器，按 Claude Code 进程而不是按会话计数，如 [`event.sequence`](#event-correlation-attributes) 所述 | |
-| `parent.source` | 跨度如何获得其跟踪父级：当它在入站 `TRACEPARENT` 下作为父级时为 `env`，当它启动自己的跟踪时为 `none`。需要 Claude Code v2.1.268 或更高版本 | |
+| `parent.source` | 跨度如何获得其跟踪父级：当它以入站 `TRACEPARENT` 为父级时为 `env`，当它启动自己的跟踪时为 `none`。需要 Claude Code v2.1.268 或更高版本 | |
 | `interaction.duration_ms` | 转向的挂钟持续时间 | |
 
 **`claude_code.llm_request`**
@@ -264,7 +264,7 @@ claude_code.interaction
 | `tool_name` | 工具名称 | |
 | `tool_name_safe` | `tool_name` 的形式，不携带任何用户选择的名称。内置工具名称逐字通过。MCP 工具名称显示为 `mcp_other`，除了与几个固定形状匹配的工具名称，例如名为 `browser_*` 的 `playwright` 工具，它们逐字通过。需要 Claude Code v2.1.268 或更高版本 | |
 | `bash_command_class` | 对于 Bash 工具：命令的第一个程序的类别，来自固定列表，例如 `vcs` 或 `package_manager`。`other` 表示列表外的程序，`unparsed` 表示无法解析该行。需要 Claude Code v2.1.268 或更高版本 | |
-| `bash_argv0` | 对于 Bash 工具：当命令的第一个程序在同一固定列表上时，例如 `git` 或 `npm`。`other` 表示列表外的任何程序。需要 Claude Code v2.1.268 或更高版本 | |
+| `bash_argv0` | 对于 Bash 工具：当命令的第一个程序在同一固定列表上时，为该程序本身，例如 `git` 或 `npm`。`other` 表示列表外的任何程序。需要 Claude Code v2.1.268 或更高版本 | |
 | `duration_ms` | 包括权限等待和执行的挂钟持续时间 | |
 | `result_tokens` | 工具结果的近似令牌大小 | |
 | `agent_id` | 运行工具的子代理或队友的标识符。在主会话上不存在 | |

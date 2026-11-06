@@ -16,7 +16,7 @@ Claude Code 插件是一个目录，包含 skills、agents、hooks、MCP 服务�
 > * **您构建了 MCP 服务器并希望将其添加到 Anthropic 的目录中**：请参阅[发布到目录](https://claude.com/docs/directory/publish)
 > * **您希望在 VS Code 或 JetBrains IDE 中使用 Claude Code**：那是 VS Code 扩展或 JetBrains 插件，而不是 Claude Code 插件。请参阅[在 VS Code 中使用 Claude Code](https://code.claude.com/docs/zh-CN/vs-code.md) 或 [JetBrains IDE](https://code.claude.com/docs/zh-CN/jetbrains.md)
 
-要立即尝试插件，请在 Claude Code 终端会话中运行 `/plugin`，并从**发现**选项卡安装一个插件，该选项卡列出了来自您的市场的插件。从那里：
+要立即尝试插件，请在 Claude Code 终端会话中运行 `/plugin`，并从 **Discover** 选项卡安装一个插件，该选项卡列出了来自您的市场的插件。从那里：
 
 * [安装和管理插件](https://code.claude.com/docs/zh-CN/plugins/install.md)：完整的安装步骤、作用域和其他界面
 * [创建插件](https://code.claude.com/docs/zh-CN/plugins/create.md)：构建您自己的插件
@@ -54,8 +54,8 @@ Skills、子代理、hooks 和 MCP 服务器都可以独立工作，无需插件
 
 您可以在每个阶段检查插件的占用空间：
 
-* **安装前**：从 `/plugin` 中的**市场**选项卡打开插件。Anthropic 官方市场中的插件在那里显示**上下文成本**估计。
-* **安装后**：[测量插件成本](https://code.claude.com/docs/zh-CN/plugins/measure.md#measure-what-a-plugin-costs)显示如何读取插件的占用空间，**已安装**选项卡的**最近未使用**组列出了您可以关闭的插件。
+* **安装前**：从 `/plugin` 中的 **Marketplaces** 选项卡打开插件。Anthropic 官方市场中的插件在那里显示 **Context cost** 估计。
+* **安装后**：[测量插件成本](https://code.claude.com/docs/zh-CN/plugins/measure.md#measure-what-a-plugin-costs)显示如何读取插件的占用空间，**Installed** 选项卡的 **Not used recently** 组列出了您可以关闭的插件。
 * **在不卸载的情况下停止它**：使用 `/plugin` 禁用插件，或在您的 shell 中使用 `claude plugin disable`。请参阅[管理已安装的插件](https://code.claude.com/docs/zh-CN/plugins/install.md#manage-installed-plugins)。
 
 ## 从市场获取插件
@@ -66,7 +66,7 @@ Skills、子代理、hooks 和 MCP 服务器都可以独立工作，无需插件
 >
 > 插件市场不是 [Claude Marketplace](https://claude.com/marketplace)。Claude Marketplace 是 claude.com/marketplace 上的网站，您可以在其中浏览插件、连接器、合作伙伴产品和服务合作伙伴。它不是您使用 `/plugin marketplace add` 添加的市场。
 
-Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官方市场，除非[托管策略](https://code.claude.com/docs/zh-CN/plugins/org.md#allow-the-official-marketplace-and-your-own)阻止它。Claude Code 不会自行添加 Anthropic 的社区市场。要区分 Anthropic 的各个市场，请阅读 [Anthropic 的市场](https://code.claude.com/docs/zh-CN/plugins/anthropic-marketplaces.md)。要查看官方市场列出的内容，请在会话中打开 `/plugin` 的**发现**选项卡，或浏览 [Claude Marketplace](https://claude.com/marketplace/plugins)。
+Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官方市场，除非[托管策略](https://code.claude.com/docs/zh-CN/plugins/org.md#allow-the-official-marketplace-and-your-own)阻止它。Claude Code 不会自行添加 Anthropic 的社区市场。要区分 Anthropic 的各个市场，请阅读 [Anthropic 的市场](https://code.claude.com/docs/zh-CN/plugins/anthropic-marketplaces.md)。要查看官方市场列出的内容，请在会话中打开 `/plugin` 的 **Discover** 选项卡，或浏览 [Claude Marketplace](https://claude.com/marketplace/plugins)。
 
 此图显示了从市场到您的会话的路径。市场列出一个插件，您安装该插件，Claude Code 加载其组件。
 
@@ -86,7 +86,7 @@ Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官
 
 ## 区分 Anthropic 的市场和第三方市场
 
-市场的名称将其放在三个层级之一中。Claude Code 仅接受来自 `github.com/anthropics/` 存储库的官方和社区名称：
+市场的名称将其放在三个层级之一中。Claude Code 仅对来自 `github.com/anthropics/` 存储库的市场接受官方和社区名称：
 
 * **官方**：具有 Anthropic [官方市场名称](https://code.claude.com/docs/zh-CN/plugins/security.md#official-marketplace-names)之一的市场，包括 `claude-plugins-official` 和 `claude-code-plugins`。
 * **社区**：具有 Anthropic 社区名称之一的市场，例如 `claude-community`。[按名称识别 Anthropic 的市场](https://code.claude.com/docs/zh-CN/plugins/security.md#marketplace-tiers)列出了它们。

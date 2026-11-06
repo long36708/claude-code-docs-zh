@@ -74,7 +74,7 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
 默认情况下，Claude Code 在某些终端中发送桌面通知，在其他终端中则发送铃声字符或不发送任何内容：
 
-* **Ghostty、Kitty 和 iTerm2**：发送桌面通知，其中 iTerm2 仅在您启用其警报设置后才会显示。
+* **Ghostty、Kitty 和 iTerm2（当 Claude Code 检测到它们时）**：发送桌面通知，其中 iTerm2 仅在您启用其警报设置后才会显示。
 * **Apple Terminal**：没有声音；当 Claude Code 发现最前方 Terminal 窗口的描述文件中"Audible bell"已关闭时，发送静音铃声字符，否则不发送任何内容。如果该描述文件的"Visual bell"或 Dock 弹跳选项已启用，该铃声字符会显示为窗口闪烁，或在 Terminal 处于后台时显示为 Dock 图标弹跳。
 * **其他终端**：不发送任何内容。
 
@@ -86,7 +86,7 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 }
 ```
 
-桌面通知通过 SSH 到达您的本地计算机，因此远程会话仍然可以提醒您。Ghostty 和 Kitty 将其转发到您的操作系统通知中心，无需进一步设置。iTerm2 要求您启用转发：
+当您从未在 tmux 中运行的终端通过 SSH 连接时，请在运行 Claude Code 的计算机上将 [`preferredNotifChannel`](https://code.claude.com/docs/zh-CN/settings-reference#preferrednotifchannel) 设置为您本地终端对应的值：`"iterm2"`、`"kitty"` 或 `"ghostty"`。这样桌面通知就会到达您的本地计算机。Ghostty 和 Kitty 将其转发到您的操作系统通知中心，无需进一步设置。iTerm2 要求您启用转发：
 
 **1. 打开 iTerm2 通知设置**
 
@@ -131,7 +131,7 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
 ## 配置 tmux
 
-当 Claude Code 在 tmux 中运行时，默认情况下 Shift+Enter 提交而不是插入换行符，桌面通知和[进度条](https://code.claude.com/docs/zh-CN/settings-reference.md#terminalprogressbarenabled)永远无法到达外部终端。将这些行添加到 `~/.tmux.conf`，然后运行 `tmux source-file ~/.tmux.conf` 将其应用到运行中的服务器：
+当 Claude Code 在 tmux 中运行时，默认情况下 Shift+Enter 提交而不是插入换行符，桌面通知也无法到达外部终端。将这些行添加到 `~/.tmux.conf`，然后运行 `tmux source-file ~/.tmux.conf` 将其应用到运行中的服务器：
 
 ```bash ~/.tmux.conf theme={null}
 set -g allow-passthrough on
@@ -140,7 +140,7 @@ set -s extended-keys on
 set -as terminal-features 'xterm*:extkeys'
 ```
 
-`allow-passthrough` 行允许通知和进度更新到达外部终端，而不是被 tmux 吞掉。`extended-keys` 行让 tmux 区分 Shift+Enter 和普通 Enter，这样换行快捷键就能工作。
+要将通知从可见窗格发送到外部终端，请保留 `allow-passthrough` 行，并将 [`preferredNotifChannel`](https://code.claude.com/docs/zh-CN/settings-reference#preferrednotifchannel) 设置为 `"iterm2"`、`"kitty"` 或 `"ghostty"`。使用此示例时，位于您未查看的窗口中的窗格不会发送任何通知。`extended-keys` 行让 tmux 区分 Shift+Enter 和普通 Enter，这样换行快捷键就能工作。
 
 [mod 的 `Image`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#elements) 需要 `allow-passthrough` 和 `focus-events` 行，以及其他[在 tmux 中绘制的要求](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#draw-an-image-inside-tmux)。添加这些行后，还需要从 tmux 分离、重新连接，然后重启 Claude Code。
 

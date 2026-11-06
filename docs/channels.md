@@ -354,7 +354,7 @@ Channels 是一个研究预览功能。可用性正在逐步推出，`--channels
 | 功能 | 它做什么 | 适合 |
 | - | - | - |
 | [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) | 在新的云沙箱中运行任务，从 GitHub 克隆 | 委派您稍后检查的自包含异步工作 |
-| [Slack 中的 Claude](https://code.claude.com/docs/zh-CN/slack.md) | 从频道或线程中的 `@Claude` 提及生成云端会话 | 直接从团队对话上下文启动任务 |
+| [Slack 中的 Claude](https://code.claude.com/docs/zh-CN/slack.md) | 从频道或线程中的 `@Claude` 提及生成云端会话 | 直接从团队对话中启动任务 |
 | 标准 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md) | Claude 在任务期间查询它；没有任何内容被推送到会话 | 给 Claude 按需访问以读取或查询系统 |
 | [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) | 您从 claude.ai 或 Claude 移动应用程序驱动您的本地会话 | 在离开您的办公桌时指导进行中的会话 |
 

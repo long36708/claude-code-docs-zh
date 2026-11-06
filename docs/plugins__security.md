@@ -45,7 +45,7 @@ Claude Code 的[权限规则](https://code.claude.com/docs/zh-CN/permissions.md)
 
 ## 按名称识别 Anthropic 的市场
 
-市场的名称将其分为三个层级之一：官方、社区或第三方。Claude Code 仅接受来自 `github.com/anthropics/` 存储库的官方和社区名称用于市场，所以第三方市场不能将自己呈现为 Anthropic 的。同事或您的组织发布的市场是第三方的。
+市场的名称将其分为三个层级之一：官方、社区或第三方。Claude Code 仅对来自 `github.com/anthropics/` 存储库的市场接受官方和社区名称，所以第三方市场不能将自己呈现为 Anthropic 的。同事或您的组织发布的市场是第三方的。
 
 该表列出了每个层级中的市场名称：
 

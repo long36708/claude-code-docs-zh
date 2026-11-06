@@ -338,7 +338,7 @@ Claude Code 解析 PowerShell AST 并独立检查复合命令中的每个命令�
 
 #### `Read` 和 `Edit` 规则涵盖的范围
 
-`Edit` 规则适用于所有编辑文件的内置工具。Claude 尽力将 `Read` 规则应用于所有读取文件的内置工具，如 Grep 和 Glob，以及您提示词中的 `@file` 提及，以及连接的 [IDE](https://code.claude.com/docs/zh-CN/vs-code.md#the-built-in-ide-mcp-server) 与 Claude 共享的选择和打开文件上下文。
+`Edit` 规则适用于所有编辑文件的内置工具。Claude 尽力将 `Read(path)` deny 规则应用于所有读取文件的内置工具，如 Grep 和 Glob。它也会同样尽力将 `Read(path)` deny 规则应用于您提示词中的 `@file` 提及，以及连接的 [IDE](https://code.claude.com/docs/zh-CN/vs-code.md#the-built-in-ide-mcp-server) 与 Claude 共享的选择和打开文件上下文。
 
 `Read(path)` deny 规则也适用于您粘贴到提示词中的图片路径以及您 @ 提及的目录：
 
@@ -353,11 +353,14 @@ Claude Code 在 v2.1.290 及更高版本中检查粘贴的图片路径和目录�
 >
 > Read 和 Edit deny 规则适用于 Claude 的内置文件工具、Claude Code 在 Bash 中识别的文件命令（如 `cat`、`head`、`tail`、`sed` 和 `tee`）以及 Bash [重定向](#redirections)的目标（如 `> file` 和 `< file`）。它们不适用于读取文件而不命名它们的命令，如从保存文件的目录运行的 `grep -r pattern .`，或间接读取或写入文件的任意子进程，如打开文件本身的 Python 或 Node 脚本。对于阻止所有进程访问路径的 OS 级别强制执行，请[启用沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)。
 
-#### `Write(path)`、`NotebookEdit(path)` 和 `Glob(path)` 规则从不匹配
+#### `Write(path)`、`Glob(path)` 和 `Grep(path)` 规则不匹配
 
-Claude Code 仅根据 `Edit(path)` 和 `Read(path)` 规则检查文件权限。如果您为 `Write`、`NotebookEdit`、`Glob` 或旧版 `MultiEdit` 编写路径规则，Claude Code 会接受该规则，但从不将任何读取或编辑与其匹配。
+Claude Code 根据 `Edit(path)` 和 `Read(path)` 规则检查文件权限。对于下列工具之一，它会接受路径不是 `*` 的规则，但不会将任何读取、搜索或编辑与其匹配。`Grep(docs/**)` deny 规则不会阻止 Grep 搜索 `docs`。请改为编写 `Edit` 或 `Read` 规则：
 
-使用 `Edit(docs/**)` 代替 `Write(docs/**)`、`NotebookEdit(docs/**)` 或 `MultiEdit(docs/**)`，以及 `Read(docs/**)` 代替 `Glob(docs/**)`。要匹配 Write、NotebookEdit 或 Glob 工具的每次使用（无论路径如何），请只编写工具名称。
+* **`Write`、`NotebookEdit` 或旧版 `MultiEdit`**：使用 `Edit(docs/**)` 代替 `Write(docs/**)`。
+* **`Glob` 或 `Grep`**：使用 `Read(docs/**)` 代替 `Grep(docs/**)`。作为 ask 规则，当 Claude 对匹配的路径调用 Grep 或 Glob 时，`Read(docs/**)` 会提示，但当对其上层工作目录的搜索返回匹配文件时不会提示。
+
+要匹配这些工具之一的每次使用（无论路径如何），请[只编写工具名称](#match-all-uses-of-a-tool)。
 
 #### 路径模式如何匹配
 

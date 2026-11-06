@@ -202,6 +202,8 @@ rate_limits:
 >
 > 每个打开的请求在网关进程中持有内存，同时它流式传输，同时它等待一个槽位。如果您将限制保持在 256，过载副本上的内存仍然增长，因为等待请求保持其请求体。根据峰值时打开的请求数调整容器的内存，当您更改限制时观察内存。耗尽内存的副本被杀死并丢弃它持有的每个流。
 
+在使用 [`load_test_mode`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#load_test_mode) 的负载测试中，请求不会在此限制处等待，但副本仍会记录 `client requests are open` 警告。
+
 ### 使 `API_TIMEOUT_MS` 高于网关的首字节时间
 
 如果您降低 [`API_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/network-config#streaming-idle-watchdogs) 以便更快地重试未得到应答的请求，请使其高于网关发送流式响应首批字节所需的时间。等待时间更长的请求会超时，同样等待那么久的每次重试也会超时，直到该轮次以 `Request timed out` 结束，除非[首字节截止时间](#retry-an-unanswered-request-sooner-with-the-first-byte-deadline)先将其结束。

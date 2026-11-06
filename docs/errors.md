@@ -61,7 +61,9 @@
 | `Could not resolve authentication method` | [身份验证](#could-not-resolve-authentication-method) |
 | `Invalid API key` | [身份验证](#invalid-api-key) |
 | `Your apiKeyHelper script is failing` | [身份验证](#your-apikeyhelper-script-is-failing) |
-| `Claude Code didn't send your claude.ai login, because the API key helper your administrator set isn't in effect` | [身份验证](#claude-code-didnt-send-your-claude-ai-login) |
+| `Your organization's settings need an update` | [身份验证](#claude-code-didnt-send-your-claude-ai-login) |
+| `Couldn't load your organization's settings. Check your connection` | [身份验证](#claude-code-didnt-send-your-claude-ai-login) |
+| `Restart Claude Code to finish signing in` | [身份验证](#claude-code-didnt-send-your-claude-ai-login) |
 | `Invalid auth token · Fix external auth token` | [身份验证](#invalid-request-header-value) |
 | `Invalid ANTHROPIC_CUSTOM_HEADERS · Fix the environment variable` | [身份验证](#invalid-request-header-value) |
 | `Invalid request header from the environment · Fix the environment variable` | [身份验证](#invalid-request-header-value) |
@@ -1117,16 +1119,23 @@ Your apiKeyHelper script is failing · This usually means you need to re-authent
 
 ### Claude Code didn't send your claude.ai login
 
-请将这条完整消息发送给您的管理员，其中列出了他们可以进行的更改。此消息表示 Claude Code 拒绝了您的提示词。在您使用 claude.ai 登录期间，Claude Code 会持续拒绝提示词，重启后也是如此：
+这些消息表示 Claude Code 拒绝了您的请求，并且没有发送您的 claude.ai 登录信息：
 
 ```text theme={null}
-Claude Code didn't send your claude.ai login, because the API key helper your administrator set isn't in effect. Your organization's managed settings may be overriding it. Ask your administrator to keep the key helper and its API address in effect, to name Anthropic's API address in those managed settings, or to remove the key helper. Run /status to see your setting sources.
+Your organization's settings need an update. Ask your administrator to fix the API key helper configuration.
+Couldn't load your organization's settings. Check your connection, then restart Claude Code.
+Restart Claude Code to finish signing in.
 ```
 
 **处理方法：**
 
-* 要告诉管理员您的机器有哪些托管来源，请在 Claude Code 提示符处运行 `/status`，并复制 [`Setting sources` 行](https://code.claude.com/docs/zh-CN/managed-settings#read-the-source-in-/status)。如果出现 `Skipped sources` 行，也请一并复制
-* 如果您负责管理这些设置，请参阅[为什么机器的密钥 helper 未生效](https://code.claude.com/docs/zh-CN/server-managed-settings.md#machine-apikeyhelper-not-in-effect)
+* `Your organization's settings need an update`：请您的管理员修复 API key helper 配置
+  * 要告知管理员您的计算机有哪些托管来源，请在 Claude Code 提示符处运行 `/status`，并复制 [`Setting sources` 行](https://code.claude.com/docs/zh-CN/managed-settings#read-the-source-in-/status)。如果出现 `Skipped sources` 行，也请一并复制
+  * 如果您负责管理这些设置，并且 helper 位于计算机的托管设置文件或 MDM 策略中，请参阅[当计算机的 `apiKeyHelper` 未生效时](https://code.claude.com/docs/zh-CN/server-managed-settings#machine-apikeyhelper-not-in-effect)
+* `Couldn't load your organization's settings`：检查网络连接，然后重启 Claude Code。如果重启后消息再次出现，请告知您的管理员
+* `Restart Claude Code to finish signing in`：重启 Claude Code
+
+在 v2.1.315 之前，被拒绝的提示词或文件上传会输出一条以 `Claude Code didn't send your claude.ai login` 开头的消息。
 
 ### 请求标头值无效
 
@@ -5612,7 +5621,7 @@ Error: Claude Code process exited with code 1
 
 **应该怎么做：**
 
-* 在 VS Code 中，点击错误显示的**查看输出日志**链接以查看底层故障
+* 在 VS Code 中，点击错误显示的 **View output logs** 链接以查看底层故障
 * 在 Agent SDK 应用程序中，在消息循环周围捕获错误。[CLI 进程退出](https://code.claude.com/docs/zh-CN/agent-sdk/troubleshooting.md#cli-process-exit)下的条目涵盖了您的代码在每种 SDK 语言中接收的内容。
 * 在终端中的同一项目中运行 `claude`。故障通常会在那里重现，并显示其真实错误消息，您可以在此页面上查找。
 * 在终端中运行 `claude doctor` 以检查安装和配置

@@ -296,7 +296,7 @@ Claude Code 读取你命名的 subagent 定义，并将其以下部分应用于�
 >
 > 要让它在编辑前询问，请在 Agent 面板中的 `main` 行上按 Enter，并将负责人也切换到 Manual 模式。之后负责人也会询问，任何其他处于 Manual 模式的队友同样如此。
 
-您无法在生成时设置每个队友的权限模式。新队友以负责人的模式启动，包括由 `--dangerously-skip-permissions` 开启的 `bypassPermissions` 模式。如果负责人处于 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)，队友则改为以 [Manual 模式](https://code.claude.com/docs/zh-CN/permission-modes.md#available-modes) 启动。
+您无法在生成时设置每个队友的权限模式。新队友以负责人的模式启动，包括由 `--dangerously-skip-permissions` 开启的 `bypassPermissions` 模式。如果负责人处于 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)，队友则改为以 [Manual 模式](https://code.claude.com/docs/zh-CN/permission-modes.md#available-modes) 启动。对于负责人处于 Manual 或 `dontAsk` 模式的分割窗格队友，这需要 Claude Code v2.1.317 或更高版本。
 
 [进程内](#choose-a-display-mode)队友在负责人实时的允许和拒绝规则下运行，因此 [`--disallowedTools`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)、`--tools` 和 `--allowedTools` 都适用于它。对于分割窗格队友，请逐一检查各个标志：
 

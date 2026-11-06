@@ -445,7 +445,7 @@ apt update && apt install -y shellcheck
 
 设置脚本有四个需要考虑的约束：
 
-* **以零退出**：如果脚本以非零状态结束，会话将无法启动。在非关键命令后附加 `|| true`，以便间歇性安装失败不会阻止会话。
+* **以零退出**：如果脚本以非零状态退出，会话将[无法启动](https://code.claude.com/docs/zh-CN/web-quickstart.md#setup-script-failed)，或者在缺少脚本未能安装的内容的情况下启动。在非关键命令后附加 `|| true`，以便间歇性安装失败不会导致脚本失败。
 * **在五分钟内完成**：将脚本的总运行时间保持在大约五分钟以内，以便[环境缓存](#environment-caching)可以建立。当设置耗时超过五分钟时，环境不会被缓存。使用 `&` 和 `wait` 并行运行独立的安装，并将任何无法容纳的单个下载移至 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks)，在后台启动它。如果新会话在设置期间停滞或失败，请参阅[新会话在设置期间挂起或超时](https://code.claude.com/docs/zh-CN/web-quickstart.md#new-sessions-hang-or-time-out-during-setup)。
 * **安装需要网络访问**：包安装需要连接到注册表。默认的 **Trusted** 级别涵盖[常见包注册表](#default-allowed-domains)，包括 npm、PyPI、RubyGems 和 crates.io；使用 **None** 网络访问时，安装会失败。
 * **环境的变量尚未设置**：脚本在会话设置环境的[环境变量](#set-environment-variables)之前运行。请在脚本本身中设置脚本所需的任何值。

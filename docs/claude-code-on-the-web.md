@@ -129,7 +129,7 @@ claude --cloud "Refactor the logger to use structured output"
 
 当会话完成时，您可以从 claude.ai/code 创建 PR，或 [teleport](#from-cloud-to-terminal) 会话到您的终端以继续工作。
 
-#### 发送没有 GitHub 的本地存储库
+#### 发送没有 GitHub 的本地仓库
 
 当您从没有 git 远程的仓库运行 `claude --cloud` 时，或从未安装 Claude GitHub App 的 github.com 仓库运行时，Claude Code 会将您的本地仓库打包并直接上传到云端会话。即使您使用 `/web-setup` 连接了 GitHub，这也适用。
 

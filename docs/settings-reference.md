@@ -4986,7 +4986,7 @@ Claude Desktop 会向 Code 会话提供从您的桌面配置派生的策略，�
 
 * **作用域**：[`Any file`](#scopes)。Claude Code 也会读取旧版本遗留在 `~/.claude.json` 中的值。
 * **类型**：字符串，取以下值之一：
-  * `"auto"`：Claude Code 在 iTerm2、Ghostty 和 Kitty 中发送桌面通知，在 Terminal.app 中仅当其响铃提示音关闭时才响铃，在其他终端中不执行任何操作
+  * `"auto"`：Claude Code 在检测到 iTerm2、Ghostty 或 Kitty 时发送桌面通知，在 Terminal.app 中仅当其响铃提示音关闭时才响铃，在其他终端中不执行任何操作
   * `"terminal_bell"`：Claude Code 在任何终端中发出响铃字符
   * `"iterm2"`：Claude Code 发送 iTerm2 桌面通知
   * `"iterm2_with_bell"`：Claude Code 发送 iTerm2 桌面通知并响铃
@@ -5001,7 +5001,7 @@ Claude Desktop 会向 Code 会话提供从您的桌面配置派生的策略，�
 }
 ```
 
-使用 `"auto"` 时，Claude Code 会在 iTerm2、Ghostty 和 Kitty 中发送桌面通知。在 Terminal.app 中，仅当您关闭了 Terminal 的响铃提示音时它才会发出响铃字符，而在其他终端中不执行任何操作。设置 `"terminal_bell"` 可在任何终端中发出响铃字符。请参阅[获取终端响铃或通知](https://code.claude.com/docs/zh-CN/terminal-config.md#get-a-terminal-bell-or-notification)。
+使用 `"auto"` 时，Claude Code 会在检测到 iTerm2、Ghostty 或 Kitty 时发送桌面通知。在 Terminal.app 中，仅当您关闭了 Terminal 的响铃提示音时它才会发出响铃字符，而在其他终端中不执行任何操作。设置 `"terminal_bell"` 可在任何终端中发出响铃字符。请参阅[获取终端响铃或通知](https://code.claude.com/docs/zh-CN/terminal-config.md#get-a-terminal-bell-or-notification)。
 
 ### `remote.defaultEnvironmentId`
 

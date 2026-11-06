@@ -303,8 +303,6 @@ Claude Code 从 API 在响应开始时报告的使用情况构建每条助手消
 
 API 在响应结束时报告真实输出计数，Claude Code 将其添加到结果消息中。从结果的 `usage` 中读取输出令牌，或从 `modelUsage` 中读取以获得按模型的细分。
 
-要在流式传输响应时观察输出计数的增长，请设置 `includePartialMessages`，或在 Python 中设置 `include_partial_messages`，并从每个 `message_delta` 流事件中读取 `usage`，在 TypeScript 中类型为 [`SDKPartialAssistantMessage`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkpartialassistantmessage)，在 Python 中为 [`StreamEvent`](https://code.claude.com/docs/zh-CN/agent-sdk/python#streamevent)。
-
 ### 跟踪失败对话的成本
 
 成功和错误结果消息都包括 `usage` 和 `total_cost_usd`；在 Python 中两个字段都是可选类型，因此在读取之前检查它们不是 `None`。

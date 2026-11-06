@@ -25,7 +25,7 @@ Code Review 将仓库中的 `CLAUDE.md` 文件作为项目上下文读取。违�
 
 ## 使用 REVIEW\.md 设置仅用于审查的规则
 
-`REVIEW.md` 是位于仓库根目录的文件，用于针对您的仓库定制 Code Review。您还可以在子目录中添加 `REVIEW.md`，在根文件的基础上为该路径下的更改添加检查项。
+`REVIEW.md` 是位于仓库根目录的文件，用于针对您的仓库定制 Code Review。在[受保护分支](#what-a-review-reads-for-each-branch-setup)上，您还可以在[大多数子目录](#when-a-subdirectory-review-md-doesnt-apply)中添加 `REVIEW.md`，在根文件的基础上为该子目录下的更改添加检查项。
 
 负责发现问题的 Agent 和负责验证问题的 Agent 会将其内容作为您仓库的审查指令接收，同时接收 Code Review 的默认审查指导。撰写最终审查的步骤会在确定严重程度和撰写摘要之前参考该文件。
 
@@ -45,6 +45,19 @@ your-repo/
 > [!NOTE]
 >
 > Code Review 服务和本地 [`/code-review` 命令](https://code.claude.com/docs/zh-CN/code-review-local)是两个独立的工具，它们读取的文件不同。该服务会同时读取 `CLAUDE.md` 和 `REVIEW.md`。`/code-review` 命令在您自己机器上的 Claude Code 会话中运行，它读取您的 `CLAUDE.md` 文件，但不读取 `REVIEW.md`。请将希望在两处都生效的指导放在 `CLAUDE.md` 中，并将 `REVIEW.md` 留给 Pull Request 审查专用的规则。
+
+### 子目录 REVIEW\.md 不适用的情况
+
+对于位于以下名称的子目录中或其下方的 `REVIEW.md`，无论该子目录包含什么内容，Code Review 都不会应用。子目录名称仅在整体匹配时才算匹配，不区分大小写，且适用于任意深度，因此 `Tests` 匹配，而 `integration-tests` 不匹配：
+
+* **测试**：`test`、`tests`、`__tests__`、`testdata`、`fixtures`、`__fixtures__`、`golden`、`corpus`、`snapshots`、`__snapshots__`
+* **示例**：`example`、`examples`、`sample`、`samples`、`demo`、`demos`
+* **生成的代码**：`generated`
+* **第三方代码**：`vendor`、`third_party`、`third-party`、`thirdparty`、`node_modules`、`bower_components`、`external`、`extern`、`deps`、`godeps`、`pods`、`carthage`、`site-packages`、`contrib`
+
+请将针对这些子目录的检查项写在根目录的 `REVIEW.md` 中，或者写在某个父子目录的 `REVIEW.md` 中（前提是该父目录及其上方的任何目录都不在此列表中）。
+
+Pull Request 所更改路径上的其余子目录 `REVIEW.md` 文件共享 150,000 字节的上限，根文件不计入其中。如果[检查运行](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#check-run-output)报告其中某些文件未能容纳，请缩短这些文件以符合该上限。
 
 ### REVIEW\.md 示例
 
@@ -217,8 +230,8 @@ Code Review 将以下设置视为保护：
 
 | 分支保护 | 读取的副本 | 读取的文件 |
 | :- | :- | :- |
-| 默认分支受保护，且 Pull Request 以其为目标，或以未受任何规则集保护的分支为目标 | 默认分支 | 根文件、其包含的文件和子目录文件 |
-| Pull Request 以另一个受规则集保护的分支为目标 | 该基础分支 | 根文件、其包含的文件和子目录文件 |
+| 默认分支受保护，且 Pull Request 以其为目标，或以未受任何规则集保护的分支为目标 | 默认分支 | 根文件、其包含的文件和[大多数子目录文件](#when-a-subdirectory-review-md-doesnt-apply) |
+| Pull Request 以另一个受规则集保护的分支为目标 | 该基础分支 | 根文件、其包含的文件和[大多数子目录文件](#when-a-subdirectory-review-md-doesnt-apply) |
 | 默认分支未受保护，且基础分支没有任何一种保护规则 | 默认分支 | 根文件 |
 | Code Review 无法确认保护设置。这包括默认分支未受保护、而基础分支仅有经典规则的情况 | 无 | 无 |
 

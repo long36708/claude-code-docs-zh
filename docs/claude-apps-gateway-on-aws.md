@@ -628,5 +628,6 @@ managed:
 
 * [配置参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md)：每个 `gateway.yaml` 选项，包括 `managed.policies` 和 `telemetry`
 * [部署和操作](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md)：IdP 设置、健康检查、JWT 机密轮换、升级和安全模型
+* [负载测试模式](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#load_test_mode)：在不调用模型提供商的情况下对网关进行负载测试
 * [Claude apps gateway 概述](https://code.claude.com/docs/zh-CN/claude-apps-gateway)：快速入门和连接开发人员
 * [Claude apps gateway 的 AWS 示例](https://github.com/aws-samples/anthropic-on-aws/tree/main/claude-apps-gateway)：AWS 维护的部署示例，涵盖一系列客户环境
