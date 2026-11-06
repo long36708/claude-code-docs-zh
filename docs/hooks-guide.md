@@ -177,13 +177,14 @@ hook 让您可以在 Claude Code 生命周期的关键节点运行代码：在�
 > >
 > > 如果您在 WSL 中运行 Claude Code，则 `powershell.exe` 必须能够通过 Windows 互操作在您的 `PATH` 中使用。
 
-空的 `matcher` 会对所有通知类型触发。若只想在特定事件时触发，请将其设置为以下值之一：
+空的 `matcher` 会对所有通知类型触发。若要仅在特定事件上触发，请将其设置为某个通知类型，例如以下类型之一：
 
 | 匹配器 | 触发时机 |
 | :- | :- |
 | `permission_prompt` | Claude 需要您批准某次工具使用或某个沙箱命令的[网络请求](https://code.claude.com/docs/zh-CN/sandboxing.md#network-isolation)，且该提示已等待约六秒 |
 | `idle_prompt` | Claude 大约 60 秒前已完成回复，且您此后一直没有输入 |
 | `auth_success` | 身份验证完成 |
+| `auth_storage_failure` | 您的登录已完成，但 Claude Code 无法将新凭据保存到其[凭据存储](https://code.claude.com/docs/zh-CN/authentication.md#credential-management)中。此时会代替 `auth_success` 触发 |
 | `elicitation_dialog` | MCP 服务器打开了一个信息征询表单，且您约六秒没有输入 |
 | `elicitation_url_dialog` | MCP 服务器要求您在浏览器中打开某个 URL，且您约六秒没有输入 |
 | `elicitation_complete` | MCP 服务器报告某个 [URL 模式信息征询](https://code.claude.com/docs/zh-CN/hooks.md#elicitation-input)已完成 |
@@ -197,7 +198,7 @@ hook 让您可以在 Claude Code 生命周期的关键节点运行代码：在�
 
 在终端中，与在 Claude Desktop、VS Code 扩展以及其他通过 Agent SDK 响应权限请求的宿主中，Claude Code 对 `permission_prompt` 的计时方式不同。有关两种计时方式，请参阅[各通知类型的触发时机](https://code.claude.com/docs/zh-CN/hooks.md#notification)。
 
-`quota_auto_resume_fired`、`quota_auto_resume_stale` 和 `quota_auto_resume_disabled` 匹配器需要 Claude Code v2.1.234 或更高版本。
+`quota_auto_resume_fired`、`quota_auto_resume_stale` 和 `quota_auto_resume_disabled` 匹配器需要 Claude Code v2.1.234 或更高版本。`auth_storage_failure` 匹配器需要 v2.1.288 或更高版本。
 
 在终端会话中，针对沙箱命令网络请求的 `permission_prompt` 需要 Claude Code v2.1.246 或更高版本。
 
@@ -688,7 +689,7 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 | `SessionStart` | 会话如何启动 | `startup`、`resume`、`clear`、`compact`、`fork` |
 | `Setup` | 哪个 CLI 标志触发了设置 | `init`、`maintenance` |
 | `SessionEnd` | 会话为什么结束 | `clear`、`resume`、`logout`、`prompt_input_exit`、`other` |
-| `Notification` | 通知类型 | `permission_prompt`、`idle_prompt`、`auth_success`、`elicitation_dialog`、`elicitation_url_dialog`、`elicitation_complete`、`elicitation_response`、`agent_needs_input`、`agent_completed`、`quota_auto_resume_fired`、`quota_auto_resume_stale`、`quota_auto_resume_disabled`、`plugin_notification` |
+| `Notification` | 通知类型 | `permission_prompt`、`idle_prompt`、`auth_success`、`auth_storage_failure`、`elicitation_dialog`、`elicitation_url_dialog`、`elicitation_complete`、`elicitation_response`、`agent_needs_input`、`agent_completed`、`quota_auto_resume_fired`、`quota_auto_resume_stale`、`quota_auto_resume_disabled`、`plugin_notification` |
 | `SubagentStart` | 代理类型 | `general-purpose`、`Explore`、`Plan` 或自定义代理名称 |
 | `PreCompact`、`PostCompact` | 什么触发了压缩 | `manual`、`auto` |
 | `PreModelSwitch`、`PostModelSwitch` | 会话切换到的模型的规范名称，如 [PreModelSwitch](https://code.claude.com/docs/zh-CN/hooks.md#premodelswitch) 下所述 | `claude-opus-5`、`claude-opus-4-6\|claude-opus-5`、`.*opus.*` |

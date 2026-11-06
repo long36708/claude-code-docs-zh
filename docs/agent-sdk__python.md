@@ -2517,7 +2517,7 @@ class AsyncHookJSONOutput(TypedDict):
 
 ### Hook 使用示例
 
-此示例注册两个 hook：一个阻止危险的 Bash 命令（如 `rm -rf /`），另一个记录所有工具使用以进行审计。安全 hook 仅在 Bash 命令上运行（通过 `matcher`），而日志 hook 在所有工具上运行。
+此示例注册两个 hook：一个阻止危险的 Bash 命令（如 `rm -rf /`），另一个记录所有工具使用以进行审计。借助其 [`Bash` 匹配器](https://code.claude.com/docs/zh-CN/agent-sdk/hooks#matchers)，安全 hook 在 Bash 工具调用上运行。日志 hook 没有匹配器，因此会在每次工具调用时运行。
 
 ```python theme={null}
 import asyncio
@@ -3668,18 +3668,11 @@ class SandboxNetworkConfig(TypedDict, total=False):
 
 ### `SandboxIgnoreViolations`
 
-用于忽略特定沙箱违规的配置。
+要从沙箱违规报告中排除的违规。每个键匹配命令的一部分，或使用 `*` 匹配所有命令；每个值列出要在违规行中匹配的文本：`{"*": ["/etc/hosts"]}` 会隐藏提及 `/etc/hosts` 的违规。匹配的访问仍会被阻止。请参阅 [`sandbox.ignoreViolations`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-ignoreviolations)。
 
 ```python theme={null}
-class SandboxIgnoreViolations(TypedDict, total=False):
-    file: list[str]
-    network: list[str]
+SandboxIgnoreViolations = dict[str, list[str]]
 ```
-
-| 属性 | 类型 | 默认值 | 描述 |
-| :- | :- | :- | :- |
-| `file` | `list[str]` | `[]` | 要忽略违规的文件路径模式 |
-| `network` | `list[str]` | `[]` | 要忽略违规的网络模式 |
 
 ### 沙箱外命令的权限回退
 

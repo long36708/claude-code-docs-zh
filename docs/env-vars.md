@@ -313,7 +313,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_GZIP_REQUEST_BODIES` | 设置为 `0` 可关闭对发送到 `api.anthropic.com` 的 Claude API、遥测和 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 发布请求体的 gzip 压缩。默认情况下，Claude Code 会在直接连接时压缩较大的请求体，而在您通过代理发送请求、配置客户端证书或设置 `NODE_EXTRA_CA_CERTS` 时跳过压缩。如果 Claude Code 无法检测到的 [TLS 检查代理](https://code.claude.com/docs/zh-CN/network-config.md#ca-certificate-store)无法正确处理压缩请求，请使用 `0` |
 | `CLAUDE_CODE_HIDE_CWD` | 设置为 `1` 可在启动徽标中隐藏工作目录。适用于路径会暴露您操作系统用户名的屏幕共享或录制场景 |
 | `CLAUDE_CODE_IDE_HOST_OVERRIDE` | 覆盖用于连接 IDE 扩展的主机地址。默认情况下，Claude Code 会自动检测正确的地址，包括 WSL 到 Windows 的路由 |
-| `CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL` | 设置为 `1` 可阻止 `/ide` 安装 IDE 扩展。等同于将 [`autoInstallIdeExtension`](https://code.claude.com/docs/zh-CN/settings-reference#autoinstallideextension) 设置为 `false` |
+| `CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL` | 设置为 `1` 可阻止 `/ide` 安装 IDE 扩展。等同于将 [`autoInstallIdeExtension`](https://code.claude.com/docs/zh-CN/settings-reference#autoinstallideextension) 设置为 `false`。v2.1.318 之前的 Claude Code 版本在您于 VS Code、Cursor 或 Devin Desktop 终端中启动 `claude` 时也会安装或更新该扩展。此变量也会阻止这一行为 |
 | `CLAUDE_CODE_IDE_SKIP_VALID_CHECK` | 设置为 `1` 可在连接时跳过对 IDE 锁文件条目的验证。当 IDE 正在运行但自动连接仍找不到它时使用 |
 | `CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS` | 对对话应用[空闲压缩](https://code.claude.com/docs/zh-CN/settings-reference.md#idlecompaction)的上下文大小（以 token 计）（默认值：`200000`）。接受正整数，其他值会被忽略。低于 `100000` 的值会被提高到最低阈值 `100000`。对于满足条件的对话，空闲压缩默认开启。要关闭它，请将 `idleCompaction` 设置为 `false`。需要 Claude Code v2.1.290 或更高版本 |
 | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` | 一个会话中最多可同时运行多少个[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#concurrent-subagent-limit)，超过后 Agent 工具将拒绝再生成新的子代理（默认：20）。接受以纯数字表示的正整数；其他值会被忽略，因此此变量可以调整上限，但不能禁用它。需要 Claude Code v2.1.217 或更高版本 |

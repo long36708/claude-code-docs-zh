@@ -120,9 +120,8 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 选择 **Add secret**（在管理设置中标记为 **Add**）并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Secret type**，即 **Bearer**，并填写以下字段：
 
-* **Name**：机密的标签，例如 `Internal billing API`
 * **Allowed websites**：API 的主机，例如 `api.example.com`。前导 `*.` 匹配所有子域
-* **Custom headers**：用于携带密钥的请求头占一行。该行默认以 `Authorization` 作为请求头的 **Name**，以 `Bearer` 作为其 **Prefix**；将密钥本身粘贴为 **Value**。对于接受裸值的请求头（如 `X-Api-Key`），请更改名称并清除前缀
+* **Custom headers**：用于携带密钥的请求头占一行。该行默认以 `Authorization` 作为 **Header name**，以 `Bearer` 作为 **Prefix**；将密钥本身粘贴为 **Value**。对于接受裸值的请求头（如 `X-Api-Key`），请更改名称并清除前缀
 
 对于以其他方式进行身份验证的 API，请选择不同的 **Secret type**。该列表与 [Claude Tag](https://claude.com/docs/claude-tag/overview)（适用于 Team 和 Enterprise 计划的 Slack 集成）为 [connections](https://claude.com/docs/claude-tag/admins/add-connections) 提供的列表相同。
 
@@ -137,8 +136,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 如果您使用的是 Team 或 Enterprise 计划且不持有[组织管理员角色](#requirements)，**Add secret** 表单只接受针对一个主机的一个机密。选择您环境的 [**Network secrets** 行](#add-a-credential)，然后选择 **Add secret**。填写以下字段，然后选择表单中的 **Add secret** 按钮：
 
 * **Host**：获得该机密的唯一主机，例如 `api.example.com`。该表单不接受 `*.` 通配符
-* **Name**：机密的可选标签
-* **Secret type**：对于在请求头中传输的密钥选择 **Token**，或选择 **Username and password**。对于令牌，请将密钥粘贴为 **Value**
+* **Secret type**：对于在请求头中传输的密钥选择 **Token**，或选择 **Username and password**。对于令牌，请将密钥粘贴到 **Token** 字段中。对于 `Authorization` 以外的请求头（例如 `X-Api-Key`），请将 **Header** 更改为该请求头的名称
 
 #### 哪些请求会获得机密
 

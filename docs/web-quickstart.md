@@ -138,7 +138,7 @@ gh auth login
 
 [权限模式控件](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)显示会话将在其中运行的权限模式：
 
-* **Auto**：分类器审查 Claude 的操作，而不是询问您。当您的组织允许自动模式且所选模型支持它时出现
+* **Auto**：分类器审查 Claude 的操作，而不是询问您。除非您的组织关闭了[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，否则会显示此选项。在 claude.ai/code 上，如果它显示为灰色，请选择支持自动模式的模型
 * **Accept edits**：Claude 进行更改并推送分支而无需停止以获得批准
 * **Plan**：Claude 提出方法并等待您批准后再编辑文件
 

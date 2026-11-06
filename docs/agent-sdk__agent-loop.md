@@ -167,7 +167,7 @@ SDK 包含与 Claude Code 相同的工具：
 
 ### 工具权限
 
-Claude 根据任务确定调用哪些工具，但你控制这些调用是否被允许执行。你可以自动批准特定工具、完全阻止其他工具，或要求对所有工具进行批准。三个选项一起工作以确定什么运行：
+Claude 根据任务确定调用哪些工具，但您控制这些调用是否被允许执行。使用以下选项可以自动批准工具、阻止工具以及设置权限模式：
 
 * **`allowed_tools` / `allowedTools`** 自动批准列出的工具。允许工具列表中包含 `["Read", "Glob", "Grep"]` 的只读 Agent 会运行这些工具而不提示，但从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)读取的情况除外。未列出的工具仍然可用，对它们的调用如果需要批准会转到权限模式和 `canUseTool`。
 * **`disallowed_tools` / `disallowedTools`** 阻止列出的工具，无论其他设置如何。有关在工具运行前检查规则的顺序，请参阅 [权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)。

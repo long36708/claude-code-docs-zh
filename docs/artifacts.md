@@ -141,7 +141,7 @@ Claude 读取他人编写的页面的方式与它读取网页的方式相同，�
 
 * **没有网络访问权限的云端会话**：对于[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#access-levels)，即 **None** 级别。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，可以改由分类器进行批准；在 [Cowork](https://claude.com/product/cowork) 会话中，只能由您本人批准。
 * **其他组织的公开 Artifact**：即使在自动模式下，Claude Code 也会先询问您。在 Claude Code 无法询问您的情况下（例如在 `bypassPermissions` 模式下），Claude 无法读取该 Artifact。只有在[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)开启时，Claude 才能读取这些 Artifact。
-* **无法确认所有者或网络设置**：当 Claude Code 无法确认 Artifact 的创建者，或无法确认云端会话的网络设置时，它会进行询问，且您的批准仅适用于该次请求。
+* **无法确认所有者或网络设置**：当 Claude Code 无法确认 Artifact 的创建者，或无法确认云端会话的网络设置时，它会进行询问，且您的批准仅适用于该次请求。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，可以改由分类器批准或阻止该读取操作，而不是询问您。
 * **计划模式**：在[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，Claude Code 会在 Artifact 工具读取您组织中其他人创建的 Artifact 之前进行询问。
 
 当 Claude 使用 WebFetch 读取 Artifact 时，WebFetch 自身的[提示规则](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)仍然适用。

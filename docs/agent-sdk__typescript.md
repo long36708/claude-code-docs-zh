@@ -1931,7 +1931,7 @@ type SDKResultMessage =
 
 相同的字段对出现在 [`SDKSystemMessage`](#sdksystemmessage) 和 [`SDKControlInitializeResponse`](#sdkcontrolinitializeresponse) 上，因此您可以在第一轮之前读取快速模式状态。
 
-`origin` 字段转发触发此结果的用户消息的 [`SDKMessageOrigin`](#sdkmessageorigin)。携带 `origin: { kind: "task-notification" }` 的结果包括：
+`origin` 字段包含 Claude Code 为触发此结果的用户消息分配的 [`SDKMessageOrigin`](#sdkmessageorigin)，而不是您所发送 `origin` 的副本。携带 `origin: { kind: "task-notification" }` 的结果包括：
 
 * **合成的后续轮次**：当 SDK 注入一个合成的后续轮次时（例如针对已完成的后台任务），所产生的 `SDKResultMessage` 会携带此 kind
 * **已触发的定时任务以及来自其他会话的消息**：触发器已触发的云端定时任务，以及来自您其他会话且经服务器验证的消息，也会以此 kind 到达，各自带有[任务通知 subkind](#task-notification-subkinds) 中所述的 `subkind`
@@ -1940,7 +1940,10 @@ type SDKResultMessage =
 
 当多个后台任务完成一起排队时，Claude Code 可以在一轮中回答它们，而不是每个一轮。每个完成仍然产生自己的结果与此来源。Claude Code 一起回答的完成中除最后一个外的所有完成产生空结果，其中 `num_turns: 0`，按顺序，最后一个的结果携带回答它们全部的轮。
 
-该字段在任何用户轮之前发出的结果上不存在，例如启动错误。
+当 Claude Code 未分配 origin 时，`origin` 不存在，例如：
+
+* 在您以既无 `origin` 也无 [`isSynthetic`](#sdkusermessage) 的消息开启的轮次上
+* 在任何用户轮次之前发出的结果上，例如启动错误
 
 当 `PreToolUse` hook 返回 `permissionDecision: "defer"` 时，结果具有 `stop_reason: "tool_deferred"` 和 `deferred_tool_use` 携带待处理工具的 `id`、`name` 和 `input`。读取此字段以在您自己的 UI 中显示请求，然后使用相同的 `session_id` 恢复以继续。请参阅[延迟工具调用以供稍后使用](https://code.claude.com/docs/zh-CN/hooks.md#defer-a-tool-call-for-later)了解完整往返。
 
@@ -2435,7 +2438,7 @@ Claude Code 根据 token 数在本地计算 `session.total_cost_usd`，因此它
 
 ### `SDKMessageOrigin`
 
-用户角色消息的来源。这在 [`SDKUserMessage`](#sdkusermessage) 上显示为 `origin`，并转发到相应的 [`SDKResultMessage`](#sdkresultmessage)，以便您可以告诉什么触发了给定的轮。
+用户角色消息的来源。它作为 `origin` 出现在 [`SDKUserMessage`](#sdkusermessage) 上。某一轮次的 [`SDKResultMessage`](#sdkresultmessage) 会携带 Claude Code 分配的 `origin`，因此您可以判断是什么触发了该轮次。
 
 ```typescript theme={null}
 type SDKMessageOrigin =
@@ -2462,15 +2465,24 @@ type SDKMessageOrigin =
   | { kind: "unclassified" };
 ```
 
+您的应用程序可以在其发送的消息上设置以下类型的 `origin`：
+
+* `{ kind: "human" }`：用户输入的内容
+* `{ kind: "task-notification", subkind: "scheduled-trigger" }`：[您声明的定时运行](#declare-a-scheduled-run)
+
+其他类型请留给 Claude Code 和 Anthropic 服务器设置。如果您设置了其中某种类型，Claude 默认会将该消息视为用户的消息。
+
+要发送并非用户编写的文本（例如抓取的页面或另一个 Agent 的输出），请将其作为单独的消息发送，将 [`isSynthetic`](#sdkusermessage) 设置为 `true` 并且不设置 `origin`。同时将 [`client_composed`](#sdkusermessage) 设置为 `true`，以免以 `/` 开头的文本作为命令运行。
+
 | `kind` | 含义 |
 | - | - |
-| `human` | 来自最终用户的直接输入。如果您的应用程序将用户输入的内容转发为用户消息，显式将其 `origin` 设置为 `{ kind: "human" }`：Claude Code 将没有 `origin` 的用户消息视为未归因，并且需要人类输入的提示词的检查（例如 [`ultracode` 工作流关键字](https://code.claude.com/docs/zh-CN/workflows#ask-for-a-workflow-in-your-prompt)）不接受它。在 v2.1.210 之前，Claude Code 将用户消息上缺失的 `origin` 视为人类输入。 |
+| `human` | 来自最终用户的直接输入。如果您的应用程序将用户输入的内容作为用户消息转发，请将其 `origin` 设置为 `{ kind: "human" }`。如果没有该 `origin`，Claude 仍会将该消息视为用户的消息，但要求人工输入提示词的检查（例如 [`ultracode` 工作流关键字](https://code.claude.com/docs/zh-CN/workflows#ask-for-a-workflow-in-your-prompt)）不会接受该消息。 |
 | `channel` | 在[频道](https://code.claude.com/docs/zh-CN/channels.md)上到达的消息。`server` 是源 MCP 服务器名称。 |
-| `peer` | 来自另一个 Agent 的消息：进程内[队友](https://code.claude.com/docs/zh-CN/agent-teams.md)或[跨会话对等体](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)，您的另一个 Claude Code 会话。请参阅[对等体来源字段](#peer-origin-fields)了解每个字段的语义和信任模型。 |
+| `peer` | 来自另一个 Claude Code Agent 的消息：进程内的[队友](https://code.claude.com/docs/zh-CN/agent-teams.md)，或[跨会话对等方](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)（即您的另一个 Claude Code 会话）。在您的各会话之间中继此类消息的[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md#work-across-sessions)会使用 [`fromMode`](#peer-origin-fields) 声明此类型。若要从您自己的应用程序中继另一个 Agent 的输出，请改为设置 `isSynthetic` 和 `client_composed`。有关各字段的语义和信任模型，请参阅[对等方来源字段](#peer-origin-fields)。 |
 | `task-notification` | 为没有新鲜用户提示词的传递注入的合成轮，例如完成的后台任务；请参阅 [`SDKTaskNotificationMessage`](#sdktasknotificationmessage) 了解该分支。您的应用程序[声明为定时运行](#declare-a-scheduled-run)的提示词也携带此类型。可选的 `subkind` 标记引发通知的原因。请参阅[任务通知子类型](#task-notification-subkinds)。 |
 | `coordinator` | 来自 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 中的团队协调员的消息。 |
 | `auto-continuation` | 当会话在没有新鲜用户输入的情况下继续时注入的合成轮，例如触发后续提示词的命令结果。 |
-| `unclassified` | 无法确定来源的注入轮。需要 Claude Code v2.1.223 或更高版本。当 Claude Code 接收带有 `isSynthetic: true` 的 [`SDKUserMessage`](#sdkusermessage) 并无法将其分类为任何其他 `kind` 时，它在消息到达时设置此类型，并将轮作为非用户来源呈现给模型，而不是将其视为人类输入。您的应用程序不应设置此值。 |
+| `unclassified` | 被标记为并非来自用户的消息，例如您以 `isSynthetic: true` 发送的 [`SDKUserMessage`](#sdkusermessage)。需要 Claude Code v2.1.223 或更高版本。 |
 
 ### 任务通知子类型
 
@@ -2494,7 +2506,7 @@ type SDKMessageOrigin =
 `peer` 来源标识发送消息的 Agent：使用 `SendMessage` 向 `main` 发送消息的进程内[队友](https://code.claude.com/docs/zh-CN/agent-teams.md)，或[跨会话对等方](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)（即您的另一个 Claude Code 会话）。在 macOS 和 Linux 上，跨会话对等方需要 Claude Code v2.1.224 或更高版本；有关原生 Windows 的要求，请参阅[跨会话消息的可用性](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#availability)。跨会话对等方可以在同一台机器上运行，也可以在[您的另一台机器](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-sessions-on-other-machines)上运行，此时其消息通过 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 到达。
 
 * `from`：队友的名称，或跨会话对等体的发送者地址。对于[单向跨机器消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-sessions-on-other-machines)，发送者没有回复地址，`from` 是 `"unknown"`。该值由发送者创作；`verifiedPeerPid` 是验证的身份。
-* `fromMode`：发送会话的权限类，`bypass` 或 `prompting`，由在您的会话之间中继对等消息的主机声明，例如[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md#work-across-sessions)。Claude Code 在接收会话中应用[入站控制](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#control-inbound-messages)时读取它。需要 Agent SDK v0.3.234 或更高版本。
+* `fromMode`：发送方会话的权限类别，`bypass` 或 `prompting`。Claude Code 在接收方会话中应用[入站控制](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#control-inbound-messages)时会读取它。需要 Agent SDK v0.3.234 或更高版本。
 * `senderTaskId`：队友的任务 ID。对于跨会话对等体不存在。
 * `name`：发送者的显示名称，由 Claude Code 规范化：它删除 Unicode 控制、格式、代理项和行或段落分隔符代码点，然后修剪结果并将其限制为 64 个代码点，带有省略号。需要 Claude Code v2.1.205 或更高版本。
 * `body`：去除对等方信封后的已解码消息正文，与模型所见内容逐字节一致。对于单条队友消息，该字段存在；当多条消息被合并时，该字段不存在；对于跨会话对等方，仅当该轮次恰好是由 Claude Code 构成的一个对等方信封时才存在。请渲染 `name` 和 `body`，而不要重新解析消息文本。在 v2.1.299 之前，合并的消息会保留第一条消息的 `body`。需要 Claude Code v2.1.205 或更高版本。
@@ -6040,7 +6052,7 @@ type SandboxSettings = {
 | `allowUnsandboxedCommands` | `boolean` | `true` | 允许模型请求在沙箱外运行命令。为 `true` 时，模型可以在工具输入中设置 `dangerouslyDisableSandbox`，此时将回退到[权限系统](#permissions-fallback-for-unsandboxed-commands) |
 | `network` | [`SandboxNetworkConfig`](#sandboxnetworkconfig) | `undefined` | 网络相关的沙箱配置 |
 | `filesystem` | [`SandboxFilesystemConfig`](#sandboxfilesystemconfig) | `undefined` | 用于读/写限制的文件系统相关沙箱配置 |
-| `ignoreViolations` | `Record<string, string[]>` | `undefined` | 从命令子字符串（或表示所有命令的 `*`）到要忽略的违规文本子字符串的映射，例如 `{ "*": ['/etc/hosts'] }`；请参阅 [`sandbox.ignoreViolations`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-ignoreviolations) |
+| `ignoreViolations` | `Record<string, string[]>` | `undefined` | 要从沙箱违规报告中排除的违规。每个键匹配命令的一部分（或使用 `*` 表示所有命令），每个值列出要在违规行中匹配的文本：`{ "*": ['/etc/hosts'] }` 会隐藏提及 `/etc/hosts` 的违规。请参阅 [`sandbox.ignoreViolations`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-ignoreviolations) |
 | `enableWeakerNestedSandbox` | `boolean` | `false` | 为兼容性启用较弱的嵌套沙箱 |
 | `allowNestedUserNamespaces` | `boolean` | `false` | 允许 Linux 和 WSL2 上在沙箱中运行的命令创建用户命名空间。在将其设置为 `true` 之前，请阅读 [`sandbox.allowNestedUserNamespaces`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-allownestedusernamespaces)，其中介绍了需要此设置的工具以及您将关闭的安全边界。需要 Claude Code v2.1.305 或更高版本 |
 | `ripgrep` | `{ command: string; args?: string[] }` | `undefined` | 用于沙箱环境的自定义 ripgrep 二进制文件配置 |

@@ -226,7 +226,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](https://code.claude.com/docs
 | `timeout` | `number` | `undefined` | 超时时间（秒）。省略时，Claude Code 应用[事件的默认超时](#hook-timeout)。您的 SDK 回调遵循 `command` hook 默认值 |
 | `onFailure` | `"continue" \| "block"` | `undefined` | 回调失败时的行为。设置为 `"block"` 可[在回调失败时阻止操作](#block-the-action-when-a-callback-fails)。在 Python 中，使用 `on_failure` |
 
-尽可能使用 `matcher` 模式来针对特定工具。带有 `'Bash'` 的匹配器仅对 Bash 命令运行，而省略模式会为事件的每次出现运行您的回调。
+尽可能使用 `matcher` 模式来针对特定工具。使用 `'Bash'` 匹配器时，您的回调会针对 Bash 命令运行。在 Claude Code v2.1.314 或更高版本上，它们还会针对 Monitor 命令在 `PreToolUse` 和 `PermissionRequest` 上运行，对于这些命令，回调[可以拒绝但不能批准](https://code.claude.com/docs/zh-CN/hooks.md#match-monitor-commands)。如果没有匹配器，它们会在事件每次出现时运行。
 
 ### 回调函数
 

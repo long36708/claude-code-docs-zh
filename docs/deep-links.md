@@ -104,7 +104,7 @@ Check recent commits to main and the last successful build.
 3. Post initial findings in #incident.
 ```
 
-要在您自己的运行手册中使用这个，将 `acme/web-gateway` 替换为您的服务的仓库 slug。在工程师点击第 2 步之前，他们必须已在自己的机器上[在交互式 Claude Code 会话中发送过提示词](#registration-and-supported-platforms)，并且已在其本地克隆中打开过 Claude Code。
+要在您自己的运行手册中使用这个，将 `acme/web-gateway` 替换为您的服务的仓库 slug。在工程师点击第 2 步之前，他们的机器上必须已[注册 `claude-cli://` 处理程序](#registration-and-supported-platforms)，并且他们必须已在本地克隆或 worktree 中运行过 `claude`。
 
 ### 从 shell 打开链接
 

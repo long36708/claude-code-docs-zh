@@ -160,9 +160,9 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 ## 定期任务的权限
 
-每个任务都有自己的权限模式，您在创建或编辑任务时设置。来自 `~/.claude/settings.json` 的允许规则也适用于定时任务会话。如果任务在 [Manual 模式](https://code.claude.com/docs/zh-CN/desktop.md#choose-a-permission-mode)下运行并需要运行它没有权限的工具，运行将停滞，直到您批准它。要批准它，请[找到该运行的会话](#find-a-runs-session)并在其中回答权限提示。
+每个任务都有自己的[权限模式](https://code.claude.com/docs/zh-CN/desktop.md#choose-a-permission-mode)，您在创建或编辑任务时设置。来自 `~/.claude/settings.json` 的允许规则也适用于定时任务会话。当某次运行因权限提示而停滞时，请[找到该运行的会话](#find-a-runs-session)并在其中回答该提示。
 
-为了避免停滞，在创建任务后单击 **Run now**，查看权限提示，并为每个提示选择"always allow"。该任务的未来运行会自动批准相同的工具，无需提示。您可以从任务的详细信息页面查看和撤销这些批准。
+为了避免停滞，在创建任务后单击 **Run now**，查看权限提示，并为每个提示选择"always allow"。之后的运行会跳过其中大部分提示。您可以从任务的详细信息页面查看和撤销这些批准。如果您对任务文件夹中的文件编辑选择"always allow"，只有该会话会切换到 **Accept edits**，因此请将任务的权限模式设置为 **Accept edits**。
 
 标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在每次调用时都会提示，并且不提供"always allow"选项。调用这些工具的运行每次都会停滞。
 
@@ -179,7 +179,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 您也可以通过在任何 Desktop 会话中询问 Claude 来列出、创建、编辑和暂停任务。例如，"pause my dependency-audit task"或"show me my scheduled tasks"。要删除任务，请使用其详细信息页面上的 **Delete** 按钮。
 
-定期任务还可以使用 `update_scheduled_task` MCP 工具从运行中的会话内修改其自己的调度或提示。这让任务可以根据它发现的内容重新调度自己，例如，当它检测到发布分支已创建时，将代码审查重新调度为更早运行。
+要让任务使用 `update_scheduled_task` MCP 工具更改其自己的调度或提示词，请单击 **Run now** 并每次批准该调用。
 
 要在磁盘上编辑任务的提示，请打开 `~/.claude/scheduled-tasks/<task-name>/SKILL.md`（如果设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，则在其下）。该文件使用 YAML frontmatter 表示 `name` 和 `description`，提示作为正文。更改在下一次运行时生效。Schedule、folder、model 和 enabled 状态不在此文件中：通过 Edit 表单更改它们或询问 Claude。
 

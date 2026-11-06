@@ -446,7 +446,9 @@
 
 ### `fastMode`
 
-在可用的会话中开启[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)，适用于快速迭代或实时调试等需要以更高的每 token 成本换取速度的交互式工作。通常无需手动编辑此键：运行 `/fast` 会将 `fastMode: true` 写入 `~/.claude/settings.json`，再次运行以关闭快速模式则会移除该键。快速模式仅在 Opus 5.5、Opus 5 和 Opus 4.8 上运行：在其他模型上开启它会将您切换到 Opus，而切换到不受支持的模型则会将其关闭。请参阅[在快速模式开启时切换模型](https://code.claude.com/docs/zh-CN/fast-mode.md#switch-models-while-fast-mode-is-on)。
+在可用的会话中开启[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)，适用于快速迭代或实时调试等需要以更高的每 token 成本换取速度的交互式工作。通常无需手动编辑此键。运行 `/fast` 会将 `fastMode: true` 写入 `~/.claude/settings.json`，再次运行以关闭快速模式则会移除该键。
+
+只有 Opus 5.5、Opus 5 和 Opus 4.8 支持快速模式。在其他模型上运行 `/fast` 会将您切换到 Opus，而切换到不受支持的模型则会关闭快速模式。请参阅[在快速模式开启时切换模型](https://code.claude.com/docs/zh-CN/fast-mode.md#switch-models-while-fast-mode-is-on)。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：Boolean
@@ -463,14 +465,14 @@
 
 ### `fastModePerSessionOptIn`
 
-通常，运行 `/fast` 会将 [`fastMode`](#fastmode) 保存到个人的用户设置中，因此之后每个会话开始时快速模式都会开启。将此键设置为 `true` 可阻止这种行为：已保存的 `fastMode: true` 不再在会话开始时开启快速模式，每个人需要在每个想要使用快速模式的会话中运行 `/fast`。Claude Code 会保留其文件中的 `fastMode` 键，因此关闭此键即可恢复原来的行为。
+通常，运行 `/fast` 会将 [`fastMode`](#fastmode) 保存到个人的用户设置中，因此在受支持模型上的新会话开始时快速模式都会开启。将此键设置为 `true` 可阻止这种行为：已保存的 `fastMode: true` 不再在会话开始时开启快速模式，每个人需要在每个想要使用快速模式的会话中运行 `/fast`。Claude Code 会保留其文件中的 `fastMode`，因此关闭此键即可恢复原来的行为。
 
 Team 或 Enterprise 计划的所有者可以通过[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)在整个组织中部署此项。当托管设置设置了此键时，`/fast on` 在交互式终端会话之外会被拒绝，并报告您的组织已禁用快速模式。这涵盖[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)、[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)和[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：Boolean
   * `true`：已保存的 `fastMode: true` 不再在会话开始时开启快速模式，因此每个人需要在每个想要使用快速模式的会话中运行 `/fast`；通过 `--settings` 传入的 `fastMode: true` 仍对该会话有效，除非托管设置设置了此键
-  * `false`：已保存的 `fastMode: true` 会在之后每个会话开始时开启快速模式
+  * `false`：已保存的 `fastMode: true` 会在受支持模型上的每个新会话开始时开启快速模式
 * **默认值**：`false`
 
 ```json settings.json theme={null}
@@ -5827,7 +5829,9 @@ Claude Code 会忽略 `settings.json` 中的此键。
 
 ### `autoInstallIdeExtension`
 
-从外部终端运行 [`/ide`](https://code.claude.com/docs/zh-CN/commands) 命令时，允许该命令在正在运行的 VS Code、Cursor 或 Devin Desktop 中安装 Claude Code IDE 扩展。Claude Code 启动时不会安装该扩展。在 VS Code 或 JetBrains 终端内运行 Claude Code 时，此项在 `/config` 中显示为 **Auto-install IDE extension**。
+从外部终端运行 [`/ide`](https://code.claude.com/docs/zh-CN/commands) 命令时，允许该命令在正在运行的 VS Code、Cursor 或 Devin Desktop 中安装 Claude Code IDE 扩展。启动 `claude` 时，Claude Code 不会安装或更新该扩展。在 v2.1.318 之前，在上述任一编辑器的终端中启动 `claude` 时，Claude Code 会安装或更新该扩展，除非此键为 `false`。
+
+在 VS Code 或 JetBrains 终端内运行 Claude Code 时，此项在 `/config` 中显示为 **Auto-install IDE extension**。
 
 * **作用域**：[`Global config`](#scopes)
 * **类型**：Boolean

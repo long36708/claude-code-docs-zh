@@ -566,8 +566,17 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 运行安全分类器，最常�
 * 如果两个模型都标记相同的请求，您可以编辑提示词并重试，或启动新会话。
 * 在移动应用上的[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中，不支持编辑和重试。切换模型，或从桌面浏览器或桌面应用继续会话。
 * 在[非交互模式](https://code.claude.com/docs/zh-CN/cli-reference.md#cli-flags)和无法显示提示的 SDK 集成中，标记的请求以拒绝结束轮次。
-* 在[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)中，Claude Code 不显示提示，将要切换模型的标记请求会在备用模型上重新运行。
+* 在 Claude 通过 [Agent 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#agent-tool-behavior)启动的子代理中，Claude Code 不会暂停询问，子代理会失败而不是切换模型。请参阅[子代理不经询问即切换或失败](#subagents-switch-or-fail-without-asking)。
 * 当回退目标被 [`availableModels`](#restrict-model-selection) 阻止时，Claude Code 不显示提示。标记的请求以拒绝结束，与目标被阻止时的自动回退相同。
+
+#### 子代理不经询问即切换或失败
+
+在 Claude 通过 [Agent 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#agent-tool-behavior)启动的内置或自定义[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)中，Claude Code 不会在被标记的请求处[暂停询问](#ask-before-switching)。如果有可用的备用模型，则根据您在 `/config` 中对 **Switch models when a message is flagged** 的选择，该请求会在备用模型上重新运行，或者子代理失败：
+
+* **Switch automatically**，或尚未做出选择：请求在备用模型上重新运行，您的会话模型保持不变
+* **Ask each time**：子代理失败，并显示 [`Agent terminated early due to an API error`](https://code.claude.com/docs/zh-CN/errors#agent-terminated-early-due-to-an-api-error) 和拒绝消息。Claude 会收到该错误，并决定如何处理未完成的任务。要允许子代理切换模型，请选择 **Switch automatically**。之后您的主对话也会不经询问即切换。
+
+当没有可用的备用模型时，无论选择哪一项，子代理都会以相同方式失败。在 v2.1.318 之前，无论您如何选择，子代理被标记的请求都会在可用的备用模型上重新运行。
 
 #### 在 Bedrock、Agent Platform 和 Foundry 上启用回退
 

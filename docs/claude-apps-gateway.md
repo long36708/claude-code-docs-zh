@@ -350,7 +350,7 @@ Claude Code 会在 `/login` 联系任何网关之前验证该列表：
 
 ### 向 Claude Desktop 会话传递策略
 
-Claude Desktop 的 Cowork 和 Code 标签页（以及启用后的 Chat）运行在嵌入式 Claude Code 会话之上，并通过网关发送其模型请求。它会向每个这样的会话传递策略，这些策略基于网关在 `/user/bootstrap` 处提供给它的配置构建：即从匹配策略的 `cli` 或 `code` 块派生出的模型允许列表、禁用的工具和出站允许列表，外加 [`desktop` 覆盖层](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)。
+Claude Desktop 的各个标签页运行在嵌入式 Claude Code 会话之上，并通过网关发送其模型请求。它会向每个这样的会话传递策略，这些策略基于网关在 `/user/bootstrap` 处提供给它的配置构建。该配置包含从匹配策略的 `cli` 或 `code` 块派生出的模型允许列表、禁用的工具和出站允许列表，外加 [`desktop` 覆盖层](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)。
 
 该块中的其他键，例如 hook、`env` 以及 `Bash(npm *)` 这类限定范围的权限规则，会到达通过 `/login` 登录的客户端。在 `code` 下，当满足 [Code 标签页的条件](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#apply-code-settings-in-the-code-tab)时，它们也会到达 Code 标签页的会话。它们不会到达 Cowork 或 Chat 会话。Claude Desktop 从其自身的托管配置中读取网关 URL，并使用自己的流程登录，与[设置网关 URL](#set-the-gateway-url) 中的 `forceLoginMethod` 和 `forceLoginGatewayUrl` 键无关。
 
@@ -476,11 +476,9 @@ Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](h
 
 ### 连接 Claude Desktop
 
-[Claude Desktop](https://code.claude.com/docs/zh-CN/desktop.md) 通过另一个 MDM 键连接到同一网关：在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中将 `bootstrapUrl` 设置为 `<listen.public_url>/user/bootstrap`，并通过 `desktop` 键让用户的策略启用该功能。[Claude Desktop 覆盖层](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#claude-desktop-overlay)介绍了这两部分。需要网关服务器上的 Claude Code 为 v2.1.203 或更高版本。
+[Claude Desktop](https://code.claude.com/docs/zh-CN/desktop.md) 通过另一个 MDM 键连接到同一网关：在 Claude Desktop 的[托管配置](https://claude.com/docs/third-party/claude-desktop/configuration)中将 `bootstrapUrl` 设置为 `<listen.public_url>/user/bootstrap`，并通过 `desktop` 键让用户的策略启用该功能。[Claude Desktop 覆盖层](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#claude-desktop-overlay)介绍了这两部分。需要网关服务器上的 Claude Code 为 v2.1.203 或更高版本。连接后，Claude Desktop 会通过网关发送来自每个已启用标签页的模型请求。
 
 Claude Desktop 通过网关的身份提供商、使用相同的浏览器 SSO 步骤让开发人员登录，然后从网关而不是从 Anthropic 获取其配置。模型访问和策略遵循与 CLI 相同的按组规则。同时使用 CLI 和 Claude Desktop 的开发人员需要分别登录两者；网关会话不会在它们之间共享。
-
-连接后，Claude Desktop 会通过网关发送来自每个已启用标签页的模型请求。它默认显示 Cowork 和 Code 标签页。要同时提供 Chat，请在运行 Claude Code v2.1.227 或更高版本的网关上，在策略的 [`desktop` 块](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)中将 `chatTabEnabled` 设置为 `true`。开启 Cowork 时，Claude Desktop 随后会在一个标签页中同时显示 Chat 和 Cowork。
 
 ### CI 流水线和远程机器
 
@@ -523,7 +521,7 @@ Claude Desktop 通过网关的身份提供商、使用相同的浏览器 SSO 步
 | 推理转发 (Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform、Microsoft Foundry、Anthropic) | 可用 | 具有按上游模型转换和故障转移。Amazon Bedrock 上游使用 `bedrock-runtime` 端点和 AWS 默认凭据链。[Amazon Bedrock Mantle 上游](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#amazon-bedrock-mantle-endpoint)需要网关服务器上的 Claude Code v2.1.283 或更高版本，[Claude Platform on AWS 上游](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#claude-platform-on-aws)需要 v2.1.198 或更高版本。 |
 | 1M token 上下文窗口 | 可用 | Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本默认使用 1M 窗口运行；请参阅[扩展上下文](https://code.claude.com/docs/zh-CN/model-config.md#extended-context)。Fable 和 Opus 模型的 1M 默认值需要开发人员机器上的 Claude Code v2.1.287 或更高版本 |
 | 按 IdP 组的模型访问和托管设置 | 可用 | 模型访问在服务器端强制执行；托管设置按 IdP 组交付，由 CLI 在[托管设置层](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)应用 |
-| Claude Desktop | 可用（需要选择加入） | 一旦策略[使用 `desktop` 键选择加入](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)，网关就会在 `/user/bootstrap` 处提供 Claude Desktop 的配置，并且 Claude Desktop 会通过网关发送其模型请求。要启用 Chat，请参阅[连接 Claude Desktop](#connect-claude-desktop)。需要网关服务器上的 Claude Code v2.1.203 或更高版本。 |
+| Claude Desktop | 可用（需要选择加入） | 使用 [`desktop` 键](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)让策略选择加入。需要网关服务器上的 Claude Code v2.1.203 或更高版本。 |
 | 遥测扇出 (OTLP/HTTP) | 可用 | 按导出标识戳；protobuf 和 JSON 编码 |
 | OIDC 身份提供商 | 可用 | 任何符合 OIDC 的 IdP；网关运行标准 OIDC 发现和授权代码流。请参阅[身份提供商设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#identity-provider-setup)了解每个 IdP 的配置 |
 | 按用户和按组支出限制 | 可用 | 请参阅[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md) |
@@ -540,7 +538,7 @@ Claude Desktop 通过网关的身份提供商、使用相同的浏览器 SSO 步
 | 多租户（多个 OIDC 发行者） | 不支持 | 每个网关一个发行者。运行单独的实例 |
 | Windows 服务器 | 不支持 | 在 Linux 上部署。仅本地开发的 macOS |
 | Helm 图表 | 不可用 | 网关作为标准无状态 Deployment 运行；请参阅[部署指南](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#kubernetes) |
-| 管理员 UI | 不可用 | 配置是 YAML 文件；重新部署以更改它 |
+| 管理员 UI | 仅支出限制 | 在[连接到网关](#connect-claude-desktop)的 Claude Desktop 4.23118.0 或更高版本中，[`admin.admin_groups`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#admin) 的成员可以管理支出限制。其他配置是 YAML 文件；重新部署以更改它 |
 
 ## 后续步骤
 

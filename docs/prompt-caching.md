@@ -103,7 +103,7 @@ Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上的[自动模型回退](https
 [快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)和标准速度各自保留独立的缓存，因此在您启用或关闭快速模式后，下一个请求无法使用另一种速度所缓存的内容。在一个对话中第一次启用快速模式时，下一个请求会以未缓存的方式读取到目前为止的整个对话，并按[快速模式费率](https://code.claude.com/docs/zh-CN/fast-mode.md#understand-the-cost-tradeoff)计费。为了使该成本保持较小，请在会话开始时启用它。
 
 * 如果您在 Claude 工作时启用它，该轮次会以标准速度完成，任何未缓存读取的费用会在您下一轮次的第一个请求上产生。
-* 如果您当前的模型不支持快速模式，启用快速模式也会[将您切换到 Opus](https://code.claude.com/docs/zh-CN/fast-mode.md#toggle-fast-mode)。该[模型切换](#switching-models)本身会从当前运行轮次中的下一个请求开始启动新的缓存。
+* 如果您当前的模型不支持快速模式，运行 `/fast` 也会[将您切换到 Opus](https://code.claude.com/docs/zh-CN/fast-mode.md#toggle-fast-mode)。该[模型切换](#switching-models)本身会从当前运行轮次中的下一个请求开始启动新的缓存。
 
 之后的每次切换都会以未缓存的方式读取您所切换到的速度尚未缓存的内容。Claude Code 自行进行的速度更改，例如[速率限制后回退到标准速度](https://code.claude.com/docs/zh-CN/fast-mode.md#handle-rate-limits)以及稍后返回快速模式，也算作切换。
 

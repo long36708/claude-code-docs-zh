@@ -35,9 +35,9 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 在 CLI 中，可以通过以下任一方式切换快速模式：
 
 * 运行 `/fast`，按 Space 切换开启或关闭，然后按 Enter 确认
-* 在[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置 `"fastMode": true`
+* 在支持快速模式的模型上，在[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置 `"fastMode": true`。如果您在其他任何模型上设置此项，您将继续使用该模型，且快速模式保持关闭。
 
-默认情况下，在交互式会话中开启的快速模式会跨会话保留。您可以将快速模式配置为每个会话重置。有关详细信息，请参阅[要求按会话选择启用](#require-per-session-opt-in)。
+默认情况下，在受支持的模型上，在交互式会话中开启的快速模式会跨会话保留。您可以将快速模式配置为每个会话重置。有关详细信息，请参阅[要求按会话选择启用](#require-per-session-opt-in)。
 
 在[云端会话](#use-fast-mode-in-cloud-sessions)之外，在使用 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下，`/fast` 仅在其 [`--settings`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 值中包含快速模式的会话中有效，例如 `claude -p --settings '{"fastMode": true}'`；此时切换仅适用于该会话，不会保存为您的默认设置。`-p` 形式需要 Claude Code v2.1.205 或更高版本。在非交互模式的其他情况下，该命令会报告快速模式不可用。
 
@@ -45,7 +45,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 为获得最佳成本效益，请在会话开始时启用快速模式，而不是在对话中途切换。有关详细信息，请参阅[了解成本权衡](#understand-the-cost-tradeoff)。
 
-启用快速模式时：
+使用 `/fast` 启用快速模式时：
 
 * 如果您当前的模型不支持快速模式，Claude Code 会切换到 Opus
 * 您将看到一条确认消息："Fast mode ON"
@@ -196,7 +196,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 ### 要求每个会话选择加入
 
-默认情况下，用户在交互式会话中启用的快速模式会在会话之间保持。要更改此行为，在任何[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中将 `fastModePerSessionOptIn` 设置为 `true`，这会导致每个会话以快速模式关闭开始，并要求用户使用 `/fast` 明确启用它。[Team](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_teams#team-&-enterprise) 或 [Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_enterprise) 计划上的所有者可以通过[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)在组织范围内部署它。
+默认情况下，用户在交互式会话中启用的快速模式会在支持的模型上跨会话保持。要更改此行为，在任何[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中将 `fastModePerSessionOptIn` 设置为 `true`，这会导致每个会话以快速模式关闭开始，并要求用户使用 `/fast` 明确启用它。[Team](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_teams#team-&-enterprise) 或 [Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_enterprise) 计划上的所有者可以通过[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)在组织范围内部署它。
 
 ```json theme={null}
 {
@@ -221,7 +221,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 如果您在会话中途用完使用额度，Claude Code 会在标准速度和定价下重试每个被拒绝的快速模式请求，因此您可以继续工作，没有冷却。您看到拒绝的方式取决于会话类型：
 
-* 在交互式会话中，Claude Code 显示"快速模式已禁用 · 使用额度已耗尽"通知，并在会话的其余部分关闭快速模式。您保存的快速模式偏好设置不会改变；运行 `/fast` 以重新打开快速模式。
+* 在交互式会话中，Claude Code 显示"快速模式已禁用 · 使用额度已耗尽"通知，并关闭快速模式。您保存的快速模式偏好设置不会改变；运行 `/fast` 以重新打开快速模式。
 * 在[非交互式模式](https://code.claude.com/docs/zh-CN/headless.md)中使用 `--output-format stream-json`，以及通过 Agent SDK，Claude Code 在消息流上作为 `system` 消息发出相同的文本，子类型为 `notification`，在您用完使用额度时每轮一次。快速模式保持打开。需要 Claude Code v2.1.221 或更高版本。
 
 ## 研究预览

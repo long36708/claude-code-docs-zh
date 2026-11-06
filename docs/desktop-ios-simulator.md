@@ -4,7 +4,7 @@
 
 # 在模拟器中测试 iOS 应用
 
-> Claude Code Desktop 在 Claude 构建、运行或检查应用时，会在 iOS Simulator 窗格中打开你的应用，每个会话都有一个单独的模拟器。
+> Claude Code Desktop 在 Claude 构建、运行或检查应用时，会在 iOS Simulator 窗格中打开您的应用。
 
 > [!NOTE]
 >
@@ -88,7 +88,7 @@ Claude 启动的设备也会出现在 Apple 的 Simulator 应用中，或在 Xco
 
 ## 会话如何管理设备
 
-每个设备属于启动它的会话，因此[并行会话](https://code.claude.com/docs/zh-CN/desktop.md#work-in-parallel-with-sessions)不共享设备：你在一个会话的窗格中看到的内容反映的是该会话的工作，而不是另一个会话的工作。在侧边栏中切换会话会同时切换模拟器视图和对话，切换回来会恢复同一设备停止的地方。如果 Claude 使用多个设备，每个设备都会打开自己的窗格，每个会话最多 4 个。
+如果提示词中未指定模拟器，Claude 会使用一个已在运行的模拟器，即使它是由另一个[并行会话](https://code.claude.com/docs/zh-CN/desktop.md#work-in-parallel-with-sessions)打开的。要为每个会话分配各自的模拟器，请在每个会话的提示词中指定不同的模拟器。
 
 Claude Code Desktop 会在模拟器不再使用时关闭它启动的模拟器：当你退出应用时、当你归档会话时，或在你从窗格中分离设备后 10 分钟。你在 Claude Code Desktop 外启动的设备，例如在 Apple 的 Simulator 应用或 Device Hub 中启动的设备，永远不会自动关闭。要立即关闭附加的设备，请使用窗格中的关闭按钮。
 
@@ -102,7 +102,13 @@ Claude 第一次使用模拟器时，桌面应用会要求你允许它。同意�
 
 在您允许设备后，Claude 对其执行的操作（例如点击、输入和拍摄屏幕截图）无需提示即可运行，但启动应用需要按照您的[权限模式](#actions-that-follow-your-permission-mode)的要求进行批准。这些操作具有与您在窗格中单击相同的信任级别，并且仅作用于模拟设备，因此窗格不需要计算机使用所需的 macOS 辅助功能和屏幕录制权限。
 
-如果你拒绝，设备仍会启动，窗格仍可用于你自己的点击；只有 Claude 的访问保持关闭。要稍后改变主意，请在窗格中单击**Let Claude use it**。
+如果您拒绝 Claude 的请求，设备不会连接，Desktop 也不会启动它。要自己使用该设备：
+
+1. 在窗格中单击 **Attach simulator**。
+2. 在权限屏幕上单击 **Continue**。
+3. 在随后出现的对话框中单击 **Cancel**。
+
+设备会连接并可用于您自己的点击，而 Claude 的访问保持关闭。之后，要授予 Claude 访问权限，请在窗格中单击 **Let Claude use it**。
 
 ### 遵循你的权限模式的操作
 

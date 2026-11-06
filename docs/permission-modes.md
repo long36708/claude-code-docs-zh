@@ -253,7 +253,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 >
 > 在 [claude.ai/code](https://claude.ai/code) 上，使用输入框下方那一行中的模式下拉菜单。在移动应用中，点击输入框中的 **+** 按钮，然后点击 **Permission**。云端会话和 Remote Control 会话提供不同的权限模式：
 >
-> * **[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云端会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。Auto 模式仅在您的组织允许且所选模型支持时出现。Bypass permissions 不可用。
+> * **[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)**：Accept edits、Plan 和 Auto。Accept edits 对应于 `default` 模式：云端会话预先批准文件编辑，无论模式如何，因此下拉菜单显示 Accept edits 而不是 Manual。云端会话仍然遵守设置中的 `defaultMode: "acceptEdits"`。除非您的组织将其关闭，否则自动模式会出现；在 claude.ai/code 上，如果所选模型不[支持该模式](#eliminate-prompts-with-auto-mode)，它会显示为灰色。Bypass permissions 不可用。
 > * 您本地机器上的 **[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话**：Manual、Accept edits、Plan 和 Auto（对于您自己启动的会话），您无法从应用中选择 Bypass permissions。要使用 Auto，会话必须满足自动模式的[可用性要求](#eliminate-prompts-with-auto-mode)。对于在您的计算机上运行的项目线程，请参阅[在您自己的计算机上运行线程](https://code.claude.com/docs/zh-CN/claude-projects.md#run-a-thread-on-your-own-computer)。
 >   * 除了 Bypass permissions，下拉菜单显示本地会话所在的权限模式，包括从终端设置的模式。它在应用或终端中权限模式更改时更新。
 >   * 由[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)或 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)托管的会话在权限模式更改时向 claude.ai 报告，与在终端中托管的会话相同。

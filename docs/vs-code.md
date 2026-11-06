@@ -818,11 +818,11 @@ Claude Code 同时提供 VS Code 扩展（图形面板）和 CLI（终端中的�
 
 ### 在 VS Code 中运行 CLI
 
-如需在不离开 VS Code 的情况下使用 CLI，请在 Windows/Linux 上按 `` Ctrl+` ``，或在 Mac 上按 `` Cmd+` `` 打开集成终端，然后运行 `claude`。启动 `claude` 并不会安装扩展。如果没有安装扩展，在集成终端中运行 `/ide` 会报告 "No available IDEs detected"，而 `/status` 会将 IDE 显示为 "Not connected"。
+如需在不离开 VS Code 的情况下使用 CLI，请在 Windows/Linux 上按 `` Ctrl+` ``，或在 Mac 上按 `` Cmd+` `` 打开集成终端，然后运行 `claude`。
 
 如需获得 diff 查看和诊断信息共享等功能，请从集成终端或外部终端将 CLI 连接到扩展：
 
-* **集成终端**：[安装扩展](#install-the-extension)，然后启动 `claude`。CLI 会自动连接。
+* **集成终端**：[安装扩展](#install-the-extension)，然后启动 `claude`。CLI 会自动连接。Claude Code v2.1.318 或更高版本不会为您安装扩展，因此在您安装扩展之前，`/ide` 会报告 "No available IDEs detected"，而 `/status` 会将 IDE 显示为 "Not connected"。
 * **外部终端**：在 Claude Code 中运行 `/ide` 以连接到 VS Code。如果 VS Code 正在运行但未安装扩展，`/ide` 会自动安装扩展，除非您关闭了 [`autoInstallIdeExtension`](https://code.claude.com/docs/zh-CN/settings-reference#autoinstallideextension)。
 
 安装扩展并不会将 `claude` 添加到您的 shell PATH 中。扩展为其聊天面板捆绑了一份私有的 CLI 副本，但要在终端中输入 `claude`，需要进行[独立 CLI 安装](https://code.claude.com/docs/zh-CN/setup.md)。只需安装一次，本页中的命令（包括 `claude mcp add` 和 `claude --resume`）即可在任何终端中使用。如果安装后仍然找不到 `claude`，请[验证您的 PATH](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#verify-your-path)。
@@ -1091,7 +1091,16 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 2. 搜索"Claude Code"
 3. 点击 **Uninstall**
 
-启动 `claude` 时，该扩展会保持卸载状态。如果您在 VS Code 运行期间从外部终端运行 `/ide`，Claude Code 会重新安装该扩展。要阻止这种情况，请在 `~/.claude.json` 中将 [`autoInstallIdeExtension`](https://code.claude.com/docs/zh-CN/settings-reference#autoinstallideextension) 设置为 `false`，或在集成终端中通过 `/config` 关闭 **Auto-install IDE extension**。您也可以将 [`CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL`](https://code.claude.com/docs/zh-CN/env-vars) 环境变量设置为 `1`。
+如果您在卸载后执行以下任一操作，该扩展会被重新安装：
+
+* 在 VS Code 运行期间从外部终端运行 `/ide`
+* 在 v2.1.318 之前的 Claude Code 版本中，于集成终端内启动 `claude`
+
+要阻止该扩展被重新安装，请执行以下任一操作；如果扩展已被重新安装，请再次将其卸载：
+
+* 在 `~/.claude.json` 中将 [`autoInstallIdeExtension`](https://code.claude.com/docs/zh-CN/settings-reference#autoinstallideextension) 设置为 `false`
+* 在[设置文件](https://code.claude.com/docs/zh-CN/env-vars.md#in-settings-files)的 `env` 下将 [`CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1`
+* 在集成终端中，通过 `/config` 关闭 **Auto-install IDE extension**
 
 如果还要删除扩展数据并重置所有设置，请删除您所用平台上该扩展的存储目录。
 
