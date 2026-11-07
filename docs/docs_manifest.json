@@ -1011,8 +1011,8 @@
     "sandboxing.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/sandboxing",
       "original_md_url": "https://code.claude.com/docs/zh-CN/sandboxing.md",
-      "hash": "72914816ce8eebc160a57459aa6ef3ed7439be5646efb906d47261190f1a5254",
-      "last_updated": "2026-11-04T02:32:06.875124"
+      "hash": "324e3b0b55f17da27701b151576e49200280c32aed4ce85f2ff2e64164a8d4c1",
+      "last_updated": "2026-11-07T11:15:05.392559"
     },
     "scheduled-tasks.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/scheduled-tasks",
@@ -1372,8 +1372,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-07T02:09:32.379585",
-    "fetch_duration_seconds": 122.26594,
+    "last_fetch_completed": "2026-11-07T11:15:38.515659",
+    "fetch_duration_seconds": 128.869207,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-07T02:09:32.379610",
+  "last_updated": "2026-11-07T11:15:38.515690",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

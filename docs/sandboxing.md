@@ -41,6 +41,7 @@ Claude Code 基于开源的 [`@anthropic-ai/sandbox-runtime`](https://github.com
 
 * **内置文件和 Web 工具**：Read、Edit、Write、WebFetch 和 WebSearch 等工具改为遵循[权限规则](https://code.claude.com/docs/zh-CN/permissions.md)。`denyRead` 条目不会阻止 Read 工具，`allowedDomains` 也不会限制 WebFetch
 * **Claude Code 启动的其他进程**：命令 [hook](https://code.claude.com/docs/zh-CN/hooks.md)、本地 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)、[插件监视器](https://code.claude.com/docs/zh-CN/plugins/components.md#monitors)、[LSP 服务器](https://code.claude.com/docs/zh-CN/tools-reference.md#lsp-tool-behavior)，以及您的[状态栏](https://code.claude.com/docs/zh-CN/statusline.md)命令和 `apiKeyHelper` 等辅助命令，都以您的完整访问权限运行
+* **mod**：[mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 在 Claude Code 内部运行自己的代码，因此它的文件访问、网络请求以及通过 [`$.process`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) 启动的程序都不在沙箱中运行。请参阅 [mod 可以访问的内容](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#what-a-mod-can-reach)
 
 根据您的设置，某些 shell 命令也会在沙箱之外运行：
 
