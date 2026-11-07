@@ -12,7 +12,7 @@
 
 云会话在云基础设施上运行 Claude Code，而不是在您的机器上，默认由 Anthropic 管理。此快速入门从浏览器中的 [claude.ai/code](https://claude.ai/code) 启动一个会话。您也可以从 Claude 移动应用、Desktop 应用或终端使用 `claude --cloud` 启动一个会话。
 
-您需要一个 GitHub 仓库来[开始使用](#connect-github)。Claude 将其克隆到隔离的虚拟机中，进行更改，并为您推送一个分支以供审查。会话在设备间持久化，因此您在笔记本电脑上开始的任务稍后可以从手机上审查。每个会话都会与您的其他 Claude 和 Claude Code 用量一起计入您计划的用量限制，云端虚拟机不会单独收费。
+Claude 将您选择的 [GitHub 仓库](#connect-github)克隆到隔离的虚拟机中，进行更改，并为您推送一个分支以供审查。会话在设备间持久化，因此您在笔记本电脑上开始的任务稍后可以从手机上审查。每个会话都会与您的其他 Claude 和 Claude Code 用量一起计入您计划的用量限制，云端虚拟机不会单独收费。
 
 云会话适用于：
 
@@ -44,7 +44,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 | **您从以下位置启动它** | claude.ai/code、Claude 移动应用、选择了 **Cloud** 的 Desktop 应用，或 `claude --cloud` | 您的终端、您的 IDE，或选择了 **Local** 的 Desktop 应用 | 您的终端、VS Code 扩展，或 Desktop 应用 |
 | **您从以下位置聊天** | claude.ai、移动应用，或 Desktop 应用 | 您启动它的位置 | claude.ai 或移动应用，以及您启动它的位置 |
 | **使用您的本地配置** | 否，仅限仓库 | 是 | 是 |
-| **需要 GitHub** | 是，或通过 `--cloud` [捆绑本地仓库](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github) | 否 | 否 |
+| **需要 GitHub** | 对于 GitHub 仓库为是，除非 `--cloud` [捆绑您的本地仓库](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github) | 否 | 否 |
 | **断开连接时继续运行** | 是 | 否 | 当会话在您的机器上保持打开时 |
 | **[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)** | 接受编辑、Plan、自动 | 终端中的所有模式；请参阅 [切换权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes) 了解 IDE 和 Desktop 应用 | 从 claude.ai 和移动应用中的手动、接受编辑、Plan 或自动 |
 | **网络访问** | 每个环境可配置 | 您的机器网络 | 您的机器网络 |
@@ -209,7 +209,7 @@ Claude 将其更改推送到分支后，聊天旁边面板中的 **Changes** 卡
 
 ### 页面仅显示 GitHub 登录按钮
 
-云会话需要连接的 GitHub 账户。通过上面的浏览器流程连接，或如果您使用 GitHub CLI，从您的终端运行 `/web-setup`。如果您根本不想连接 GitHub，请参阅 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 以在您自己的机器上运行 Claude Code 并从浏览器或手机监控它。
+要在云端会话中处理 GitHub 仓库，请[连接您的 GitHub 账户](#connect-github)，或者如果您使用 GitHub CLI，从您的终端运行 `/web-setup`。如果您根本不想连接 GitHub，请参阅 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 以在您自己的机器上运行 Claude Code 并从浏览器或手机监控它。
 
 ### "Claude Code isn't available on your account"
 

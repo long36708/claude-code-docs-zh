@@ -252,7 +252,7 @@ claude mcp remove notion
 
 此列表中的状态报告配置决策而不是连接尝试，因此 Claude Code 在不连接到服务器的情况下打印它们：
 
-* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json` 且您尚未批准的项目作用域服务器。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。以交互方式运行 `claude` 以审查并批准它。
+* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json` 的项目作用域服务器，您尚未批准。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。以交互方式运行 `claude` 来审查并批准它。
 * `✘ Rejected (see disabledMcpjsonServers in settings)`：由 [`disabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#disabledmcpjsonservers) 条目拒绝的 `.mcp.json` 服务器。Claude Code 仅在 `claude mcp get <name>` 中显示它。
 * `⊘ Disabled for this project (re-enable via /mcp)`：项目的 [`disabledMcpServers`](#disable-a-server-without-removing-it) 列表命名的服务器。Claude Code 在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。从 `/mcp` 面板重新打开服务器。
 * `✘ Blocked by enterprise managed policy`：被您组织的某项策略拒绝的服务器。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。被[托管 MCP 配置](https://code.claude.com/docs/zh-CN/managed-mcp.md#how-restrictions-appear-to-users)中的允许列表、拒绝列表或其他限制阻止的服务器，会在这两个命令中都被隐藏，而不是以此状态显示。请询问您的管理员是哪项策略阻止了该服务器。
@@ -306,6 +306,16 @@ Claude Code 警告以下配置问题。每个条目说明 Claude Code 检查什�
 
 `/mcp` 面板在每个连接的服务器旁边显示工具计数，并标记声称工具能力但不公开工具的服务器。
 
+##### 云端会话中的工具数量
+
+在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中，诸如 `3 of 13 tools available` 之类的计数表示 Claude 无法使用另外 10 个工具。请检查以下原因（以及其他可能的原因）：
+
+* **仓库 `.claude/settings.json` 中的拒绝规则指定了该工具或其整个服务器**：如果[您的会话会读取该文件](https://code.claude.com/docs/zh-CN/settings.md#settings-in-cloud-sessions)，请移除该[规则](https://code.claude.com/docs/zh-CN/permissions.md#mcp)
+* **工具的完整名称超过 128 个字符**：按照[名称过长的处理步骤](https://code.claude.com/docs/zh-CN/errors.md#mcp-tool-name-over-128-characters)操作
+* **服务器是为其自身界面而非为 Claude 列出该工具**：如果您维护该服务器，请将 `model` 添加到该工具的 `_meta.ui.visibility` 中，以便将该工具提供给 Claude。否则，无需修复任何内容。
+
+##### 来自仍在连接中的服务器的工具
+
 如果您的请求需要来自仍在后台连接的服务器的工具，Claude 会在继续之前等待该服务器。等待的方式取决于您的配置：
 
 * **使用 [工具搜索](#scale-with-mcp-tool-search)（默认）**：等待发生在 `ToolSearch` 调用内。
@@ -349,9 +359,9 @@ Claude Code 在每次启动时选择一个运行时，并在您退出前保持�
 * 当授权响应指明意外的发行者时，使 [MCP OAuth 登录](#authenticate-with-remote-mcp-servers) 失败。
 * 仅将 [MCP OAuth](#authenticate-with-remote-mcp-servers) 凭据发送到通过 HTTPS 或在 `localhost`、`127.0.0.1` 或 `::1` 上提供的令牌端点。对于令牌端点在其他任何地方为纯 `http://` 的服务器（例如本地网络上的设备），登录失败。请参阅 [拒绝向非 https 令牌端点发送凭据](https://code.claude.com/docs/zh-CN/errors.md#refusing-to-send-credentials-to-non-https-token-endpoint)。
 
-Anthropic 可以通过 Claude Code 获取的功能标志，将特定服务器保持在较早的协议上，或不使用该流。
+Anthropic 可以通过 Claude Code 获取的功能标志，让特定服务器保持使用较早的协议，或不使用该流。要自行选择运行时，请将 [`MCP_SDK_GENERATION`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `v1` 或 `v2`。
 
-要自己选择运行时，请设置 [`MCP_SDK_GENERATION`](https://code.claude.com/docs/zh-CN/env-vars) 为 `v1` 或 `v2`。要决定 Claude Code 是否询问，请设置 [`MCP_PROTOCOL_NEGOTIATION`](https://code.claude.com/docs/zh-CN/env-vars) 为 `auto` 或 `legacy`。
+要决定 Claude Code 是否向服务器询问较新的修订版，请将 [`MCP_PROTOCOL_NEGOTIATION`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `auto` 或 `legacy`。如果未设置该变量，Claude Code 可能会在 7 天内跳过对某个 stdio 服务器的询问，例如在服务器被询问时退出之后。要让已升级的服务器更早被询问，请设置 `auto`。
 
 ### 动态工具更新
 

@@ -66,7 +66,7 @@ Claude [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和
 
 ### 获取推送通知
 
-当远程控制处于活动状态时，Claude 可以向您的手机发送推送通知，通常在长时间运行的任务完成或需要您做出决定时。您也可以在提示中请求一个，例如 `notify me when the tests finish`。有关两个 `/config` 切换和交付故障排除，请参阅[移动推送通知](https://code.claude.com/docs/zh-CN/remote-control.md#mobile-push-notifications)。
+当 Remote Control 处于活动状态时，Claude 可以在长时间运行的任务完成或需要您做出决定时向您的手机发送推送通知。您也可以在提示词中请求一个，例如 `notify me when the tests finish`。有关两个 `/config` 切换和交付故障排除，请参阅[移动推送通知](https://code.claude.com/docs/zh-CN/remote-control.md#mobile-push-notifications)。
 
 Dispatch 在其生成的 Code 会话完成或需要您的批准时发送自己的通知，如[来自 Dispatch 的会话](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)中所述。
 

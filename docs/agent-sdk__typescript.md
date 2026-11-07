@@ -5431,7 +5431,7 @@ type ThinkingConfig =
   | { type: "disabled" }; // No extended thinking
 ```
 
-可选的 `display` 字段控制思考文本以 `"summarized"` 还是 `"omitted"` 方式返回。在 Claude Opus 4.7 及更高版本上，API 默认值为 `"omitted"`，因此请设置 `"summarized"` 以在 `thinking` 块中接收思考内容。Claude Code 不会将您的 `display` 值传递给某些提供商，例如 Amazon Bedrock 和 Google Cloud 的 Agent Platform。在这些提供商上，即使您将 `display` 设置为 `"summarized"`，Opus 4.7 及更高版本也会返回空的 `thinking` 块。
+可选的 `display` 字段控制思考文本以 `"summarized"` 还是 `"omitted"` 方式返回。在 Claude Opus 4.7 及更高版本上，API 默认值为 `"omitted"`，因此请设置 `"summarized"` 以在 `thinking` 块中接收思考内容。在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 等提供商上，对于 Claude Code 能识别的较早模型，Claude Code 不会传递 `display`。这些模型是 Opus 4.6、Sonnet 4.6、Haiku 4.5 及更早的模型，它们使用各自的默认值。
 
 ### `SpawnedProcess`
 

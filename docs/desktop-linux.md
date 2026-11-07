@@ -53,7 +53,7 @@ sudo curl -fsSLo /usr/share/keyrings/claude-desktop-archive-keyring.asc https://
 gpg --show-keys /usr/share/keyrings/claude-desktop-archive-keyring.asc
 ```
 
-gpg 打印的指纹应该是 `31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE`。如果 gpg 报告文件无法打开或不包含有效的 OpenPGP 数据，则下载失败或返回了错误的内容：确认您的网络可以访问 `downloads.claude.ai`，然后重新运行下载命令。
+gpg 打印的唯一指纹应该是 `31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE`。如果 gpg 报告文件无法打开或不包含有效的 OpenPGP 数据，则下载失败或返回了错误的内容。请确认您的网络可以访问 `downloads.claude.ai`，然后重新运行下载命令。
 
 注册存储库：
 

@@ -329,6 +329,7 @@ claude self-hosted-runner orchestrator \
 | `CLAUDE_RUNNER_REPO_SOURCES` | 所有会话的 git 源的 `{url, revision}` 的 JSON 数组，用于根据辅助仓库进行路由的 hook。当没有源时为空。 |
 | `CLAUDE_RUNNER_CORRELATION_ID` | 在会话创建时提供的关联 ID，回显以便 hook 可以将此工作单映射到创建会话的请求。当会话没有时为空。 |
 | `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端使用入口，例如 `web_claude_ai`、`desktop_app`、`ios` 或 `scheduled_trigger`，用于采用分析。当会话没有记录或识别的使用入口时未设置，对于预热请求也未设置；使用 `[ -n "${CLAUDE_RUNNER_CLIENT_PLATFORM:-}" ]` 检查它，这在 `set -u` 下保持安全。 |
+| `CLAUDE_RUNNER_SPAWN_REASON` | [Anthropic 发送此生成请求的原因](#find-out-why-a-spawn-request-was-sent)，例如 `runner_lost` 或 `resumed`。当请求未携带格式正确的原因时未设置，因此请以 `"${CLAUDE_RUNNER_SPAWN_REASON:-}"` 形式读取它。需要编排器上安装 Claude Code v2.1.318 或更高版本 |
 
 生成的运行器使用工作单代替环境密钥进行注册：
 

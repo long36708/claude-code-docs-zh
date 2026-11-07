@@ -195,6 +195,7 @@ Claude Code 在启动时从 Anthropic 的服务器获取设置，并在活动会
 * 缓存的 [`prependPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#prependplugins)、[`appendPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#appendplugins) 或 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 值在会话的获取确认负载之前，无法移除内置守卫、更改其位置或将其关闭
 * 在[端点托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#choose-a-delivery-mechanism)自行列出或启用插件的机器上，仅由缓存列表启用的插件在获取确认负载之前被视为[用户的](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)插件，而不是您组织的插件
 * Claude Code 在后台获取最新设置
+* 如果会话的提供商不在缓存的 [`allowedProviders`](https://code.claude.com/docs/zh-CN/settings-reference#allowedproviders) 列表中，Claude Code 可能会等待该获取完成并再次检查，然后才决定是否拒绝。如果获取失败，会话将被拒绝
 * 缓存的设置在网络故障期间保持有效。如果启动时的获取失败，Claude Code 会在交互式会话和 Code 标签页中警告缓存的策略正在生效
 * 在获取成功之前，启动时暂缓的值保持暂缓
 

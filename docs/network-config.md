@@ -89,6 +89,13 @@ export CLAUDE_CODE_CERT_STORE=system
 export NODE_EXTRA_CA_CERTS=/path/to/ca-cert.pem
 ```
 
+如果您看到以下任一警告，则表示 Claude Code 无法完整加载 `NODE_EXTRA_CA_CERTS` 文件，需要使用被跳过证书的连接可能会失败：
+
+* `Claude Code used only the certificates that it could read in full from the NODE_EXTRA_CA_CERTS file`
+* `Claude Code ignored all of the NODE_EXTRA_CA_CERTS file: it holds no certificate that Claude Code can read`
+
+每条警告的完整文本都说明了如何修复该文件。被跳过的证书如果同时存在于 [CA 证书存储](#ca-certificate-store)中，则仍然可以正常使用。
+
 ## mTLS 身份验证
 
 对于需要客户端证书身份验证的企业环境：

@@ -39,7 +39,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `Monitor` | 在后台运行命令并将每个输出行反馈给 Claude，以便它可以在对话过程中对日志条目、文件更改或轮询状态做出反应。还可以打开 WebSocket 并将每条传入消息视为事件。请参阅 [Monitor 工具](#monitor-tool) | 是 |
 | `NotebookEdit` | 修改 Jupyter notebook 单元格。请参阅 [NotebookEdit 工具行为](#notebookedit-tool-behavior) | 是 |
 | `PowerShell` | 本地执行 PowerShell 命令。请参阅 [PowerShell 工具](#powershell-tool)了解可用性 | 是 |
-| `PushNotification` | 发送桌面通知，以及当 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 连接时的手机推送，以便长时间运行的任务或[会话级定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)可以在您离开时联系您。推送传递通过 Anthropic 托管的基础设施运行，无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
+| `PushNotification` | 从本地会话发送桌面通知，并在使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 时或在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中发送手机推送。推送传递通过 Anthropic 托管的基础设施运行，无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
 | `Read` | 读取文件的内容。请参阅 [Read 工具行为](#read-tool-behavior) | 否 |
 | `ReadMcpResourceTool` | 按 URI 读取特定 MCP 资源 | 否 |
 | `RemoteTrigger` | 在 claude.ai 上创建、更新、运行和列出[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)（以前称为 Routine）。支持 `/schedule` 命令。[`RemoteTrigger` 输入参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#remotetrigger)记录了每个操作和删除该工具的组织策略。云端定时任务位于 claude.ai 上，需要 Pro、Max、Ultra、Team 或 Enterprise 计划。因此，此工具无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |

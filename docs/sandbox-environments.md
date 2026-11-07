@@ -25,7 +25,7 @@ Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙�
 | [Dev container](#dev-containers) | 完整开发环境 | 是 | 中等 |
 | [Custom container](#custom-container) | 完整开发环境 | 是 | 中等到高 |
 | [Virtual machine](#virtual-machine) | 完整操作系统 | 否 | 高 |
-| [Cloud sessions](#cloud-sessions) | 完整操作系统，由 Anthropic 托管 | 否 | 无；需要 Claude 订阅和已连接的 GitHub 账户，除非您使用 `claude --cloud` 启动 |
+| [Cloud sessions](#cloud-sessions) | 完整操作系统，由 Anthropic 托管 | 否 | 无；需要 Claude 订阅，克隆 GitHub 仓库时还需要已连接的 GitHub 账户 |
 
 [Sandboxed Bash tool](https://code.claude.com/docs/zh-CN/sandboxing.md) 内置于 Claude Code 中，仅限制 Bash 命令。内置文件工具、MCP 服务器和 hooks 仍直接在您的主机上运行。表中的所有其他方法都将整个 Claude Code 进程放在隔离边界内，因此文件工具、MCP 服务器和 hooks 也受到限制。
 
@@ -46,7 +46,7 @@ Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙�
 | 隔离 MCP 服务器和 hooks 以及 Bash，不使用 Docker | sandbox runtime |
 | 在不受信任的存储库上工作 | 专用虚拟机，或 [cloud session](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)（如果您有 Claude 订阅）；使用 `claude --cloud` 启动时不需要 GitHub |
 | 在团队中标准化沙箱环境 | 预配置的 [dev container](https://code.claude.com/docs/zh-CN/devcontainer.md)，复制到您的存储库中 |
-| 从没有本地设置的设备使用 Claude Code | [cloud session](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，需要 Claude 订阅和连接的 GitHub 账户 |
+| 从没有本地设置的设备使用 Claude Code | [cloud session](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，需要 Claude 订阅；如需克隆 GitHub 仓库，还需要连接的 GitHub 账户 |
 | 为组织中的每个开发人员要求隔离 | [在整个组织中强制实施隔离](#enforce-isolation-across-an-organization) |
 | 在本机 Windows 主机上工作 | 容器或虚拟机，或在 WSL2 内运行 Bash 沙箱 |
 
@@ -165,7 +165,12 @@ Claude Code 存储库发布了一个 [example dev container](https://code.claude
 
 [云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)在隔离的、由 Anthropic 管理的虚拟机中运行。网络代理强制执行默认允许列表，单独的代理在沙箱外保存您的 GitHub 令牌，同时在其内部为存储库访问发出作用域凭据。您的组织路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话在您配置的基础设施上运行，其中隔离、出站控制和 git 凭据是您部署的责任。
 
-当您想要完整的虚拟机隔离而无需自己配置基础设施，或当您从没有本地开发环境的设备委派任务时，使用此方法。它需要 Claude 订阅。除非您从 CLI 启动，否则您还需要一个连接的 GitHub 账户，以便沙箱可以克隆您的存储库。当您使用 `--cloud` 从 CLI 启动时，Claude Code 可以[捆绑并上传您的本地存储库](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github)。有关计划可用性和 GitHub 身份验证选项，请参阅[在云中使用 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)。
+当您想要完整的虚拟机隔离而无需自己配置基础设施，或当您从没有本地开发环境的设备委派任务时，使用此方法。它需要：
+
+* **订阅**：Claude 订阅
+* **GitHub**：已连接的 GitHub 账户，以便在 GitHub 仓库中工作。当您使用 `--cloud` 从 CLI 启动时，如果 Claude Code [捆绑并上传您的本地仓库](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github)，则无需 GitHub 账户
+
+有关套餐可用性和 GitHub 身份验证选项，请参阅[在云端使用 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)。
 
 ## 在整个组织中强制实施隔离
 

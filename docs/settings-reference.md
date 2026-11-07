@@ -111,7 +111,7 @@
 | [`footerLinksRegexes`](#footerlinksregexes) | 将输出中的 issue 或审查 ID 转换为输入框下方的[可点击链接](https://code.claude.com/docs/zh-CN/statusline.md#clickable-links) | 界面与终端 | 用户或托管 |
 | [`forceLoginGatewayUrl`](#forcelogingatewayurl) | 设置登录界面连接的[网关 URL](https://code.claude.com/docs/zh-CN/claude-apps-gateway#set-the-gateway-url) | 身份验证与提供商 | 用户或托管 |
 | [`forceLoginMethod`](#forceloginmethod) | 将[登录限制](https://code.claude.com/docs/zh-CN/authentication.md#restrict-login-to-your-organization)为 claude.ai、Claude Console 或[云网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) | 身份验证与提供商 | 任意文件 |
-| [`forceLoginOrgUUID`](#forceloginorguuid) | [将 claude.ai 登录限定到您的组织](https://code.claude.com/docs/zh-CN/authentication.md#restrict-login-to-your-organization)；仅托管来源会强制执行此设置 | 身份验证与提供商 | 任意文件 |
+| [`forceLoginOrgUUID`](#forceloginorguuid) | [将 claude.ai 登录限定到您的组织](https://code.claude.com/docs/zh-CN/authentication.md#restrict-login-to-your-organization)；仅托管设置会强制执行此设置 | 身份验证与提供商 | 任意文件 |
 | [`forceRemoteSettingsRefresh`](#forceremotesettingsrefresh) | 阻塞启动，直到成功获取最新的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)为止 | 企业与托管设置 | 托管 |
 | [`gatewayInternalNetworks`](#gatewayinternalnetworks) | 允许 `/login` 访问位于您组织内部使用的公共 IPv4 地址空间上的[云网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own) | 身份验证与提供商 | 托管 |
 | [`gcpAuthRefresh`](#gcpauthrefresh) | 使用您自己的命令刷新 [Google Cloud 凭据](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#advanced-credential-configuration) | 身份验证与提供商 | 任意文件 |
@@ -4829,7 +4829,7 @@ Claude Code 首先读取托管设置，然后读取 `--settings` 标志，再读
 
 ### `agentPushNotifEnabled`
 
-允许 Claude 在认为值得发送时向您的手机发送推送通知，例如在长时间任务完成时。Claude 可以在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 已连接时发送通知。在 `/config` 中显示为 **Push when Claude decides**。在该处更改时，Claude Code 还会将该值保存到您的账户。
+允许 Claude 在认为值得发送时向您的手机发送推送通知，例如在长时间任务完成时。在本地会话中，Claude 可以在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 已连接时发送通知。在 `/config` 中显示为 **Push when Claude decides**。在该处更改时，Claude Code 还会将该值保存到您的账户。
 
 * **作用域**：[`Any file`](#scopes)。Claude Code 也会读取旧版本遗留在 `~/.claude.json` 中的值。
 * **类型**：Boolean
@@ -4966,12 +4966,10 @@ Claude Desktop 会向 Code 会话提供从您的桌面配置派生的策略，�
 
 ### `inputNeededNotifEnabled`
 
-当权限提示或问题正在等待您输入时，在手机上接收推送通知。Claude Code 仅在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 已连接时发送这些通知。在 `/config` 中显示为 **Push when actions required**。
+当权限提示或问题正在等待您输入时，在手机上接收推送通知。在本地会话中，Claude Code 仅在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 已连接时发送这些通知。在 `/config` 中显示为 **Push when actions required**。
 
 * **作用域**：[`Any file`](#scopes)。Claude Code 也会读取旧版本遗留在 `~/.claude.json` 中的值。
 * **类型**：Boolean
-  * `true`：在 Remote Control 已连接时，如有权限提示或问题正在等待，您会在手机上收到推送通知
-  * `false`：Claude Code 不发送此类通知
 * **默认值**：`false`
 
 ```json settings.json theme={null}
@@ -5178,9 +5176,10 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 * 缓存有效期过后，默认为五分钟，或为您通过 [`CLAUDE_CODE_API_KEY_HELPER_TTL_MS`](https://code.claude.com/docs/zh-CN/env-vars) 设置的间隔。
 * 当直接或通过 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)发往 Anthropic API 的请求以 `401` 或 `403` 失败时。
+* 当通过 LLM 网关发送的请求以 `401`（而非 `403`）失败，并且您设置了 [`CLAUDE_CODE_SKIP_VERTEX_AUTH`](https://code.claude.com/docs/zh-CN/env-vars)（用于 Google Cloud 的 Agent Platform）、`CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH`（用于 Claude Platform on AWS）或 `CLAUDE_CODE_SKIP_MANTLE_AUTH`（用于 Amazon Bedrock Mantle）时。需要 Claude Code v2.1.318 或更高版本。
 * 在直接或通过 LLM 网关向 Anthropic API 发送请求之前，如果缓存的输出是一个在辅助程序生成后已过期的 JWT。需要 Claude Code v2.1.246 或更高版本。
 
-后两种情况仅在辅助程序的输出就是 Claude Code 发送的凭据且未设置 `ANTHROPIC_AUTH_TOKEN` 时适用。
+后三种情况仅在辅助程序的输出就是 Claude Code 发送的凭据且未设置 `ANTHROPIC_AUTH_TOKEN` 时适用。
 
 在交互式会话中，如果该命令来自项目设置或本地设置，Claude Code 会在您接受工作区信任提示后才运行它。请参阅[凭据管理](https://code.claude.com/docs/zh-CN/authentication.md#credential-management)。
 
@@ -5263,7 +5262,7 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 在托管来源中，要求 claude.ai 账户登录必须属于某一个 Anthropic 组织（以单个 UUID 给出），或属于多个组织中的任意一个（以数组给出）。在任何设置文件中，Claude Code 还会使用单个 UUID 在 claude.ai 或 Claude Console 登录期间预先选择该组织；对于数组则不预先选择任何组织。如果您在任何设置文件中设置了此项，Claude Code 还会在该文件适用的会话中停止提供[无密钥 Console 登录](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)，并改为创建 API 密钥。
 
-* **作用域**：[`Any file`](#scopes)。只有托管来源会强制执行该限制；其他任何设置文件中的单个 UUID 只会在登录期间预先选择该组织，而不进行限制。
+* **作用域**：[`Any file`](#scopes)。在非托管来源的设置文件中，Claude Code 不会检查登录所属的组织，单个 UUID 会在登录期间预先选择该组织。
 * **类型**：字符串（一个 UUID），或字符串数组（多个 UUID）
 * **默认值**：未设置，因此任何组织都可以登录
 

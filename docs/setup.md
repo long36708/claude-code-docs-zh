@@ -389,7 +389,7 @@ Claude Code 发布已签名的 apt、dnf 和 apk 存储库。每个存储库提�
 > gpg --show-keys /etc/apt/keyrings/claude-code.asc
 > ```
 >
-> gpg 打印的指纹应该是 `31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE`。如果 gpg 报告文件无法打开或不包含有效的 OpenPGP 数据，则下载失败或返回了错误的内容：确认您的网络可以到达 `downloads.claude.ai`，然后重新运行下载命令。
+> gpg 打印的唯一指纹应该是 `31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE`。如果 gpg 报告文件无法打开或不包含有效的 OpenPGP 数据，则下载失败或返回了错误的内容。确认您的网络可以到达 `downloads.claude.ai`，然后重新运行下载命令。
 >
 > 在 `stable` 渠道上注册存储库并安装：
 >
@@ -536,12 +536,12 @@ curl -fsSLO "$REPO/$VERSION/manifest.json.sig"
 针对清单验证分离的签名。
 
 ```bash theme={null}
-gpg --verify manifest.json.sig manifest.json
+gpg --with-fingerprint --verify manifest.json.sig manifest.json
 ```
 
-有效的结果报告 `Good signature from "Anthropic Claude Code Release Signing <security@anthropic.com>"`。
+有效的结果报告 `Good signature from "Anthropic Claude Code Release Signing <security@anthropic.com>"`。在默认设置下，`gpg` 还会为新导入的密钥打印 `WARNING: This key is not certified with a trusted signature!`。这是预期的。`Good signature` 行确认密码学检查通过。
 
-`gpg` 也会为任何新导入的密钥打印 `WARNING: This key is not certified with a trusted signature!`。这是预期的。`Good signature` 行确认密码学检查通过。第 1 步中的指纹比较确认密钥本身是真实的。
+要确认清单由 Anthropic 的密钥签名，请将输出末尾的 `Primary key fingerprint` 行与本页第 1 步中列出的指纹进行比较。如果两者匹配且输出中没有 `BAD signature`，请继续执行第 4 步。否则，请勿使用此清单。
 
 **4. 根据清单检查二进制文件**
 

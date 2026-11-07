@@ -2063,7 +2063,12 @@ a hook changed this call's input after auto mode reviewed it
 
 #### 延迟工具调用
 
-`"defer"` 适用于将 `claude -p` 作为子进程运行并读取其 JSON 输出的集成，例如 Agent SDK 应用或基于 Claude Code 构建的自定义 UI。它允许调用进程在某个工具调用处暂停 Claude，通过自己的界面收集输入，然后从中断处恢复。Claude Code 仅在使用 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下遵守此值。在交互式会话中，它会记录一条警告并忽略该 hook 结果。
+`"defer"` 适用于以子进程方式运行 `claude -p` 并读取其 JSON 输出的集成，例如 Agent SDK 应用或基于 Claude Code 构建的自定义 UI。它让调用进程可以在某个工具调用处暂停 Claude，通过自己的界面收集输入，然后从中断处继续。
+
+Claude Code 仅在使用 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下、且 Claude 在该轮次中只进行一次工具调用时，才会遵循 `"defer"`：
+
+* **在交互式会话中**：记录一条警告并忽略 hook 结果
+* **同时进行多个工具调用**：`"defer"` 会被忽略并给出警告，工具按正常的权限流程继续
 
 `AskUserQuestion` 工具是典型场景：Claude 想向用户提问，但没有可供作答的终端。`-p` 运行只有在具有[权限宿主](https://code.claude.com/docs/zh-CN/headless.md#turn-off-permission-prompts-in-unattended-runs)（例如您通过 `--permission-prompt-tool` 传入的 MCP 工具）时才会提供 `AskUserQuestion`，因此请在启动运行时提供一个。完整的往返流程如下：
 
@@ -2073,7 +2078,7 @@ a hook changed this call's input after auto mode reviewed it
 4. 调用进程使用相同的权限宿主运行 `claude -p --resume <session-id>`。同一工具调用会再次触发 `PreToolUse`。
 5. hook 返回 `permissionDecision: "allow"`，并在 `updatedInput` 中附带答案。工具执行，Claude 继续。
 
-`deferred_tool_use` 字段携带工具的 `id`、`name` 和 `input`。`input` 是 Claude 为该工具调用生成的参数，在执行前捕获：
+`deferred_tool_use` 字段包含工具的 `id`、`name` 和 `input`：
 
 ```json theme={null}
 {
@@ -2089,22 +2094,28 @@ a hook changed this call's input after auto mode reviewed it
 }
 ```
 
-没有超时或重试次数限制。会话会保留在磁盘上，直到您恢复它，但会受 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays) 保留期清理的影响：该清理默认在 30 天后删除会话文件，并遵循[保留期清理规则](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。
+没有超时或重试次数限制。会话会保留在磁盘上，直到 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays) [保留期清理](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)将其删除，默认为 30 天之后。
 
-如果在您恢复时被延迟的工具已不可用，恢复后的第一个结果会带有 `stop_reason: "tool_deferred_unavailable"` 和 `is_error: true`，且 hook 不会触发。当提供该工具的 MCP 服务器未在恢复的会话中连接时，就会发生这种情况。`deferred_tool_use` 数据仍会包含在内，以便您确定缺失的是哪个工具。
-
-* **如果您在恢复时或恢复之后没有发送提示词**，该调用仍处于待处理状态。在工具可用时再次恢复，它会首先运行。
-* **如果您在恢复时或恢复之后发送了提示词**，Claude Code 会在没有该工具结果的情况下回答它，并丢弃被延迟的调用。如果您仍需调用该工具，请在工具可用后发送新的提示词。
-
-如果在您不带提示词恢复时，您等待的答案尚未就绪，hook 可以再次返回 `"defer"`。如果您发送了提示词而 hook 再次延迟，Claude Code 会以同样的方式处理该提示词：在没有工具结果的情况下回答，并丢弃该调用。请不带提示词地恢复，直到 hook 返回 `"allow"` 或 `"deny"`，调用进程正是以此跳出循环。
-
-`"defer"` 仅在 Claude 在该轮次中进行单个工具调用时有效。如果 Claude 同时进行多个工具调用，`"defer"` 会被忽略并给出警告，工具将通过正常的权限流程继续。存在此限制是因为恢复只能重新运行一个工具：无法在不让其他调用悬而未决的情况下，从一批调用中延迟其中一个。
+如果恢复时回答尚未就绪，hook 可以再次返回 `"defer"`。如果您在该次恢复时发送了提示词，Claude 会在没有工具结果的情况下回答它，并且不会运行该调用。请在不带提示词的情况下恢复，直到 hook 返回 `"allow"` 或 `"deny"`。
 
 > [!NOTE]
 >
 > 要在计划模式下恢复延迟的会话，请将 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 与 `--resume` 一起传入，以便 Claude Code 可以呈现计划供批准。有关其他条件，请参阅[使用 `-p` 在计划模式下恢复](https://code.claude.com/docs/zh-CN/sessions#resume-in-plan-mode-with-p)。需要 Claude Code v2.1.246 或更高版本。
 >
-> 当您使用 `-p` 恢复时，Claude Code 不会还原任何其他已存储的权限模式。它会以新的 `claude -p` 运行所使用的权限模式启动运行，因此如果延迟的会话使用了 `--permission-mode` 或 `--dangerously-skip-permissions`，请再次传入。当您不带 `-p` 使用 `claude --resume <session-id>` 恢复时，Claude Code 会还原已存储的权限模式，但[恢复时的权限模式](https://code.claude.com/docs/zh-CN/sessions.md#permission-mode-on-resume)中列出的例外情况除外。
+> 使用 `-p` 恢复时，Claude Code 不会恢复任何其他已存储的权限模式。它会以新的 `claude -p` 运行所使用的权限模式启动本次运行，因此如果被推迟的会话使用了 `--permission-mode` 或 `--dangerously-skip-permissions`，请再次传入。
+
+##### 被推迟的工具不可用时的恢复
+
+带有 `stop_reason: "tool_deferred_unavailable"` 的结果表示被推迟调用的工具在恢复后的会话中不可用，例如因为其 MCP 服务器未连接。您的 `PreToolUse` hook 不会触发，结果中的 `deferred_tool_use` 字段会指明该工具。
+
+在调用处于待处理状态时，您发送的任何提示词都不会到达 Claude，运行以退出码 1 退出。`result` 字段以 `<tool> isn't available, so its deferred call didn't run.` 开头。您可以运行该调用，或将其丢弃使其不再运行：
+
+* **运行该调用**：使工具可用后再次恢复。
+* **丢弃该调用**：带提示词恢复，并将 [`CLAUDE_CODE_DROP_UNAVAILABLE_DEFERRED_TOOL`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设为 `1`。Claude 会收到一个错误作为该调用的结果，并回答您的提示词。之后再恢复时，将不再有待处理的调用。
+
+丢弃调用时，运行会先写出一个 `result` 字段为空的 `tool_deferred_unavailable` 结果，然后在第二个结果中写出 Claude 的回答。除非该回答是错误，否则以退出码 0 退出。如果您设置了该变量但未发送提示词，运行仍会丢弃该调用，并以退出码 1 退出。
+
+在 v2.1.319 之前，Claude Code 会在没有工具结果的情况下回答提示词并丢弃该调用。在这些版本上，请在工具可用后发送新的提示词。
 
 ### PermissionRequest
 
@@ -2218,6 +2229,18 @@ hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 
 
 * 要在任何工具成功完成后运行 hook，请省略 `matcher` 或将其设置为 `"*"`。然后您的 hook 可以自行发现发生了哪些更改，例如运行 `git status --porcelain`，它还会列出 `git diff` 遗漏的未跟踪文件。对于失败的工具调用，请在 [PostToolUseFailure](#posttoolusefailure) 下添加相同的 hook。
 * 要在特定文件在磁盘上发生更改时运行 hook（无论由谁写入），请使用 [FileChanged](#filechanged)。当 `Bash` 命令或 Claude Code 之外的进程重写同一文件时，Claude Code 不会运行匹配 `Edit|Write` 的 `PostToolUse` hook。
+
+#### 中断后的 PostToolUse
+
+如果在工具调用期间您发送消息或中断后，`PostToolUse` hook 提前停止，请检查您按下的是 `Ctrl+Enter`、`Enter` 还是 `Esc`：
+
+* **`Ctrl+Enter`**：如果在工具运行期间按下它[结束了该轮次](https://code.claude.com/docs/zh-CN/interactive-mode.md#when-claude-code-sends-what-you-queued)且工具完成，您的 `PostToolUse` hook 会基于其结果运行，并有 10 秒时间完成。如果您在消息之前排队了一个 `!` 命令，或后台任务被禁用（例如通过 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars#variables)），该按键将等同于 `Esc`。
+* **`Enter`**：使用 `Enter` 排队的消息不会中断该轮次，因此 hook 保留其通常的 `timeout`。
+* **`Esc`**：会立即取消 hook，因此当 hook 必须运行时，请使用 `Enter` 或 `Ctrl+Enter` 发送消息。
+
+10 秒结束时，Claude Code 会终止仍在运行的命令 hook，无论其 [`timeout`](#common-fields) 为何。要让耗时更长的命令 hook 完成，请使用 [`async: true`](#run-hooks-in-the-background) 运行它，这意味着该 hook 无法阻止或改写结果。
+
+在 v2.1.319 之前，您用消息中断该轮次后 hook 不会启动，正在运行的 hook 也会被停止。
 
 #### PostToolUse 输入
 

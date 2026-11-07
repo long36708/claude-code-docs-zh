@@ -3431,7 +3431,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了标志以外的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。若要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了非标志的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请去掉该标志。要在本次运行中信任它，请将 PR 编号或基准分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3563,29 +3563,30 @@ Can't read .mcp.json: it isn't a regular file or is larger than 2097152 bytes. F
 
 ### MCP 服务器未被保存或移除
 
-您对 `user` 或 `local` [作用域](https://code.claude.com/docs/zh-CN/mcp.md#mcp-installation-scopes)中的服务器运行了 `claude mcp add`、`claude mcp add-json` 或 `claude mcp remove`。这两个作用域都存储在 `~/.claude.json` 中，而 Claude Code 在写入后回读该文件时，发现更改并不在其中。该命令以此错误退出，而不是输出成功信息。
+此错误表示 `claude mcp add` 或 `claude mcp remove` 等命令未能将您的更改写入 `~/.claude.json`。可能是其他 Claude Code 进程一直锁定着该文件，也可能是该文件为只读或受沙箱保护。
 
 ```text theme={null}
-MCP server "example" was not saved to /home/user/.claude.json. If that file is read-only or protected by a sandbox, make it writable or run the command outside the sandbox, then add the server again.
+MCP server "example" was not saved to /home/user/.claude.json. If other Claude Code processes use that file, they may have kept it locked: add the server again, with CLAUDE_CODE_CONFIG_LOCK_WAIT_MS=60000 set to wait up to a minute. If that file is read-only or protected by a sandbox, make it writable or run the command outside the sandbox first.
 ```
 
-移除操作之后，消息会显示为 `was not removed from`，并以 `then remove the server again` 结尾。对于 `local` 作用域的服务器，路径之后会跟上该条目所属的项目目录，形式为 `(local scope for /path/to/project)`。
-
-在 v2.1.283 之前，即使更改未写入文件，`claude mcp add`、`claude mcp add-json` 和 `claude mcp remove` 也会报告成功。
+执行移除操作后，消息中的 `was not saved to` 会变为 `was not removed from`，`add the server again` 会变为 `remove the server again`。对于 `local` 作用域的服务器，路径后面会跟上该条目所属的项目目录，形式为 `(local scope for /path/to/project)`。
 
 **解决方法：**
 
-* 使消息中指出的文件可写，或在沙箱之外运行命令，然后再次运行相同的添加或移除命令。
+* **有其他 Claude Code 进程正在运行**：该命令会等待文件锁约 10 到 20 秒，然后放弃且不写入。请将 [`CLAUDE_CODE_CONFIG_LOCK_WAIT_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为以毫秒为单位的更长等待时间（例如 `60000`），再次运行同一命令。
+* **文件为只读或受沙箱保护**：使消息所指的文件可写，然后再次运行同一添加或移除命令，或在沙箱之外运行该命令。
+
+在 v2.1.283 之前，即使更改未写入文件，`claude mcp add`、`claude mcp add-json` 和 `claude mcp remove` 也会报告成功。在 v2.1.318 之前，消息中不会提及锁，Claude Code 也不会读取 [`CLAUDE_CODE_CONFIG_LOCK_WAIT_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)。
 
 ### MCP 服务器可能未被保存或移除
 
-您对 `user` 或 `local` [作用域](https://code.claude.com/docs/zh-CN/mcp.md#mcp-installation-scopes)中的服务器运行了 `claude mcp add`、`claude mcp add-json` 或 `claude mcp remove`，而 Claude Code 无法回读 `~/.claude.json` 来确认更改。更改可能已写入磁盘，也可能没有。括号中的文本是该读取操作的错误。
+您对 `user` 或 `local` [作用域](https://code.claude.com/docs/zh-CN/mcp.md#mcp-installation-scopes)中的服务器运行了 `claude mcp add`、`claude mcp add-json` 或 `claude mcp remove`，而 Claude Code 无法回读 `~/.claude.json` 以确认更改。该更改可能已写入磁盘，也可能没有。`to confirm the change` 之后的括号中给出了原因。
 
 ```text theme={null}
 MCP server "example" may not have been saved: /home/user/.claude.json could not be read to confirm the change (EACCES: permission denied, open '/home/user/.claude.json'). Run `claude mcp get example` to check, then add the server again if it is missing.
 ```
 
-移除操作之后，消息会显示为 `may not have been removed`，并以 `then remove the server again if it is still listed` 结尾。
+执行移除操作后，消息为 `may not have been removed`，并以 `then remove the server again if it is still listed` 结尾。如果原因是 `the file was not found`，该服务器可能仍处于已配置状态。
 
 在 v2.1.283 之前，即使无法确认更改，这些命令也会报告成功。
 
@@ -3723,8 +3724,8 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何通过 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求 bash，而机器上没有安装 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令如何运行](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
 
 **解决方法：**
 
@@ -3877,7 +3878,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较前从 origin 获取了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会失败，报错 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较前已从 origin 获取该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 

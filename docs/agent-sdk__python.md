@@ -1385,7 +1385,7 @@ ThinkingConfig = ThinkingConfigAdaptive | ThinkingConfigEnabled | ThinkingConfig
 | `enabled` | `type`, `budget_tokens`, `display` | 启用具有特定 token 预算的思考 |
 | `disabled` | `type` | 禁用思考 |
 
-可选的 `display` 字段控制思考文本以 `"summarized"` 还是 `"omitted"` 形式返回。在 Claude Opus 4.7 及更高版本上，API 默认值为 `"omitted"`，因此请设置 `"summarized"` 以在 [`ThinkingBlock`](#thinkingblock) 输出中接收思考内容。Claude Code 不会将您的 `display` 值传递给某些提供商，例如 Amazon Bedrock 和 Google Cloud 的 Agent Platform。在这些提供商上，即使您将 `display` 设置为 `"summarized"`，Opus 4.7 及更高版本也会返回空的 `ThinkingBlock` 输出。
+可选的 `display` 字段控制思考文本以 `"summarized"` 还是 `"omitted"` 形式返回。在 Claude Opus 4.7 及更高版本上，API 默认值为 `"omitted"`，因此请设置 `"summarized"` 以在 [`ThinkingBlock`](#thinkingblock) 输出中接收思考内容。在 Amazon Bedrock 和 Google Cloud 的 Agent Platform 等提供商上，对于其能识别的较早模型，Claude Code 不会传递 `display`。这些模型包括 Opus 4.6、Sonnet 4.6、Haiku 4.5 及更早的模型，它们使用各自的默认值。
 
 因为这些是 `TypedDict` 类，它们在运行时是普通字典。可以将它们构造为字典字面量，也可以像调用构造函数一样调用类；两者都产生 `dict`。使用 `config["budget_tokens"]` 访问字段，而不是 `config.budget_tokens`：
 

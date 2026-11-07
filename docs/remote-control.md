@@ -147,6 +147,8 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 * **This session was ended or archived from another device or app**：仅当您想恢复该会话时才运行 `/remote-control`。Claude Code 会重新打开已归档的会话。
 * **The server no longer reports this session**：该会话可能已从另一台设备或应用中删除。
 
+如果 `/remote-control` 打开一个显示 `Remote Control isn't connected.` 的对话框，请按照对话框给出的步骤操作，例如运行 `/login`，或选择 **Continue** 后重试。
+
 ### 从另一台设备连接
 
 Remote Control 会话处于活动状态后，您可以通过以下几种方式从另一台设备连接：
@@ -318,7 +320,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 
 当远程控制处于活跃状态时，Claude 可以向您的手机发送推送通知。
 
-Claude 决定何时推送。它通常在长时间运行的任务完成时或需要您做出决定以继续时发送一条通知。您也可以在提示中请求推送，例如 `notify me when the tests finish`。除了下面的两个开/关切换外，没有按事件配置。
+当长时间运行的任务完成时，或当 Claude 需要您做出决定时，您可能会收到推送。您也可以在提示词中请求推送，例如 `notify me when the tests finish`。除了下面的两个开/关切换外，没有按事件配置。
 
 要设置移动推送通知：
 

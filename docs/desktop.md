@@ -549,15 +549,18 @@ Claude Code 在跨会话时应用三项安全行为：
 本地会话会在您为其打开 Remote Control 时连接，或在启动时自动连接：
 
 * **您为该会话打开它**：使用该会话的 **Remote Control** 开关，或在其输入框中输入 `/remote-control`。
-* **在启动时连接**：当 **Settings > Code** 或 **Settings > Claude Code** 中的 **Connect new sessions to Remote Control** 处于打开状态时，新会话会自动连接。如果您从未更改过该设置，Desktop 会遵循您的用户设置或托管设置中的 [`remoteControlAtStartup`](https://code.claude.com/docs/zh-CN/settings-reference#remotecontrolatstartup)，其次是您组织的默认值。
+* **在启动时连接**：当 **Settings > Code** 或 **Settings > Claude Code** 中的 **Connect new sessions to Remote Control** 处于打开状态时，新会话会自动连接，除非托管设置中的 [`remoteControlAtStartup`](https://code.claude.com/docs/zh-CN/settings-reference#remotecontrolatstartup) 为 `false`。如果您从未更改过 **Connect new sessions to Remote Control**，Desktop 会使用您的用户设置或托管设置中的 `remoteControlAtStartup`。如果两者均未设置，Desktop 会使用您组织的默认值；如果没有组织默认值，则使用其自身的默认值。
 
 要查看会话是否已连接，请查看其[会话详情面板](#see-session-details)中 **Environment** 卡片内的 **Remote Control** 开关。
 
-要让会话不出现在您的其他设备上，请在所需的级别关闭 Remote Control：
+#### 让会话不出现在您的其他设备上
+
+可以为单个会话、此计算机上的会话或您管理的计算机关闭 Remote Control：
 
 * **单个会话**：关闭其 **Remote Control** 开关。在启动时已自动连接的会话中，输入 `/remote-control` 会保持 Remote Control 打开，并显示 `Remote Control is already on. This session connected automatically when it started.`。点击该行上的 **Turn off** 即可断开连接。
-* **此计算机上的新 Desktop 会话**：在 **Settings > Code** 或 **Settings > Claude Code** 中关闭 **Connect new sessions to Remote Control**。如果它已显示为关闭，请先将其打开再关闭，以便 Desktop 保存您的选择。保存后，它优先于 `remoteControlAtStartup` 和默认值。
+* **此计算机上的新 Desktop 会话**：在 **Settings > Code** 或 **Settings > Claude Code** 中关闭 **Connect new sessions to Remote Control**。如果它已显示为关闭，请先将其打开再关闭，以便 Desktop 保存您的选择。保存后，新会话不会自动连接，即使 `remoteControlAtStartup` 或默认值要求连接也是如此。
 * **此计算机上的任何会话，包括 CLI**：在 `~/.claude/settings.json` 中将 [`disableRemoteControl`](https://code.claude.com/docs/zh-CN/settings-reference#disableremotecontrol) 设置为 `true`，以阻止会话连接。保存该文件时已连接的会话会保持连接，直到您为其关闭 Remote Control。
+* **您管理的计算机上的 Desktop 会话**：如果您在计算机的[优先级最高的 MDM 策略或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)中将 `remoteControlAtStartup` 设置为 `false`，该计算机上的会话不会自动连接，即使该键在[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中为 `true` 也是如此。请勿为此使用用户级别的 `HKCU` 注册表值。用户仍然可以自行为会话打开 Remote Control；要阻止这种情况，请使用[管理控制台](#admin-console-controls)。需要 Claude Desktop v4.4212.0 或更高版本。
 
 要隐藏已显示在您其他设备上的会话，请在 Desktop 中将其存档。Desktop 也会存档该会话的 Remote Control 副本，使其从这些设备上的默认会话列表中移除。要在那里查看或删除它，请参阅[存档会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)。
 
@@ -2013,6 +2016,8 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 | `disableDesktopLocalSessions` | 设置为 `true` 以关闭[在设备上运行的 Code 会话](#local-sessions-on-managed-devices)，仅保留到其他主机的 SSH 会话和云端会话可用。该值必须是 JSON 布尔值 `true`。仅从托管设置中读取。需要 Claude Desktop v1.37937.0 或更高版本。 |
 | `disableSshSavedPasswords` | 设置为 `true` 以阻止 Desktop 提供记住 SSH 密码的选项，并阻止其使用或显示之前保存的密码。启用此设置不会删除这些密码。仅从托管设置中读取。需要 Claude Desktop v1.49585.0 或更高版本。 |
 | `managedMcpServers` | 将 MCP 服务器配置推送到所有用户。仅在第三方 (3P) Desktop 部署中可用。在每个条目中，设置 `"http"`、`"sse"` 或 `"stdio"` 的传输、连接详细信息，以及可选的 `toolPolicy` 映射，该映射限制该服务器中用户可以调用的工具。通过托管设置文件、MDM 或 Claude apps gateway 策略的 [`desktop` 块](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)提供它，因为 3P 部署不接收管理员控制台设置。要通过网关提供它，您需要网关服务器上的 Claude Code v2.1.232 或更高版本。这是桌面应用自己的键；Claude Code 读取自己的[同名托管设置](https://code.claude.com/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings)，具有不同的条目形状。 |
+
+如果您在计算机的[最高优先级 MDM 策略或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)中使用 `browserExternalPageTools`、`disableMobileSimulatorTools` 或 `disableBrowserExternalNavigation` 关闭某项功能，该功能将在该计算机上保持关闭。即使您的[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)未设置该键或允许该功能，它也会保持关闭。请勿为此使用用户级 `HKCU` 注册表值。要重新打开该功能，请在您设置该值的所有位置将其删除。需要 Claude Desktop v4.4212.0 或更高版本。
 
 哪些托管设置到达 Desktop 会话取决于该会话运行的位置。模型限制（如 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection)）在 Desktop 的 Claude Code 会话中的执行方式与在终端 CLI 中相同；请参阅[使用入口覆盖范围](https://code.claude.com/docs/zh-CN/model-config.md#surface-coverage)。
 

@@ -455,7 +455,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 
 ## 验证消息
 
-`claude plugin validate <path>` 接受 marketplace 根目录或 marketplace 文件本身。它打印错误和警告。有关退出代码和 `--strict`，请参阅 [plugin validate](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#plugin-validate)。
+`claude plugin validate <path>` 接受市场根目录或市场文件本身。若要让该文件[作为市场进行验证](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#validate-a-manifest-file)而不是作为插件 manifest 进行验证，请将其命名为 `marketplace.json`。有关退出码和 `--strict`，请参阅 [plugin validate](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#plugin-validate)。
 
 消息通过索引命名插件条目，写作 `plugins.1.source` 或 `plugins[1].source`。
 

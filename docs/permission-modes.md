@@ -154,7 +154,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 
 ### HIPAA 配置下的权限模式
 
-在已应用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)的组织中，内置 `auto` 默认值不适用。当没有其他方式选择起始权限模式时，终端或 VS Code 会话以 Manual 模式启动。终端会话还会显示 `Auto mode isn't the default for your organization · Shift+Tab to switch`，而 VS Code 扩展不显示任何通知。[检查开发人员如何登录和连接](https://code.claude.com/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect)列出了适用此规则的会话。
+在已应用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)的组织中，[内置 `auto` 默认值](#which-mode-a-session-starts-in)不适用。当没有其他方式选择起始权限模式时，终端或 VS Code 会话以 Manual 模式启动。终端会话还会显示 `Auto mode isn't the default for your organization · Shift+Tab to switch`，而 VS Code 扩展不显示任何通知。[检查开发人员如何登录和连接](https://code.claude.com/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect)列出了适用此规则的会话。
 
 自动模式和 `bypassPermissions` 仍然可用：
 
@@ -162,8 +162,6 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 * **以自动模式启动**：传递 `--permission-mode auto`，或在您的用户设置中将 `permissions.defaultMode` 设置为 `auto`，或在托管设置中为整个组织进行此设置。请参阅[以不同的权限模式启动](#start-in-a-different-mode)
 * **移除自动模式**：在托管设置中将 [`permissions.disableAutoMode`](https://code.claude.com/docs/zh-CN/settings-reference#disableautomode) 设置为 `"disable"`
 * **阻止 `bypassPermissions`**：在托管设置中将 [`permissions.disableBypassPermissionsMode`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-disablebypasspermissionsmode) 设置为 `"disable"`
-
-需要 Claude Code v2.1.285 或更高版本，即 [HIPAA 配置的最低版本](https://code.claude.com/docs/zh-CN/hipaa-setup.md#update-claude-code-and-claude-desktop)。
 
 ## 切换权限模式
 
@@ -433,13 +431,13 @@ claude --permission-mode plan
 claude --permission-mode auto --debug-file classifier-debug.log
 ```
 
-让 Claude 运行一个非只读的 shell 命令，然后在日志中搜索 `classifier_request_started`：
+为了给分类器提供一个需要审查的命令，请让 Claude 运行 `curl https://example.com`，然后在日志中搜索 `classifier_request_started`：
 
 * **`model=` 之后是您的模型**：该变量已生效
 * **`model=` 之后是其他模型**：在日志中搜索 `ignoring CLAUDE_CODE_AUTO_MODE_MODEL`，其中会给出原因以及需要采取的步骤
 * **没有这样的行**：在 Claude Code 提示符下查看 `/status` 中的 `Auto mode server`：
   * **`Enabled`**：[服务器](#server-side-classifier-review)已设置为审查此会话的调用。
-  * **`Disabled`**：确保[权限模式](#switch-permission-modes)为 auto，然后让 Claude 再运行一个非只读的命令。
+  * **`Disabled`**：此检查尚未测试到您的模型。请确保[权限模式](#switch-permission-modes)为 auto，且没有任何[权限规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)匹配 `curl`，然后在关闭[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)的情况下再次运行该检查。
 
 ### 分类器默认阻止的内容
 
