@@ -2166,7 +2166,7 @@ PreToolUse hook 在每次工具调用之前运行，无论该调用是否需要�
 | 字段 | 描述 |
 | :- | :- |
 | `behavior` | `"allow"` 授予权限，`"deny"` 拒绝权限。[拒绝规则和询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)仍会被评估，因此返回 `"allow"` 的 hook 不会覆盖匹配的拒绝规则 |
-| `updatedInput` | 仅适用于 `"allow"`：在执行前修改工具的输入参数。它会替换整个输入对象，因此请将未更改的字段与修改后的字段一并包含。修改后的输入会再次根据拒绝规则和询问规则进行评估 |
+| `updatedInput` | 仅用于 `"allow"`：在执行前修改工具的输入参数。会替换整个输入对象，因此请将未更改的字段与修改后的字段一并包含。修改后的输入会再次根据拒绝和询问规则进行评估。`AskUserQuestion` 和 `ExitPlanMode` [需要此字段](#allow-with-updatedinput) |
 | `updatedPermissions` | 仅适用于 `"allow"`：要应用的[权限更新条目](#permission-update-entries)数组，例如添加允许规则或更改会话权限模式 |
 | `message` | 仅适用于 `"deny"`：告知 Claude 权限被拒绝的原因 |
 | `interrupt` | 仅适用于 `"deny"`：如果为 `true`，则停止 Claude |

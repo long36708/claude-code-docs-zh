@@ -421,7 +421,7 @@ Claude Code 会将您的命令写入 stdout 的纯文本添加到 Claude 的上�
 
 对于您始终允许的工具调用，跳过批准对话框。此示例自动批准 `ExitPlanMode`，即 Claude 在展示完计划并请求继续时调用的工具，这样每次计划就绪时都不会提示您。
 
-与上面的退出码示例不同，自动批准要求您的 hook 将 JSON 决策写入 stdout。Claude Code 在即将向您请求权限时运行 `PermissionRequest` hook，如果您的 hook 返回 `"behavior": "allow"`，Claude Code 就会代表您响应该请求。
+与上面的退出码示例不同，自动批准要求您的 hook 将 JSON 决策写入 stdout。Claude Code 在即将向您请求权限时运行 `PermissionRequest` hook，如果您的 hook 返回 `"behavior": "allow"`，Claude Code 就会代表您响应该请求。对于[需要用户交互](https://code.claude.com/docs/zh-CN/hooks.md#allow-with-updatedinput)的工具（例如 `ExitPlanMode`），allow 还需要包含 `updatedInput`，否则 Claude Code 会忽略它并仍然显示提示。
 
 匹配器将该 hook 仅限定于 `ExitPlanMode`，因此不会影响其他提示。将以下内容添加到 `~/.claude/settings.json`：
 
@@ -434,7 +434,7 @@ Claude Code 会将您的命令写入 stdout 的纯文本添加到 Claude 的上�
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow\"}}}'"
+            "command": "jq -c '{hookSpecificOutput: {hookEventName: \"PermissionRequest\", decision: {behavior: \"allow\", updatedInput: .tool_input}}}'"
           }
         ]
       }
@@ -453,20 +453,10 @@ Claude Code 会将您的命令写入 stdout 的纯文本添加到 Claude 的上�
 >
 > Claude Code 永远不会将其保存为 `defaultMode`。
 
-若要将会话切换到 `acceptEdits`，您的 hook 将以下 JSON 写入 stdout：
+若要将会话切换到 `acceptEdits`，请将该 hook 中的 `command` 行替换为以下内容：
 
 ```json theme={null}
-{
-  "hookSpecificOutput": {
-    "hookEventName": "PermissionRequest",
-    "decision": {
-      "behavior": "allow",
-      "updatedPermissions": [
-        { "type": "setMode", "mode": "acceptEdits", "destination": "session" }
-      ]
-    }
-  }
-}
+"command": "jq -c '{hookSpecificOutput: {hookEventName: \"PermissionRequest\", decision: {behavior: \"allow\", updatedInput: .tool_input, updatedPermissions: [{type: \"setMode\", mode: \"acceptEdits\", destination: \"session\"}]}}}'"
 ```
 
 请让匹配器尽可能精确。匹配 `.*` 或将匹配器留空会自动批准所有工具权限提示，包括文件写入和 shell 命令。有关完整的决策字段集，请参阅 [PermissionRequest 参考](https://code.claude.com/docs/zh-CN/hooks.md#permissionrequest-decision-control)。

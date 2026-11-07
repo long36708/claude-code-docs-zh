@@ -627,14 +627,14 @@
     "hooks.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/hooks",
       "original_md_url": "https://code.claude.com/docs/zh-CN/hooks.md",
-      "hash": "e7a2ef889fa8838844ed0edbb8410b4d7a4430ff651d1beae340192297815dd1",
-      "last_updated": "2026-11-07T02:08:26.563337"
+      "hash": "35aa2a590b1bafc742bdfe58b63e6913aafb4e2ddaefc4e2f5be48f74ea9f697",
+      "last_updated": "2026-11-07T22:53:14.753354"
     },
     "hooks-guide.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/hooks-guide",
       "original_md_url": "https://code.claude.com/docs/zh-CN/hooks-guide.md",
-      "hash": "0f61932841161a0ba3b8f67a26decfc0420d39a182e6e0da31ba6d6ca4f53db5",
-      "last_updated": "2026-11-06T12:20:00.014033"
+      "hash": "2ef2fd69bb7a19f3c7cf2f2dc6d25a434b5502fd0b289735e29e3972942e5f59",
+      "last_updated": "2026-11-07T22:53:15.353883"
     },
     "how-claude-code-works.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/how-claude-code-works",
@@ -711,8 +711,8 @@
     "mcp.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/mcp",
       "original_md_url": "https://code.claude.com/docs/zh-CN/mcp.md",
-      "hash": "22f2d8928c9ae1f30dd4ab0d3fc97540649e0ae68c3374f5022cac25153430ea",
-      "last_updated": "2026-11-07T02:08:34.073650"
+      "hash": "98598e1f626468a01454831840618e79d86f66eef14b753080934ac07fa8d037",
+      "last_updated": "2026-11-07T22:53:23.270676"
     },
     "mcp-quickstart.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/mcp-quickstart",
@@ -1372,8 +1372,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-07T18:10:17.410381",
-    "fetch_duration_seconds": 125.200371,
+    "last_fetch_completed": "2026-11-07T22:54:34.399987",
+    "fetch_duration_seconds": 147.570126,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-07T18:10:17.410411",
+  "last_updated": "2026-11-07T22:54:34.400014",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

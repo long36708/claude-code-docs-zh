@@ -252,7 +252,7 @@ claude mcp remove notion
 
 此列表中的状态报告配置决策而不是连接尝试，因此 Claude Code 在不连接到服务器的情况下打印它们：
 
-* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json` 的项目作用域服务器，您尚未批准。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。以交互方式运行 `claude` 来审查并批准它。
+* ``⏸ Pending approval (run `claude` to approve)``：来自 `.mcp.json`、您尚未批准的项目作用域服务器。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示此状态。以交互方式运行 `claude` 以审查并批准它。
 * `✘ Rejected (see disabledMcpjsonServers in settings)`：由 [`disabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#disabledmcpjsonservers) 条目拒绝的 `.mcp.json` 服务器。Claude Code 仅在 `claude mcp get <name>` 中显示它。
 * `⊘ Disabled for this project (re-enable via /mcp)`：项目的 [`disabledMcpServers`](#disable-a-server-without-removing-it) 列表命名的服务器。Claude Code 在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。从 `/mcp` 面板重新打开服务器。
 * `✘ Blocked by enterprise managed policy`：被您组织的某项策略拒绝的服务器。Claude Code 会在 `claude mcp list` 和 `claude mcp get <name>` 中都显示它。被[托管 MCP 配置](https://code.claude.com/docs/zh-CN/managed-mcp.md#how-restrictions-appear-to-users)中的允许列表、拒绝列表或其他限制阻止的服务器，会在这两个命令中都被隐藏，而不是以此状态显示。请询问您的管理员是哪项策略阻止了该服务器。
@@ -596,7 +596,7 @@ Claude 等待期间，按 `Esc` 或达到[挂钟时间限制或空闲超时](#ti
 
 #### 以任务应答调用
 
-只有当请求携带该扩展时才以任务应答，否则 Claude 会收到工具错误 `Unsupported result type 'task' for tools/call`。当缺少 `taskId`、`status`、`createdAt`、`lastUpdatedAt` 或 `ttlMs` 时，Claude 也会收到相同的错误。任务对象是您的 `tools/call` 响应的 JSON-RPC `result`，不需要 `content` 数组，此处还包含可选的 `statusMessage` 和 `pollIntervalMs`：
+只有在请求携带该扩展时才用任务应答，否则调用会以工具错误 `Unsupported result type 'task' for tools/call` 失败。如果您的应答没有 `taskId` 或没有有效的 `status`，调用也会以同样的方式失败。任务对象是您的 `tools/call` 响应的 JSON-RPC `result`，不需要 `content` 数组，此处还包含可选的 `statusMessage` 和 `pollIntervalMs`：
 
 ```json theme={null}
 {
@@ -616,9 +616,11 @@ Claude 等待期间，按 `Esc` 或达到[挂钟时间限制或空闲超时](#ti
 | `resultType` | 设置为 `"task"` 以将该应答标记为任务。如果没有它，Claude Code 会将该应答视为普通结果 |
 | `taskId` | 必需。最多 128 个不含空格的可打印 ASCII 字符，否则 Claude 会收到以 `MCP server "<name>" returned a malformed task handle for tool "<tool>"` 开头的工具错误。请确保该 ID 在不同连接间都能被应答，因为恢复后 Claude Code 会在新连接上询问它 |
 | `status` | 必需。取值为 `working`、`input_required`、`completed`、`failed` 或 `cancelled` 之一。其他值会产生 `Unsupported result type` 错误 |
-| `createdAt`、`lastUpdatedAt`、`ttlMs` | 必需，`ttlMs` 可以为 `null`。Claude Code 不会因为任务的 `ttlMs` 已过而丢弃该任务 |
-| `pollIntervalMs` | 可选，但不能为 `null`。两次 `tasks/get` 请求之间的毫秒数，限制在 250 到 30000 之间。字段缺失时 Claude Code 使用 2000，并会从每个 `tasks/get` 响应中重新读取该值 |
+| `createdAt`、`lastUpdatedAt`、`ttlMs` | 任务扩展要求提供，`ttlMs` 可以为 `null`。Claude Code 不会因为任务的 `ttlMs` 已过而丢弃该任务 |
+| `pollIntervalMs` | 可选。`tasks/get` 请求之间的毫秒数，限制在 250 到 30000 之间。当该字段缺失或为 `null` 时，Claude Code 使用 2000，并会从每个 `tasks/get` 响应中重新读取该值 |
 | `statusMessage` | 可选。`/tasks` 显示的是您最新的 `tasks/get` 响应中的值，而不是这第一个应答中的值，省略该字段的响应会清除它。[来自 Claude Code 的状态消息](#status-messages-on-an-mcp-task)可能会取代它 |
+
+Claude Code 接受省略 `createdAt`、`lastUpdatedAt` 或 `ttlMs`，或将 `pollIntervalMs` 设置为 `null` 的任务应答。在 v2.1.317 之前，调用会改为以 `Unsupported result type` 错误失败。要同时兼容这些版本，请发送任务扩展要求的三个字段，并将 `pollIntervalMs` 作为数字发送或完全不发送。
 
 在 HTTP 或 claude.ai 连接器服务器上，任务应答必须在[按请求的计时器](#time-limits-on-mcp-tool-calls)内开始，因此请先接受作业并应答，然后再执行工作。
 
