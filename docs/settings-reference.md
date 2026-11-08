@@ -5427,7 +5427,7 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 ### `disableBrowserExternalNavigation`
 
-在桌面应用的 [Browser 窗格](https://code.claude.com/docs/zh-CN/desktop.md#browse-external-sites)中同时为人员和 Claude 关闭外部浏览。Localhost 开发服务器预览仍可正常使用。桌面应用会读取此键；终端 CLI 会忽略它。
+在桌面应用的 [Browser 窗格](https://code.claude.com/docs/zh-CN/desktop.md#browse-external-sites)中同时为人员和 Claude 关闭外部浏览。Localhost 开发服务器预览仍可正常使用。SSH 和 WSL 会话中的 HTML 预览仍会打开，但它们[不会运行脚本](https://code.claude.com/docs/zh-CN/desktop.md#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。桌面应用会读取此键；终端 CLI 会忽略它。
 
 * **作用域**：[`Managed`](#scopes)
 * **类型**：布尔值；仅 JSON 布尔值 `true` 生效
@@ -5442,6 +5442,8 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 ```
 
 桌面应用会忽略任何其他值，并且非布尔值（例如字符串 `"true"` 或 `1`）还会记录一条警告。若要保持外部浏览开启但禁止 Claude 的工具作用于外部页面，请改为设置 [`browserExternalPageTools`](#browserexternalpagetools)。请参阅[为您的组织限制外部浏览](https://code.claude.com/docs/zh-CN/desktop.md#restrict-external-browsing-for-your-organization)。
+
+如果运行桌面应用的计算机未收到其他 Claude Code 托管设置，还需在您创建的托管设置中将 [`parentSettingsBehavior`](#parentsettingsbehavior) 设置为 `"merge"`。在 Windows 上，如果您创建了托管设置文件，用户还会无法使用 WSL 会话，直到您[予以允许](https://code.claude.com/docs/zh-CN/admin-setup.md#wsl-sessions-in-claude-code-desktop)。有关原因，请参阅[为您的组织关闭 SSH 和 WSL 预览中的脚本](https://code.claude.com/docs/zh-CN/desktop.md#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。
 
 ### `disableMobileSimulatorTools`
 
