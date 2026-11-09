@@ -18,7 +18,7 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 
 **1. Hooks**
 
-运行 [hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)。hook 可以直接拒绝该调用，也可以将其放行。返回 `allow` 的 hook 不会跳过下方的拒绝和询问规则，无论 hook 结果如何，这些规则都会被评估。
+运行 [hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md)。hook 可以直接拒绝该调用，也可以将其放行。返回 `allow` 的 hook 不会跳过拒绝规则和询问规则步骤，无论 hook 结果如何，这些步骤都会被评估。
 
 返回 `allow` 的 `PreToolUse` hook 也不能批准目标被 Claude Code 识别为 [关键路径](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths) 的 `rm` 或 `rmdir` 命令，例如 `rm -rf ~`。关于该 `allow` 在计划模式下的作用，请参阅 [计划模式下的 hook 批准](https://code.claude.com/docs/zh-CN/permissions.md#hook-approvals-in-plan-mode)。
 
@@ -54,11 +54,11 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 
 被识别出的 [关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths) 不会被允许规则批准，被标记为 `Dangerous rm operation not ruled out` 的命令也不会被 `Bash` 或 `Bash(*)` 规则批准。它们是否随后到达您的回调取决于权限模式：例如在 `auto` 模式的 Agent SDK 会话中，Claude Code 默认拒绝它们而不调用它。[关键路径模式表](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-path-removals-in-each-permission-mode) 列出了每种模式对它们的处理方式。
 
-允许规则不会批准从 [网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths) 进行的读取。
+允许规则不会批准从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)进行的读取。
 
 **6. canUseTool 回调**
 
-如果上述任何步骤都未解决，调用您的 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input) 以获得决定。在 `dontAsk` 模式下，此步骤被跳过，工具被拒绝，不过您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍然可以批准[部分此类调用](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
+如果前面的步骤都未能解决该请求，则调用您的 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input)来做出决定。在 `dontAsk` 模式下，此步骤会被跳过，工具将被拒绝，不过您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍可以批准[某些此类调用](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
 
 在 TypeScript SDK 中，如果您设置了 [`permissionPrompts: 'none'`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)，您的回调在此步骤不会被调用。[`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 仍然有机会决定，如果它不决定，Claude Code 拒绝调用。该选项需要 Claude Code v2.1.259 或更高版本。
 
@@ -80,14 +80,14 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 
 ## 允许和拒绝规则
 
-`allowed_tools` 和 `disallowed_tools`（TypeScript：`allowedTools` / `disallowedTools`）在上述评估流程中向允许和拒绝规则列表添加条目。如果你在 `allowed_tools` 中命名了某个[任务跟踪工具](https://code.claude.com/docs/zh-CN/agent-sdk/todo-tracking.md#model-availability)，Claude Code 也会为该会话启用这些工具。任何其他未在 `allowed_tools` 中列出的工具仍然可供 Claude 使用，对其的调用如果需要批准，则会进入权限模式。拒绝规则的行为取决于它们是命名工具还是在工具内限定模式。
+当您设置 `allowedTools` 和 `disallowedTools`（TypeScript）或 `allowed_tools` 和 `disallowed_tools`（Python）时，Claude Code 会将其中的条目添加到[权限评估流程](#how-permissions-are-evaluated)中的允许和拒绝规则列表。任何其他未在 `allowed_tools` 中列出的工具仍然可供 Claude 使用，对其的调用如果需要批准，则会进入权限模式。
 
 | 选项 | 效果 |
 | :- | :- |
 | `allowed_tools=["Read", "Grep"]` | `Read` 和 `Grep` 被自动批准，[从网络路径读取](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)除外。此处未列出的其他工具仍然存在，对它们的调用如果需要批准，则会进入权限模式和 `canUseTool`。 |
-| `disallowed_tools=["Bash"]` | `Bash` 工具定义从请求中移除。Claude 看不到该工具，无法尝试使用它。 |
+| `disallowed_tools=["Bash"]` | `Bash` 工具定义从请求中移除。 |
 | `disallowed_tools=["Bash(rm *)"]` | `Bash` 保持可用。匹配 `rm *` [如所写](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits) 的调用在每种权限模式中都被拒绝，包括 `bypassPermissions`。其他 `Bash` 调用（包括 `/bin/rm`）会进入权限模式。 |
-| `disallowed_tools=["*"]` | 每个工具定义都从请求中移除。拒绝规则中支持工具名称通配符：`"*"` 匹配每个工具，`"mcp__*"` 匹配所有服务器中的每个 MCP 工具。 |
+| `disallowed_tools=["*"]` | 拒绝规则中支持工具名称通配符：`"*"` 匹配每个工具，`"mcp__*"` 匹配所有服务器中的每个 MCP 工具。 |
 
 允许规则仅在字面 `mcp__<server>__` 前缀之后接受工具名称通配符。服务器段必须无通配符，以便规则命名您配置的特定服务器：`mcp__puppeteer__*` 匹配来自 `puppeteer` 服务器的每个工具，`mcp__github__get_*` 匹配其 `get_` 工具。未锚定的条目（如 `allowed_tools=["*"]` 或 `allowed_tools=["mcp__*"]`）会被忽略，不会自动批准任何内容。
 

@@ -45,8 +45,8 @@
     "agent-sdk__custom-tools.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools",
       "original_md_url": "https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools.md",
-      "hash": "72177f8312ed7b4c9af051965d139adf3e4de96188cd24264ec3cf09145a9524",
-      "last_updated": "2026-10-30T18:41:46.957418"
+      "hash": "ae8de577dd6aa9f6d9a387b947cd4a296202f5daeea22c56ecc8fc2c4f84d793",
+      "last_updated": "2026-11-09T20:54:23.235470"
     },
     "agent-sdk__examples.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/agent-sdk/examples",
@@ -75,8 +75,8 @@
     "agent-sdk__mcp.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/agent-sdk/mcp",
       "original_md_url": "https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md",
-      "hash": "6a005c39814a5d9c919e3d3fc046694b674a0a62a267f6127500d5b197294053",
-      "last_updated": "2026-10-30T18:41:50.710574"
+      "hash": "8222014c5b9f28b7ae9e338e549c07ac7768dae561a1ec72bc12e98b2e007fff",
+      "last_updated": "2026-11-09T20:54:26.951731"
     },
     "agent-sdk__migration-guide.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/agent-sdk/migration-guide",
@@ -105,8 +105,8 @@
     "agent-sdk__permissions.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/agent-sdk/permissions",
       "original_md_url": "https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md",
-      "hash": "d8adb042e81f8a802337f5b8c8790f0ce986a50573ab151ca2d281c920d1a584",
-      "last_updated": "2026-11-04T20:29:08.824668"
+      "hash": "8e3cd84298ef6b78c72db389fe2c91c172495ef4a9341383742711a3b50a6a02",
+      "last_updated": "2026-11-09T20:54:31.379830"
     },
     "agent-sdk__plugins.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/agent-sdk/plugins",
@@ -1366,14 +1366,14 @@
     "changelog.md": {
       "original_url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
       "original_raw_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-      "hash": "0f548810b34411351601628de02477b7a9ca905804a7b8bd32d22bb6e830cce9",
-      "last_updated": "2026-11-06T20:03:36.781185",
+      "hash": "59d2353d025ee01d2fd677042f5b1e5f21be0b8ab99428b264cf26facf02eac7",
+      "last_updated": "2026-11-09T20:57:10.728842",
       "source": "claude-code-repository"
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-09T08:20:49.852864",
-    "fetch_duration_seconds": 120.792287,
+    "last_fetch_completed": "2026-11-09T20:57:10.728903",
+    "fetch_duration_seconds": 172.944124,
     "total_pages_discovered": 226,
     "pages_fetched_successfully": 228,
     "pages_failed": 0,
@@ -1383,7 +1383,7 @@
     "total_files": 228,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-09T08:20:49.852895",
+  "last_updated": "2026-11-09T20:57:10.728926",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

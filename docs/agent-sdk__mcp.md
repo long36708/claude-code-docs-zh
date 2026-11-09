@@ -205,7 +205,7 @@ MCP 工具的命名格式为 `mcp__<server-name>__<tool-name>`，其中 `<server
 
 ### 使用 allowedTools 自动批准
 
-使用 `allowedTools` 自动批准特定的 MCP 工具，这样 Claude 就可以在没有权限提示的情况下使用它们：
+使用 `allowedTools` 自动批准特定的 MCP 工具：
 
 ```typescript TypeScript hidelines={1,-1} theme={null}
 const _ = {
