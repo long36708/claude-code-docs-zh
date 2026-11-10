@@ -29,7 +29,7 @@
 | 安装期间 `EACCES: permission denied` | [修复安装目录的权限](#permission-errors-during-installation) |
 | `TLS connect error` 或 `SSL/TLS secure channel` | [更新 CA 证书](#tls-or-ssl-connection-errors) |
 | `CRYPT_E_NO_REVOCATION_CHECK` 或 `CRYPT_E_REVOCATION_OFFLINE` | [绕过被阻止的吊销检查](#tls-or-ssl-connection-errors) |
-| `Failed to fetch version` 或无法访问下载服务器 | [检查网络和代理设置](#check-network-connectivity) |
+| `Failed to fetch version` 或无法访问下载服务器 | [检查网络和代理设置](#check-network-connectivity)，如果是证书错误，请[配置企业 CA 证书](#tls-or-ssl-connection-errors) |
 | `The connection dropped while downloading the update` 或 `Download timed out: exceeded the total deadline` | [再次运行更新或设置您的代理](#the-connection-dropped-while-downloading-the-update) |
 | `Release verification failed for Claude Code` | [再次运行 `claude update` 或 `claude install`](#release-verification-failed) |
 | 会话页脚中以红色显示 `Auto-update failed · Run claude doctor` | [从您的 shell 运行 `claude update`](#auto-update-failed) |
@@ -94,11 +94,11 @@
 * `403`：通常是代理或网络过滤器阻止该主机，或 Claude Code [在您的地区不可用](https://www.anthropic.com/supported-countries)
 * `5xx`：通常是临时服务问题；等待几分钟后重试
 
-如果您看不到任何输出、`Could not resolve host` 或连接超时，您的网络正在阻止连接。常见原因：
+如果您看不到任何输出，或者安装程序显示 `Could not resolve host` 或连接超时，则表示连接失败，请检查以下原因：
 
 * 企业防火墙或代理阻止 `downloads.claude.ai`
 * 区域网络限制：尝试 VPN 或替代网络
-* TLS/SSL 问题：更新您系统的 CA 证书，或检查是否配置了 `HTTPS_PROXY`
+* TLS/SSL 问题：请参阅 [TLS 或 SSL 连接错误](#tls-or-ssl-connection-errors)
 
 如果您在企业代理后面，在安装前设置 `HTTPS_PROXY` 和 `HTTP_PROXY` 为您的代理地址。如果您不知道代理 URL，请向您的 IT 团队询问，或检查您的浏览器代理设置。
 
@@ -566,13 +566,19 @@ brew list --cask | grep claude-code
    irm https://claude.ai/install.ps1 | iex
    ```
 
-3. **检查代理或防火墙干扰**：执行 TLS 检查的公司代理可能会导致这些错误，包括 `unable to get local issuer certificate` 和 `SELF_SIGNED_CERT_IN_CHAIN`。对于安装步骤，使安装下载信任您的公司代理的 CA：
+3. **检查代理或防火墙干扰**：执行 TLS 检查的公司代理可能会导致这些错误，包括 `unable to get local issuer certificate`、`unable to verify the first certificate` 和 `SELF_SIGNED_CERT_IN_CHAIN`。使安装下载信任您的公司代理的 CA：
 
    > [tab] macOS/Linux
    >
+   > 为安装脚本的 `curl` 下载设置 `CURL_CA_BUNDLE`，并为脚本随后运行的 `claude install` 命令设置 [`NODE_EXTRA_CA_CERTS`](https://code.claude.com/docs/zh-CN/network-config#custom-ca-certificates)。如果您没有包含代理根 CA 证书的 PEM 文件，请向您的 IT 团队索取。此示例将两者都设置为您的代理的 CA 文件，并在同一终端中运行脚本：
+   >
    > ```bash theme={null}
-   > curl --cacert /path/to/corporate-ca.pem -fsSL https://claude.ai/install.sh | bash
+   > export CURL_CA_BUNDLE=/path/to/corporate-ca.pem
+   > export NODE_EXTRA_CA_CERTS=/path/to/corporate-ca.pem
+   > curl -fsSL https://claude.ai/install.sh | bash
    > ```
+   >
+   > 如果安装仍因上述证书错误之一而失败，请向您的 IT 团队索取同时包含公共根证书和代理完整 CA 链的文件。然后将这两个变量都设置为该文件。
 
    > [tab] Windows PowerShell
    >
@@ -596,8 +602,6 @@ brew list --cask | grep claude-code
    > $env:NODE_EXTRA_CA_CERTS = 'C:\path\to\corporate-ca.pem'
    > ```
 
-   如果您没有证书文件，请向您的 IT 团队索取。您也可以尝试直接连接来确认代理是原因。
-
 4. **在 Windows 上，解决被阻止的撤销检查**。错误 `CRYPT_E_NO_REVOCATION_CHECK (0x80092012)` 和 `CRYPT_E_REVOCATION_OFFLINE (0x80092013)` 意味着 curl 到达了服务器，但您的网络阻止了证书撤销查询，这在公司防火墙后很常见。如果失败的命令是下载 `install.cmd` 的 `curl`，请从命令提示符重新运行它，添加 `--ssl-revoke-best-effort`：
    ```batch theme={null}
    curl --ssl-revoke-best-effort -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
@@ -610,7 +614,7 @@ brew list --cask | grep claude-code
 
 ### `Failed to fetch version from downloads.claude.ai`
 
-安装程序无法访问下载服务器。这通常意味着 `downloads.claude.ai` 在您的网络上被阻止。请参阅[检查网络连接](#check-network-connectivity)。
+消息末尾给出了原因。如果是证书错误，例如 `unable to verify the first certificate`，请参阅 [TLS 或 SSL 连接错误](#tls-or-ssl-connection-errors)。对于任何其他原因，请参阅[检查网络连接](#check-network-connectivity)。
 
 ### The connection dropped while downloading the update
 

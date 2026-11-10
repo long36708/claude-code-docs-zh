@@ -305,7 +305,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 
 ### Diff 操作
 
-这些操作仅作用于 Claude Code 早期的 diff 查看器，当您在 `/plugin` 中禁用 [`cc-plugin-diff` mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 后，`/diff` 会在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)之外打开该查看器。启用该 mod 时，`/diff` 会改为打开 [diff 对话框](https://code.claude.com/docs/zh-CN/interactive-mode.md#diff-dialog)。无论哪种情况，引用这些操作的 `keybindings.json` 都能正常加载而不会报错。
+这些操作仅作用于 Claude Code 早期的 diff 查看器，当您在 `/plugin` 中禁用 [`cc-plugin-diff` mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview#mods-built-into-claude-code) 后，`/diff` 会在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)之外打开该查看器。启用该 mod 时，`/diff` 会改为打开 [diff 对话框](https://code.claude.com/docs/zh-CN/interactive-mode.md#diff-dialog)。
 
 `DiffDialog` 上下文中可用的操作：
 

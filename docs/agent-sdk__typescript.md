@@ -5709,7 +5709,7 @@ type SDKAuthStatusMessage = {
 
 ### `SDKTaskStartedMessage`
 
-在任务开始时发出。对于 Bash 命令和 [Monitor](#monitor) 监视，`task_type` 字段为 `"local_bash"`；对于子代理为 `"local_agent"`；否则为 `"remote_agent"`。
+在任务开始时发出。`task_type` 指明任务的类型，例如 Bash 命令和 [Monitor](#monitor) 监视为 `"local_bash"`，子代理为 `"local_agent"`，[后台 MCP 工具调用](https://code.claude.com/docs/zh-CN/mcp.md#automatic-backgrounding-of-long-tool-calls)为 `"mcp_task"`，或者为 `"remote_agent"`。
 
 ```typescript theme={null}
 type SDKTaskStartedMessage = {

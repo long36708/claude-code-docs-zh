@@ -523,7 +523,7 @@ export CLAUDE_CODE_ENABLE_TELEMETRY=1
 export OTEL_METRICS_EXPORTER=otlp
 export OTEL_LOGS_EXPORTER=otlp
 export OTEL_EXPORTER_OTLP_METRICS_PROTOCOL=http/protobuf
-export OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://metrics.example.com:4318
+export OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://metrics.example.com:4318/v1/metrics
 export OTEL_EXPORTER_OTLP_LOGS_PROTOCOL=grpc
 export OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://logs.example.com:4317
 ```
@@ -1786,7 +1786,7 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 ## 安全和隐私
 
 * OpenTelemetry 导出到您的后端是可选的，需要显式配置。有关 Anthropic 的单独操作遥测以及如何禁用它，请参阅 [数据使用](https://code.claude.com/docs/zh-CN/data-usage.md#telemetry-services)
-* 原始文件内容和代码片段不包含在指标或事件中。Trace spans 是一个单独的数据路径：请参阅下面的 `OTEL_LOG_TOOL_CONTENT` 项目符号
+* 默认情况下，原始文件内容和代码片段不包含在指标或事件中。如果您设置了 `OTEL_LOG_TOOL_DETAILS` 或 `OTEL_LOG_RAW_API_BODIES` 等变量，事件可能会包含它们。Trace spans 是一个单独的数据路径：请参阅下面的 `OTEL_LOG_TOOL_CONTENT` 项目符号
 * 通过 OAuth 认证时，`user.email` 包含在遥测属性中，仅发送到您配置的 OTel 端点，永远不会发送到 Anthropic。如果这对您的组织是一个问题，请与您的遥测后端合作以过滤或编辑此字段
 * 默认情况下不收集用户提示词内容。仅记录提示词长度。要包含提示词内容，请设置 `OTEL_LOG_USER_PROMPTS=1`。启用后：
   * `user_prompt` 事件在两个属性中携带提示词文本：`prompt` 和 [`prompt_text`](#user-prompt-event)。如果您在收集器中按属性名称删除或屏蔽该事件的提示词文本，请在规则中同时指定这两个属性

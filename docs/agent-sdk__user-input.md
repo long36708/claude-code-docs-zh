@@ -647,7 +647,7 @@ from claude_agent_sdk.types import HookMatcher, PermissionResultAllow
 
 
 def parse_response(response: str, options: list) -> str:
-    """将用户输入解析为选项编号或自由文本。"""
+    """Parse user input as option number(s) or free text."""
     try:
         indices = [int(s.strip()) - 1 for s in response.split(",")]
         labels = [options[i]["label"] for i in indices if 0 <= i < len(options)]
@@ -657,7 +657,7 @@ def parse_response(response: str, options: list) -> str:
 
 
 async def handle_ask_user_question(input_data: dict) -> PermissionResultAllow:
-    """显示 Claude 的问题并收集用户答案。"""
+    """Display Claude's questions and collect user answers."""
     answers = {}
 
     for q in input_data.get("questions", []):

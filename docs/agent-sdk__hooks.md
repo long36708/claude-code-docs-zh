@@ -79,7 +79,7 @@ async def main():
     )
 
     async with ClaudeSDKClient(options=options) as client:
-        await client.query("使用标准本地开发数据库配置创建 .env 文件")
+        await client.query("Create a .env file with the standard local development database configuration")
         async for message in client.receive_response():
             # 过滤助手和结果消息
             if isinstance(message, (AssistantMessage, ResultMessage)):
@@ -118,7 +118,7 @@ const protectEnvFiles: HookCallback = async (input, toolUseID, { signal }) => {
 };
 
 for await (const message of query({
-  prompt: "使用标准本地开发数据库配置创建 .env 文件",
+  prompt: "Create a .env file with the standard local development database configuration",
   options: {
     hooks: {
       // 为 PreToolUse 事件注册 hook
@@ -605,7 +605,7 @@ from datetime import datetime
 
 
 def _send_webhook(tool_name):
-    """同步辅助函数，将工具使用数据 POST 到外部 webhook。"""
+    """Synchronous helper that POSTs tool usage data to an external webhook."""
     data = json.dumps(
         {
             "tool": tool_name,
@@ -703,7 +703,7 @@ from claude_agent_sdk import ClaudeSDKClient, ClaudeAgentOptions, HookMatcher
 
 
 def _send_slack_notification(message):
-    """同步辅助函数，通过传入 webhook 向 Slack 发送消息。"""
+    """Synchronous helper that sends a message to Slack via incoming webhook."""
     data = json.dumps({"text": f"Agent status: {message}"}).encode()
     req = urllib.request.Request(
         "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",

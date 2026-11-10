@@ -71,9 +71,9 @@
 * **Fable 5.2**：运行 `/model fable`，或使用 `claude --model fable` 启动。在 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话中，请改为运行 `/model claude-fable-5-2`。
 * **Fable 5.1 或 Fable 5**：按模型 ID 选择它。在 Anthropic API 上，运行 `/model claude-fable-5-1` 或 `/model claude-fable-5`，或使用 `claude --model claude-fable-5-1` 启动。在其他提供商上，使用您的提供商的模型 ID，或使用 `ANTHROPIC_DEFAULT_FABLE_MODEL` [固定它](#pin-models-for-third-party-deployments)。
 
-在 Pro、Max、Team 和 Enterprise 套餐上，保存在您用户设置中的 `claude-fable-5-1` 模型会迁移到 `fable` 别名：
+在 Pro、Max、Ultra、Team 和 Enterprise 套餐上，保存在您用户设置中的 `claude-fable-5-1` 模型会迁移到 `fable` 别名：
 
-* **Pro 或 Max 套餐**：迁移会在您首次运行 v2.1.321 或更高版本时进行。在终端中，启动模型行可能会显示一次 `(auto-updated)`。
+* **Pro、Max 或 Ultra 套餐**：迁移会在您首次运行 v2.1.321 或更高版本时进行。在终端中，启动模型行可能会显示一次 `(auto-updated)`。
 * **Team 或 Enterprise 套餐**：迁移会等待您组织的设置，因此可能在之后的某次启动时进行，也可能根本不会进行。迁移从下一个会话开始生效，不会显示 `(auto-updated)` 行。要检查您的模型，请运行 `/model`。
 
 迁移后，除非您已为 Fable 5.2 [设置了级别](#adjust-effort-level)，否则会话会以 Fable 5.2 的默认 effort 启动。Console 账户、第三方提供商以及项目、本地或托管设置会保留 `claude-fable-5-1`。
@@ -225,7 +225,7 @@ claude --model opus
 
 * **您只为一个会话选择了它。** 在选择器中按 `s`、使用 `--model` 启动以及在非交互模式中运行 `/model` 都仅适用于当前会话，不会改变已保存的默认值。
 * **优先级更高的项设置了模型。** 项目或托管设置中的 `model` 值、shell 中的 `ANTHROPIC_MODEL`，或管理员设置为覆盖用户选择的[组织默认值](#organization-default-model)，会在每次启动时再次生效。您的 `/model` 选择仍然已保存，只是优先级较低。当项目或托管设置设置了模型时，启动标题会指明该文件。
-* **Claude Code 无法保存您的选择。** `/model` 会将 `model` 写入 `~/.claude/settings.json`。如果您无法写入该文件（例如因为另一个工具生成了该文件，或将其链接到只读副本），您所选的模型仅在当前会话中有效，下次启动时会读取旧值。请在生成该文件的工具中设置 `model`，或使该文件可写。参阅 [A change you made in Claude Code is lost in new sessions](https://code.claude.com/docs/zh-CN/settings.md#a-change-you-made-in-claude-code-is-lost-in-new-sessions)。
+* **Claude Code 无法保存您的选择。** `/model` 会将 `model` 写入 `~/.claude/settings.json`。如果您无法写入该文件（例如因为另一个工具生成了该文件，或将其链接到只读副本），您所选的模型仅在当前会话中有效，下次启动时会读取旧值。请在生成该文件的工具中设置 `model`，或使该文件可写。参阅 [您在 Claude Code 中所做的更改在新会话中丢失](https://code.claude.com/docs/zh-CN/settings.md#a-change-you-made-in-claude-code-is-lost-in-new-sessions)。
 * **您恢复了一个会话。** 使用 `claude --resume` 或 `--continue` 恢复的会话通常会[保持其原先使用的模型](#setting-your-model)，而不是当前的默认值。
 
 ## 限制模型选择

@@ -67,8 +67,6 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 每当模型切换开启或关闭快速模式时，Claude Code 都会显示 `Fast mode ON` 或 `Fast mode OFF` 确认消息，并且在快速模式开启时会出现 `↯` 图标。无论您是使用 `/model`、使用 [`/config model=<model>`](https://code.claude.com/docs/zh-CN/settings) 还是从通过 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 连接的设备进行切换，都是如此。
 
-在模型切换、重新连接或[可用性检查](#use-fast-mode-behind-proxies-and-llm-gateways)失败后，Claude Code 会将会话的快速模式状态重新发送到通过 Remote Control 连接的设备。
-
 ### 在云端会话中使用快速模式
 
 当您的账户可以使用快速模式时，快速模式可在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中使用，无论会话是在 Anthropic 托管的基础设施上运行还是在[自托管运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments)上运行。需要会话环境中的 Claude Code 为 v2.1.271 或更高版本。

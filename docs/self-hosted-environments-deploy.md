@@ -23,7 +23,8 @@
   * **使用 [Anthropic 托管的 git](#use-the-anthropic-git-proxy) 时**：有了此类凭据，Claude 会直接访问 GitHub，而不是通过 Anthropic 托管的 git。
   * **不使用 Anthropic 托管的 git 时**：如果您按照[在镜像中附带 git 配置](#ship-git-config-in-your-image)所述严格限定克隆凭据的范围，则该凭据可以保留在镜像中。
 * **将环境密钥保持在运行会话的主机之外**：环境密钥可以注册运行器并获取在环境上排队的任何会话。在固定队列上，它存在于每个运行器主机上，任何会话的代码都可以读取密钥文件。优先使用[按需运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，其中密钥保留在编排器主机上，该主机从不运行用户代码，每个运行器接收单次使用的工作单，恰好注册一个运行器。在固定队列上，将环境密钥文件视为可由每个会话读取，并在任何可疑会话泄露后轮换密钥。
-  * **发生可疑泄露后**：请[所有者](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)在环境的 **Configuration** 选项卡中创建新密钥并撤销旧密钥，然后推出新密钥。Anthropic 会拒绝所有使用旧密钥的编排器和运行器，包括来自其工作单的按需运行器。您的运行器将退出，从而中断其会话。
+  * **发生可疑泄露后，首先撤销可疑会话**：在停止其运行器或撤销密钥之前，在 **Activity** 选项卡上该会话的菜单中选择 **Revoke token**。此后任何运行器都无法恢复该会话。
+  * **然后替换密钥**：请[所有者](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)在环境的 **Configuration** 选项卡中创建新密钥并撤销旧密钥，然后推出新密钥。Anthropic 会拒绝所有使用旧密钥的编排器和运行器，包括来自其工作单的按需运行器。您的运行器将退出，从而中断其会话。
 * **默认拒绝网络出站流量**：在每个环境上限制运行器和会话容器的出站流量在您自己的网络边界；[默认拒绝出站流量](#default-deny-egress)涵盖允许什么以及原因。
 * **最小权限主机 IAM**：附加到运行器主机的计算身份（例如实例配置文件或节点服务帐户）应仅授予运行器本身需要的内容。会话应通过您的包装脚本而不是继承主机的身份获取自己的凭证。
 * **阻止会话访问云元数据端点**：保持会话不访问主机身份需要阻止它们访问云元数据端点，子网级出站策略不会拦截链接本地元数据流量，因此在容器本身中阻止它：
@@ -243,7 +244,7 @@ claude self-hosted-runner --environment-secret-file '/etc/claude/environment-sec
 
 对于每个会话，Claude Code v2.1.267 或更高版本的运行器还会记录以下两者之一：当 Anthropic 为会话提供 git 服务时，记录一行包含 `governed git ACTIVE` 的 `[runner:session]` 日志；当不提供服务时，记录一行包含 `the server withheld Anthropic-managed git for this session` 的 `[runner:warn]` 日志。在以下情况中找到您看到的行：
 
-* **既没有 `governed git ACTIVE` 也没有 `withheld` 行**：早于 Claude Code v2.1.267 的运行器不会记录这两行中的任何一行，Anthropic 也不会为其会话提供服务。请按照[固定版本](#pin-the-version)将运行器更新到 v2.1.267 或更高版本。
+* **既没有 `governed git ACTIVE` 也没有 `withheld` 行**：如果运行器早于 Claude Code v2.1.267，Anthropic 不会为其会话提供服务。请按照[固定版本](#pin-the-version)将运行器更新到 v2.1.267 或更高版本。
 * **`withheld` 行**：Anthropic 未为该会话提供服务。之前可以正常使用 git 代理的运行器，即使您这边没有任何更改，也可能以这种方式失败。
   * **某个仓库不在 github.com 上**：只要会话中有一个仓库位于其他 git 主机（例如 GitHub Enterprise Server）上，该会话就不会获得服务，其 github.com 仓库也不例外。请为该环境的运行器[关闭 Anthropic git 代理](#turn-the-anthropic-git-proxy-off)。
   * **所有仓库都在 github.com 上**：请将此失败连同 `withheld` 行中的会话 ID 一起报告给[您的 Anthropic 客户团队](#report-an-issue)。Anthropic 会在其一端记录原因。
@@ -396,6 +397,7 @@ ENTRYPOINT ["claude"]
 如果您的节点是 ARM，将 `linux-x64` 交换为 `linux-arm64`，或在 Alpine 等 musl 基础镜像上交换为 `linux-x64-musl` 或 `linux-arm64-musl`；请参阅 [Alpine Linux 设置](https://code.claude.com/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)了解 musl 镜像需要的额外包。URL 是标准 Claude Code 发布位置，因此您可以根据[二进制完整性和代码签名](https://code.claude.com/docs/zh-CN/setup.md#binary-integrity-and-code-signing)中描述的发布的已签名清单验证下载的二进制文件。运行器需要 Claude Code 版本 2.1.224 或更高版本；若要为 Claude Tag 会话提供服务，则需要 2.1.229 或更高版本。构建镜像，然后将其推送到您的注册表并在下面的配方中引用它：
 
 ```bash theme={null}
+# If your model needs a newer release, change stable to latest in the URL
 docker build \
   --build-arg CLAUDE_CODE_VERSION="$(curl -fsSL https://downloads.claude.ai/claude-code-releases/stable)" \
   -t <your-registry>/claude-runner:latest .
@@ -429,7 +431,7 @@ resources:
 运行器使用 `--capacity` 来限制它一次运行多少个会话。它不在它们之间分割 CPU 或内存，所以运行器上的会话共享容器的 CPU 和内存。为防止一个会话的内存使用导致其他会话结束，请每个运行器运行一个会话，并为其设置[独立的内存限制](#give-each-session-its-own-memory-limit)。
 
 * **每个运行器一个会话**：给每个容器一个会话的值。在 `--capacity 1` 使用此大小，[加固部分](#harden-your-deployment)推荐，以及对于[按需运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，您在您的 [`spawn-runner` 钩子](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook)提交的工作负载上设置值，例如 Kubernetes Job 的 pod 模板。
-* **每个运行器多个会话**：在 `--capacity` 高于 1 时，将一个会话的值乘以容量，因为最多那么多会话可以在容器中同时运行。[Kubernetes](#kubernetes) 和 [Docker Compose](#docker-compose) 配方以 `--capacity 4` 运行，没有 CPU 或内存限制，因此添加为您运行的容量调整大小的限制。
+* **每个运行器多个会话**：在 `--capacity` 高于 1 时，将一个会话的值乘以容量，因为最多那么多会话可以在容器中同时运行，[包括空闲会话](#release-idle-sessions-on-a-fixed-fleet)。[Kubernetes](#kubernetes) 和 [Docker Compose](#docker-compose) 配方以 `--capacity 4` 运行，没有 CPU 或内存限制，因此添加为您运行的容量调整大小的限制。
 * **一台主机上多个运行器容器**：按各运行器容量之和调整主机大小，因为每个运行器只将自己的会话计入 `--capacity`：
 
   * **内存**：将一个会话的内存乘以该总和，再加上主机自身进程使用的内存

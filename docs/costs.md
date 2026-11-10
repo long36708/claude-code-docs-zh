@@ -292,9 +292,7 @@ MCP 工具定义[默认被延迟](https://code.claude.com/docs/zh-CN/mcp.md#scal
 
 自定义 [hook](https://code.claude.com/docs/zh-CN/hooks.md) 可以在 Claude 看到数据之前对其进行预处理。Claude 不是读取 10,000 行日志文件来查找错误，hook 可以 grep `ERROR` 并仅返回匹配的行，将上下文从数万个 token 减少到数百个。
 
-[skill](https://code.claude.com/docs/zh-CN/skills.md) 可以为 Claude 提供领域知识，这样它就不必进行探索。例如，"codebase-overview" skill 可以描述您的项目架构、关键目录和命名约定。当 Claude 调用该 skill 时，它会立即获得此上下文，而不是花费 token 读取多个文件来理解结构。
-
-例如，此 PreToolUse hook 过滤测试输出以仅显示失败：
+此 PreToolUse hook 将测试输出截取为最后 100 行：
 
 > [tab] settings.json
 >
@@ -320,17 +318,17 @@ MCP 工具定义[默认被延迟](https://code.claude.com/docs/zh-CN/mcp.md#scal
 
 > [tab] filter-test-output.sh
 >
-> hook 调用此脚本。使用 `mkdir -p ~/.claude/hooks` 创建文件夹，将下面的脚本保存为 `~/.claude/hooks/filter-test-output.sh`，并使用 `chmod +x ~/.claude/hooks/filter-test-output.sh` 使其可执行。它检查命令是否为测试运行器并修改它以仅显示失败：
+> hook 调用此脚本。使用 `mkdir -p ~/.claude/hooks` 创建文件夹，将下面的脚本保存为 `~/.claude/hooks/filter-test-output.sh`，并使用 `chmod +x ~/.claude/hooks/filter-test-output.sh` 使其可执行。它检查命令是否为测试运行器，如果是，则仅保留其输出的最后 100 行：
 >
 > ```bash theme={null}
 > #!/bin/bash
 > input=$(cat)
 > cmd=$(echo "$input" | jq -r '.tool_input.command')
 >
-> # If running tests, filter to show only failures
+> # If running tests, keep only the last 100 lines
 > pattern='^(npm test|pytest|go test)( [^;&|<>`$#\\[:cntrl:]]*)?$'
 > if [[ "$cmd" =~ $pattern ]]; then
->   filtered_cmd="$cmd 2>&1 | grep -A 5 -E '(FAIL|ERROR|error:)' | head -100"
+>   filtered_cmd="$cmd 2>&1 | tail -n 100"
 >   echo "$input" | jq --arg filtered "$filtered_cmd" \
 >     '{hookSpecificOutput: {hookEventName: "PreToolUse", updatedInput: (.tool_input + {command: $filtered})}}'
 > else
@@ -339,6 +337,8 @@ MCP 工具定义[默认被延迟](https://code.claude.com/docs/zh-CN/mcp.md#scal
 > ```
 
 要验证设置，运行 `/hooks` 并检查 hook 是否出现在 PreToolUse 下。您也可以使用 `claude --debug-file ./claude-debug.txt` 启动 Claude Code 并要求 Claude 运行 `npm test`。当 hook 重写命令时，该日志文件包含一个 `modified tool input keys` 行，列出 `command` 和其他 Bash 输入字段。
+
+[skill](https://code.claude.com/docs/zh-CN/skills.md) 可以为 Claude 提供领域知识，这样它就不必进行探索。例如，"codebase-overview" skill 可以描述您的项目架构、关键目录和命名约定。当 Claude 调用该 skill 时，它会立即获得此上下文，而不是花费 token 读取多个文件来理解结构。
 
 ### 将指令从 CLAUDE.md 移动到 skill
 

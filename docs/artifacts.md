@@ -64,7 +64,7 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 | :- | :- |
 | 会话处于[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) | 在每个 Artifact 首次发布前询问 |
 | 该发布声明了页面的运行时功能，例如[连接器调用](#pull-live-data-with-mcp-connectors)或[文件下载](#offer-a-file-download) | 在该次发布前询问 |
-| 您已公开共享该 Artifact | 每个对话中在更改它之前询问一次 |
+| 您已公开共享该 Artifact | 每个对话中在更改它之前询问一次，并在每次回复其上的评论之前询问 |
 | Claude 在由您会话中触发的[会话级定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)（而非您输入的提示词）启动的轮次中发布 | 在每个 Artifact 首次发布前询问 |
 | Claude 未经您批准无法读取该文件 | 在发布前询问。针对 `Artifact` 工具的允许规则不会跳过此提示 |
 | 在 [Manual](https://code.claude.com/docs/zh-CN/permission-modes.md) 或 `acceptEdits` 模式下，Claude 对某个未经您批准无法编辑的 Artifact 文件进行小幅更改，例如 Manual 模式下的项目文件 | 在发布该更改前询问。即使有允许规则涵盖 `Artifact` 工具，也会询问您，因为对该文件的编辑需要您的批准 |
@@ -111,6 +111,7 @@ Claude Code从您的claude.ai账户读取列表，因此当Artifact的链接已�
 你可以与谁分享取决于你的计划：
 
 * **在你的组织内**：在Team和Enterprise计划上，向组织中的特定人员或所有人授予访问权限。查看者以组织成员身份登录claude.ai以查看该页面。
+* **有权访问共享文件夹的人员**：在 Team 和 Enterprise 计划上，将该 Artifact 移动到您拥有或担任编辑者的文件夹中。请从 [Artifacts 页面](https://claude.ai/artifacts)进行移动，如果您可以使用 claude.ai 聊天，即可使用该页面。之后，有权访问该文件夹的每个人都可以打开它，并且该文件夹的所有者和编辑者可以更改它。
 * **公开**：分享一个链接，互联网上的任何人都可以打开，无需claude.ai登录。在Team和Enterprise计划上，公开分享处于关闭状态，直到所有者[为组织启用它](#control-public-sharing)。
 
 ### 链接到特定视图
@@ -178,7 +179,7 @@ Claude 只能回复或解决已激活的线程。其他线程保持打开状态�
 您的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)决定了当发送的评论到达时 Claude 的行为：
 
 * **Claude 自动回复**：如果您所处的权限模式允许 Claude 在不询问您的情况下发布回复，Claude 会读取线程并回复。您会看到 `Auto-replied to comment thread on Artifact: <name>`。
-* **Claude 等待您**：在计划模式之外，当发布回复需要您的批准时，您会看到 `Comments are waiting on Artifact: <name>`。Claude 然后要求您批准读取线程，再次批准发布回复。
+* **Claude 等待您**：在计划模式之外，当发布回复[需要您的批准](#when-claude-code-asks-before-publishing)时，您会看到 `Comments are waiting on Artifact: <name>`。Claude 然后要求您批准读取线程，再次批准发布回复。
 * **Claude 在计划模式中暂停**：您会看到 `Comments are waiting on Artifact: <name>`，Claude 不会回复，直到您离开计划模式并要求它读取和回复。
 
 如果 Claude 在一小时内处理了某个 Artifact 上的 60 条已发送评论或线程激活，它也会停止自动回复该 Artifact。您会看到一次 `Comments are waiting on Artifact: <name>`，当该小时内的评论过期后，Claude 会重新开始。

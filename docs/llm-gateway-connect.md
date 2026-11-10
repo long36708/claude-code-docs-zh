@@ -156,7 +156,7 @@ Shell 导出仅适用于该终端会话和从它启动的程序。从 dock 或�
 
 ### 与现有登录的冲突
 
-网关凭证变量优先于保存的 claude.ai 登录或 Console 密钥。您的 claude.ai 登录在设置变量时保持保存和未使用；取消设置变量，Claude Code 返回到它。使用 `ANTHROPIC_AUTH_TOKEN`，变量立即优先。使用 `ANTHROPIC_API_KEY`，在交互模式下提示您一次以批准密钥，然后它接管。
+网关凭据变量优先于保存的 claude.ai 登录或 Console 密钥。使用 `ANTHROPIC_AUTH_TOKEN`，变量立即优先。使用 `ANTHROPIC_API_KEY`，在交互模式下提示您一次以批准密钥，然后它接管。
 
 运行 `/status` 以确认哪个凭证源处于活动状态。如果启动显示命名两个源的身份验证冲突警告，请参阅[故障排除表](#troubleshoot-gateway-errors)的第一行，了解要删除哪一个。要清除保存的登录，以便仅保留网关凭证，请运行 `/logout`。
 

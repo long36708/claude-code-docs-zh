@@ -12,7 +12,7 @@
 
 在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中，Claude Code [云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)在您构建和维护的运行器镜像上运行。在将新镜像推送到生产环境之前，从脚本对测试环境驱动完整会话：创建会话、读取 Claude 的回复、发送后续问题，并读取该回复。这是 CI 烟雾测试的形式，用于验证您的运行器镜像、git 访问和任何自定义工具，然后再推广更改。
 
-此方案假设您已经[设置了环境和运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-an-environment-and-runner)，并且您的 CI 作业在与测试脚本相同的主机上启动运行器进程，这是测试新运行器镜像的自然设置。您在运行器上安装的 Stop hook 将每个回合的最终回复写入本地文件，脚本从那里读取它，因此对 Anthropic API 的唯一调用是两个分派本身。如果您的测试运行器在单独的基础设施上，请参阅[远程测试运行器](#remote-test-runners)。
+此方案假设您已经[设置了环境和运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-an-environment-and-runner)，并且您的 CI 作业在与测试脚本相同的主机上启动运行器进程。您在运行器上安装的 Stop hook 将每个轮次的最终回复写入本地文件，脚本从那里读取它。如果您的测试运行器在单独的基础设施上，请参阅[远程测试运行器](#remote-test-runners)。
 
 ## 在测试运行器上安装捕获 hook
 

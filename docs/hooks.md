@@ -903,9 +903,14 @@ Failed with non-blocking status code: /bin/sh: /path/to/hook.sh: No such file or
 
 #### 启动后台进程的 hook
 
+hook 可以启动一个长时间运行的程序（例如开发服务器），并在会话继续期间让其保持运行。在 hook 的脚本或 [shell 形式](#exec-form-and-shell-form)命令中：
+
+* 在后台运行该程序
+* 重定向其 stdout 和 stderr。例如，Bash 命令 `npm run dev > dev-server.log 2>&1 &` 会将两者都发送到文件。如果您不重定向它们，非[异步](#run-hooks-in-the-background)的 hook 在其自身进程退出后最多需要 10 秒才能完成。
+
 如果您的命令 hook 在后台进程中做出决策然后退出，那么该进程在 Claude Code 停止读取之后打印的拒绝决策不会阻止工具调用。对于非[异步](#run-hooks-in-the-background)的 hook，Claude Code 会在 hook 自身进程退出后不久完成对 hook 输出的读取。
 
-请在启动后台进程之前打印决策，并重定向该进程的 stdout 和 stderr。如果您的脚本打印了允许决策，然后启动后台进程且未重定向该进程的 stdout 和 stderr，Claude Code 会阻止该工具调用。hook 错误中包含 `refusing to honor the suspect capture`。
+请在启动后台进程之前打印决策，并重定向该进程的 stdout 和 stderr。如果您的脚本打印了允许决策，然后启动后台进程且未重定向该进程的 stdout 和 stderr，Claude Code 会阻止该工具调用。hook 错误中包含 `stdio went quiet` 和 `refusing to honor the suspect capture`。
 
 此 `PreToolUse` hook 脚本通过 `policy-check.sh` 打印决策，然后在后台上传指标：
 

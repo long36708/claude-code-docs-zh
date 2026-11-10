@@ -137,11 +137,11 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 patterns:
   - rule_name: internal_api_key
     substrings: ["sk_live_", "AKIA"]
-    reminder: "硬编码的 API 密钥前缀。从密钥管理器加载凭证。"
+    reminder: "Hardcoded API key prefix. Load credentials from the secret manager."
   - rule_name: tenant_unfiltered_query
     regex: "\\.objects\\.all\\(\\)"
     paths: ["**/src/tenants/**"]
-    reminder: "多租户代码必须按 org_id 过滤。"
+    reminder: "Multi-tenant code must filter by org_id."
 ```
 
 | 字段 | 类型 | 描述 |

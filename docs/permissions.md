@@ -506,7 +506,7 @@ Claude 会被告知改用其文件工具读取该路径；当 Claude Code 只是
 * **解析到工作目录外**：当请求的路径在您的工作目录内，而它解析到的文件不在时，在[`acceptEdits` 模式](https://code.claude.com/docs/zh-CN/permission-modes#auto-approve-file-edits-with-acceptedits-mode)中写入不会自动批准。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中，除非 allow 规则批准写入，否则您会被提示而不是分类器决定。提示命名写入解析到的路径。
 * **解析到请求的路径不命名的受保护路径**：[受保护的路径表](https://code.claude.com/docs/zh-CN/permission-modes.md#protected-paths)给出每个权限模式的结果，除了表将写入路由到分类器的地方，此写入改为提示您。
 
-##### 无法解析或改变的路径
+##### 无法解析或会发生变化的路径
 
 当 Claude Code 无法确定路径在磁盘上的位置时，例如因为路径上的符号链接形成循环，Read、Edit 和 Write 工具[拒绝操作](https://code.claude.com/docs/zh-CN/errors.md#refusing-after-a-symlink-changed)。
 

@@ -684,7 +684,7 @@ Validating marketplace manifest: /path/to/acme-tools/.claude-plugin/marketplace.
 
 如果建议的行包含占位符 `<owner>/<repo>`，原样粘贴不会清除该建议。请先获取真实来源：
 
-* **您验证的是插件自身的目录**：当市场从其自身目录内的某个目录列出该插件时，请改为验证市场自身目录内的那个目录。当市场从其他位置（例如 GitHub 仓库）列出该插件时，请自行填写 `<owner>/<repo>`
+* **您验证的是插件自身的目录**：当市场从其自身目录内的某个目录列出该插件时，请改为验证该市场的目录。当市场从其他位置（例如 GitHub 仓库）列出该插件时，请自行填写 `<owner>/<repo>`
 * **您验证的是市场的目录**：Claude Code 会根据该目录顶层 `.git` 目录的 `origin` 远程填写来源。当它无法使用该远程时（例如不存在远程），请自行将 `<owner>/<repo>` 替换为您市场的来源
 
 当您已写的安装行中，`plugin install` 或其简写 `plugin i` 在同一行后跟以下任一内容时，该行即被计入。`/plugin` 和 `claude plugin` 两种写法均可：

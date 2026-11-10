@@ -41,12 +41,13 @@ ZDR 涵盖通过 Claude for Enterprise 上的 Claude Code 进行的模型推理�
 
 ### ZDR 不涵盖的内容
 
-ZDR 不适用于以下内容，即使对于启用了 ZDR 的组织也是如此。这些功能遵循[标准数据保留政策](https://code.claude.com/docs/zh-CN/data-usage.md#data-retention)：
+ZDR 不适用于以下内容，即使对于启用了 ZDR 的组织也是如此。除非某行另有说明，否则这些功能遵循[标准数据保留政策](https://code.claude.com/docs/zh-CN/data-usage.md#data-retention)：
 
 | 功能 | 详情 |
 | - | - |
 | claude.ai 上的聊天 | 通过 Claude for Enterprise 网络界面的聊天对话不受 ZDR 保护。 |
 | Cowork | Cowork 会话不受 ZDR 保护。 |
+| Artifact | 聊天对话和 Cowork 会话中的 Artifact 不受 ZDR 保护；除非您的组织为其设置了保留期限，否则它们会一直保留直至被删除。启用 ZDR 时，Claude Code 中不提供 Artifact。 |
 | Claude Code 分析 | 不存储提示或模型响应，但收集生产力元数据，如账户电子邮件和使用统计。对于 ZDR 组织，贡献指标不可用；[分析仪表板](https://code.claude.com/docs/zh-CN/analytics.md)仅显示使用指标。 |
 | 用户和席位管理 | 管理数据，如账户电子邮件和席位分配，根据标准政策保留。 |
 | 第三方集成 | 由第三方工具、MCP servers 或其他外部集成处理的数据不受 ZDR 保护。请独立审查这些服务的数据处理实践。 |
@@ -60,7 +61,8 @@ ZDR 不适用于以下内容，即使对于启用了 ZDR 的组织也是如此�
 | [网络上的 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，包括从 [Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md#cloud-sessions)启动的应用 | 需要服务器端存储会话数据，包括包含提示和完成的对话历史。 |
 | [Chat 和 Cowork 统一体验](https://support.claude.com/en/articles/17444462-set-up-and-manage-the-new-unified-claude-experience-for-your-enterprise-organization) | 需要云端会话。 |
 | [Claude Tag](https://claude.com/docs/claude-tag) | 保留频道内存和会话记录。 |
-| [Artifacts](https://code.claude.com/docs/zh-CN/artifacts.md) | 需要在 Anthropic 运营的基础设施上存储已发布的页面内容。 |
+| Claude Code 中的 [Artifacts](https://code.claude.com/docs/zh-CN/artifacts.md) | 需要在 Anthropic 运营的基础设施上存储已发布的页面内容。 |
+| [Claude Docs](https://support.claude.com/en/articles/16923645-get-started-with-claude-docs) | 需要在 Anthropic 运营的基础设施上存储文档内容。 |
 | 反馈提交（`/feedback`、`/bug`、`/share`） | 提交反馈会将对话数据发送给 Anthropic。 |
 | [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) | 在 Anthropic 服务器上存储会话记录以跨设备同步对话。 |
 

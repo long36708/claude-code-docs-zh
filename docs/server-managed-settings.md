@@ -62,7 +62,7 @@ Claude Code 支持两种集中配置方法。服务器管理的设置从 Anthrop
 
 Hooks 使用与 `settings.json` 中相同的格式。
 
-此示例在整个组织中每次文件编辑后运行审计脚本：
+此示例在整个组织中每次 `Edit` 和 `Write` 工具调用后运行审计脚本：
 
 ```json theme={null}
 {

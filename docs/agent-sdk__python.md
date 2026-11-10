@@ -1858,7 +1858,7 @@ class ConversationResetMessage:
 
 ### `TaskStartedMessage`
 
-当后台任务启动时发出。后台任务是在主轮次之外跟踪的任何内容：后台 Bash 命令、[Monitor](#monitor) 监视、通过 Agent 工具生成的子代理或远程 Agent。`task_type` 字段告诉您是哪一个。此命名与 `Task` 到 `Agent` 工具重命名无关。
+当后台任务启动时发出。后台任务是在主轮次之外跟踪的任何内容，例如后台 Bash 命令、[Monitor](#monitor) 监视、通过 Agent 工具生成的子代理或远程 Agent。此命名与 `Task` 到 `Agent` 工具重命名无关。
 
 ```python theme={null}
 @dataclass
@@ -1878,7 +1878,7 @@ class TaskStartedMessage(SystemMessage):
 | `uuid` | `str` | 唯一消息标识符 |
 | `session_id` | `str` | 会话标识符 |
 | `tool_use_id` | `str \| None` | 关联的工具使用 ID |
-| `task_type` | `str \| None` | 哪种后台任务：`"local_bash"` 用于后台 Bash 和 Monitor 监视，`"local_agent"` 或 `"remote_agent"` |
+| `task_type` | `str \| None` | 哪种后台任务，例如 `"local_bash"` 用于后台 Bash 和 Monitor 监视，`"local_agent"` 用于子代理，`"mcp_task"` 用于[后台 MCP 工具调用](https://code.claude.com/docs/zh-CN/mcp.md#automatic-backgrounding-of-long-tool-calls)，或 `"remote_agent"` |
 
 ### `TaskUsage`
 

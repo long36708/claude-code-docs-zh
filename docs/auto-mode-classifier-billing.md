@@ -34,7 +34,7 @@ We're changing auto mode to no longer charge for classifier requests in Claude C
 * **请求**：为了让检查通过，网关需原封不动地转发 `anthropic-beta` 请求头和 `safeguards` 正文字段，因为[两者是成对传递的](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#beta-header-and-body-field-pairs)。在 [Amazon Bedrock InvokeModel 格式](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#api-formats)上，网关转发 `anthropic_beta` 正文字段来代替该请求头。
 * **响应**：网关返回响应和流式事件时，不得删除字段或重写工具使用 ID。为了让检查结果通过，网关需保留 `safeguard_results` 字段。
 
-以这种方式传递流量的网关可继续与此功能和未来功能配合使用。新会话随后再次使用服务器的检查。
+网关完成上述处理后，新会话将再次使用服务器的检查。
 
 如果您已经知道您的网关无法提供服务器的检查，请在启动会话之前通过在 shell 中或在 [`env` 设置键](https://code.claude.com/docs/zh-CN/settings-reference#env)中将 `CLAUDE_CODE_AUTO_MODE_SERVER` 设置为 `0` 来告诉 Claude Code 不要在那里请求它们：
 

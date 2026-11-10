@@ -528,6 +528,6 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 * [`/loop` 和会话内调度](https://code.claude.com/docs/zh-CN/scheduled-tasks)：在打开的 CLI 会话中安排本地任务
 * [Desktop 定时任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md)：在您的计算机上运行、可访问本地文件的本地定时任务
 * [云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)：为云端会话配置网络访问、环境变量和设置脚本
-* [Projects](https://code.claude.com/docs/zh-CN/claude-projects.md)：Claude 跨并行云端会话协调的持续性工作；从项目创建的定时任务会显示在其 **Scheduled tasks** 标签页上
+* [Projects](https://code.claude.com/docs/zh-CN/claude-projects.md)：Claude 跨并行云端会话协调的持续性工作；从项目创建的定时任务会显示在其 **Scheduled tasks** 视图中
 * [MCP 连接器](https://code.claude.com/docs/zh-CN/mcp.md)：连接 Slack、Linear 和 Google Drive 等外部服务
 * [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)：在 CI 流水线中针对仓库事件运行 Claude

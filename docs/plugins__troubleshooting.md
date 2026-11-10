@@ -322,7 +322,7 @@ Claude Code 在您的 `PATH` 上查找 `git`，并拒绝运行仅在当前目录
 
 ### 市场更新在离线时持续失败
 
-您在市场的 git 主机无法访问的环境中工作，每个会话都在后台重复失败的刷新。您现有的市场检出保持原位，启动不会延迟。
+您在市场的 git 主机无法访问的环境中工作，每个会话都在后台重复失败的刷新。您现有的市场检出保持原位。
 
 每个会话，对于 [启用自动更新](https://code.claude.com/docs/zh-CN/plugins/loading.md#which-marketplaces-and-plugins-auto-update) 的市场，Claude Code 在后台检查市场的 git 主机是否有新提交。当该检查无法到达主机时，它尝试再次克隆市场，离线时该克隆也失败。
 

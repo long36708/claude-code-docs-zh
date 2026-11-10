@@ -246,7 +246,7 @@ claude mcp remove notion
 
 #### 服务器状态
 
-`claude mcp add` 通过打印一行 `Added ...` 来确认添加成功，这表示配置已写入。如果该命令改为打印 `was not saved` 消息，请参阅 [MCP server was not saved or removed](https://code.claude.com/docs/zh-CN/errors.md#mcp-server-was-not-saved-or-removed)；对于 `may not have been saved` 消息，请参阅 [MCP server may not have been saved or removed](https://code.claude.com/docs/zh-CN/errors.md#mcp-server-may-not-have-been-saved-or-removed)。
+`claude mcp add` 通过打印一行 `Added ...` 来确认添加成功，这表示配置已写入。如果该命令改为打印 `was not saved` 消息，请参阅 [MCP 服务器未被保存或移除](https://code.claude.com/docs/zh-CN/errors.md#mcp-server-was-not-saved-or-removed)；对于 `may not have been saved` 消息，请参阅 [MCP 服务器可能未被保存或移除](https://code.claude.com/docs/zh-CN/errors.md#mcp-server-may-not-have-been-saved-or-removed)。
 
 `claude mcp list` 会在列出的每个服务器旁显示健康状态，例如 `✔ Connected`、`! Needs authentication` 或 `✘ Failed to connect`。失败状态表示 Claude Code 无法连接到该服务器，而不是 list 命令执行失败。
 

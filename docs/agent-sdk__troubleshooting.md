@@ -142,7 +142,7 @@ Claude Code returned an error result: <the CLI's own error report>
 
 结果消息可以以 `subtype: "success"` 结尾，而在 Python 中 `structured_output` 是 `None` 或在 TypeScript 中是 `undefined`。运行完成，但不存在经过验证的输出。
 
-在应用程序代码中将此结果视为失败。在使用 `structured_output` 之前，检查 `subtype` 是否为 `success` 以及 `structured_output` 是否存在。[错误处理](https://code.claude.com/docs/zh-CN/agent-sdk/structured-outputs.md#error-handling) 部分为两个 SDK 显示了此模式。然后检查以下原因：
+在应用程序代码中将此结果视为失败。[错误处理](https://code.claude.com/docs/zh-CN/agent-sdk/structured-outputs.md#error-handling) 部分为两个 SDK 显示了此模式。然后检查以下原因：
 
 * **Claude 拒绝的请求**：要在代码中检测这种情况，请检查结果消息的 `stop_reason` 是否为 `"refusal"`。有关接下来可以尝试的操作，请参阅[使用政策拒绝](https://code.claude.com/docs/zh-CN/errors.md#usage-policy-refusal)。
 * **任何输出都无法满足的 schema**：例如，一个 `minLength` 大于其 `maxLength` 的字符串。如果在使用您认为正确的 schema 时 `structured_output` 反复缺失，请查找相互矛盾的约束。如果没有找到，请简化 schema 直到输出通过验证，然后一次重新引入一个约束。

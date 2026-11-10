@@ -251,7 +251,7 @@ claude -p "Reply with one word: connected"
 
 * 登录提示意味着凭证缺口。运行 `/status` 并打开**状态**选项卡：当 `Setting sources` 行不包括托管设置时，分发没有到达机器；当它包括时，开发者凭证没有被交付，因此设置 `ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper`
 * `Failed to authenticate` 错误意味着网关拒绝请求；其日志说明了哪个凭证失败。网关自己记录的拒绝命名开发者密钥，而来自 `api.anthropic.com` 或您的提供商端点的 `401` 意味着网关持有的提供商凭证被拒绝
-* 当网关期望密钥在 `x-api-key` 标头中时，在首次使用时出现一次性批准提示是预期的，设置为 `ANTHROPIC_API_KEY`。使用 `ANTHROPIC_AUTH_TOKEN`，不会出现提示，变量会无声地接管；以前保存的 claude.ai 登录对该会话无效
+* 当网关期望密钥在 `x-api-key` 标头中（设置为 `ANTHROPIC_API_KEY`）时，首次使用时出现针对该密钥的一次性批准提示是预期行为
 
 如果您的组织使用[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)，也在这里运行 `/fast`：可用性检查直接调用 `api.anthropic.com` 而不是遵循网关基础 URL，因此网关路由的会话可以报告快速模式不可用或禁用，即使推理有效。[在代理和 LLM 网关后面使用快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-behind-proxies-and-llm-gateways)将每条消息映射到恢复它的变量，与[配置的其余部分](#distribute-the-configuration)一起分发。
 

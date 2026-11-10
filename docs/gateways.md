@@ -50,7 +50,7 @@ Claude apps gateway 是 Anthropic 的自托管网关，包含在 `claude` 二进
 
 ## Subscriptions and gateways
 
-当开发人员通过具有网关凭证的网关连接时，使用情况按 API 费率计费到您的组织的提供商账户，他们的 claude.ai 订阅不被使用或收费。为您运行的网关设置 [`ANTHROPIC_AUTH_TOKEN`](https://code.claude.com/docs/zh-CN/env-vars)，或使用 `/login` 登录到 Claude 应用网关，会关闭该会话的订阅登录。在该凭证下转发的每个请求都计费到网关提供商凭证后面的账户。
+当开发人员通过具有网关凭据的网关连接时，使用情况按 API 费率计费到您的组织的提供商账户，他们的 claude.ai 订阅不被使用或收费。在该凭据下转发的每个请求都计费到网关提供商凭据后面的账户。
 
 例外是仅设置 `ANTHROPIC_BASE_URL`，没有网关凭证。请求仍然通过网关路由，但保存的 claude.ai 登录保持活跃凭证，因此订阅的使用限制和计费适用。[其他 LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway#subscriptions-and-gateways) 涵盖该配置以及网关必须转发的内容才能使其工作。
 
