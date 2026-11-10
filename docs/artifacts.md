@@ -111,6 +111,7 @@ Viewers in your organization can see who published the page: on an artifact shar
 Who you can share with depends on your plan:
 
 * **Within your organization**: on Team and Enterprise plans, grant access to specific people in your organization, or to everyone in it. Viewers sign in to claude.ai as members of your organization to see the page.
+* **People with access to a shared folder**: on Team and Enterprise plans, move the artifact to a folder that you own or are an editor of. Move it from the [Artifacts page](https://claude.ai/artifacts), which is available if you can use claude.ai chat. Everyone with access to the folder can then open it, and the folder's owner and editors can change it.
 * **Publicly**: share a link that anyone on the internet can open, with no claude.ai sign-in required. On Team and Enterprise plans, public sharing is off until an Owner [enables it for the organization](#control-public-sharing).
 
 ### Link to a specific view
