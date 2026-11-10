@@ -592,6 +592,8 @@ Use the Playwright tools to navigate, screenshot, and interact with pages.
 主对话的权限模式决定 Claude Code 是否使用您设置的值：
 
 * 当主对话处于 `bypassPermissions`、`acceptEdits` 或[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)时，子代理以相同模式运行，Claude Code 会忽略您设置的 `permissionMode`。在自动模式下，分类器使用主对话的阻止和允许规则评估子代理的工具调用。当子代理完成时，分类器还会在交付最终报告之前审查其工作和最终报告，如[自动模式如何处理子代理](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中所述。
+
+  如果在主对话处于 `bypassPermissions` 时子代理请求权限，请检查其工具调用是否属于[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)。
 * 当主对话处于 `plan` 模式时，无论您设置了什么 `permissionMode`，子代理都会保持在计划模式，除非它作为 [agent team 队友](#subagent-names)按照 [agent team 规则](https://code.claude.com/docs/zh-CN/agent-teams.md#have-teammates-plan-before-implementing)运行。如果您设置了 `dontAsk`，子代理也不会提示您：计划模式下原本会请求您批准的操作将被拒绝。
 * 当主对话处于 `default` 或 `dontAsk` 模式时，子代理以您设置的权限模式运行。在以下情况下，它会改为保持主对话的权限模式：
   * 您设置了 `bypassPermissions`。`bypassPermissions` 例外需要 Claude Code v2.1.267 或更高版本。

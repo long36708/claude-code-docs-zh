@@ -21,7 +21,7 @@ Mod 是一个 Claude Code [插件](https://code.claude.com/docs/zh-CN/plugins/ov
 
 在交互式 Claude Code 会话中描述你想要的 mod，Claude 会编写它。Claude 使用一个名为 `plugin-authoring` 的内置[技能](https://code.claude.com/docs/zh-CN/skills.md)，它告诉 Claude 在哪里编写 mod、你的版本有哪些事件和方法，以及 mod 如何被加载。当你请求一个 mod 时，Claude 可以加载该技能，或者你可以通过在 Claude Code 提示符处运行 `/plugin-authoring` 来自己加载它。
 
-一旦你批准了 mod，它就会运行，除了在[某些会话中 Claude 编写的 mod 无法加载](#sessions-that-skip-the-approval)的情况。
+在 `auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)下，mod 可以在轮次结束时运行。在其他模式下，mod 会在您批准后运行，但[Claude 编写的 mod 无法加载的会话](#sessions-that-skip-the-approval)除外。
 
 **1. 描述 mod**
 
@@ -33,12 +33,12 @@ Mod 是一个 Claude Code [插件](https://code.claude.com/docs/zh-CN/plugins/ov
 
 **2. 批准 mod**
 
-当 Claude 保存第一个文件时，Claude Code 会询问是否为会话启用热重新加载。热重新加载运行此会话中 Claude 编写的 mod，并在每个后续更改它们的转折处选择每个更改。
+当 Claude 保存第一个文件时，Claude Code 会询问是否为会话启用热重新加载。热重新加载会运行此会话中 Claude 编写的 mod，并应用之后的每次更改。如果没有出现该询问，请跳过此步骤。
 
 选择以下答案之一：
 
-* **为此会话启用**：会话的 mods 文件夹中的 mod 在转折结束时加载，并在每个更改它们的转折结束时重新加载。你的答案在整个会话中持续，包括在你恢复它之后。
-* **暂时不**：现在什么都不加载。文件保留在 Claude 编写的位置，mod 在该会话下次启动时加载。要防止 mod 加载，请删除其目录。
+* **Turn them on**：会话的 mods 文件夹中的 mod 会在轮次结束时加载，并在每个更改它们的轮次结束时重新加载。您的答案在整个会话中有效，包括在您恢复会话之后。
+* **Not now**：暂时不加载任何内容。文件保留在 Claude 编写的位置，mod 会在该会话下次启动时加载。要让 mod 永远不加载，请删除其目录。
 
 **3. 检查 mod 是否已加载**
 
@@ -59,9 +59,9 @@ Claude 编写的 mod 仅在创建它的会话中加载，一旦 Claude Code 的�
 
 ### Claude 编写的 mod 无法加载的会话
 
-Claude 编写的 mod 仅在你批准它后加载，在允许 mod 运行的受信任工作区中。在这些会话中它不会加载：
+Claude 编写的 mod 会在允许 mod 运行的受信任工作区中加载；在需要询问的模式下，须经您批准后才会加载。在以下会话中它不会加载：
 
-* **没有人在那里批准**：会话无法向你显示提示，如在 `claude -p` 运行或 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes)中
+* **没有人可以批准**：会话无法向您显示提示，例如在 `auto` 和 `bypassPermissions` 模式之外的 `claude -p` 运行中，或在 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes)中
 * **工作区不受信任**：你还没有接受目录的信任提示
 * **mod 已被禁用**：您使用 `--safe-mode` 或 `--bare` 启动，您设置了 `disableAllHooks`，或者您组织的[托管设置阻止了它](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#choose-how-much-to-allow)
 

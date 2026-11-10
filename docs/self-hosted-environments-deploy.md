@@ -23,6 +23,7 @@
   * **使用 [Anthropic 托管的 git](#use-the-anthropic-git-proxy) 时**：有了此类凭据，Claude 会直接访问 GitHub，而不是通过 Anthropic 托管的 git。
   * **不使用 Anthropic 托管的 git 时**：如果您按照[在镜像中附带 git 配置](#ship-git-config-in-your-image)所述严格限定克隆凭据的范围，则该凭据可以保留在镜像中。
 * **将环境密钥保持在运行会话的主机之外**：环境密钥可以注册运行器并获取在环境上排队的任何会话。在固定队列上，它存在于每个运行器主机上，任何会话的代码都可以读取密钥文件。优先使用[按需运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#on-demand-runners)，其中密钥保留在编排器主机上，该主机从不运行用户代码，每个运行器接收单次使用的工作单，恰好注册一个运行器。在固定队列上，将环境密钥文件视为可由每个会话读取，并在任何可疑会话泄露后轮换密钥。
+  * **发生可疑泄露后**：请[所有者](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)在环境的 **Configuration** 选项卡中创建新密钥并撤销旧密钥，然后推出新密钥。Anthropic 会拒绝所有使用旧密钥的编排器和运行器，包括来自其工作单的按需运行器。您的运行器将退出，从而中断其会话。
 * **默认拒绝网络出站流量**：在每个环境上限制运行器和会话容器的出站流量在您自己的网络边界；[默认拒绝出站流量](#default-deny-egress)涵盖允许什么以及原因。
 * **最小权限主机 IAM**：附加到运行器主机的计算身份（例如实例配置文件或节点服务帐户）应仅授予运行器本身需要的内容。会话应通过您的包装脚本而不是继承主机的身份获取自己的凭证。
 * **阻止会话访问云元数据端点**：保持会话不访问主机身份需要阻止它们访问云元数据端点，子网级出站策略不会拦截链接本地元数据流量，因此在容器本身中阻止它：
@@ -203,6 +204,8 @@ RUN git config --system --add safe.directory '*'
 > [!WARNING]
 >
 > 设置 `--use-anthropic-git-proxy` 后，运行器会删除并替换其运行用户的全局 git 配置，且不保留备份。它会在启动时以及每个会话之前执行此操作。您保存在其中的登录或凭据助手将会丢失。[`--configure-git`](#let-the-runner-configure-git) 写入的设置会保留。请以专用用户身份或在容器中运行运行器，切勿以您自己的用户身份运行。
+>
+> 全局 git 配置包括以下全部三项：`~/.gitconfig`、您设置了 `GIT_CONFIG_GLOBAL` 时它所指定的文件，以及整个 `$XDG_CONFIG_HOME/git` 目录（默认为 `~/.config/git`）。
 
 将非机密的 git 设置（例如身份和 `safe.directory`）保存在系统 git 配置中。
 
@@ -247,7 +250,7 @@ claude self-hosted-runner --environment-secret-file '/etc/claude/environment-sec
 * **包含 `remote: access denied by the git proxy` 的行**：Anthropic 提供服务的会话仍可能被拒绝，例如当组织策略拒绝该会话的 git 访问，或该会话未获得该仓库的授权时。此时运行器的日志会显示一行包含 `remote: access denied by the git proxy` 的内容，该行的其余部分说明了原因。
 * **`GitHub authentication required`**：当会话的创建者在 claude.ai 上没有可用的 GitHub 连接时会出现此情况。会话的克隆失败，git 错误显示为 `GitHub authentication required. Please reconnect your GitHub account.` 请让该用户在其 claude.ai 设置中连接或重新连接 GitHub。
 
-修复原因后，请重新启动失败的会话。
+修复原因后，请重新启动导致会话失败的运行器，然后让每个创建者在其会话中发送一条消息，或由 Owner 选择 **Retry**。
 
 #### 关闭 Anthropic git 代理
 
@@ -264,6 +267,8 @@ unset CLAUDE_RUNNER_USE_GIT_PROXY
 **2. 为运行器提供 git 凭据**
 
 为运行器会话使用的每个 git 主机（包括 github.com）提供无需提示即可工作的凭据。运行器用户全局 git 配置中的任何凭据都已丢失，因为在设置 `--use-anthropic-git-proxy` 期间运行器删除了该配置。请[在镜像中提供凭据](#ship-git-config-in-your-image)或使用 [`checkout` 生命周期钩子](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout)。
+
+如果要改为将凭据保存在[全局 git 配置](#git-proxy-replaces-global-git-config)中，请先[停止运行器](#shutdown-timing)，因为使用该标志启动的运行器会在每个会话之前重写该配置。然后删除 `$XDG_CONFIG_HOME/git`（默认为 `~/.config/git`），并用您自己的文件替换 `~/.gitconfig` 或 `GIT_CONFIG_GLOBAL` 所指定的文件。
 
 **3. 打开网络路径**
 
@@ -507,7 +512,9 @@ resources:
 
 ## Kubernetes
 
-运行器默认在端口 8080 上提供 `GET /healthz`，可使用 `--health-port` 配置，因此 Kubernetes 探针无需额外设置即可工作。端点在进程活着时返回 `200`，所以下面的探针检测死进程，而不是卡住的进程；要捕获停止轮询的运行器，请在 [`/metrics`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 的 `last_poll_age_seconds` 系列上发出警报。下面的 Deployment 从 Kubernetes Secret 挂载环境密钥，将活跃度和就绪探针指向 `/healthz`，并设置 90 秒的终止宽限期。请参阅[关闭时序](#shutdown-timing)了解为什么宽限期很重要。
+运行器默认在端口 8080 上提供 `GET /healthz`，可使用 `--health-port` 配置。启动后，只要进程处于活动状态，端点就会返回 `200`，所以下面的探针检测死进程，而不是卡住的进程。要捕获停止轮询的运行器，请在 [`/metrics`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#prometheus-metrics) 的 `last_poll_age_seconds` 系列上发出警报。
+
+下面的 Deployment 从 Kubernetes Secret 挂载环境密钥，将活跃度和就绪探针指向 `/healthz`，并设置 90 秒的终止宽限期。请参阅[关闭时序](#shutdown-timing)了解为什么宽限期很重要。
 
 清单在运行器容器上设置没有 CPU 或内存 `resources`。添加为您运行的容量调整大小的块，如[为会话调整 CPU 和内存大小](#size-cpu-and-memory-for-sessions)所述。
 
@@ -564,6 +571,10 @@ spec:
           secret:
             secretName: claude-runner-environment-secret
 ```
+
+> [!NOTE]
+>
+> 如果 pod 的事件显示活跃度探针在启动期间失败，请调高其 `initialDelaySeconds` 或添加 `startupProbe`。在运行器完成注册并完成启动检查之前，健康端口上不会有任何响应。使用上述设置，Kubernetes 会重启大约 90 秒内仍未提供服务的运行器。
 
 上面的 Deployment 存在于 `claude-runners` 命名空间中。首先创建命名空间：
 
@@ -942,6 +953,12 @@ claude self-hosted-runner doctor
   如果每个调用在会话大约 30 分钟后开始失败，包装脚本可能已断开会话的 stdin，因此令牌轮换无法到达它；请参阅 [保持 stdin 和文件描述符 3 附加](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#keep-stdin-and-file-descriptor-3-attached)。
 
   在 v2.1.274 之前，运行器在几次尝试后停止重试失败的获取，并等待下一个计划的获取。失败的轮次不会触发获取，因此每个轮次都会失败，显示 401，直到下一个计划的获取。
+* **会话显示 `The server has refused to renew this session's access to the model`**：会话的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#wrapper-scripts) 已过期，并且运行器在请求新令牌时收到了 HTTP 400 响应。运行器会记录 `the server has refused to renew the inference_token`。该会话中的轮次会失败。只要会话的进程仍在运行，运行器就会持续请求新令牌：
+
+  * **请求成功**：显示过该警告的会话随后会显示 `The server renewed this session's access to the model`
+  * **轮次持续失败**：进程最终会退出，会话会显示一条失败信息，例如 `The session process exited with code 1`
+
+  要在不等待新令牌的情况下继续工作，请启动新会话。如果新会话也失败，请检查是否是您的某个代理或网关给出了 HTTP 400 响应。如果都不是，请提供第一个会话的 ID 并[联系您的 Anthropic 客户团队](#report-an-issue)。
 * **轮次在 claude.ai/code 中失败，显示 `This model needs a newer version of Claude Code`**：您的运行器用于启动会话的 Claude Code 版本低于该会话的模型所要求的版本，因此 API [拒绝了该请求](https://code.claude.com/docs/zh-CN/errors.md#claude-code-does-not-support-this-model)。按照 [固定版本](#pin-the-version) 中的说明，将运行器升级到消息要求的版本或更高版本。在此之前，用户可以在会话中选择其他模型。
 * **Pod 在耗尽中途被杀死**：将 `terminationGracePeriodSeconds` 提高到至少运行器在启动时记录的值。请参阅 [关闭时序](#shutdown-timing)。
 * **运行器记录一条以 `was paused or too slow` 结尾的 `[runner:log]` 行**：运行器仍在运行，无需重新启动。在该行中指明的 stdout 或 stderr 流被再次读取之前，运行器丢弃了该流中除最新 256 KiB 之外的所有行。如果您传递了 [`--log-file`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，请在该文件中查找被丢弃的行。

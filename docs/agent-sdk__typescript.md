@@ -3387,11 +3387,13 @@ type MonitorInput = {
 
 运行后台源并将每个事件传递给 Claude，以便它可以做出反应而无需轮询：`command` 运行脚本并为每个 stdout 行发出一个事件，`ws` 打开 WebSocket 并为每个文本帧发出一个事件。恰好提供 `command` 或 `ws` 之一。`ws` 源需要 Claude Code v2.1.195 或更高版本。
 
-`timeout_ms` 是监视的截止时间（以毫秒为单位）。它默认为 300000，接受最高 3600000 的值。有效截止时间最多为 1800000，即 30 分钟，因此更大的接受值会被缩短到该值。在截止时间，监视结束，Claude 收到一个通知，以便在仍需要时可以启动新的监视。
+`timeout_ms` 是监视的截止时间（以毫秒为单位）：
 
-导出的类型将 `timeout_ms` 标记为必需，因为 schema 填充了默认值；省略它的调用会验证通过。
+* **默认值和限制**：它默认为 300000，接受最高 3600000 的值。有效截止时间最多为 1800000，即 30 分钟，因此更大的接受值会被缩短到该值
+* **到达截止时间时**：监视结束，Claude 收到一个通知，以便在仍需要时可以启动新的监视
+* **在类型中为必需**：导出的类型将 `timeout_ms` 标记为必需，因为 schema 填充了默认值；省略它的调用会验证通过
 
-当 Monitor 运行命令时，它遵循与 Bash 相同的权限规则；WebSocket 监视会单独提示批准。请参阅 [Monitor 工具参考](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)了解行为和提供商可用性。
+当 Monitor 运行命令时，它遵循与 Bash 相同的权限规则。请参阅 [Monitor 工具参考](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)了解 WebSocket 权限、行为和提供商可用性。
 
 ### TaskOutput
 

@@ -903,6 +903,10 @@ Claude Code 会忽略在其他任何位置设置的端口。在 v2.1.285 之前�
 
 失败后，Claude 可能会[提议在沙箱外重新运行该命令](#the-unsandboxed-retry-escape-hatch)。批准该重试，或在另一个终端中自行运行该 git 命令。如果您已将 `allowUnsandboxedCommands` 设置为 `false`，Claude 无法提供重试，因此请自行运行该命令。
 
+### git 命令因 `Unable to create '…/index.lock'` 失败
+
+如果您在仓库的子目录中启动了 Claude Code，此错误可能意味着 `.git` 位于[沙箱化命令可以写入的范围](#filesystem-isolation)之外。请改为从仓库根目录启动 Claude Code；如果位于[链接的 worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 中，则从该 worktree 的根目录启动。
+
 ### 名为 `objects` 或 `refs` 的文件夹在命令执行后消失
 
 会话期间出现的顶层 `objects` 或 `refs` 文件夹可能会[在沙箱化命令结束后被删除](#when-the-sandbox-deletes-head-objects-or-refs)。无论它是由命令、Claude 还是您创建的，都是如此。要保留某个文件夹，请在其中放入一些内容。如果会话期间顶层曾存在 `HEAD` 文件或符号链接，请将其移走，然后重新启动在该位置打开的每个 Claude Code 会话。

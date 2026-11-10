@@ -964,7 +964,7 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
 
 > [!NOTE]
 >
-> 如果您的机器上没有[托管设置](https://code.claude.com/docs/zh-CN/settings.md#check-what-your-organization-enforces)，并且您的会话未使用 Team 或 Enterprise 计划的 [`/login` 凭据](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence)，那么 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 可以批准被您的 `PreToolUse` hook 阻止的调用。改为使用 API 密钥或长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话并未使用该登录，即使该登录已存储。
+> 您的机器上可能没有[托管设置](https://code.claude.com/docs/zh-CN/settings.md#check-what-your-organization-enforces)和 [`managed-mcp.json` 文件](https://code.claude.com/docs/zh-CN/managed-mcp#deploy-managed-mcp-json)，并且您的会话可能未使用 Team 或 Enterprise 计划的 [`/login` 凭据](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence)。在这种情况下，[mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 可以批准被您的 `PreToolUse` hook 阻止的调用。改为使用 API 密钥或长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话并未使用该登录，即使该登录已存储。
 >
 > 在计划模式中，仅当此类被阻止的调用为只读（因此不是文件编辑）时，mod 才能批准它。有关 mod 的批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
 

@@ -1089,7 +1089,7 @@ JSON 对象支持三种字段：
 
 #### 发出终端通知
 
-Hook 运行时没有控制终端，因此直接将转义序列写入 `/dev/tty` 会失败。请改为在 `terminalSequence` 字段中返回转义序列，Claude Code 会通过其自己的终端写入路径为您发出它。这不存在竞争问题，可在 tmux 和 GNU screen 中工作，也可在没有 `/dev/tty` 的 Windows 上工作。
+Hook 运行时没有控制终端，因此直接将转义序列写入 `/dev/tty` 会失败。请改为在 `terminalSequence` 字段中返回转义序列，Claude Code 会通过其自己的终端写入路径为您发出它。这不存在竞争问题，也可在没有 `/dev/tty` 的 Windows 上工作。
 
 该字段接受包含一个或多个允许列表中转义序列的字符串：
 
@@ -1101,12 +1101,13 @@ Hook 运行时没有控制终端，因此直接将转义序列写入 `/dev/tty` 
 
 序列可以用 BEL 或 ST 终止。允许列表之外的任何内容，包括 CSI 光标和颜色序列、OSC 调色板序列、OSC 8 超链接、OSC 52 剪贴板写入和 OSC 1337，都会被拒绝，该字段被忽略。
 
-Claude Code 在处理您的 hook 输出时自行写入序列，因此该字段在丢弃 `systemMessage` 和 `continue` 的事件（如 `Notification` 和 `StopFailure`）上也能工作。它有两个限制：
+Claude Code 在处理您的 hook 输出时自行写入序列，因此该字段在丢弃 `systemMessage` 和 `continue` 的事件（如 `Notification` 和 `StopFailure`）上也能工作。它有一些限制：
 
-* Claude Code 仅在交互式会话中且仅当其界面在屏幕上时写入序列。在使用 `-p` 标志的非交互模式和 Agent SDK 中，它忽略该字段。
+* Claude Code 仅在交互式会话中且仅当其界面打开时写入序列。在使用 `-p` 标志的非交互模式和 Agent SDK 中，它忽略该字段。
+* 该字段仅在不于[后台](#run-hooks-in-the-background)运行的 hook 中有效，因此请不要启用 `async` 和 `asyncRewake`。
 * `WorktreeCreate` 命令 hook 无法返回 JSON，因为 Claude Code 将其 stdout 读取为 worktree 路径。HTTP `WorktreeCreate` hook 返回 JSON，可以包括该字段。
 
-下面的示例从 `Notification` hook 触发桌面通知。转义序列使用 `printf` 八进制转义构建，因此控制字节从不出现在 shell 命令行上，`jq -n --arg` 构建 JSON 输出，因此通知消息中的引号、反斜杠和换行符会被正确转义：
+如果您使用 tmux 或 GNU screen，请先完成[针对它们的设置](#get-terminal-notifications-inside-tmux-or-gnu-screen)。下面的示例在可读取 OSC `777` 的终端（如 Ghostty 或 Warp）中，从 `Notification` hook 触发桌面通知。脚本中的 `jq -nc --arg` 调用构建 JSON 输出，并转义通知消息中的所有引号、反斜杠和换行符：
 
 ```bash theme={null}
 #!/bin/bash
@@ -1119,6 +1120,13 @@ jq -nc --arg seq "$seq" '{terminalSequence: $seq}'
 ```
 
 `{ "terminalSequence": "..." }` 的结构在任何 shell 或语言中都相同。
+
+#### 在 tmux 或 GNU screen 中获取终端通知
+
+当 Claude Code 在 tmux 或 GNU screen 中运行时，OSC 序列需要满足以下条件才能到达您的终端应用程序：
+
+* **tmux 3.3 或更高版本**：将 `set -g allow-passthrough on` 添加到 `~/.tmux.conf`，然后在 shell 中运行 `tmux source-file ~/.tmux.conf`。该选项适用于这些窗格中的每个程序，而不仅仅是 Claude Code。使用 `on` 时，只有 tmux 正在显示的窗格才能发送这些序列。要让您已附加的会话中的其他窗格也能发送，请在 tmux 3.4 或更高版本上使用 `all` 代替 `on`。
+* **GNU screen**：在 screen 中保持 Claude Code 的窗口处于显示状态，因为来自后台窗口的序列不会到达您的终端应用程序
 
 #### 为 Claude 添加上下文
 

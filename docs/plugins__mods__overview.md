@@ -78,7 +78,7 @@ Mod 使用您的权限运行，所以在安装之前，请了解它可以访问�
 
 Mod 不在沙箱中运行。如果您启用[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md)，沙箱会隔离 Claude 运行的 Bash 命令，而 mod 启动的进程在沙箱之外运行。
 
-当存在[托管设置](https://code.claude.com/docs/zh-CN/settings.md#check-what-your-organization-enforces)，或以 Team 或 Enterprise [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence) 作为会话凭据时，默认情况下 mod 的批准无法让调用绕过您的 `ask` 规则或 `PreToolUse` hook。如果两者都不存在，mod 可以批准 `ask` 规则会提示确认的调用，或您的 `PreToolUse` hook 已阻止的调用。要了解 mod 何时还可以批准 `deny` 规则拒绝的调用，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
+Mod 可以批准[许多工具调用](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)，而这些调用原本会被您的 `deny` 或 `ask` 规则或您的 `PreToolUse` hook 拦截，除非[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)阻止这样做。加载守卫后，默认情况下用户的 mod 无法这样做。在本地终端会话中，如果 `/plugin` 的 **Installed** 选项卡上显示 `cc-plugin-sec-default`，则表示守卫已加载。
 
 Mod 可以重新设置 Claude Code 界面的大部分样式，但不能重新设置权限提示。它无法改变权限提示向您显示的内容。
 

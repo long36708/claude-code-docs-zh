@@ -253,7 +253,7 @@ Claude Code 仅从 git 状态检测合并的情况：worktree 推送到的远程
 
 Worktree 获得自己的文件和分支，但它与主检出共享以下内容：
 
-* **存储库的 `.git` 目录**：worktree 中的 git 命令写入主存储库的共享 `.git` 目录，[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md#filesystem-isolation)允许这些写入，因此 `git commit` 等命令可以从启用沙箱的 worktree 内部工作。
+* **仓库的 `.git` 目录**：worktree 中的 git 命令会写入主仓库共享的 `.git` 目录。启用[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md#filesystem-isolation)后，`git commit` 等命令可以在位于 worktree 根目录的会话中正常工作，而 `--worktree` 正是在该位置启动会话。默认情况下，[如果您在 worktree 的子目录中运行 `claude`，这些命令会因 `index.lock` 错误而失败](https://code.claude.com/docs/zh-CN/sandboxing#git-index-lock)。
 * **插件**：从主检出在[项目作用域](https://code.claude.com/docs/zh-CN/plugins/loading.md#find-where-a-plugin-is-enabled)安装的插件也会在同一仓库的 worktree 中加载，因此您无需为每个 worktree 重新安装它们。
 * **权限批准**：在 worktree 会话中为 Bash 命令选择"是，不再询问"会将规则保存到主检出的 `.claude/settings.local.json`。该规则适用于主检出和仓库的每个其他 worktree，并且在 worktree 被删除后仍会保留。
 

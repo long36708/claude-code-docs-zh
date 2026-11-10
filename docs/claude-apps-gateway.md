@@ -172,7 +172,7 @@ volumes: { pgdata: }
 
 成功启动不会验证推理路径，因为 Amazon Bedrock 和 Google Cloud 的 Agent Platform 实例凭据在第一个请求时解析，而不是在启动时。
 
-监视 stderr 以获取启动序列。日志行使用格式 `[gateway] <timestamp> <level> <message>`，审计事件是带有 `evt` 字段的单行 JSON，启动横幅（下面省略）在迁移和侦听行之间打印。新数据库每个 schema 迁移打印一行 `migration N applied`；已迁移的数据库不打印任何内容。您应该按顺序看到：
+监视 stderr 以获取启动序列。默认情况下，日志行使用格式 `[gateway] <timestamp> <level> <message>`，启动横幅（下面省略）在迁移和侦听行之间打印。审计事件是带有 `evt` 字段的单行 JSON。新数据库每个 schema 迁移打印一行 `migration N applied`；已迁移的数据库不打印任何内容。您应该按顺序看到：
 
 ```text theme={null}
 {"ts":"2026-06-10T17:03:21.114Z","evt":"config.load","path":"/etc/claude/gateway.yaml","sha256":"…"}

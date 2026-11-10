@@ -14,7 +14,7 @@
 
 当模块未加载、hook 被跳过或另一个 mod 拒绝您的 mod 时，Claude Code 会写入一行，其中命名您的 mod。您读取该行的位置取决于会话：
 
-* **热重新加载插件目录的会话**：成绩单中的暗行。这是您使用 `--plugin-dir` 启动的交互式会话，或者是您为 Claude 编写的 mod [启用热重新加载](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod) 的会话。
+* **热重新加载插件目录的会话**：会话记录中的一行暗色文本。这是您使用 `--plugin-dir` 启动的交互式会话，或者是针对 Claude 编写的 mod [启用了热重新加载](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod)的会话。
 * **任何其他交互式会话，例如运行您从市场安装的 mod 的会话**：[调试日志](#read-the-debug-log) 仅。要获取一个，请使用 `claude --debug` 启动会话。
 * **带有 `--plugin-dir` 的 `claude -p` 运行**：stderr，采用默认文本输出格式。另一个 mod 的拒绝仅进入调试日志。
 
@@ -68,7 +68,7 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 ### 来自内置保护的消息
 
-在具有托管设置的机器上，或在凭据为 Team 或 Enterprise `/login` 的会话中，[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default) 可以拒绝 mod 或其答案之一。每条消息都会指明您的组织管理员为更改该规则而设置的选项。
+在[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)加载的地方，它可以拒绝 mod 或其答案之一。每条消息都会指明您的组织管理员为更改该规则而设置的选项。
 
 | 消息包含 | 这意味着什么 | 它出现在哪里 |
 | :- | :- | :- |

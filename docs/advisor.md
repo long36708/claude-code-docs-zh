@@ -98,10 +98,11 @@ Claude Code 按照担任顾问角色的能力对模型进行排名，顾问的�
 | Opus 4.7 或 Opus 4.8 | Fable、Opus 4.7 或更高版本、Sonnet 5.5 |
 | Sonnet 5.5 | Fable、Opus 5 或更高版本、Sonnet 5.5 |
 | Opus 5 或 Opus 5.5 | Fable、Opus 5 或更高版本 |
-| Fable 5 | Fable 5.1 或 Fable 5 |
-| Fable 5.1 | Fable 5.1 |
+| Fable 5 | Fable 5.2、Fable 5.1 或 Fable 5 |
+| Fable 5.1 | Fable 5.2 或 Fable 5.1 |
+| Fable 5.2 | Fable 5.2 |
 
-Fable 5.1 需要 Claude Code v2.1.257 或更高版本。Fable 模型需要 [Fable 访问权限](https://code.claude.com/docs/zh-CN/model-config.md#work-with-fable)。将 Sonnet 5.5 作为 Opus 4.7 或 Opus 4.8 主模型的顾问需要 Claude Code v2.1.287 或更高版本。将 Haiku 5.5 作为主模型或顾问需要 Claude Code v2.1.293 或更高版本。
+Fable 5.2 需要 Claude Code v2.1.321 或更高版本，Fable 5.1 需要 v2.1.257 或更高版本。Fable 模型需要 [Fable 访问权限](https://code.claude.com/docs/zh-CN/model-config.md#work-with-fable)。将 Sonnet 5.5 作为 Opus 4.7 或 Opus 4.8 主模型的顾问需要 Claude Code v2.1.287 或更高版本。将 Haiku 5.5 作为主模型或顾问需要 Claude Code v2.1.293 或更高版本。
 
 将顾问设置为 `fable`、`opus` 或 `sonnet`。这些别名解析为 Claude Code 为每个模型系列[内置的默认版本](https://code.claude.com/docs/zh-CN/model-config.md#model-aliases)，该版本随新的 Claude Code 版本而推进。您也可以传递完整的模型 ID，例如 `claude-opus-5-5` 或 `claude-haiku-5-5`。Haiku 4.5 可以调用顾问，但不能充当顾问。
 
@@ -159,7 +160,7 @@ Claude 通常遵循顾问的指导，但在其自己的证据与特定声明相�
 * **API 计费**：您需要按顾问模型的输入和输出费率为顾问令牌付费
 * **订阅计划**：顾问使用计入您的计划使用限制，但 Fable 顾问在支持 Fable 使用的计划上计入[使用额度](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits)
 
-如果您的账户需要使用额度同意，Fable 顾问在您给予同意之前不会产生任何费用，因为 Claude Code [在那之前不会应用该选择](#fable-advisor-and-usage-credits)。
+有关 Fable 顾问如何与使用额度配合使用，请参阅[Fable 顾问和使用额度](#fable-advisor-and-usage-credits)。
 
 Claude 在决策点而不是每一轮都调用顾问，因此将更快的主模型与更强的顾问配对通常比全程运行更强的模型成本更低。顾问使用计入由 [`/usage`](https://code.claude.com/docs/zh-CN/costs#track-your-costs) 显示的会话总计。
 

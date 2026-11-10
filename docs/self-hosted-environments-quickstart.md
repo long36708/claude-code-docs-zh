@@ -73,7 +73,9 @@ claude self-hosted-runner setup
 
 转到管理设置中的[**Cloud environments** 页面](https://claude.ai/admin-settings/cloud-environments)。在 **Self-hosted environments** 下，选择 **New**，命名环境，然后选择 **Create**。在向导的第二步，选择 **Copy environment key** 以复制环境密钥，管理 UI 将其标记为环境密钥。claude.ai 仅显示一次密钥，您之后无法检索它；它在创建后 365 天过期。环境的 `ccpool_...` ID 在其详细信息对话框中保持可见；您需要它用于[令牌验证](https://code.claude.com/docs/zh-CN/self-hosted-environments-identity.md)中的 `aud` 检查，以及用于从 CI [分派测试会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-testing.md#run-the-test-loop)。
 
-如果您丢失了密钥或需要轮换它，请从环境的 **Configuration** 选项卡创建新密钥，将新密钥推出到您的运行器，然后撤销旧密钥。持有已撤销密钥的运行器在其下一次经过身份验证的轮询时失败并退出，记录 `poll auth failed`，您的编排器使用新密钥重新启动它们。
+如果密钥可能已泄露，请按照[部署页面中针对疑似泄露的步骤](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#after-a-suspected-compromise)操作，而不是执行下面的轮换。
+
+如果您丢失了密钥或计划轮换它，请从环境的 **Configuration** 选项卡创建新密钥。将新密钥推出到您的运行器，然后撤销旧密钥。持有已撤销密钥的运行器在其下一次经过身份验证的轮询时失败并退出，记录 `poll auth failed`，您的编排器使用新密钥重新启动它们。
 
 **2. 启动运行器**
 

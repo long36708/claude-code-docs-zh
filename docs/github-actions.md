@@ -135,6 +135,7 @@ Claude Code 会将凭据保存为仓库密钥：API 密钥命名为 `ANTHROPIC_A
 | Merge queues | 读取 |
 | Metadata | 读取 |
 | Pull requests | 读写 |
+| Repository creation | 读写 |
 | Repository hooks | 读写 |
 | Statuses | 读取 |
 | Workflows | 读写 |

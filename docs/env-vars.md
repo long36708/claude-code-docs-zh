@@ -365,7 +365,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_PROMPT_CACHE_TTL` | 设置为 `5m` 或 `1h`（Claude Code 仅接受这两个值），以选择主对话的[提示缓存 TTL](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime)：包括您的交互式、`-p` 和 SDK 轮次，以及与它们内联运行的辅助程序。优先于 `promptCacheTtl` 设置和 `ENABLE_PROMPT_CACHING_1H`，而 `FORCE_PROMPT_CACHING_5M` 会覆盖它。API 对 1 小时缓存写入按更高费率计费。需要 Claude Code v2.1.242 或更高版本 |
 | `CLAUDE_CODE_PROPAGATE_TRACEPARENT` | 设置为 `1` 可在 `ANTHROPIC_BASE_URL` 指向自定义代理时传播 W3C 跟踪上下文。传播范围包括模型和 HTTP MCP 请求上的 `traceparent` 标头，以及 Bash、PowerShell 和 hook 子进程的 `TRACEPARENT` 环境变量。默认情况下，仅在直接连接到 Anthropic API 时才启用传播。在 v2.1.152 中添加。请参阅[跟踪（beta）](https://code.claude.com/docs/zh-CN/monitoring-usage.md#traces-beta) |
 | `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` | 由嵌入 Claude Code 并代为管理模型提供商路由的宿主平台设置。设置后，Claude Code 会忽略设置文件中的提供商选择、端点和身份验证变量，例如 `CLAUDE_CODE_USE_BEDROCK`、`ANTHROPIC_BASE_URL` 和 `ANTHROPIC_API_KEY`，因此用户设置无法覆盖宿主的路由。Claude Code 还会忽略[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中的模型选择键，例如 `model`、`fallbackModel` 和 `modelOverrides`，无论它们由哪个托管来源下发，因此宿主的模型配置优先于过时的托管模型固定设置。Claude Code 还会忽略托管 `env` 块中的模型选择变量，例如 `ANTHROPIC_MODEL` 和 `ANTHROPIC_DEFAULT_*_MODEL` 系列；托管设置中的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表仍然适用，除非宿主提供了自己的允许列表。Claude Code 还会跳过它在第三方提供商（例如 Amazon Bedrock、Claude Platform on AWS、Google Cloud's Agent Platform 和 Microsoft Foundry）上原本会应用的自动遥测退出，因此遥测遵循标准的 `DISABLE_TELEMETRY` 退出方式。请参阅[按 API 提供商划分的默认行为](https://code.claude.com/docs/zh-CN/data-usage.md#default-behaviors-by-api-provider) |
-| `CLAUDE_CODE_PROXY_RESOLVES_HOSTS` | 设置为 `1` 可允许由代理而非调用方执行 DNS 解析。适用于应由代理处理主机名解析的环境，需主动启用 |
+| `CLAUDE_CODE_PROXY_RESOLVES_HOSTS` | 设置为 `1`，允许由代理而非调用方执行 DNS 解析。适用于应由代理处理主机名解析的环境，需主动选择启用。设置了 `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` 时，请在启动 Claude Code 的进程的环境中设置此变量 |
 | `CLAUDE_CODE_REMOTE` | 当 Claude Code 作为[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)运行时自动设置为 `true`。可在 hook 或环境设置脚本中读取此变量，以检测是否处于云端会话中 |
 | `CLAUDE_CODE_REMOTE_SESSION_ID` | 在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中自动设置为当前会话的 ID。读取此变量可构造返回会话记录的链接。请参阅[将输出链接回会话](https://code.claude.com/docs/zh-CN/cloud-environments.md#link-output-back-to-the-session) |
 | `CLAUDE_CODE_RESTRICTED` | 设置为 `1` 可在受限模式下启动会话，与传递 [`--restricted`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 相同。Claude Code 会忽略设置文件 `env` 块中的此变量。需要 Claude Code v2.1.248 或更高版本 |
@@ -529,6 +529,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `VERTEX_REGION_CLAUDE_5_SONNET` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Sonnet 5 的区域。在 v2.1.197 中添加 |
 | `VERTEX_REGION_CLAUDE_FABLE_5` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Fable 5 的区域。在 v2.1.170 中添加 |
 | `VERTEX_REGION_CLAUDE_FABLE_5_1` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Fable 5.1 的区域。在 v2.1.257 中添加 |
+| `VERTEX_REGION_CLAUDE_FABLE_5_2` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Fable 5.2 的区域。在 v2.1.321 中添加 |
 | `VERTEX_REGION_CLAUDE_HAIKU_4_5` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Haiku 4.5 的区域 |
 | `VERTEX_REGION_CLAUDE_HAIKU_5_5` | 使用 Google Cloud's Agent Platform 时覆盖 Claude Haiku 5.5 的区域。在 v2.1.293 中添加 |
 

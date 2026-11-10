@@ -49,6 +49,8 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 > claude remote-control
 > ```
 >
+> `claude rc` 是此命令的别名。
+>
 > 在您接受 Remote Control 的一次性确认之前，`claude remote-control` 会先说明其作用，并在启动服务器前询问 `Enable Remote Control? (y/n)`。回答 `y` 即可接受并启动服务器。如果您拒绝，Claude Code 会退出而不启动服务器，并在您下次运行该命令时再次询问。
 >
 > 在服务器模式下，该进程会在终端中持续运行，等待远程连接。它会显示一个 URL，您可以用它[从另一台设备连接](#connect-from-another-device)，还可以按空格键显示二维码，以便从手机快速访问。远程会话处于活动状态时，终端会显示连接状态和工具活动。
@@ -462,6 +464,7 @@ Claude Code 无法访问功能标志服务来检查是否为您的账户启用�
 * **您的 claude.ai 套餐是 Pro、Max 或 Ultra**：Claude Code 仍然以来自较早登录的 Team 或 Enterprise 组织身份登录，因此它检查该组织的 Remote Control 策略。运行 `/status` 以查看您的登录使用的套餐和组织。运行 `claude auth logout` 然后 `claude auth login` 以在您当前的套餐下重新登录。
 * **消息未说联系您的组织管理员**：您的组织应用了 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)，该配置会关闭 Remote Control。要确认这一点，请运行 `/status` 并在 `Organization configuration` 行中查找 `HIPAA`。所有者会在[管理设置](https://claude.ai/admin-settings/claude-code)中看到 **Remote Control** 切换呈灰显状态，且无法将其打开。如果您对该配置有疑问，请询问所有者，所有者可以联系您组织的 Anthropic 客户团队。在 v2.1.267 之前，此情况显示"Remote Control isn't available for your organization due to its compliance policy"。
 * **Remote Control 对组织中的其他人有效，但对您无效**：如果您的 Enterprise 组织使用[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，则原因可能在于您的角色。Remote Control 同时需要云端会话权限和 **Claude Code remote control** 权限。请让所有者检查您的角色是否同时包含这两项权限，并在 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles) 中添加缺少的权限。
+* **所有者在[管理设置](https://claude.ai/admin-settings/claude-code)中看到 [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md) 横幅**：Remote Control 不适用于您的组织，且所有者无法将其打开。
 * **否则，所有者尚未为您的组织启用它**：Remote Control 在 Team 和 Enterprise 计划上默认关闭。所有者可以在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 通过打开 **Remote Control** 切换来启用它。此切换是服务器端组织设置。
 
 在 v2.1.281 之前，当 Claude Code 未在此计算机上加载您的组织策略时，此消息也会出现，例如在离线启动后。更高版本将该状态报告为[`Couldn't verify your organization's policy for remote control`](#couldnt-verify-your-organizations-policy-for-remote-control)。

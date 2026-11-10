@@ -173,6 +173,20 @@ rate_limits:
   * `admin.denied` 记录被拒绝的管理员 API 身份验证尝试，包括客户端 IP、方法、路径和原因，不包括呈现的密钥材料：当呈现了 `x-api-key` 但与配置的密钥不匹配时为 `invalid_key`，当仅呈现了 `Authorization` 标头且其未验证为 `admin.admin_groups` 中的网关会话时为 `bearer_rejected`，或当两个标头都未呈现时为 `no_credentials`
 * **运维日志**：人类可读的 `[gateway]` 前缀行，用于启动、警告和上游错误。`CLAUDE_GATEWAY_LOG_LEVEL` 环境变量控制详细程度，接受 `debug`、`info`、`warn` 或 `error`，默认为 `info`。在 `debug` 时，每次登录和刷新也记录 id\_token 中声明的名称（不是值），加上当 `userinfo_fallback` 提供任何时 userinfo 声明的名称，因此您可以诊断 `email_claim` 和 `groups_claim` 设置而不记录 PII。它不影响审计事件，这些事件总是被发出。
 
+#### 以 JSON 格式写入运维日志
+
+如果您的日志收集器从 JSON 字段中读取每一行的级别，请在网关的环境中设置 `CLAUDE_GATEWAY_LOG_FORMAT=json`。需要网关服务器上的 Claude Code v2.1.319 或更高版本。
+
+随后每条运维日志行都是一个包含 `severity`、`time` 和 `message` 的对象：
+
+```json theme={null}
+{"severity":"INFO","time":"2026-11-04T17:03:21.512Z","message":"claude gateway listening on http://0.0.0.0:8080"}
+```
+
+`severity` 是大写的日志级别，其中 `warn` 写作 `WARNING`。启动失败会产生一条 `ERROR` 行。
+
+审计事件同样写入 stderr，不会改变。它们携带 `ts` 和 `evt`，不带 `severity`。
+
 ### 健康
 
 网关提供 `GET /healthz` 作为活跃探针和 `GET /readyz` 作为就绪探针。`/readyz` 验证存储是否可达。如果您设置了 [`store.readiness_grace_seconds`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#store)，`/readyz` 在存储停止应答后最多继续报告就绪达到那么多秒。

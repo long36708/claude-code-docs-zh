@@ -6,7 +6,7 @@
 
 > 通过 Claude 应用网关为每个开发者按天、周或月设置支出上限。使用 Admin API 设置限制，网关在每个请求上实时执行这些限制。
 
-支出限制限制了每个开发者在给定的一天、一周或一个月内通过你的 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 可以花费的金额。当开发者超过他们的上限时，网关在他们的下一个请求上返回 `429`，并阻止他们直到该周期重置或管理员提高上限。使用支出限制为每个开发者、团队或整个组织设置一个共享凭证的上限。
+支出限制限定了每个开发者在给定的一天、一周或一个月内通过您的 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 可以花费的金额。当开发者超过其上限时，网关会对其后续请求返回 `429`，直到管理员提高上限，或者在上限高于 \$0 的情况下直到上限重置。使用支出限制可以为每个开发者、每个组或整个组织在所有人共享的凭据上设置一个上限。
 
 默认情况下，Claude 应用网关通过一个共享的上游凭证转发所有推理，因此你的提供商的账单将所有内容归属于该凭证，而不是单个开发者。在 Amazon Bedrock 上，[按开发者的 AWS 成本归属](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#per-developer-aws-cost-attribution) 改变了这一点。没有按开发者的限制，一个失控的代理群可能会花费组织的整个承诺。支出限制是网关在该共享账单之上的按开发者视图和断路器。
 
@@ -51,7 +51,15 @@ curl -sS https://claude-gateway.internal.example.com/v1/organizations/spend_limi
 
 在每个 `/v1/messages` 请求上，网关在一个 Postgres 查询中查找开发者的上限和期间至今的支出。超过任何上限的开发者会获得 `429` 和 `error.type: billing_error` 以及标头 `x-should-retry: false`。
 
-消息命名该期间和重置时间，例如 `spend limit reached (daily; resets 2026-08-08 00:00 UTC)`，后跟你的 [`admin.blocked_message`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#admin)（如果设置）。当开发者同时超过多个上限时，消息命名最后重置的上限。响应还包含一个 `retry-after` 标头，其中包含直到该重置的剩余秒数。在网关服务器上的 v2.1.225 之前，消息是 `spend limit reached`，没有期间、重置时间或 `retry-after` 标头。
+对于高于 `"0"` 的上限，消息会给出该上限重置的 UTC 日期。如果您设置了 [`admin.blocked_message`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#admin)，网关会将其附加在后面，如下例所示：
+
+```text theme={null}
+spend limit reached · resets Dec 1 · request an increase at https://go.example.com/claude-limits
+```
+
+对于 `"0"` 上限，由于重置不会解除该上限，消息中不包含日期。当开发者同时超过多个上限时，消息描述最后重置的上限。响应还包含一个 `retry-after` 标头，其中包含直到该上限期间结束的剩余秒数。
+
+在网关服务器上的 v2.1.319 之前，消息会命名期间和重置时间，例如 `spend limit reached (daily; resets 2026-08-08 00:00 UTC)`。在 v2.1.225 之前，消息是 `spend limit reached`，没有期间、重置时间或 `retry-after` 标头。
 
 在 v2.1.227 或更高版本上，`<public_url>/protocol` 处的协议参考也列出了确切的使用限制响应标头和 `429` 正文。
 
@@ -95,6 +103,7 @@ Claude Code 在开发者接近其上限时向其发出警告：一旦利用率�
 | 75% 和 95% 时的用量警告 | v2.1.225 或更高版本 | v2.1.225 或更高版本 |
 | `/usage` 中的 **Spend limit** 栏，显示其上限已使用的百分比和重置时间，以及状态栏输入中的 `rate_limits.spend_limit` 对象 | v2.1.251 或更高版本 | v2.1.225 或更高版本 |
 | **Spend limit** 栏中以美元表示的估计支出和上限，例如"\$271.40 / \$500.00 spent this month"，以及状态栏输入中的相同金额和上限期间 | v2.1.284 或更高版本 | v2.1.284 或更高版本 |
+| 在带有 [`admin:`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#admin) 块的网关上，当没有上限适用于开发者时，`/usage` 中 **Spend (UTC)** 下显示的估计支出，例如"\$13.06 today · \$80.76 this week · \$272.06 this month" | v2.1.319 或更高版本 | v2.1.319 或更高版本 |
 
 警告和百分比来自 `anthropic-ratelimit-unified-*` 标头，网关会将这些标头添加到具有上限的开发者的每个成功 `/v1/messages` 响应中。标头始终描述开发者自己的上限：网关会剥离上游提供商的速率限制标头（这些标头描述您的共享配额），从不转发它们。
 

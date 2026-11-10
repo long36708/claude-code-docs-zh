@@ -26,7 +26,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `CronDelete` | 按 ID 取消会话级定时任务 | 否 |
 | `CronList` | 列出所有会话级定时任务 | 否 |
 | `Edit` | 对特定文件进行有针对性的编辑。请参阅 [Edit 工具行为](#edit-tool-behavior) | 是 |
-| `EndConversation` | 结束会话，在持续滥用输入的罕见情况下或当您要求 Claude 演示该工具时。请参阅 [EndConversation 工具行为](#endconversation-tool-behavior) | 否 |
+| `EndConversation` | 结束会话，在持续滥用输入的罕见情况下，或当您要求 Claude 结束会话并随后确认时使用。请参阅 [EndConversation 工具行为](#endconversation-tool-behavior) | 否 |
 | `EnterPlanMode` | 切换到计划模式以在编码前设计方法 | 否 |
 | `EnterWorktree` | 创建一个隔离的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 并切换到它，或切换到现有的 worktree。请参阅 [EnterWorktree 工具行为](#enterworktree-tool-behavior) | 是 |
 | `ExitPlanMode` | 呈现计划以供批准并退出计划模式 | 是 |
@@ -274,8 +274,8 @@ Claude 仍然可以使用 Write 替换此类文件，除非新内容包含 `U+FF
 
 EndConversation 工具结束当前会话。Claude 仅在两种情况下使用它：
 
-* 作为对持续辱骂性输入的最后手段，在尝试重定向对话失败且在之前的消息中发出明确警告之后
-* 当你明确要求查看该工具的演示并确认你想要结束会话时
+* 当 Claude 发出明确警告且未能重定向对话后，您仍持续发送辱骂性消息时
+* 当您明确要求 Claude 结束会话，并在 Claude 询问您是否仍要继续时予以确认
 
 一般性的沮丧、粗言秽语或任务进行不顺利都不符合条件，对有害内容的请求也不符合，Claude 会拒绝这些请求而不是结束会话。Claude Code 遵循与 claude.ai 相同的方法，后者可以[结束少数聊天](https://www.anthropic.com/research/end-subset-conversations)。
 
@@ -390,8 +390,6 @@ Monitor 工具让 Claude 在后台监视某些内容，并在其发生变化时�
 
 当 Monitor 运行命令时，它使用与 Bash 相同的 [权限规则](https://code.claude.com/docs/zh-CN/permissions.md#tool-specific-permission-rules)，因此您为 Bash 设置的 `allow` 和 `deny` 模式也适用于此处。当 [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 处于活动状态时，Claude Code 会搁置命名 `Monitor` 本身的允许规则，以及它删除的其他 [广泛允许规则](https://code.claude.com/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)，因此分类器以与审查 Bash 命令相同的方式审查 Monitor 命令。
 
-[WebSocket 源](#websocket-source) 有其自己的批准提示，分类器也在自动模式下决定。
-
 在以下情况下，Monitor 需要最低版本或 Git Bash：
 
 * **最低版本**：在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上，或者设置了 `DISABLE_TELEMETRY` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，Monitor 需要 Claude Code v2.1.310 或更高版本。此要求在 [功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) 关闭时适用
@@ -417,9 +415,24 @@ WebSocket 监视采用 `ws` 输入代替 `command`，单个 Monitor 调用不能
 
 `timeout_ms` 截止时间也适用于 WebSocket 监视：监视在截止时间结束，`TaskStop` 会提前取消它。
 
-打开 WebSocket 会提示批准；在 [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 中，分类器会决定。该提示不提供跳过同一主机的未来提示的选项。
+如果没有 `Monitor` 允许规则，Claude 打开 WebSocket 之前会向您显示权限提示；在 [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 中则由分类器决定，除非适用某条 [询问规则](#bash-rules-that-deny-or-prompt-for-websocket-watches)。该提示不提供跳过同一主机的未来提示的选项。
 
-Claude Code 拒绝指向私有、链接本地或云元数据地址的 URL，包括解析为其中之一的主机名。它还拒绝 `sandbox.network.deniedDomains` 中的主机，以及当在托管设置中设置了 [`allowManagedDomainsOnly`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-allowmanageddomainsonly) 时，任何在托管允许列表之外的主机。
+#### WebSocket 监视被拒绝的地址和主机
+
+Claude Code 拒绝指向私有、链接本地或云元数据地址的 URL，包括您的计算机解析为其中之一的主机名。在 [代理](https://code.claude.com/docs/zh-CN/network-config.md#proxy-configuration) 之后，监视可以访问私有、链接本地或云元数据地址，除非代理阻止它，因为 Claude Code 不会检查代理找到的地址。Claude Code 还拒绝 `sandbox.network.deniedDomains` 中的主机，以及当在托管设置中设置了 [`allowManagedDomainsOnly`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-allowmanageddomainsonly) 时，任何在托管允许列表之外的主机。
+
+如果代理之后的监视因 `could not resolve <host>` 而失败，请将 [`CLAUDE_CODE_PROXY_RESOLVES_HOSTS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1` 并重新启动 Claude Code v2.1.319 或更高版本，以便由代理查找主机名。
+
+#### 拒绝 WebSocket 监视或对其进行提示的 Bash 规则
+
+如果 Claude Code 拒绝了打开 WebSocket 的 `Monitor` 调用，请查找写为 `Bash` 或 `Bash(*)` 的 [拒绝或询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)。如果尽管您设置了 `Monitor` 允许规则，该调用仍出现提示，也请同样检查。针对所有 Bash 命令的规则同样涵盖这些 WebSocket 监视：
+
+* **拒绝规则**：如果该规则在会话开始时已存在，Claude 将不会拥有 Monitor 工具，因此无法启动监视。如果您在会话期间添加该规则，Claude 的下一次 `Monitor` 调用将被拒绝。拒绝信息为 `Permission to use Monitor has been denied: it runs code as Bash does, and a rule denies Bash.`
+* **询问规则**：系统会请您批准该监视。允许规则、`PreToolUse` hook、`bypassPermissions` 模式或自动模式分类器都无法代您批准。您可以通过 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 批准它。在无人能够响应的情况下（例如在 `dontAsk` 模式中），Claude Code 会拒绝该监视。
+
+要允许这些监视运行，请将规则收窄到您实际针对的命令，例如 `Bash(rm *)`。
+
+在 Claude Code v2.1.319 或更高版本中，询问规则以及您在会话期间添加的拒绝规则会涵盖这些监视。
 
 ## NotebookEdit 工具行为
 
@@ -594,8 +607,10 @@ Claude Code 在使用 Claude API 而不是云提供商的您自己机器上的�
 * 非交互式 `-p` 运行和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话，这些没有屏幕来查看队列
 * [云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，无法在您的机器上写入队列
 * [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、[Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md) 上的会话
+* 通过 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway) 并使用网关自身的密钥或令牌访问 Claude 的会话
 * 您设置 [`CLAUDE_CODE_SEND_FEEDBACK=0`](https://code.claude.com/docs/zh-CN/env-vars) 或 [`DISABLE_FEEDBACK_COMMAND=1`](https://code.claude.com/docs/zh-CN/env-vars) 的会话，将 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 设置为任何非空值，或关闭 [功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)
 * 已关闭产品反馈的组织、[零数据保留的组织](https://code.claude.com/docs/zh-CN/zero-data-retention.md#features-disabled-under-zdr)，以及已应用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md) 的组织
+* Claude Code 已[在报告被拒绝后停止提供反馈](https://code.claude.com/docs/zh-CN/errors.md#feedback-is-disabled-by-your-organizations-policy)的会话
 
 ## Task 工具可用性
 

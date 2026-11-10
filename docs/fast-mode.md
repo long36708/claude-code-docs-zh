@@ -4,15 +4,15 @@
 
 # 使用快速模式加快响应速度
 
-> 通过切换快速模式在 Claude Code 中获得更快的 Opus 响应。
+> 通过使用 `/fast` 切换快速模式，在 Claude Code 中获得更快的 Opus 和 Fable 响应。
 
 > [!NOTE]
 >
-> Claude Opus 5.5 的快速模式现已可用，Claude Opus 5 和 Claude Opus 4.8 的快速模式目前为[研究预览版](#research-preview)。
+> Claude Fable 5.2 和 Claude Opus 5.5 的快速模式现已可用，Claude Opus 5 和 Claude Opus 4.8 的快速模式目前为[研究预览版](#research-preview)。
 
-快速模式是 Claude Opus 的高速配置，使模型速度提高最多 2.5 倍，但每个令牌的成本更高。当您需要速度进行交互式工作（如快速迭代或实时调试）时，使用 `/fast` 将其打开，当成本比延迟更重要时，将其关闭。
+快速模式是受支持模型的高速配置，使模型速度提高最多 2.5 倍，但每个 token 的成本更高。当您需要速度进行交互式工作（如快速迭代或实时调试）时，使用 `/fast` 将其打开，当成本比延迟更重要时，将其关闭。
 
-快速模式不是一个不同的模型。它使用 Claude Opus，但采用不同的 API 配置，优先考虑速度而不是成本效率。您获得相同的质量和功能，只是响应速度更快。快速模式在 Opus 5.5、Opus 5 和 Opus 4.8 上受支持。它在 Sonnet、Haiku 或其他模型上不可用。
+快速模式使用相同的模型，但采用不同的 API 配置，优先考虑速度而不是成本效率，因此质量和功能保持不变。快速模式在 Fable 5.2、Opus 5.5、Opus 5 和 Opus 4.8 上受支持。它在 Sonnet、Haiku 或其他模型上不可用。
 
 > [!WARNING]
 >
@@ -26,7 +26,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 需要了解的内容：
 
 * 使用 `/fast` 在 Claude Code CLI 中切换快速模式。[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)在选定的模型支持快速模式时提供**切换快速模式**命令。Claude Code 将该切换保存到您的 [`fastMode` 设置](#toggle-fast-mode)。
-* 快速模式定价在 Opus 5.5 上为 $8/$40 MTok 输入/输出，在 Opus 5 和 Opus 4.8 上为 $10/$50 MTok 输入/输出。
+* 快速模式定价（每 MTok 输入/输出）在 Fable 5.2 上为 \$16/\$80，在 Opus 5.5 上为 \$8/\$40，在 Opus 5 和 Opus 4.8 上为 \$10/\$50。
 * 可供订阅套餐（Pro/Max/Ultra/Team/Enterprise）上的 Claude Code 用户和 Claude 控制台使用。Team 和 Enterprise 组织需要所有者先启用它，Console 组织需要先配置访问权限才能在 Opus 5 或 Opus 4.8 上使用它。[要求](#requirements)对这两者进行了说明。
 * 对于订阅套餐（Pro/Max/Ultra/Team/Enterprise）上的 Claude Code 用户，快速模式仅通过使用额度提供，不包含在订阅速率限制中。
 
@@ -35,9 +35,9 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 在 CLI 中，可以通过以下任一方式切换快速模式：
 
 * 运行 `/fast`，按 Space 切换开启或关闭，然后按 Enter 确认
-* 在支持快速模式的模型上，在[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置 `"fastMode": true`。如果您在其他任何模型上设置此项，您将继续使用该模型，且快速模式保持关闭。
+* 在支持快速模式的模型上，在[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md)中设置 `"fastMode": true`。如果您在其他任何模型上设置此项，您将继续使用该模型，且快速模式保持关闭。在 Fable 5.2 上，仅设置此项不会生效，直到您在使用 Fable 5.2 时运行 `/fast`。
 
-默认情况下，在受支持的模型上，在交互式会话中开启的快速模式会跨会话保留。您可以将快速模式配置为每个会话重置。有关详细信息，请参阅[要求按会话选择启用](#require-per-session-opt-in)。
+默认情况下，在受支持的模型上，在交互式会话中开启的快速模式会跨会话保留。在 Fable 5.2 上，仅当您[在使用 Fable 5.2 时开启](#switch-models-while-fast-mode-is-on)快速模式，它才会保留。您可以将快速模式配置为每个会话重置。有关详细信息，请参阅[要求按会话选择启用](#require-per-session-opt-in)。
 
 在[云端会话](#use-fast-mode-in-cloud-sessions)之外，在使用 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下，`/fast` 仅在其 [`--settings`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 值中包含快速模式的会话中有效，例如 `claude -p --settings '{"fastMode": true}'`；此时切换仅适用于该会话，不会保存为您的默认设置。`-p` 形式需要 Claude Code v2.1.205 或更高版本。在非交互模式的其他情况下，该命令会报告快速模式不可用。
 
@@ -48,20 +48,22 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 使用 `/fast` 启用快速模式时：
 
 * 如果您当前的模型不支持快速模式，Claude Code 会切换到 Opus
+* 在 Fable 5.2 上使用快速模式需要 Claude Code v2.1.321 或更高版本
 * 您将看到一条确认消息："Fast mode ON"
 * 快速模式处于活动状态时，提示词旁边会出现一个小的 `↯` 图标
 * 随时再次运行 `/fast` 可检查快速模式是开启还是关闭
 
 在 Claude Code v2.1.280 及更高版本中，Opus 5.5 是快速模式的默认模型。在 v2.1.280 之前，从 v2.1.219 起快速模式默认使用 Opus 5。
 
-当您再次使用 `/fast` 禁用快速模式时，您仍将使用 Opus。要切换到其他模型，请使用 `/model`。
+当您再次使用 `/fast` 禁用快速模式时，您仍将使用当前模型。要切换到其他模型，请使用 `/model`。
 
 ### 在快速模式开启时切换模型
 
-快速模式会双向跟随您的模型切换：
+快速模式会跟随您的模型切换：
 
 * **切换离开**：当您切换到不支持快速模式的模型时，Claude Code 会关闭快速模式。这包括 Opus 4.7；在 v2.1.221 之前，切换到 Opus 4.7 后快速模式仍保持开启，API 会拒绝这些请求。
-* **切换回来**：当您保存的快速模式偏好为开启时（新会话默认即从该偏好开始），切换回受支持的 Opus 模型会再次开启快速模式。对于保存的偏好为关闭的会话，模型切换永远不会开启快速模式；如果配置了[按会话选择启用](#require-per-session-opt-in)，切换回来也不会开启快速模式；请运行 `/fast` 重新启用。
+* **切换回来**：当您保存的偏好为开启时，切换回受支持的 Opus 模型会再次开启快速模式。如果使用[按会话选择启用](#require-per-session-opt-in)，请改为运行 `/fast`。
+* **切换到 Fable 5.2**：除非您在使用 Fable 5.2 时开启了快速模式，否则快速模式会关闭。要开启快速模式，请在 Fable 5.2 上运行 `/fast`。除非您设置了[按会话选择启用](#require-per-session-opt-in)，否则此设置会跨会话保留，直到您将其关闭或在其他模型上开启快速模式。
 
 每当模型切换开启或关闭快速模式时，Claude Code 都会显示 `Fast mode ON` 或 `Fast mode OFF` 确认消息，并且在快速模式开启时会出现 `↯` 图标。无论您是使用 `/model`、使用 [`/config model=<model>`](https://code.claude.com/docs/zh-CN/settings) 还是从通过 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 连接的设备进行切换，都是如此。
 
@@ -77,15 +79,16 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 ## 了解成本权衡
 
-快速模式的每个令牌定价高于标准 Opus：
+快速模式的每 token 定价高于标准速度：
 
 | 模型 | 输入 (MTok) | 输出 (MTok) |
 | - | - | - |
+| Fable 5.2 | \$16 | \$80 |
 | Opus 5.5 | \$8 | \$40 |
 | Opus 5 | \$10 | \$50 |
 | Opus 4.8 | \$10 | \$50 |
 
-快速模式定价在整个 1M 令牌上下文窗口中是固定的。有关要比较的标准 Opus 费率，请参阅 [Claude 定价参考](https://platform.claude.com/docs/zh-CN/about-claude/pricing)。
+快速模式定价在整个 1M token 上下文窗口中是固定的。有关要比较的标准费率，请参阅 [Claude 定价参考](https://platform.claude.com/docs/zh-CN/about-claude/pricing)。
 
 在对话中首次启用快速模式时，您需要为整个对话上下文支付完整的快速模式未缓存输入 token 价格。对话进行得越深入，成本就越高，因此在对话开始时启用快速模式的费用最低。快速模式和标准速度使用[各自独立的缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md#turning-on-fast-mode)，因此之后的每次切换都会再次以未缓存方式读取部分或全部对话。
 
@@ -137,7 +140,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 * **付费控制台组织**：Claude 控制台账户不使用使用额度，您的组织按令牌为快速模式付费，与其余 API 使用量一起。在控制台的免费 Evaluation 计划上，`/fast` 显示"Fast mode unavailable during evaluation. Please purchase credits."。要清除它，在您的[控制台计费设置](https://platform.claude.com/settings/billing)中购买额度。
 
-  Opus 5.5 上的快速模式还取决于您的组织的[使用层级](https://platform.claude.com/docs/en/api/rate-limits)。
+  Fable 5.2 或 Opus 5.5 上的快速模式还取决于您的组织的[使用层级](https://platform.claude.com/docs/en/api/rate-limits)。
 * **团队和企业的所有者启用**：快速模式默认对团队和企业组织禁用。所有者必须明确[启用快速模式](#enable-fast-mode-for-your-organization)，用户才能访问它。
 
 > [!NOTE]
@@ -147,7 +150,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 > * **快速模式未启用**：如果您的组织尚未启用快速模式，使用 `/fast` 启用快速模式会显示"Fast mode has been disabled by your organization."。
 > * **快速模式被托管设置关闭**：如果您的组织部署[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)，设置 [`fastMode: false`](https://code.claude.com/docs/zh-CN/settings-reference#fastmode)，使用 `/fast` 启用快速模式会显示相同的"Fast mode has been disabled by your organization"消息。
 > * **需要每个会话选择加入**：托管设置设置 [`fastModePerSessionOptIn: true`](#require-per-session-opt-in) 在除交互式终端会话外的任何地方都拒绝 `/fast on`，显示相同的消息。
-> * **快速模式模型不允许**：如果您的组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了快速模式 Opus 模型，启用它会被拒绝，显示"is not in your organization's allowed models"。在已在支持快速模式的允许 Opus 模型上运行的会话中，`/fast` 改为在您当前的模型上启用快速模式，而不是切换模型。
+> * **快速模式模型不允许**：如果您的组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了快速模式 Opus 模型，启用它会被拒绝，显示"is not in your organization's allowed models"。在已在支持快速模式的允许模型上运行的会话中，`/fast` 改为在您当前的模型上启用快速模式，而不是切换模型。
 
 ### 为您的组织启用快速模式
 
@@ -196,7 +199,9 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 ### 要求每个会话选择加入
 
-默认情况下，用户在交互式会话中启用的快速模式会在支持的模型上跨会话保持。要更改此行为，在任何[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中将 `fastModePerSessionOptIn` 设置为 `true`，这会导致每个会话以快速模式关闭开始，并要求用户使用 `/fast` 明确启用它。[Team](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_teams#team-&-enterprise) 或 [Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_enterprise) 计划上的所有者可以通过[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)在组织范围内部署它。
+默认情况下，用户在交互式会话中启用的快速模式会在支持的模型上跨会话保持。在 Fable 5.2 上，仅当用户[在使用 Fable 5.2 时启用了快速模式](#switch-models-while-fast-mode-is-on)时，它才会保持。
+
+要让每个会话都以快速模式关闭的状态开始，请在任何[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中将 `fastModePerSessionOptIn` 设置为 `true`。之后，用户需要在每个会话中使用 `/fast` 启用它。[Team](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_teams#team-&-enterprise) 或 [Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=fast_mode_enterprise) 套餐上的所有者可以通过[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)在组织范围内部署它。
 
 ```json theme={null}
 {
@@ -210,7 +215,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 ## 处理速率限制
 
-快速模式与标准 Opus 有单独的速率限制；对于 Console 组织，Claude Platform 的[速率限制](https://platform.claude.com/docs/en/api/rate-limits)页面对此进行了说明。当您达到快速模式速率限制时：
+快速模式与标准速度有单独的速率限制；对于 Console 组织，Claude Platform 的[速率限制](https://platform.claude.com/docs/en/api/rate-limits)页面对此进行了说明。当您达到快速模式速率限制时：
 
 1. 快速模式自动回退到标准速度
 2. `↯` 图标变灰以指示冷却

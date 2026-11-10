@@ -57,7 +57,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | :- | :- | :- |
 | [`tool.call`](https://code.claude.com/docs/zh-CN/plugins/mods/events#guard-or-change-a-tool-call) | 工具即将运行 | `next(e)`、`{ deny: reason }` 或 `{ result }` |
 | [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/events#where-settings-hooks-run-in-the-order) | Claude Code 在 `tool.call` 和 `PreToolUse` hook 之后决定是否允许运行某个工具调用。`next(e)` 解析为规则、权限模式和这些 hook 得出的决定。 | `next(e)` 或 `{ decision }`，其中 `decision` 设为 `allow`、`ask` 或 `deny`，并可附带可选的 `reason` |
-| `tool.describe` | 每个工具一次，在其描述首次发送给 Claude 时。对于 MCP 工具，当 Claude 通过[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)加载它时会再触发一次，此时 `e.description` 设为 Claude 针对已加载工具读取的文本。 | `{ description }`，可选择将 `isDeferred` 设为 `true` 以将该工具置于工具搜索之后，或设为 `false` 以预先加载它 |
+| `tool.describe` | 每个工具一次，在其描述首次发送给 Claude 时。对于 MCP 工具，当 Claude 通过[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)加载它时会再触发一次，此时 `e.description` 设为 Claude 针对已加载工具读取的文本。 | `{ description }`，可选择将 `isDeferred` 设为 `true` 以将该工具置于工具搜索之后，或设为 `false` 以预先加载它。添加 [`breakPromptCache: true`](#break-prompt-cache) 可在下一轮次发送更改后的描述。 |
 
 #### `tool.check` 上的 Agent 和组织字段
 
@@ -85,7 +85,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | `prompt.edit` | 用户编辑输入框 | `next(e)` |
 | `prompt.autocomplete` | 用户在输入框中输入内容，且光标处有一个词结束。`e.token` 即该词。Claude Code 不会等待该 hook：其自身的自动补全行会先显示。 | `{ suggestions }`，一个由 `{ text, label, description }` 行组成的列表，显示在 Claude Code 自身的行下方。选择某一行会用其 `text` 覆盖该词。 |
 | `prompt.compose` | Claude Code 渲染系统提示词 | `{ sections }`，一个按发送顺序排列的 `{ id, text, scope }` 列表 |
-| [`prompt.section`](https://code.claude.com/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | 系统提示词的每个命名部分一次。`e.name` 是该部分在 `prompt.compose` 中的 `id`。 | `{ text }`，或 `{ text: null }` 以省略该部分 |
+| [`prompt.section`](https://code.claude.com/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | 系统提示词的每个命名部分一次。`e.name` 是该部分在 `prompt.compose` 中的 `id`。 | `{ text }`，或 `{ text: null }` 以省略该部分。添加 [`breakPromptCache: true`](#break-prompt-cache) 可在下一轮次发送更改后的部分。 |
 | [`prompt.context`](https://code.claude.com/docs/zh-CN/plugins/mods/events#rewrite-or-add-to-a-prompt) | 每个对话一次，用于随第一条消息发送的上下文 | `{ blocks }` |
 | `prompt.attachment` | Claude Code 为 Claude 添加一条它自己的消息，例如提醒。`e.type` 指明消息类型；对于类型声明中已声明的类型，`e.detail` 包含编写该文本所依据的事实。 | `{ text }`，或 `{ text: null }` 以省略它 |
 | `prompt.mention` | Claude Code 即将读取提示词中 @ 提及的文件。需要 Claude Code v2.1.290 或更高版本。 | `next({ ...e, path })` 以读取其他文件，或 `{ deny: reason }` |
@@ -107,6 +107,12 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 hook 会读取这两者，而 Claude 读取最终的 `text`。更改任何其他字段的 hook 会[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)。
 
 在 `skill.prompt` 上，`e.source`、`e.pluginName`、`e.path`、`e.frontmatter` 和 `e.frontmatterProblem` 需要 Claude Code v2.1.299 或更高版本。
+
+#### 使用 `breakPromptCache` 发送更改后的系统提示词部分或工具描述
+
+要在正在运行的对话中更改某个部分或工具描述，请调用 `$.ui.invalidate('prompt.section')` 或 `$.ui.invalidate('tool.describe')`，使您的 hook 再次运行，并从中返回 `{ text, breakPromptCache: true }` 或 `{ description, breakPromptCache: true }`。如果没有该字段，对于某个部分或预先加载的工具，Claude 会继续读取[随对话保存](https://code.claude.com/docs/zh-CN/cli-reference.md#system-prompt-flags-in-resumed-conversations)的文本，直到开始新对话或进行[压缩](https://code.claude.com/docs/zh-CN/prompt-caching.md#compacting-the-conversation)。
+
+更改后的文本会在下一轮次传达给 Claude，并且[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md)会重新开始，因此该轮次会更慢且成本更高。该字段需要 Claude Code v2.1.321 或更高版本。从 v2.1.299 到 v2.1.321 之前，正在运行的对话会在下一轮次获得更改后的文本。
 
 ### 命令和配置
 
@@ -212,7 +218,8 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | 命名空间 | 方法 |
 | :- | :- |
 | `$.plugin` | `name`、`root`：此插件的名称和目录 |
-| [`$.ui`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、`focus`、`scroll`、`toast`、`notify`、`status`、`log`、`notice`、`ask`、`copy`、`selection`、`blit` |
+| [`$.ui`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、[`place`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#place-a-row-in-the-transcript)、`focus`、`scroll`、`toast`、`notify`、`status`、`log`、`notice`、`ask`、`copy`、`selection`、`blit`、`view`。`view` 需要 Claude Code v2.1.300 或更高版本，`place` 需要 v2.1.314 或更高版本。 |
+| [`$.theme`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `set`、`clear`：设置一个由 Desktop 或移动应用绘制的背景，以及移除该背景。需要 Claude Code v2.1.319 或更高版本。 |
 | [`$.command`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-command) | `register`、`run`、`list` |
 | [`$.tool`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-tool) | `register`、`call`、`check`、`list` |
 | `$.agent` | `register`、`spawn`、`list`。`list()` 返回此会话的子代理和队友，每项都带有 `status`，其值为 `pending`、`running`、`waiting`、`idle`、`completed`、`failed` 或 `killed` 之一，其中 `idle` 和 `waiting` 需要 Claude Code v2.1.289 或更高版本。 |
@@ -243,6 +250,8 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | :- | :- | :- | :- |
 | [`Pane`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `title`、`isFocused`、`bodyColumns`、`placement`、`scroll`、`view` | 窗格的 `id` | 终端、Desktop、VS Code |
 | [`AbovePrompt`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `hasSurvey`、`isWorking`、`maxRows`、`bodyColumns`、`scroll`、`view` | 单一实例 | 终端、Desktop |
+| [`Placed`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#place-a-row-in-the-transcript) | `id`、`plugin`、`onScreen` | `$.ui.place` 返回的 `requestId` | 终端 |
+| [`Backdrop`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `id`、`plugin`、`glass`、`colorScheme` | `backdrop` | `desktop` 和 `mobile` 使用入口。当 Desktop 或移动应用请求绘制背景时，您的 hook 会运行。 |
 | `UserMessage` | `text`、`origin`、`isExpanded`，以及视来源而定的 `task` 或 `from` | 消息 id | 终端、Desktop、VS Code |
 | `AssistantMessage` | 回复的文本 | 消息 id | 终端、Desktop、VS Code |
 | `ToolUse`, `ToolResult`, `ToolGroup` | 工具的名称、输入和结果 | 工具调用 id | 终端、Desktop、VS Code |
@@ -399,11 +408,12 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | `$.ui.invalidate('ui.render')` 重绘 | 限制为每秒 10 次；在终端中，对于可见窗格、展开区域以及输入框下方的提示行，限制为每秒 30 次。更早到达的调用会被合并。 |
 | `$.ui.toast` | 显示 4 秒，除非您传入 `{ timeoutMs }`。在[经典渲染器](https://code.claude.com/docs/zh-CN/fullscreen.md#enable-fullscreen-rendering)中，mod 较新的 toast 可能会[取代其较早的 toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#a-toast-doesn’t-appear)，无论较早的 toast 正在显示还是正在等待显示。 |
 | 非用户主动打开的窗格 | 终端至少 144 列宽时放置；用户打开过一次后，110 列宽即可 |
+| 单个 mod 在一个对话中同时拥有的来自 `$.ui.place` 的行 | 500。达到此限制时，使用新 `id` 的调用会解析为 `{ isPlaced: false, reason: 'a plugin holds at most 500 placed rows' }`。 |
 | mods API 调用参数的嵌套深度 | 28,000 层。超过此深度，调用会被拒绝，消息以 `nesting deeper than 28000 levels is not supported` 结尾。需要 Claude Code v2.1.299 或更高版本。 |
 | 传递给 `next` 的已更改事件的嵌套深度，[异步生成器 hook](#events)（例如 `turn.step` 上的 hook）除外 | 28,000 层。超过此深度，`next` 会拒绝，消息以 `nesting deeper than 28000 levels is not supported` 结尾。需要 Claude Code v2.1.299 或更高版本。 |
 | hook 返回值的嵌套深度，`ui.render`、`ui.resolve` 和异步生成器 hook 除外 | 28,000 层。超过此深度，该 hook 的结果会被拒绝，[报告此问题的通知](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中包含 `nesting deeper than 28000 levels is not supported`。需要 Claude Code v2.1.299 或更高版本。 |
 | 在 hook 模块的单个文件中相互嵌套的作用域（如函数、代码块和循环） | 2,000 |
-| 命令、工具、子代理类型和窗格名称 | 字母、数字、`_` 和 `-`，最多 64 个字符 |
+| 命令、工具、子代理类型和窗格名称，以及已放置行或背景的 `id` | 字母、数字、`_` 和 `-`，最多 64 个字符 |
 | 单个 `claude plugin test` 测试 | 5 秒，除非该测试设置了 `timeoutMs` |
 
 ## 设置和环境变量
@@ -414,15 +424,15 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | :- | :- | :- |
 | `CLAUDE_CODE_PLUGIN_DIRS` | 环境变量，或 `~/.claude/settings.json` 中的 `env` | 要像 `--plugin-dir` 那样加载的插件目录，用于无法传递标志的应用。以 `:` 分隔的绝对路径，在 Windows 上以 `;` 分隔。 |
 | `CLAUDE_CODE_PLUGIN_DIR_WATCH` | 环境变量 | `1` 使长时间运行的非交互式会话在保存时重新加载 `--plugin-dir` mod |
-| `prependPlugins`, `appendPlugins` | 托管设置。仅在没有托管设置的机器上、且会话的凭据不是 Team 或 Enterprise `/login` 时，才可在用户设置中使用。 | 插件 id 列表，例如 `acme-guard@acme-tools`。`prependPlugins` 中的 mod 在用户安装的每个 mod 之前运行，`appendPlugins` 中的 mod 在之后运行，均按列出的顺序。请参阅 [mod 运行顺序](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)。 |
+| `prependPlugins`, `appendPlugins` | 托管设置。仅在没有托管设置或 [`managed-mcp.json`](https://code.claude.com/docs/zh-CN/managed-mcp#deploy-managed-mcp-json) 文件的机器上、且会话的凭据不是 Team 或 Enterprise `/login` 时，才可在用户设置中使用。 | 插件 id 列表，例如 `acme-guard@acme-tools`。`prependPlugins` 中的 mod 在用户安装的每个 mod 之前运行，`appendPlugins` 中的 mod 在之后运行，均按列出的顺序。请参阅 [mod 运行顺序](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)。 |
 | `allowManagedModsOnly` | 托管设置，作为[内置守卫的选项](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#set-options-on-the-built-in-guard) | 只有[算作您组织的](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods) mod 以及 Claude Code 内置的 mod 会运行其 hook。用户的设置 hook 会继续运行。 |
-| `allowModsToOverrideDenyRules` | 托管设置，作为[内置守卫的选项](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#set-options-on-the-built-in-guard) | 允许用户安装的 mod 批准被 `deny` 规则拒绝的工具调用 |
+| `allowModsToOverrideDenyRules` | 托管设置，作为[内置守卫的选项](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#set-options-on-the-built-in-guard) | 允许用户安装的 mod 批准工具调用，越过大多数[默认保持有效的结果](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)，包括 `deny` 规则 |
 | `allowManagedHooksOnly` | 托管设置 | 阻止不属于您组织的 hook 和已安装的 mod。请参阅[哪些会继续运行](https://code.claude.com/docs/zh-CN/settings-reference.md#what-runs-under-allowmanagedhooksonly)。 |
 | `disableAllHooks` | 任何设置文件 | 在托管设置中，来自已安装插件的任何 mod 或 hook 都不会运行。在您自己的设置中，您组织管理的内容会继续运行。请参阅 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/settings-reference#disableallhooks)。 |
 | `disableSideloadFlags` | 托管设置 | 在启动时拒绝 `--plugin-dir` 和 `--plugin-url` |
 | `pluginConfigs` | 用户设置或托管设置 | 保存 mod 的 `userConfig` 值，以插件 id 为键，例如 `acme-guard@acme-tools`；对于使用 `--plugin-dir` 加载的 mod，则以其名称加 `@inline` 为键，例如 `first-mod@inline` |
 
-`sec-default@builtin` 是 Claude Code 内置的守卫，在 `/plugin` 和调试日志中显示为 `cc-plugin-sec-default`。在有托管设置的机器上，或在凭据为 Team 或 Enterprise [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence) 的会话中，它会在用户安装的每个 mod 之前加载。如果设置了托管的 `prependPlugins`，则只有当该列表指定了该守卫时它才会加载，并位于列出的位置。
+`sec-default@builtin` 是 Claude Code 内置的守卫，在 `/plugin` 和调试日志中显示为 `cc-plugin-sec-default`。在[它会加载的情况下](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)，它会在用户安装的每个 mod 之前运行。如果设置了托管的 `prependPlugins`，则只有当该列表指定了该守卫时它才会加载，并位于列出的位置。
 
 其源代码位于 [Claude Code 仓库的 `mods/sec-default` 目录](https://github.com/anthropics/claude-code/tree/main/mods/sec-default)中。
 

@@ -433,14 +433,14 @@ use a subagent to review the rate limiter diff against SPEC.md, check every requ
 
 ### 更改模型和 effort
 
-[Effort](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level) 是控制 Claude 思考时长的主要手段，它取代了人们过去通过提示词措辞所做的大部分工作。Claude Opus 5.5、Sonnet 5.5 和 Haiku 5.5 默认为 `medium`，这对于范围明确的日常功能开发已经足够。您会在会话中使用 `/effort` 调整它的情况：
+[Effort](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level) 是控制 Claude 思考时长的主要手段，它取代了人们过去通过提示词措辞所做的大部分工作。Claude Fable 5.2、Opus 5.5、Sonnet 5.5 和 Haiku 5.5 默认为 `medium`，这对于范围明确的日常功能开发已经足够。您会在会话中使用 `/effort` 调整它的情况：
 
 * 当做对事情取决于容易被忽略的情况时，使用 `/effort high` 或 `/effort xhigh` 调高。比如您没写过的代码中的错误、不稳定的测试，或者 Claude 必须找到旧 schema 的每一个读取方的 schema 变更。Claude 随后会在回答前检查更多边界情况并验证更多工作，额外的时间和 token 就花在这里。
 * 当您快速来回交流并且无论如何都会审查每个结果时，使用 `/effort low` 调低：头脑风暴、初步草图、跨几个文件的重命名。Claude 会更快地给您一个起点，而且由于您在引导每一步，额外的深思熟虑除了让您多等之外不会改变太多。
 * 将 `max` 留给您希望 Claude 在没有您参与的情况下攻克的难题，比如寻找安全漏洞。在普通任务上它往往会过度思考，所以您付出更多，得到的答案却可能并不比 `high` 更好。
 * 当只有下一条消息需要它时，比如在一系列常规工作中间出现一个棘手的问题，请在那条提示词中加入 [`ultrathink`](https://code.claude.com/docs/zh-CN/model-config#use-ultrathink-for-one-off-deep-reasoning)，而不是更改设置。
 
-至于模型本身，默认的 Opus 5.5 能很好地处理大多数编码工作，而 Sonnet 在常规工作上成本更低。当您通过 `/model fable` 明确选择时，可以使用 [Claude Fable 5.1](https://code.claude.com/docs/zh-CN/model-config.md#work-with-fable)，而 Haiku 很适合执行简单任务的子代理。[模型配置](https://code.claude.com/docs/zh-CN/model-config.md)列出了各套餐和提供商的完整列表。
+至于模型本身，默认的 Opus 5.5 能很好地处理大多数编码工作，而 Sonnet 在常规工作上成本更低。要使用 [Claude Fable 5.2](https://code.claude.com/docs/zh-CN/model-config.md#work-with-fable)，请运行 `/model fable`。Haiku 很适合执行简单任务的子代理。[模型配置](https://code.claude.com/docs/zh-CN/model-config.md)列出了各套餐和提供商的完整列表。
 
 ### 了解子代理的成本
 

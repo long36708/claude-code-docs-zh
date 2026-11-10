@@ -28,6 +28,7 @@ Claude 应用网关部署由一个 YAML 文件配置，按惯例命名为 `gatew
 
 **可选部分：**
 
+* [`login_notice`](#login_notice)：开发人员登录时看到的通知
 * [`admin`](#admin)：Admin API 身份验证和支出限制的保留
 * [`enforcement`](#enforcement)：支出限制故障开放或故障关闭行为
 * [`pricing`](#pricing)：合同费率，以及适用于支出计量器和开发人员所见成本数字的乘数
@@ -847,6 +848,18 @@ API Error: 400 you aren't in a group that can use this gateway. Ask your adminis
 
 ## 可选部分
 
+### `login_notice`
+
+要在开发者登录时向其显示一条通知，请将顶层 `login_notice` 键设置为通知文本，最多 500 个字符。此示例说明了该网关面向哪些人员以及在何处申请访问权限：
+
+```yaml theme={null}
+login_notice: This gateway is for Example Corp staff. For access questions, email it-help@example.com.
+```
+
+开发者会在浏览器中网关的验证页面上以及终端中的交互式登录界面上，于 `Notice from <gateway hostname>` 下方看到该文本。文本中的换行会变为空格。该通知在登录之前显示，因此任何能够访问网关的人都可以读取它。
+
+需要网关服务器上运行 Claude Code v2.1.319 或更高版本；若要在终端界面中显示，开发者的机器上也需要该版本。较早版本的网关在发现该键时会拒绝启动。请在添加该键之前升级所有副本，并在回滚之前移除该键。
+
 ### `admin`
 
 可选。启用 `/v1/organizations/spend_limits`（它与 Anthropic 的公开 Admin API 一致），并在 `/v1/messages` 上按开发者执行支出限制。有关上限的设置和执行方式，请参阅[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)；本节介绍用于启用和调整该功能的 `gateway.yaml` 键。
@@ -865,6 +878,9 @@ admin:
   # IdP groups granted full admin via the normal gateway JWT (no API key).
   admin_groups: [platform-finops]
   blocked_message: request an increase at https://go.example.com/claude-limits
+  # Try eng-platform's pooled budget first, then eng-all's, then any other group's.
+  pooled_conflict_rule: priority_list
+  pooled_priority_order: [eng-platform, eng-all]
 ```
 
 | 字段 | 必需 | 描述 |
@@ -877,6 +893,21 @@ admin:
 | `spend_retention_months` | 否 | 默认值 `13`。早于此时间的 `spend` 计数器行会被清除。默认值保留完整一年加上当前未满的月份，以便进行同比报告。 |
 | `identity_retention_days` | 否 | 默认值 `90`。`principal_emails` 行的最后活跃 TTL，这些行保存每位开发者的电子邮件、显示名称和组（PII）。有意设置得比支出保留期短，以便已取消配置的身份过期，而其匿名支出计数器仍然保留。 |
 | `group_limit_mode` | 否 | `min`（默认）或 `max`。当开发者属于多个设有上限的组时，`min` 执行最严格的上限，`max` 执行最宽松的上限。执行和 `/effective` 都使用此设置。 |
+| `pooled_conflict_rule` | 否 | `default_order`（默认）或 `priority_list`。网关尝试开发者共享预算的顺序。请参阅[共享预算顺序](#pooled-budget-order)。需要 v2.1.319 或更高版本。 |
+| `pooled_priority_order` | 使用 `priority_list` 时必需 | 最多 50 个组名，每个只列出一次，拼写与您的 IdP 发送的一致。网关会优先尝试这些组的共享预算。请参阅[共享预算顺序](#pooled-budget-order)。需要 v2.1.319 或更高版本。 |
+
+#### 共享预算顺序
+
+共享预算是整个组共同消耗的一个月度限额。要设置共享预算，请在[设置该组月度上限的请求](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md#set-a-cap)中添加 `pooled_budget`，例如 `"pooled_budget": {"amount": "500000"}` 表示 \$5,000。该请求还需要该组的 `scope`、`"period": "monthly"` 和 `amount`，其中 `amount` 仍是每位成员自己的上限。
+
+对于属于多个此类组的开发者，每个请求都会计入第一个支出低于其限额的预算；当所有预算都已用完时，请求会被拒绝。`pooled_conflict_rule` 设置网关尝试这些预算的顺序：
+
+* **`default_order`**：限额最大的优先，限额相同时按组名升序排列
+* **`priority_list`**：先按列表顺序尝试 `pooled_priority_order` 中各组的预算，然后按组名尝试其他组的预算
+
+如果您列出了组但未设置 `pooled_conflict_rule: priority_list`，网关会忽略该列表并在启动时记录一条警告。
+
+早于 v2.1.319 的网关服务器在发现 `pooled_conflict_rule` 或 `pooled_priority_order` 时会拒绝启动。请在添加任一键之前升级所有副本，并在回滚之前移除这两个键。
 
 ### `enforcement`
 
@@ -1675,6 +1706,8 @@ load_test_mode:
 # 环境变量控制（debug | info | warn | error；默认 info）。debug
 # 也会记录每个 id_token 中的声明名称，用于 groups_claim 诊断。
 # 它不影响审计事件，总是发出。
+# 设置 CLAUDE_GATEWAY_LOG_FORMAT=json 可将操作日志行写为包含
+# severity、time 和 message 的 JSON 对象。
 
 listen:
   host: 0.0.0.0
@@ -1697,9 +1730,9 @@ oidc:
   # 可以省略电子邮件和组；网关从 /userinfo 填充它们。
   userinfo_fallback: true
   # allowed_groups: [claude-code-users]
-  # Okta 仅在请求 `groups` 范围且
+  # Okta 仅在请求 `groups` 作用域且
   # 应用的组声明过滤允许它们时发出组。下面的承包商策略
-  # 匹配组，因此范围在此处请求。
+  # 匹配组，因此作用域在此处请求。
   scopes: [openid, profile, email, offline_access, groups]
   # extra_auth_params: { access_type: offline, prompt: consent }  # Google
   # groups_claim: groups          # Entra 应用角色：使用 `roles`
@@ -1715,6 +1748,9 @@ store:
   # connect_timeout_seconds: 5
   # readiness_grace_seconds: 300   # 在数据库故障转移期间保持通过就绪检查
 
+# 登录时显示的通知。任何能够访问网关的人都可以阅读它。
+# login_notice: This gateway is for Example Corp staff. For access questions, email it-help@example.com.
+
 # 启用 /v1/organizations/spend_limits（镜像 Anthropic Admin API）
 # 和 /v1/messages 上的每开发者支出强制。省略以禁用。
 # 上限本身通过 admin API 设置，而不是此处。
@@ -1729,6 +1765,8 @@ store:
 #   # spend_retention_months: 13
 #   # identity_retention_days: 90
 #   # group_limit_mode: min
+#   # pooled_conflict_rule: priority_list
+#   # pooled_priority_order: [eng-platform, eng-all]
 
 # enforcement:
 #   fail_closed_on_error: false

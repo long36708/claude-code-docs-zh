@@ -70,9 +70,9 @@ ZDR 不适用于以下内容，即使对于启用了 ZDR 的组织也是如此�
 
 ### ZDR 下的模型可用性
 
-Claude Fable 5.1 和 Fable 5 是[覆盖模型](https://support.claude.com/en/articles/15425695-covered-models)，[默认需要数据保留](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention#model-specific-data-retention-requirements)，ZDR 组织或工作区是否可以使用它们由覆盖模型政策而非 Claude Code 管理。如果您的组织无法使用它们，这些模型要么在 `/model` 选择器中不存在，要么显示为禁用，服务器无论客户端配置如何都会拒绝对其的请求。
+Claude Fable 5.2、Fable 5.1 和 Fable 5 是[覆盖模型](https://support.claude.com/en/articles/15425695-covered-models)，[默认需要数据保留](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention#model-specific-data-retention-requirements)，ZDR 组织或工作区是否可以使用它们由覆盖模型政策而非 Claude Code 管理。如果您的组织无法使用它们，这些模型要么在 `/model` 选择器中不存在，要么显示为禁用，服务器无论客户端配置如何都会拒绝对其的请求。
 
-其他模型在 ZDR 下仍然可用。Fable 模型不是默认模型，`best` 别名在可用的地方解析为最新的 Fable 模型，在不可用的地方解析为 Opus。
+其他模型在 ZDR 下仍然可用。Fable 模型不是默认模型，`best` 别名解析为 Opus。
 
 ## 政策违规的数据保留
 

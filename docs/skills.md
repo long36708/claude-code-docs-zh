@@ -22,7 +22,7 @@ Claude Code skills 遵循 [Agent Skills](https://agentskills.io) 开放标准，
 
 Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/batch`、`/debug`、`/loop` 和 `/claude-api`。捆绑技能是基于提示的：它们为 Claude 提供详细的指令，让它使用其工具来协调工作。大多数内置命令则直接执行固定逻辑。
 
-您调用捆绑技能的方式与调用任何其他技能相同，即输入 `/` 后跟技能名称。Claude 在相关时会自动调用某些捆绑技能；其他技能（包括 `/verify`）仅在您调用它们时运行，这样可以让您控制这些耗时较长的检查何时花费时间和令牌。
+输入 `/` 后跟 skill 名称即可调用随附 skill。Claude 在相关时会自动调用某些随附 skill；其他 skill（包括 [`/verify`](#run-and-verify-your-app)）仅在您调用它们时运行。
 
 大多数捆绑技能在每个会话中都可用。少数技能取决于特定功能：例如，`/workflow-authoring` 仅在[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)启用时可用。
 

@@ -2787,7 +2787,7 @@ Claude Code 根据子代理的最后一次 API 请求（而非整个运行过程
 
 运行一个后台来源，并将每个事件传递给 Claude，使其无需轮询即可做出响应：`command` 运行一个脚本，每行 stdout 产生一个事件；`ws` 打开一个 WebSocket，每个文本帧产生一个事件。`command` 和 `ws` 必须且只能提供其中一个。
 
-当 Monitor 运行命令时，它遵循与 Bash 相同的权限规则；WebSocket 监视会单独请求批准。`ws` 来源需要 Claude Code v2.1.195 或更高版本。有关行为和提供商可用性，请参阅 [Monitor 工具参考](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)。
+`ws` 来源需要 Claude Code v2.1.195 或更高版本。当 Monitor 运行命令时，它遵循与 Bash 相同的权限规则。有关 WebSocket 权限、行为和提供商可用性，请参阅 [Monitor 工具参考](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)。
 
 **输入：**
 

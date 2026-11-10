@@ -1382,7 +1382,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 
 > [accordion] worktree 中的编辑何时可以继续工作
 >
-> 在 Linux 或 macOS 远程计算机上，该检查不经过 Desktop，因此在 Desktop 断开连接期间，worktree 内的编辑可以继续工作。在 Claude Desktop v2.37337.0 之前，这仅适用于 Linux 远程计算机。
+> 在 Linux 或 macOS 远程计算机上，worktree 内的编辑可以在 Desktop 断开连接时继续工作，因为对每次编辑的检查可以在没有 Desktop 的情况下运行。在 [Claude Desktop v2.37337.0](#check-your-version) 之前，这仅适用于 Linux 远程计算机。
 >
 > 在某些情况下编辑仍会失败，包括以下情况：
 >

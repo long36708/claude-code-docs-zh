@@ -197,6 +197,8 @@ export function register(on) {
 >
 > 要在条带中绘制，请过滤 `{ component: 'AbovePrompt' }`。
 
+mod 还可以[在会话记录中放置自己的一行](#place-a-row-in-the-transcript)。
+
 ### 更改 Claude Code 已经绘制的内容
 
 Claude Code 自己绘制大部分界面：消息、工具调用行、加载指示器等。这些部分中的每一个也是一个渲染站点，因此 mod 可以重新设置其样式或替换它。要更改其中一个，请让您的 `ui.render` hook 按此表中的名称进行过滤：
@@ -348,6 +350,91 @@ await $.ui.open(items.length > 0 ? { ...pane, focus: true } : pane)
 * **问题对话框**：在 `AskUserQuestion` 处，面板会保留其自己的问题卡片，并在其上方绘制您的元素。您传递给 `next` 的 prop 不会更改该卡片。
 * **提示词建议**：`$.prompt.suggest` 会以 `isShown: false` 解析且不显示任何内容，因为面板将输入框中的灰色建议文本保留给 Claude 自己的建议。
 * **文本限制**：面板会将状态栏截断为 200 个字符或两行，将 toast 截断为 500 个字符。
+
+### 在会话记录中放置一行
+
+行是您的 mod 在终端中添加到会话记录里、位于最新消息之后的一行内容。随着对话的进行，它会停留在该位置，并且 Claude 看不到它。`$.ui.place` 需要 Claude Code v2.1.314 或更高版本。
+
+**1. 放置行**
+
+使用一个 `id` 调用 [`$.ui.place`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods)。`id` 是您为该行自拟的名称，例如 `build-status`。它可以包含 1 到 64 个字母、数字、`_` 或 `-`，并且您的 mod 在会话记录中的每一行都需要有自己的 `id`。
+
+**2. 绘制行**
+
+在 [`Placed`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#render-sites) 渲染位置绘制该行。
+
+此示例添加了一个 `/build-status` 命令。当用户运行该命令时，mod 会添加一行显示 `Build: passing` 的内容。为了让示例保持简短，文本是固定的，实际的 mod 会绘制自己的结果：
+
+```javascript theme={null}
+export function register(on) {
+  on('session.start', async ($, e, next) => {
+    await $.command.register({ name: 'build-status', description: 'Show the build status' })
+    return next(e)
+  })
+
+  on('command.run', { command: 'build-status' }, async ($) => {
+    const placed = await $.ui.place({ id: 'build-status' })
+    // Where nothing draws the row, reply with text instead
+    return placed.isPlaced ? {} : { text: 'Build: passing' }
+  })
+
+  on('ui.render', { component: 'Placed' }, async ($, e, next) => {
+    // This hook runs for every mod's rows, and another mod can use the same id
+    if (e.props.plugin !== $.plugin.name || e.props.id !== 'build-status') return next(e)
+    const { Text } = $.ui.resolve(e)
+    return Text({ children: ['Build: passing'] })
+  })
+}
+```
+
+要试用此示例，请将这段代码放入一个 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md) 中。在终端会话中，于 Claude Code 提示符处运行 `/build-status`。`Build: passing` 会作为一行出现在会话记录的末尾。
+
+该调用并不总是会显示一行，而且一行之后也可能消失，因此请在您的 mod 中处理以下情况：
+
+* **结果**：当终端绘制该行时，结果为 `{ isPlaced: true, requestId }`。否则 `isPlaced` 为 `false`，`reason` 说明原因，例如 `no attached surface draws placed rows yet`。其中一个原因是 mod 同一时间可拥有的[行数限制](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)。
+* **使用相同 `id` 的第二次调用**：当第一行仍在会话记录中时，该调用不会添加新行，而是以该行的 `requestId` 解析。要更改该行显示的内容，请[重新绘制该行](#redraw-when-something-changes)。
+* **行何时消失**：对话结束时、用户回退到该行之前时，或者在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)之外对话被压缩时。`--resume` 不会恢复该行。要再次显示该行，请再次调用 `$.ui.place`。
+
+### 在对话后方放置背景
+
+> [!NOTE]
+>
+> `$.theme.set` 和 `$.theme.clear` 取代了 `$.ui.backdrop`，后者已在 Claude Code v2.1.319 中移除。请将 `$.ui.backdrop({ id: 'your-backdrop' })` 改为 `$.theme.set({ backdrop: { id: 'your-backdrop' } })`，将 `$.ui.backdrop(undefined)` 改为 `$.theme.clear()`，后者会移除任何 mod 设置的背景。
+
+要在 Desktop 应用或移动应用中于对话后方放置背景，请使用 `backdrop` 调用 [`$.theme.set`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods)，然后在 [`Backdrop`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#render-sites) 渲染位置绘制该背景。要移除背景，请调用 `$.theme.clear()`。终端不绘制背景。`$.theme.set` 和 `$.theme.clear` 需要 Claude Code v2.1.319 或更高版本。
+
+此 mod 在会话开始时设置背景、绘制该背景，并添加一个用于移除背景的 `/plain` 命令：
+
+```javascript theme={null}
+export function register(on) {
+  // Neither a reload of this mod nor --resume keeps the backdrop, so set it here
+  on('session.start', async ($, e, next) => {
+    await $.theme.set({ backdrop: { id: 'night-sky', colorScheme: 'dark' } })
+    await $.command.register({ name: 'plain', description: 'Take the backdrop off' })
+    return next(e)
+  })
+
+  on('ui.render', { component: 'Backdrop' }, async ($, e, next) => {
+    // This hook runs for every mod's backdrop, and another mod can use the same id
+    if (e.props.plugin !== $.plugin.name || e.props.id !== 'night-sky') return next(e)
+    const { Box, Text } = $.ui.resolve(e)
+    return Box({ backgroundColor: 'blue', children: [Text({ children: ['Night sky'] })] })
+  })
+
+  on('command.run', { command: 'plain' }, async ($) => {
+    const cleared = await $.theme.clear()
+    return { text: cleared.reason }
+  })
+}
+```
+
+要试用此示例，请将这段代码放入一个 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md) 中，并在 Desktop 应用或移动应用中启动一个会话。要移除背景，请在 Claude Code 提示符处运行 `/plain`。会话记录会在 mod 名称后显示 `the theme is cleared`，例如对于名为 `night-sky` 的 mod，显示为 `night-sky: the theme is cleared`。
+
+请了解 `backdrop` 接受哪些内容、调用结果会告诉您什么，以及其他 mod 可以更改什么：
+
+* **`backdrop` 字段**：`id` 是您选择的[名称](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)，为必填项，其他字段均为可选。`colorScheme` 为 `'light'` 或 `'dark'`，用于说明您绘制的内容是浅色还是深色。有关 `glass`，请参阅[适用于您所用版本的类型](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)。
+* **背景是否被绘制**：当连接到该会话的 Desktop 或移动应用表示它会绘制背景时，`$.theme.set` 以 `isDrawn: true` 解析。否则 `isDrawn` 为 `false`，`reason` 说明原因。
+* **每个会话一个背景**：无论背景是由哪个 mod 设置的，`$.theme.set` 调用都会替换会话的背景，`$.theme.clear()` 都会移除该背景。请仅在用户要求时调用 `$.theme.clear()`。
 
 ## 从元素构建树
 

@@ -279,7 +279,7 @@ on('prompt.submit', async ($, e, next) => {
 * **您的 hook 在其 `next(e)` 调用已放行提示词之后返回 `drop`**：轮次仍会运行，并且该 hook 会[失败](#handle-a-hook-that-fails)，错误消息中包含 `a drop after its next() was answered`
 * **您的 hook 抛出异常或超时**：Claude Code 会跳过它并发送提示词。请[添加 `.catch` 处理程序](#handle-a-hook-that-fails)，以免失败时发送了本应被该 hook 阻止的提示词。
 
-[其他事件](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。这些 hook 产生的文本如果在请求之间发生变化，会[使提示缓存失效](https://code.claude.com/docs/zh-CN/prompt-caching.md)。在 `skill.prompt` hook 中，您还可以读取[该 skill 来自哪个插件或文件](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#skill-prompt-fields)。
+[其他事件](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。要在对话开始后更改某个部分，请参阅[发送更改后的系统提示词部分或工具描述](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#break-prompt-cache)。在 `skill.prompt` hook 中，您还可以读取[该 skill 来自哪个插件或文件](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#skill-prompt-fields)。
 
 ### 跟踪轮次
 
@@ -328,7 +328,7 @@ Claude 的回复会像没有该 mod 时一样以流式方式显示在屏幕上�
 
 请检查哪些 mod 会收到此事件以及您的 Claude Code 版本：
 
-* **内置守卫**：存在托管设置时，或者以 Team 或 Enterprise [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence) 作为会话的凭据时，[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)可能会跳过您安装或通过 `--plugin-dir` 加载的 mod 中的此 hook。要进行检查，请在[调试日志](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log)中搜索 `settings.read bypassed by cc-plugin-sec-default`。如果包含该文本的行指明了您的 mod，请让您组织的管理员[将该 mod 安装为组织的 mod 之一](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)。
+* **内置守卫**：在加载了[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)的环境中，它可能会跳过您安装或通过 `--plugin-dir` 加载的 mod 中的此 hook。要进行检查，请在[调试日志](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#read-the-debug-log)中搜索 `settings.read bypassed by cc-plugin-sec-default`。如果包含该文本的行指明了您的 mod，请让您组织的管理员[将该 mod 安装为组织的 mod 之一](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)。
 * **版本**：该事件在 Claude Code 自身的读取上触发，以及 `e.layers` 字段，都需要 Claude Code v2.1.304 或更高版本。
 
 #### `settings.read` hook 接收的内容

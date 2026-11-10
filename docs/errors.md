@@ -52,7 +52,7 @@
 | `Credit balance is too low` | [使用限制](#credit-balance-is-too-low) |
 | `You've hit your monthly spend limit` / `You've hit your individual spend limit` / `You've hit your org's monthly spend limit` / `You've hit your channel's monthly spend limit` / `You've hit your team's shared budget` / `You've hit your individual usage limit` | [使用限制](#youve-hit-your-monthly-spend-limit) |
 | `Could not update your spend limit` | [使用限制](#could-not-update-your-spend-limit) |
-| `spend limit reached` / `spend limit unavailable` | [使用限制](#spend-limit-reached) |
+| `spend limit reached` / `spend limit unavailable` / `This request exceeds your group's budget` | [用量限制](#spend-limit-reached) |
 | `Not logged in · Please run /login` | [身份验证](#not-logged-in) |
 | `Couldn't save your login` | [身份验证](#couldnt-save-your-login) |
 | `Sign in again to take your previous account or API key off the config file.` | [身份验证](#sign-in-again-to-take-your-previous-account-or-api-key-off-the-config-file) |
@@ -336,6 +336,7 @@
 | `MCP server "<name>" connection closed before the tool call was answered` | [工具错误](#connection-closed-before-the-tool-call-was-answered) |
 | `MCP server "<name>" is disabled — re-enable it via /mcp to use its tools` | [工具错误](#mcp-server-is-disabled) |
 | `MCP server "<name>" tool "<tool>" timed out after <N>s. The server asked the user a question, and no answer came before the time limit.` | [工具错误](#mcp-tool-call-timed-out-with-the-servers-question-unanswered) |
+| `Permission prompt tool returned an invalid result` | [工具错误](#permission-prompt-tool-returned-an-invalid-result) |
 | `would be spawned with zero tools — refusing` | [工具错误](#agent-would-be-spawned-with-zero-tools) |
 | `File is covered by a Read deny rule in your permission settings` | [工具错误](#file-is-covered-by-a-read-deny-rule) |
 | `<path> is outside <dirs>; the permissions.blockWritesOutsideWorkingDirectories setting blocks writes outside the working directories` | [工具错误](#setting-blocks-writes-outside-the-working-directories) |
@@ -420,6 +421,7 @@
 | `The Claude Code program for this computer, the <build> build, could not be found` | [包装器和 IDE 错误](#the-claude-code-program-for-this-computer-could-not-be-found) |
 | `Restored the code, but skipped N files` | [Rewind 警告和错误](#restored-the-code-but-skipped-files) |
 | `No files were restored: N files failed (backup missing, or the file could not be updated)` | [Rewind 警告和错误](#no-files-were-restored) |
+| `The file backups are still being copied. Nothing was changed. Try again in a moment.` | 在 [`/rewind`](https://code.claude.com/docs/zh-CN/checkpointing) 中再次选择同一个点。如果您在 [`/branch`](https://code.claude.com/docs/zh-CN/sessions#branch-a-session) 之后不久恢复代码，Claude Code 可能仍在将文件备份复制到新会话。 |
 | `Transcript writes are failing (...)` | [会话保存警告](#transcript-writes-are-failing) |
 | `Transcript saving is off — CLAUDE_CODE_SKIP_PROMPT_HISTORY is set` | [会话保存警告](#transcript-saving-is-off-skip-prompt-history) |
 | `Transcript saving is off — inherited CLAUDE_CODE_CHILD_SESSION marker` | [会话保存警告](#transcript-saving-is-off-child-session-marker) |
@@ -431,6 +433,7 @@
 | `Not loaded: rename <path>, then restart — its name uses "<name>", a name reserved for the skills synced from your claude.ai account` | [配置警告](#a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved) |
 | `N skill or command names refused: run with --debug to see which ([names]), rename, then restart` | [配置警告](#skill-or-command-name-refused) |
 | `Ignoring N permissions.allow entries from ... this workspace has not been trusted` | [配置警告](#workspace-has-not-been-trusted) |
+| `Two Claude Code config files exist: this run uses <path>, not <path>` | [配置警告](#two-claude-code-config-files-exist) |
 | `Make this change again later: <path> could not be updated, so it applies to this session only` | [配置警告](#make-this-change-again-later) |
 | `is a network path, which cannot be added as a working directory` | [配置警告](#working-directory-is-a-network-path) |
 | `Remote managed settings failed to load (<cause>)` | [配置警告](#remote-managed-settings-failed-to-load) |
@@ -468,6 +471,7 @@
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" isn't a usable size, so Claude Code ignores it` | [`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值和警告](https://code.claude.com/docs/zh-CN/model-config#claude_code_auto_compact_window-values) |
 | `Model "<model>" isn't recognized · context assumed to be 200k tokens` | [更正网关或自定义模型 ID 的窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id) |
 | `Claude Code doesn't recognize the model "<model>", so it assumes a context window of 200k tokens` | [更正网关或自定义模型 ID 的窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id) |
+| `Model "<model>" isn't recognized · did you mean "<suggestion>"?` / `Claude Code doesn't recognize the model "<model>". Did you mean "<suggestion>"?` | [修正拼写错误的模型名称](https://code.claude.com/docs/zh-CN/model-config.md#fix-a-mistyped-model-name) |
 | `[claude-code:unrecognized_model]` | [配置警告](#unrecognized-model-id-on-a-request) |
 | `is ignored — managed settings set allowManagedReadPathsOnly` / `is ignored — managed settings set allowManagedDomainsOnly` | [配置警告](#sandbox-allow-entries-are-ignored-under-a-managed-lock) |
 | `Sandbox mask files left behind at write-deny paths` | [配置警告](#stale-sandbox-mask-files-left-by-a-killed-session) |
@@ -909,7 +913,7 @@ Fable limit reached · continuing on Fable 5.1 uses usage credits, and the promp
 Fable 5.1 now uses usage credits · the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
 ```
 
-消息命名会话的 Fable 模型，因此在 Fable 5 上它们读作 `continuing on Fable 5` 和 `Fable 5 now uses usage credits`。在 v2.1.257 之前，第一条消息以 `Fable 5 limit reached` 开头。
+消息命名会话的 Fable 模型，因此在 Fable 5.2 上它们读作 `continuing on Fable 5.2` 和 `Fable 5.2 now uses usage credits`。在 v2.1.257 之前，第一条消息以 `Fable 5 limit reached` 开头。
 
 这发生在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话、[background sessions](https://code.claude.com/docs/zh-CN/agent-view.md)、[agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友会话以及另一个应用程序通过 Agent SDK 托管的会话中。有关 Claude Code 何时关闭提示，请参阅 [Fable and usage credits](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits)。
 
@@ -983,18 +987,31 @@ You've hit your channel's monthly spend limit · an org owner or channel manager
 
 ### Spend limit reached
 
-您通过 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 连接，并已超过您的网关操作员设置的 [spend cap](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)。网关阻止您的请求，直到命名的期间重置或操作员提高上限。它将每个被阻止的 `429` 响应标记为 `x-should-retry: false`，因此 Claude Code 显示此消息而不重试。
+您通过 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 连接，并已达到您的网关操作员设置的 [spend cap](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)。网关会阻止您的请求，直到操作员提高上限，或者在上限高于 \$0 时直到上限重置。它将每个被阻止的 `429` 响应标记为 `x-should-retry: false`，因此在终端中 Claude Code 会显示此消息而不重试。
 
 ```text theme={null}
-spend limit reached (daily; resets 2026-08-09 00:00 UTC)
+spend limit reached · resets Dec 1
 ```
 
-消息命名上限的期间和重置时间，当操作员配置了 `blocked_message` 时，他们的说明跟在它后面。在 v2.1.225 之前，消息仅读作 `spend limit reached`；较旧版本上的网关仍然发送该较短的形式。
+检查消息中是否有日期：
+
+* **带有日期**：上限会在该日期的 00:00 UTC 重置
+* **没有日期**：您的上限为 \$0，或您的网关运行的版本早于 v2.1.225
+
+消息中的任何其他文本都是您的网关操作员的说明。
+
+在网关服务器上从 v2.1.225 到 v2.1.319 期间，消息会命名上限的期间和重置时间，如 `spend limit reached (daily; resets 2026-08-09 00:00 UTC)`。
 
 **要做什么：**
 
-* 等待消息命名的重置时间，或如果消息包含说明，请遵循操作员的说明
-* 如果您经常达到上限，要求您的网关操作员提高上限
+* 如果消息带有日期，请等待重置，或如果消息包含操作员的说明，请遵循该说明
+* 如果消息没有日期、日期过后您仍被阻止，或您经常达到上限，请要求您的网关操作员提高上限
+
+另一条网关消息 `This request exceeds your group's budget` 表示您所在组的 [pooled budget](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#pooled-budget-order) 已用完。请按照其中列出的步骤操作：
+
+```text theme={null}
+This request exceeds your group's budget. Ask your organization's admins to raise it, or try again after it resets on November 1 at 00:00 UTC.
+```
 
 一条相关消息 `spend limit unavailable` 意味着网关无法读取其支出记录，并作为预防措施而不是超过您的上限而阻止了请求。它通常会自行清除；如果它持续存在，请告诉您的网关操作员。
 
@@ -2287,9 +2304,9 @@ Couldn't share the transcript.
 
 ### Couldn't send feedback
 
-以 `Couldn't send feedback` 开头的消息表示反馈服务未确认收到您从 [`/feedback`、`/bug` 或 `/share` 对话框](https://code.claude.com/docs/zh-CN/commands#all-commands)提交的报告，或者已排队的[反馈草稿](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)。请将其视为未收到。如果冒号之后是一句关于您组织的说明，则表示您的组织拒绝接收反馈，同一份报告再次发送也会得到相同的结果。
+以 `Couldn't send feedback` 开头的消息表示反馈服务未确认收到您从 [`/feedback`、`/bug` 或 `/share` 对话框](https://code.claude.com/docs/zh-CN/commands#all-commands)提交的报告，或者已排队的[反馈草稿](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)。请将其视为未收到。如果冒号之后是一句关于您组织的说明，则表示您的组织拒绝接收反馈。
 
-以下两个示例中，第二个是组织拒绝：
+第二个示例是组织的拒绝：
 
 ```text wrap theme={null}
 Couldn't send feedback (couldn't reach the service). If it keeps failing, you can file at https://github.com/anthropics/claude-code/issues instead.
@@ -2300,7 +2317,7 @@ Couldn't send feedback: Feedback has not been enabled for your organization. To 
 **解决方法：**
 
 * **未登录**：消息后续为 `: not signed in. Run /login, then retry.`。请运行 `/login`，然后再次发送
-* **您的组织拒绝**：例如 `: Feedback has not been enabled for your organization.` 或 `: Feedback collection is not available for organizations with custom data retention policies.`。如果消息附有 `To report a bug, open an issue`，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交 issue。已排队的草稿会保留在队列中，您可以[将其丢弃](https://code.claude.com/docs/zh-CN/tools-reference.md#discard-or-keep-a-draft)
+* **您的组织拒绝**：例如 `: Feedback has not been enabled for your organization.` 或 `: Feedback collection is not available for organizations with custom data retention policies.`。如果消息附有 `To report a bug, open an issue`，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交 issue。之后在七天内，`/feedback` 可能会提示它已[被您组织的策略禁用](#feedback-is-disabled-by-your-organizations-policy)。已排队的草稿会保留在队列中，并仍会[按计划过期](https://code.claude.com/docs/zh-CN/tools-reference.md#discard-or-keep-a-draft)
 * **凭据被拒绝**：消息后续为 `: the sign-in this session uses is not allowed to send feedback` 或 `: the server did not accept the credentials this session uses`。请在 Claude Code 提示符处运行 `/status`，查看此会话发送的是哪个登录、令牌或 API 密钥
 * **紧跟在 `Couldn't send feedback` 之后的 `(request timed out)` 或 `(couldn't reach the service)`**：请再次发送报告或已排队的草稿。对话框会保留您的文本，已排队草稿的消息会显示 `The draft is still queued.`。如果其他请求也在失败，请检查您的网络连接，并参阅 [Unable to connect to API](#unable-to-connect-to-api)。如果持续失败，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告
 * **紧跟在 `Couldn't send feedback` 之后的 `(server returned <status>)`，或没有任何原因**：该状态码是服务的响应代码。如果服务发送了自己的消息，该消息会跟在状态码之后，例如 `(server returned 403: Access Forbidden)`。如果持续失败，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告
@@ -3431,7 +3448,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了非标志的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请去掉该标志。要在本次运行中信任它，请将 PR 编号或基准分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3724,8 +3741,8 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令如何运行](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
 
 **解决方法：**
 
@@ -3878,7 +3895,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较前已从 origin 获取该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议运行 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议运行 `git fetch --unshallow origin`，而在完整克隆上该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 
@@ -4227,7 +4244,12 @@ Output styles are saved to local settings (.claude/settings.local.json), which t
 
 ### /feedback is disabled by your organization's policy
 
-此消息表示您组织的策略不允许从 Claude Code 提交产品反馈，因此 `/feedback`、`/bug` 和 `/share` 不会打开反馈对话框。该消息会指明您在 Claude Code 提示符处输入的命令：
+此消息表示产品反馈已关闭，因此您输入的命令不会打开反馈对话框。组织策略和之前的拒绝都会产生此消息：
+
+* **组织策略**：您组织的策略不允许从 Claude Code 提交产品反馈。`/feedback`、`/bug` 和 `/share` 都会以此消息回应。
+* **之前的拒绝**：反馈服务拒绝了您发送的报告，例如显示 [`Couldn't send feedback: Feedback has not been enabled for your organization.`](#couldnt-send-feedback)。此后 `/feedback` 和 `/bug` 可能会以此消息回应。该状态在本机上从该次拒绝起持续七天。这适用于所有套餐，包括 Pro 和 Max。
+
+该消息会指出您在 Claude Code 提示符处输入的命令：
 
 ```text wrap theme={null}
 /feedback is disabled by your organization's policy. To report a bug, open an issue at https://github.com/anthropics/claude-code/issues. Issues are public, so leave out anything confidential.
@@ -4238,6 +4260,9 @@ Output styles are saved to local settings (.claude/settings.local.json), which t
 **解决方法：**
 
 * 如需报告 bug，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交 issue。那里的 issue 任何人都可以阅读，因此请勿包含代码、会话记录以及任何其他机密内容。
+* 如果是之前的拒绝导致的，请等待七天后再次发送报告，看服务是否仍然拒绝
+
+在 v2.1.319 之前，之前的拒绝不会产生此消息。
 
 在 v2.1.302 之前，完整消息为 `/feedback is disabled by your organization's policy. Contact your organization admin to enable it.`
 
@@ -4653,6 +4678,23 @@ MCP server "<name>" tool "<tool>" timed out after <N>s. The server asked the use
 * 在 TypeScript Agent SDK 应用程序中，让您的 [`onElicitation`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 回调在限制用尽之前返回其回答
 * 如需给回答留出更多时间，请在该服务器的配置条目中设置更长的 [`timeout`](https://code.claude.com/docs/zh-CN/mcp#time-limits-on-mcp-tool-calls)（以毫秒为单位），例如 `"timeout": 600000` 表示 10 分钟
 * 改为在交互式会话中运行该任务，并自行回答服务器的[对话框](https://code.claude.com/docs/zh-CN/mcp.md#respond-to-mcp-elicitation-requests)
+
+### Permission prompt tool returned an invalid result
+
+您传给 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 的工具返回了一个 Claude Code 无法读取的应答，因此等待该应答的工具调用没有运行，即使该应答允许了该调用：
+
+```text wrap theme={null}
+Permission prompt tool returned an invalid result. Expected a single text block param with type="text" and a string text value.
+```
+
+**处理方法：**
+
+* 返回一个文本块，其文本为 `{"behavior": "allow"}` 或 `{"behavior": "deny", "message": "<reason>"}`。如需更改输入，请在 `allow` 对象中添加 `updatedInput`。从 v2.1.86 到 v2.1.206，`allow` 需要 `"updatedInput": {}` 才能保留输入。
+* 不要返回 [`structuredContent`](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools#return-structured-data)，您的 MCP SDK 可能会自行添加它。例如，按以下方式注册该工具：
+  * **来自 `mcp.server` 的 `FastMCP` 或 `MCPServer`**：使用 `structured_output=False`
+  * **来自 `fastmcp` 的 `FastMCP`**：使用 `output_schema=None`，并返回字符串
+  * **MCP TypeScript SDK**：不使用 `outputSchema`
+* 如果该错误只在输入约为 40 KB 或更大时出现，请不要将输入复制到 `updatedInput` 或拒绝的 `message` 中。如需更改这么大的输入，请[提高您的提示工具的输出限制](https://code.claude.com/docs/zh-CN/mcp.md#raise-the-limit-for-a-specific-tool)。
 
 ### Agent would be spawned with zero tools
 
@@ -6432,6 +6474,41 @@ sandbox.filesystem.allowRead is ignored — managed settings set allowManagedRea
 
 在 v2.1.257 之前，`claude doctor` 不会标记这些文件；当会话被终止时，更早的版本也会留下相同的占位文件。
 
+### Two Claude Code config files exist
+
+Claude Code 正在使用此消息列出的第一个文件，因此第二个文件中的内容不会生效。第一个文件是 `.config.json`，即 [`.claude.json`](https://code.claude.com/docs/zh-CN/claude-directory#ce-claude-json) 的旧名称。消息中包含一项检查，用于确定哪个文件保存了您的配置：
+
+```text wrap theme={null}
+Two Claude Code config files exist: this run uses /home/you/.claude/.config.json, not /home/you/.claude.json. The file with the higher count here is usually yours, and this prints nothing else from them: grep -c -E '"(hasCompletedOnboarding|mcpServers)"' "/home/you/.claude/.config.json" "/home/you/.claude.json". To end this: if several hosts share this home, first get every host to version 2.1.319 or later, since an older one can write a moved .config.json back. Then stop your Claude processes on every host, move aside the one you do not want, and start none until no host lists it.
+```
+
+在 Windows 上，`The one with hasCompletedOnboarding or mcpServers in it is usually yours.` 会替换包含 `grep` 命令的那句话。
+
+**解决方法：**
+
+**1. 找到保存您配置的文件**
+
+* **在 Windows 上**：打开两个文件，查看哪个文件中包含 `hasCompletedOnboarding` 或 `mcpServers`
+* **在其他平台上**：在 shell 中运行消息中的 `grep` 命令，查看哪个文件的计数更高
+
+**2. 更新共享该主目录的每台主机**
+
+如果多台主机共享此主目录，请先将每台主机上的 Claude Code 更新到消息中指出的版本或更高版本。旧版本可能会将已移走的 `.config.json` 写回。
+
+**3. 停止 Claude Code**
+
+停止每台主机上的 Claude Code 进程。
+
+**4. 移走您不需要的文件**
+
+将您不需要的文件移出其所在文件夹。请移动而不是删除它，以便之后可以放回。
+
+**5. 等待后再重新启动 Claude Code**
+
+在没有任何主机仍在其原路径下列出已移走的文件之前，不要在任何主机上启动 Claude Code。
+
+两个文件中的一个被移走后，该消息就不再出现。
+
 ### Make this change again later: \~/.claude.json could not be updated
 
 stderr 上的此通知表示对 [`~/.claude.json`](https://code.claude.com/docs/zh-CN/claude-directory#ce-claude-json) 的某项更改（例如登录或对信任提示的回答）未保存到该文件：
@@ -6450,7 +6527,7 @@ Make this change again later: /home/user/.claude.json could not be updated, so i
 
 * 配置的 [`--fallback-model`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 在可用性错误后接管该轮，并在记录中显示通知
 * Amazon Bedrock 或 Google Cloud 的 Agent Platform 启动检查发现你的默认模型不可用，或你的账户[在会话中途失去对它的访问权限](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#when-a-model-is-disabled-mid-session)
-* [自动模型备用](https://code.claude.com/docs/zh-CN/model-config.md#automatic-model-fallback) 在 Fable 5.1、Fable 5、Opus 5.5、Sonnet 5.5 和 Opus 5 上，当该类别有备用模型时，将会话移动到标记类别的备用模型，并在记录中显示通知
+* 在 Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上，[自动模型回退](https://code.claude.com/docs/zh-CN/model-config.md#automatic-model-fallback)会在被标记类别有备用模型时，将会话移至该类别的备用模型。会话记录中会显示通知
 
 下面的模型选择检查捕获第二和第三种情况；第一种情况显示为记录通知而不是 `/model` 更改。[模型配置](https://code.claude.com/docs/zh-CN/model-config.md) 解释了每个备用何时适用。
 

@@ -253,7 +253,7 @@ Bash 规则匹配 Claude 编写的命令文本，在 Claude Code 分割[复合�
 | :- | :- | :- |
 | `Bash(curl *)` | `curl https://example.com` | `/usr/bin/curl https://example.com`、`sh -c 'curl https://example.com'` |
 | `Bash(rm *)` | `rm -rf build/` | `/bin/rm -rf build/`、`bash -c 'rm -rf build/'` |
-| `Bash(git push *)` | `git push origin main` | `git -C . push origin main`、`git -c push.default=current push origin main`、`git 'push' origin main` |
+| `Bash(git push *)` | `git push origin main` | `git -C . push origin main`、`git -c push.default=current push origin main` |
 
 您的其他规则和权限模式决定最后一列中的命令。
 
@@ -273,6 +273,7 @@ Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下�
 * **`docker` 指向另一个守护程序**：当命令携带选择不同守护程序的标志时，`docker` 的只读形式提示，如 `-H`、`--context` 或 Podman 的 `--url` 和 `--connection`。
 * **`file` 带有路径打开标志**：当 `file` 传递 `-m`/`--magic-file` 或 `-f`/`--files-from` 时，`file` 提示，因为这些标志使 `file` 打开标志值中命名的路径。
 * **可能打印环境变量的 `ps`**：当 `ps` 的某个参数可能充当 `e` 选项时（如 `ps auxe` 或 `ps aux -e`），`ps` 会提示，因为该选项会打印进程环境变量。`ps aux` 和 `ps -ef` 无需提示即可运行。对 `ps aux -e` 等带短横线形式的检查需要 Claude Code v2.1.290 或更高版本。
+* **带有查找和显示以外标志的 `which`**：当 `which` 传递 `-i`/`--read-alias` 或 `--read-functions` 等标志时会提示。`which node` 和 `which -a node` 无需提示即可运行。
 * **Windows 上的网络路径**：其参数包括网络 (UNC) 路径的命令，如 `\\server\share\file`，提示是因为访问网络路径可能会将您的 Windows 凭据发送到它命名的主机。同样的检查适用于[PowerShell 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#powershell-tool)命令。
 * **写入特殊 shell 变量**：设置、取消设置或遍历某些特殊 shell 变量（如 `PATH` 或 `IFS`）的命令会提示，即使命令的其余部分是只读的。
 * **分析无法解析的命令**：当 Claude Code 无法完全解析命令时，它会要求批准而不是将命令视为只读。超过 10,000 个字符的命令总是提示，因为它们超过了分析解析的内容。
@@ -631,15 +632,15 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
 PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，无论 PreToolUse hook 返回什么：匹配的 deny 规则会阻止调用，匹配的 ask 规则即使在 hook 返回 `"allow"` 或 `"ask"` 时仍然会提示。这保留了[管理权限](#manage-permissions)中描述的 deny 优先级，包括在托管设置中设置的 deny 规则。
 
-该优先级涵盖设置文件中的 hook 和插件的 `hooks/hooks.json` 中的 hook。您安装的处理 [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/events#approve-or-refuse-a-tool-call-before-the-user-is-asked) 事件的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 会在 `PreToolUse` hook 运行之后给出其答案。当机器上存在[托管设置](https://code.claude.com/docs/zh-CN/settings.md#check-what-your-organization-enforces)，或会话的凭据是团队或企业 [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence) 时，在 mod 批准调用的情况下，以下结果默认保持不变：
+该优先级涵盖设置文件中的 hook 和插件的 `hooks/hooks.json` 中的 hook。您安装的处理 [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/events#approve-or-refuse-a-tool-call-before-the-user-is-asked) 事件的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 会在 `PreToolUse` hook 运行之后给出其答案。当存在[托管设置](https://code.claude.com/docs/zh-CN/settings.md#check-what-your-organization-enforces)或 [`managed-mcp.json` 文件](https://code.claude.com/docs/zh-CN/managed-mcp#deploy-managed-mcp-json)，或会话的凭据是团队或企业 [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence) 时，在 mod 批准调用的情况下，以下结果默认保持不变：
 
-* deny 规则拒绝的调用仍会被拒绝，您的组织可以更改这一点。
+* deny 规则拒绝的调用仍会被拒绝。
 * ask 规则会提示的调用仍会提示您。
 * `PreToolUse` hook 或 [`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 会提示的调用仍会提示您。
 * `PreToolUse` hook 阻止的调用仍会被阻止，无论该 hook 来自哪个设置文件。
 * 您的 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 Agent SDK [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)会被询问的调用，仍会交由该工具或回调处理。
 
-如果既没有托管设置，会话的凭据也不是团队或企业 `/login`，mod 就可以批准 deny 规则拒绝的调用或 `PreToolUse` hook 阻止的调用。改用 API 密钥或长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话并未使用该登录，即使该登录已被存储。
+您的环境可能既没有托管设置，也没有 `managed-mcp.json` 文件，会话的凭据也不是团队或企业 `/login`。在这种环境下，mod 可以批准 deny 规则拒绝的调用或 `PreToolUse` hook 阻止的调用。改用 API 密钥或长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话并未使用该登录，即使该登录已被存储。
 
 在这种配置下，当 mod 批准 ask 规则、`PreToolUse` hook 或 `permissions.blockReadsOutsideWorkingDirectories` 会提示的调用时，您不会收到提示。对于 mod 批准的调用，您的 `--permission-prompt-tool` 或 `canUseTool` 回调也不会被询问。在所有配置下，自动模式、计划模式和 `dontAsk` 模式各自还会带来其特有的结果：
 

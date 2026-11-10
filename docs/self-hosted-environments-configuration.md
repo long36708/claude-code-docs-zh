@@ -154,7 +154,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 | :- | :- |
 | `CLAUDE_RUNNER_REPO_URL` | 要克隆的存储库 URL，在应用任何 `--git-host-rewrite` 和 `--git-ssh-rewrite` 之后 |
 | `CLAUDE_RUNNER_REPO_REF` | 要检出的修订版本，即会话所请求的形式：分支、标签、提交 SHA，或完整引用名称（例如 `refs/heads/<branch>` 或 `refs/pull/<number>/head`）。为空表示仓库的默认分支。 |
-| `CLAUDE_RUNNER_CHECKOUT_PATH` | 必须留下工作树的绝对路径 |
+| `CLAUDE_RUNNER_CHECKOUT_PATH` | 必须留下工作树的绝对路径。请参阅[检出文件夹名称](#checkout-folder-names)。 |
 | `CLAUDE_RUNNER_SESSION_ID` | 会话 ID，采用标记的 `session_...` 形式，用于日志记录和关联 |
 | `CLAUDE_RUNNER_SESSION_UUID` | 相同的会话 ID，采用规范 UUID 形式 |
 | `CLAUDE_RUNNER_API_BASE_URL` | Anthropic API 基础 URL，用于会话范围的调用 |
@@ -165,6 +165,10 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 脚本必须在 `CLAUDE_RUNNER_CHECKOUT_PATH` 处留下一个检出到所请求修订版本的工作树。分离的 HEAD 也可以，因为运行器会在其上创建会话的工作分支。
 
 在您的 hook 返回后，运行器会验证 `CLAUDE_RUNNER_CHECKOUT_PATH` 包含 `.git`。如果您的 hook 具体化的是非 git 源（例如 Perforce 或解包的 tarball），请在运行器的环境中设置 `CLAUDE_RUNNER_SKIP_GIT_VERIFY=1` 以跳过该检查。基于 Git 的流程（例如工作分支创建和推送结果）需要 git 检出，因此请使用 [`post-session` hook](#post-session) 从非 git 树导出结果。
+
+#### 检出文件夹名称
+
+`CLAUDE_RUNNER_CHECKOUT_PATH` 以名为 `<repo-owner>-<repo>` 的文件夹结尾，例如 `acme-api`。会话中的两个仓库不能共用同一个文件夹，即使它们的名称仅在大小写上不同也是如此。例如，如果会话先列出 `acme/api`，然后列出 `Acme/API`，则第一个获得 `acme-api`，第二个获得 `Acme-API-2`。
 
 #### 在 hook 中获取 git 凭据
 
@@ -231,6 +235,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 set -u
 export GIT_ALLOW_PROTOCOL=${GIT_ALLOW_PROTOCOL:-https:http:ssh}
 IFS=':'
+rc=0  # becomes 1 when a step fails; a non-zero exit makes the runner log it
 # -c overrides beat repo-local settings, blocking session-written fsmonitor,
 # hook-path, and gpg-program config from executing code with the hook's
 # privileges. -c commit.gpgsign=false also leaves these rescue commits
@@ -241,12 +246,13 @@ IFS=':'
 g() { git -c core.fsmonitor=false -c core.hooksPath=/dev/null \
         -c commit.gpgsign=false "$@"; }
 for ws in $CLAUDE_RUNNER_WORKSPACE_PATHS; do
-  cd "$ws" 2>/dev/null || continue
-  [ -z "$(g status --porcelain 2>/dev/null)" ] && continue
-  g add -A
-  g commit -q -m "runner snapshot: $CLAUDE_RUNNER_SESSION_ID ($CLAUDE_RUNNER_EXIT_REASON)" || continue
-  g push -q origin "HEAD:refs/heads/rescue/$CLAUDE_RUNNER_SESSION_ID" || true
+  cd "$ws" || { rc=1; continue; }
+  g add -A || rc=1
+  g diff-index --cached --quiet HEAD && continue  # nothing to save
+  g commit -q -m "runner snapshot: $CLAUDE_RUNNER_SESSION_ID ($CLAUDE_RUNNER_EXIT_REASON)" || { rc=1; continue; }
+  g push -q origin "HEAD:refs/heads/rescue/$CLAUDE_RUNNER_SESSION_ID" || rc=1
 done
+exit "$rc"
 ```
 
 脚本中的 `GIT_ALLOW_PROTOCOL` 行将 git 限制为 HTTPS、HTTP 和 SSH 远程。如果运行器的环境已经设置了自己的非空 `GIT_ALLOW_PROTOCOL` 列表，脚本会保留该列表。
