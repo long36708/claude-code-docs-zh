@@ -64,7 +64,7 @@ A new artifact that Claude publishes in response to a prompt you type goes throu
 | :- | :- |
 | The session is in [plan mode](https://code.claude.com/docs/en/permission-modes.md#analyze-before-you-edit-with-plan-mode) | Asks before the first publish of each artifact |
 | The publish declares runtime capabilities for the page, such as [connector calls](#pull-live-data-with-mcp-connectors) or [file downloads](#offer-a-file-download) | Asks before that publish |
-| You shared the artifact publicly | Asks once per conversation before changing it |
+| You shared the artifact publicly | Asks once per conversation before changing it, and before each reply to a comment on it |
 | Claude publishes in a turn that a [session-scoped scheduled task](https://code.claude.com/docs/en/scheduled-tasks.md) firing in your session started, rather than a prompt you typed | Asks before the first publish of each artifact |
 | Claude can't read the file without your approval | Asks before publishing it. An allow rule for the `Artifact` tool doesn't skip this prompt |
 | In [Manual](https://code.claude.com/docs/en/permission-modes.md) or `acceptEdits` mode, Claude makes a small change to an artifact's file it can't edit without your approval, such as a project file in Manual mode | Asks before publishing the change. You're asked even if an allow rule covers the `Artifact` tool, because the edit to the file needs your approval |
@@ -88,6 +88,22 @@ To update an artifact from a different session, give Claude its URL, or attach i
 ```text wrap theme={null}
 Update https://claude.ai/code/artifact/5fbea6f3-... with today's numbers.
 ```
+
+### Turn off one-step artifact updates
+
+A one-step update is a small change Claude makes to an artifact's file as part of a publish, instead of through an `Edit` or `Write` call.
+
+To turn one-step updates off, set [`CLAUDE_CODE_ARTIFACT_PUBLISH_EDITS`](https://code.claude.com/docs/en/env-vars) to `0`. This example adds the variable to the `env` block in `~/.claude/settings.json`:
+
+```json theme={null}
+{
+  "env": {
+    "CLAUDE_CODE_ARTIFACT_PUBLISH_EDITS": "0"
+  }
+}
+```
+
+Then quit and relaunch Claude Code, because a running session doesn't reread the variable.
 
 ## Find an artifact again
 
@@ -179,7 +195,7 @@ You need Claude Code v2.1.228 or later. If you turned [feature-flag fetching](ht
 Your [permission mode](https://code.claude.com/docs/en/permission-modes.md) decides what Claude does when a sent comment arrives:
 
 * **Claude replies on its own**: if you're in a permission mode that lets Claude post the reply without asking you, Claude reads the thread and replies. You see `Auto-replied to comment thread on Artifact: <name>`.
-* **Claude waits for you**: outside plan mode, when posting the reply would need your approval, you see `Comments are waiting on Artifact: <name>`. Claude then asks you for approval to read the thread, and again to post the reply.
+* **Claude waits for you**: outside plan mode, when posting the reply [would need your approval](#when-claude-code-asks-before-publishing), you see `Comments are waiting on Artifact: <name>`. Claude then asks you for approval to read the thread, and again to post the reply.
 * **Claude pauses in plan mode**: you see `Comments are waiting on Artifact: <name>`, and Claude doesn't reply until you leave plan mode and ask it to read and reply.
 
 Claude also stops replying on its own to an artifact after it handles 60 sent comments or thread activations on that artifact within an hour. You see `Comments are waiting on Artifact: <name>` once, and Claude picks up again as that hour's comments age out.
