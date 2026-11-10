@@ -197,7 +197,7 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 * `Marketplace "claude-plugins-official" not found`：使用 `/plugin marketplace add anthropics/claude-plugins-official` 添加市场，然后重试安装。
 * `Plugin "<name>" not found in marketplace "claude-plugins-official"`：您本地的市场目录副本可能已过期。使用 `/plugin marketplace update claude-plugins-official` 刷新它，然后重试安装。如果重试后仍显示相同的消息，请参阅[在市场中找不到插件](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-not-found-in-marketplace)。
 
-要为存储库中的每个人启用插件而不是自己安装，请将其添加到 [`enabledPlugins` 项目设置](https://code.claude.com/docs/zh-CN/settings-reference#plugin-settings)。
+要为仓库中的每个人启用插件，请将其添加到 [`enabledPlugins` 项目设置](https://code.claude.com/docs/zh-CN/settings-reference#plugin-settings)。每个人仍需[自行安装](https://code.claude.com/docs/zh-CN/plugins/loading.md#enabled-in-project-settings-but-not-installed)。
 
 代码智能插件需要每个开发者机器上的语言的语言服务器二进制文件。查看[每种语言需要哪个二进制文件](https://code.claude.com/docs/zh-CN/plugins/code-intelligence.md)。从官方市场安装需要网络访问 GitHub，市场在那里托管。在受限网络上，[从内部 Git 主机或本地路径添加市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace)。
 
@@ -235,7 +235,9 @@ Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径
 
 在 `sparsePaths` 中列出目录，而不是单个文件。根级文件如 `package.json`、`tsconfig.base.json` 和锁文件始终与你列出的目录一起检出。根级目录不是，所以如果你想要存储库根目录的 `.claude/settings.json` 或 `.claude/rules/` 在 worktree 内可用，请在列表中包含 `.claude`。对于项目 skills、代理和命令，请参阅[worktrees 与主检出共享的内容](https://code.claude.com/docs/zh-CN/worktrees.md#what-worktrees-share-with-the-main-checkout)。
 
-Sparse checkout 需要 git 在存在 sparse worktree 时在仓库的共享 `.git/config` 中启用 `extensions.worktreeConfig`。Claude Code 在删除最后一个 worktree 后会删除该条目，但仅当 Claude Code 添加了它时。它永远不会删除您自己设置的值。
+> [!NOTE]
+>
+> Sparse checkout 需要 git 在存在 sparse worktree 时在仓库的共享 `.git/config` 中启用 `extensions.worktreeConfig`。Claude Code 在删除最后一个 worktree 后会删除该条目，但仅当该条目是 Claude Code 添加的时。
 
 要避免在 worktrees 中复制大型目录如 `node_modules`，将 `sparsePaths` 与同一 `.claude/settings.json` 中的 `symlinkDirectories` 配对：
 

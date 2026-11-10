@@ -146,15 +146,15 @@ Claude Code 不会删除您在托管设置中自己设置的每信号变量，�
 
 ### 指标基数控制
 
-以下环境变量控制指标中包含哪些属性以管理基数：
+以下环境变量控制指标和事件中包含哪些属性以管理基数：
 
 | 环境变量 | 描述 | 默认值 | 禁用示例 |
 | - | - | - | - |
-| `OTEL_METRICS_INCLUDE_SESSION_ID` | 在指标中包含 session.id 和云会话上的 ccr.session.id 属性 | `true` | `false` |
-| `OTEL_METRICS_INCLUDE_VERSION` | 在指标中包含 app.version 属性 | `false` | `true` |
-| `OTEL_METRICS_INCLUDE_ACCOUNT_UUID` | 在指标中包含 user.account\_uuid 和 user.account\_id 属性 | `true` | `false` |
-| `OTEL_METRICS_INCLUDE_ENTRYPOINT` | 在指标中包含 app.entrypoint 属性 | `false` | `true` |
-| `OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES` | 将 `OTEL_RESOURCE_ATTRIBUTES` 中的键作为属性包含在指标数据点上 | `true` | `false` |
+| `OTEL_METRICS_INCLUDE_SESSION_ID` | 在指标和事件中包含 session.id 和云端会话的 ccr.session.id 属性 | `true` | `false` |
+| `OTEL_METRICS_INCLUDE_VERSION` | 在指标和事件中包含 app.version 属性 | `false` | `true` |
+| `OTEL_METRICS_INCLUDE_ACCOUNT_UUID` | 在指标和事件中包含 user.account\_uuid 和 user.account\_id 属性 | `true` | `false` |
+| `OTEL_METRICS_INCLUDE_ENTRYPOINT` | 在指标和事件中包含 app.entrypoint 属性 | `false` | `true` |
+| `OTEL_METRICS_INCLUDE_RESOURCE_ATTRIBUTES` | 将 `OTEL_RESOURCE_ATTRIBUTES` 中的键作为属性包含在指标数据点和事件上 | `true` | `false` |
 | `OTEL_METRICS_INCLUDE_REPOSITORY` | 在指标和事件上包含 `vcs.*` [存储库身份属性](#repository-attributes)。需要 Claude Code v2.1.269 或更高版本 | `false` | `true` |
 
 较低的基数通常意味着更好的性能和更低的存储成本，但分析的数据粒度较低。
@@ -571,7 +571,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 
 要更详细地属性化遥测，请使用这些选项：
 
-* **识别 Claude Tag 会话**：设置 `OTEL_METRICS_INCLUDE_ENTRYPOINT=true`，如[指标基数控制](#metrics-cardinality-control)下所述。指标随后会携带 `app.entrypoint`，其值对于 Claude Tag 会话为 `claude-in-slack`。
+* **识别 Claude Tag 会话**：设置 `OTEL_METRICS_INCLUDE_ENTRYPOINT=true`，如[指标基数控制](#metrics-cardinality-control)下所述。指标和事件随后会携带 `app.entrypoint`，其值对于 Claude Tag 会话为 `claude-in-slack`。
 * **添加自定义属性**：在设置这些会话的其他 `OTEL_*` 变量的同一位置设置 [`OTEL_RESOURCE_ATTRIBUTES`](#multi-team-organization-support)。如果您改为在环境的[设置脚本](https://code.claude.com/docs/zh-CN/cloud-environments.md#setup-scripts)中 `export` 它，该值不会到达 Claude Code：设置脚本是在 Claude Code 启动前运行的单独 Bash 脚本，它导出的变量随之结束。
 
 在 Claude Tag 频道会话中，Claude 作为您组织的[共享身份](https://code.claude.com/docs/zh-CN/cloud-environments.md#set-the-environment-a-claude-tag-channel-uses)工作，而不是作为任何成员，因此不要依赖 `user.*` 属性来识别谁标记了 Claude。
@@ -587,7 +587,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 | `session.id` | Claude Code 自身的会话 ID，`/clear` 会替换它 | `OTEL_METRICS_INCLUDE_SESSION_ID`（默认值：true） |
 | `ccr.session.id` | 云端会话标识符，即 `CLAUDE_CODE_REMOTE_SESSION_ID` 的值，仅出现在运行于[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)中的会话上 | `OTEL_METRICS_INCLUDE_SESSION_ID`（默认值：true） |
 | `app.version` | 当前 Claude Code 版本 | `OTEL_METRICS_INCLUDE_VERSION`（默认值：false） |
-| `app.entrypoint` | 会话的启动方式，例如 `cli`、`sdk-cli`、`sdk-ts`、`sdk-py`、`claude-vscode`，或用于 Claude Tag 会话的 `claude-in-slack` | `OTEL_METRICS_INCLUDE_ENTRYPOINT`（默认值：false） |
+| `app.entrypoint` | 会话的启动方式，例如 `cli`、`sdk-cli`、`sdk-ts`、`sdk-py`、`claude-vscode`；云端之外的 Claude Desktop Code 标签页会话为 `claude-desktop`，[第三方部署](https://claude.com/docs/third-party/claude-desktop/overview)上的同类会话为 `claude-desktop-3p`，Claude Tag 会话为 `claude-in-slack`。云端会话的值包括 `remote`，以及从 Claude Desktop 或移动应用启动的会话对应的 `remote_desktop` 和 `remote_mobile` | `OTEL_METRICS_INCLUDE_ENTRYPOINT`（默认值：false） |
 | `organization.id` | 组织 UUID（已进行身份验证时） | 可用时始终包含 |
 | `user.account_uuid` | 账户 UUID（已进行身份验证时） | `OTEL_METRICS_INCLUDE_ACCOUNT_UUID`（默认值：true） |
 | `user.account_id` | 与 Anthropic 管理 API 匹配的带标签格式账户 ID（已进行身份验证时），例如 `user_01BWBeN28...` | `OTEL_METRICS_INCLUDE_ACCOUNT_UUID`（默认值：true） |
@@ -643,7 +643,7 @@ Claude Code 导出以下指标。"单位"列显示附加到每个指标的 OpenT
 
 | 指标名称 | 描述 | 单位 |
 | - | - | - |
-| `claude_code.session.count` | 已启动的 CLI 会话计数 | 无 |
+| `claude_code.session.count` | 启动的会话数 | 无 |
 | `claude_code.lines_of_code.count` | 已修改的代码行数计数 | 无 |
 | `claude_code.pull_request.count` | 已创建的 Pull Request 数量 | 无 |
 | `claude_code.commit.count` | 已创建的 git 提交数量 | 无 |
@@ -660,7 +660,7 @@ Claude Code 导出以下指标。"单位"列显示附加到每个指标的 OpenT
 
 #### 会话计数器
 
-在每个会话开始时递增。
+在每个会话开始时递增。要统计人数，请参阅[用量监控](#usage-monitoring)。
 
 **属性**：
 
@@ -1549,9 +1549,12 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 | 指标 | 分析机会 |
 | - | - |
 | `claude_code.token.usage` | 按 token [`type`](#token-counter)、用户、团队、模型、`skill.name`、`plugin.name` 或 `agent.name` 分解 |
-| `claude_code.session.count` | 跟踪随时间推移的采用和参与度 |
 | `claude_code.lines_of_code.count` | 通过跟踪代码添加和删除来衡量生产力，按模型分解 |
 | `claude_code.commit.count` & `claude_code.pull_request.count` | 了解对开发工作流的影响 |
+
+要比较不同使用入口的活跃用户，请设置 `OTEL_METRICS_INCLUDE_ENTRYPOINT=true`，以将 [`app.entrypoint`](#standard-attributes) 添加到指标和事件中。然后在 [`claude_code.user_prompt`](#user-prompt-event) 事件上按入口点统计不同的 `user.account_uuid` 值；如果仅导出指标，则在 `claude_code.token.usage` 上统计。例如，使用 `cli` 表示交互式 CLI 会话，并将 `claude-desktop`、`claude-desktop-3p` 和 `remote_desktop` 归为一组，表示 Claude Desktop 的 Code 选项卡。
+
+`user.account_uuid` 无法识别 Claude Tag 频道会话中的人员，并且在没有 Claude 账户的会话中缺失：请参阅[将操作归属于用户](#attribute-actions-to-users)。当一个人启动多个会话，或某个会话未收到任何提示词时，[`claude_code.session.count`](#session-counter) 会增加，但不会增加活跃用户数。
 
 ### 成本监控
 

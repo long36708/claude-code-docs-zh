@@ -367,7 +367,7 @@ Claude Code 不会检查以下固定版本，也不会针对它们进行提示�
 | `ap-*` | `apac.` |
 | 所有其他区域 | `global.` |
 
-设置 `ANTHROPIC_BEDROCK_REGION_PREFIX` 以选择 Claude Code 首先尝试的前缀；当 Claude Code 可以检查配置文件可用性并且找不到模型的匹配配置文件时，它会按照下面的解析顺序进行回退。有效值为 `us`、`eu`、`apac`、`jp`、`au` 和 `global`。例如，当您的账户启用了 `global.` 配置文件但 Claude Code 会从您的 AWS 区域派生地理位置特定的配置文件时，将其设置为 `global`。需要 Claude Code v2.1.224 或更高版本。
+设置 `ANTHROPIC_BEDROCK_REGION_PREFIX` 以选择 Claude Code 首先尝试的前缀。有效值为 `us`、`eu`、`apac`、`jp`、`au` 和 `global`。例如，当您的账户启用了 `global.` 配置文件但 Claude Code 会从您的 AWS 区域派生地理位置特定的配置文件时，将其设置为 `global`。
 
 此示例通过 `global.` 配置文件路由默认模型：
 

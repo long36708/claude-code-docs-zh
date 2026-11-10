@@ -94,7 +94,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `dependencies` | array | 必须为此插件启用的插件。每个项是 `"name"`、`"name@marketplace"` 或对象。请参阅 [插件依赖项](https://code.claude.com/docs/zh-CN/plugins/dependencies.md) |
 | `defaultEnabled` | boolean | 默认 `true`。当用户未在 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 中设置时，插件是否启动时启用。条目值优先于 `plugin.json` |
 | `displayName` | string | 在 UI 中显示的人类可读名称。当条目和插件的 `plugin.json` 都未设置时，用户看到插件的 `name` |
-| `metadata` | object | 用于您自己字段的自由格式对象。Claude Code 不读取它。需要 Claude Code v2.1.222 或更高版本 |
+| `metadata` | object | 用于您自己字段的自由格式对象。Claude Code 不读取它 |
 | `headers` | object | Claude Code 在下载此条目的 [archive](#archive-plugin-source) 时发送的 HTTP 标头。此处设置的标头替换市场源的 [`headers`](#fields-by-type) 中同名的标头。需要 Claude Code v2.1.238 或更高版本 |
 | `headersHelper` | string | 打印此条目的 archive 下载标头的命令，作为一个 JSON 对象，用于会过期的凭据。条目还必须设置 [`"strict": false`](#strict-mode)。需要 Claude Code v2.1.238 或更高版本。请参阅 [验证 archive 下载](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md#authenticate-archive-downloads) |
 
@@ -142,7 +142,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `url` | `url`, `ref`, `sha` | 任何 git 仓库的 URL |
 | `git-subdir` | `url`, `path`, `ref`, `sha` | git 仓库的一个子目录，使用稀疏检出获取 |
 | `npm` | `package`, `version`, `registry` | npm registry 包或 tarball 链接，使用您的 npm 客户端获取并解包，不运行安装脚本 |
-| `archive` | `url`, `sha256` | HTTPS 上的 Zip 存档。需要 Claude Code v2.1.224 或更高版本 |
+| `archive` | `url`, `sha256` | HTTPS 上的 Zip 存档 |
 | `command` | `command`, `timeout`, `mode` | 由 Claude Code 在用户机器上运行的命令打印的目录。需要 Claude Code v2.1.229 或更高版本 |
 
 名称 `url` 和 `github` 也是[marketplace 源](#marketplace-sources)类型，其中 `url` 表示直接链接到 `marketplace.json` 文件而不是 git 仓库。`git` 仅作为 marketplace 源存在，`npm` 既作为 marketplace 源也作为插件源存在。`git-subdir`、`archive` 和 `command` 仅作为插件源存在。

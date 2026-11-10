@@ -94,7 +94,7 @@ claude plugin install <plugin> [options]
 * **stdin 或 stdout 不是 TTY，且您既未传入 `-y` 也未传入 `--accept-command`**：安装会被拒绝。输出会说明该命令仅被显示，退出码为 `1`
 * **Claude 通过其 Bash 工具运行该命令**：`-y` 会被忽略。请改为从您自己的终端运行该命令
 
-为克隆该项目的所有人安装插件：
+使用 `--scope project` 可将插件记录到 `.claude/settings.json` 中，供克隆该项目的所有人使用。每个人还需要在自己的克隆中[运行此命令](https://code.claude.com/docs/zh-CN/plugins/loading.md#enabled-in-project-settings-but-not-installed)：
 
 ```bash theme={null}
 claude plugin install formatter@my-marketplace --scope project
@@ -333,7 +333,7 @@ Claude Code 按每个插件的加载方式对人类可读输出进行分组：
 | `notes` | array of strings | 非加载错误的警告，例如编写问题或[未安装的软件包](https://code.claude.com/docs/zh-CN/plugins/loading.md#when-the-dependency-install-fails-or-is-skipped) |
 | `errorDetails` | array of objects | 每个 `errors` 条目对应一个对象，给出其诊断 `type` 及其引用的名称，例如插件、市场、服务器或文件。需要 Claude Code v2.1.268 或更高版本 |
 | `noteDetails` | array of objects | 每个 `notes` 条目对应的相同详情对象。需要 Claude Code v2.1.268 或更高版本 |
-| `hasUserConfig` | boolean | 当插件已加载且其清单声明了 [`userConfig` 选项](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#user-configuration)时存在且为 `true`。对于加载失败的插件，无论其清单声明了什么都不存在。从不包含已保存的值。需要 Claude Code v2.1.285 或更高版本 |
+| `hasUserConfig` | boolean | 当插件已加载且其清单声明了 [`userConfig` 选项](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#user-configuration)时存在且为 `true`。对于加载失败的插件，无论其清单声明了什么都不存在。需要 Claude Code v2.1.285 或更高版本 |
 | `projectEnabled` | boolean | 项目共享的 `.claude/settings.json` 是否启用该插件。仅限市场安装。需要 Claude Code v2.1.285 或更高版本 |
 | `dataDirSize` | object | 使用 `--data-size` 时，插件[已保存数据目录](#what-an-uninstall-deletes-and-keeps)的大小，以 `bytes` 和 `human` 表示；当目录缺失或为空时不存在。仅限市场安装。需要 Claude Code v2.1.285 或更高版本 |
 | `dataDirUnreadable` | boolean | 使用 `--data-size` 时，如果已保存数据目录存在但无法测量，则为 `true`。仅限市场安装。需要 Claude Code v2.1.285 或更高版本 |

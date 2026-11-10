@@ -675,15 +675,21 @@ Claude Code 在安装期间没有激活插件，要么是因为激活它会 [使
 
 ### `Plugin "<name>" not cached at <path>`
 
-**Errors** 选项卡显示此行，指导为 `Run /plugin to refresh the plugin cache`。Claude Code 有插件的安装记录，但记录指向的目录缺失，例如在您清除缓存后。
+**Errors** 选项卡显示此行，指导为 `Run /plugin to refresh the plugin cache`。这表示 Claude Code 没有找到该插件的可用副本。例如，您清除了缓存，因此其安装记录指向的目录缺失。或者，您打开了一个其设置启用该插件的仓库，但您尚未安装该插件。
 
-从您的 shell 重新安装插件。`claude plugin install <name>@<marketplace>` 重新下载安装目录缺失的插件，即使其记录存在：
+从您的 shell 安装插件。如果您打开的仓库的 `.claude/settings.json` 启用了该插件，请按照 [在项目设置中启用但未安装](https://code.claude.com/docs/zh-CN/plugins/loading.md#enabled-in-project-settings-but-not-installed) 中的说明，在项目中使用 `enabledPlugins` 中该插件的键运行以下命令：
+
+```shell theme={null}
+claude plugin install <name>@<marketplace> --scope project
+```
+
+否则，请运行以下命令，它会重新下载安装目录缺失的插件，即使其记录存在：
 
 ```shell theme={null}
 claude plugin install <name>@<marketplace>
 ```
 
-然后在您的会话中运行 `/reload-plugins`。**Errors** 选项卡条目消失，插件回到 **Installed** 下。
+然后在您的会话中运行 `/reload-plugins`。**Errors** 选项卡条目消失，插件列在 **Installed** 下。
 
 ### `installed_plugins.json holds a record under "<id>" that this version of Claude Code cannot read`
 

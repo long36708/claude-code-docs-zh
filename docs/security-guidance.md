@@ -54,6 +54,8 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 }
 ```
 
+每位团队成员还需要在每次克隆后[运行一次 `claude plugin install security-guidance@claude-plugins-official --scope project`](https://code.claude.com/docs/zh-CN/plugins/loading#enabled-in-project-settings-but-not-installed)。
+
 管理员可以通过在[托管设置](https://code.claude.com/docs/zh-CN/admin-setup.md)中设置 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 来在整个组织范围内启用插件。
 
 ## 插件检查的内容

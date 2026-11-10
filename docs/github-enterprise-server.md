@@ -190,7 +190,7 @@ Claude Code 在本地安装这些市场：它注册每个条目并使用机器�
 一些功能在 GHES 上的行为与 github.com 上不同。[功能表](#what-works-with-github-enterprise-server) 总结了支持；本部分涵盖了解决方法。
 
 * **`/install-github-app` 命令**：改为在 claude.ai 上遵循 [管理员设置](#admin-setup) 流程。如果您还想在 GHES 上使用 GitHub Actions 工作流，请手动调整 [示例工作流](https://github.com/anthropics/claude-code-action/blob/main/examples/claude.yml)。
-* **GitHub MCP server**：改为使用为您的 GHES 主机配置的 `gh` CLI。运行 `gh auth login --hostname github.example.com` 进行身份验证，然后 Claude 可以在会话中使用 `gh` 命令。
+* **GitHub MCP 服务器**：在您自己机器上的会话中，改为使用为您的 GHES 主机配置的 `gh` CLI。运行 `gh auth login --hostname github.example.com` 进行身份验证，然后 Claude 即可在该会话中使用 `gh` 命令。
 
 ## 故障排除
 

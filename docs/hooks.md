@@ -572,6 +572,17 @@ Claude Code 将 hook 的 [JSON 输入](#hook-input-and-output) 作为 POST 请�
 
 Claude Code 读取工具的文本内容的方式与读取命令 hook stdout 的方式相同，遵循 [退出代码 0 下的解析规则](#exit-code-0)。如果工具返回 `isError: true`，hook 产生非阻止错误，执行继续。
 
+如果 hook 错误包含以下消息之一，说明 Claude Code 无法读取该工具的回答，因此该 hook 没有给出判定：
+
+```text theme={null}
+MCP tool "security_scan" on server "my_server" gave no answer that could be read, because a message from the server was too large, so this hook gave no verdict. If this keeps happening, the tool must send a smaller answer.
+MCP tool "security_scan" on server "my_server" answered without its text, which happens when a result is too large, so this hook gave no verdict. If this keeps happening, the tool must send a smaller answer.
+```
+
+在 `PreToolUse` 上，Claude Code 会拒绝该 hook 正在检查的工具调用。在 `UserPromptSubmit`、`PostToolUse` 和 `Stop` 等其他事件上，该错误是非阻止的。
+
+如果该错误持续出现，请让工具返回更少的数据，或更改 hook 的 [`tool` 或 `input`](#mcp-tool-hook-fields)，使回答更小。
+
 ##### 当服务器仍在连接时
 
 在 hook 可以阻止或改变结果的事件上，如 `PreToolUse` 或 `Stop`，Claude Code 在调用工具前等待连接的服务器，最多 [`MCP_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars)，在 hook 自己的 [`timeout`](#common-fields) 内。在观察事件上，如 `Notification` 或 `SessionEnd`，它不等待。
@@ -1193,7 +1204,7 @@ Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `
 
 * `PreToolUse`：直接位于 `hookSpecificOutput` 下的 `updatedInput` 会在工具运行前替换其参数。请参阅 [PreToolUse 决策控制](#pretooluse-decision-control)
 * `PermissionRequest`：`updatedInput` 位于 `decision` 对象内。请参阅 [PermissionRequest 决策控制](#permissionrequest-decision-control)
-* `PostToolUse`：`updatedToolOutput` 替换工具的结果。请参阅 [PostToolUse 决策控制](#posttooluse-decision-control)
+* `PostToolUse`：`updatedToolOutput` 替换工具的结果。在 [Cowork](https://claude.com/docs/cowork/overview) 云端会话中，当工具为 `AskUserQuestion` 或 `ExitPlanMode` 时，Claude Code 会忽略 `updatedToolOutput`，Claude 读取的是原始回答或计划。请参阅 [PostToolUse 决策控制](#posttooluse-decision-control)
 * `UserPromptSubmit`：无法替换提示词；它仅在其旁边注入 `additionalContext`
 
 对于脱敏或转换用例，请在 `PreToolUse` 处拦截出站工具输入，在 `PostToolUse` 处拦截入站工具结果。
@@ -2210,6 +2221,14 @@ PreToolUse hook 在每次工具调用之前运行，无论该调用是否需要�
 | `addDirectories` | `directories`、`destination` | 添加工作目录。`directories` 是一个路径字符串数组 |
 | `removeDirectories` | `directories`、`destination` | 删除工作目录 |
 
+在 `rules` 中，对于写作 `Tool(specifier)` 的[权限规则](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)，`toolName` 是工具名称，`ruleContent` 是说明符：
+
+* `Bash(npm test)`：`{ "toolName": "Bash", "ruleContent": "npm test" }`
+* `Bash` 或 `Bash(*)`：`{ "toolName": "Bash" }`，因为两者都匹配整个工具
+* `mcp__github__get_issue`：`{ "toolName": "mcp__github__get_issue" }`
+
+为 [MCP 工具](https://code.claude.com/docs/zh-CN/permissions.md#mcp)编写允许规则时请省略 `ruleContent`。如果添加了它，该规则将不会匹配任何调用。
+
 > [!NOTE]
 >
 > 仅当您启动会话时 bypass 模式已可用，带有 `bypassPermissions` 的 `setMode` 才会生效：即使用了 `--dangerously-skip-permissions`、`--permission-mode bypassPermissions`、`--allow-dangerously-skip-permissions`，或在[用户设置、`--settings` 或托管设置](https://code.claude.com/docs/zh-CN/settings-reference#permissions-defaultmode)中设置了 `permissions.defaultMode: "bypassPermissions"`。否则该更新不会产生任何效果。当 [`permissions.disableBypassPermissionsMode`](https://code.claude.com/docs/zh-CN/permissions#managed-settings) 禁用该模式，或会话以[受限模式](https://code.claude.com/docs/zh-CN/cli-reference.md#cli-flags)启动时，该更新同样不会产生任何效果。
@@ -2289,8 +2308,8 @@ hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 
 | `reason` | 当 `decision` 为 `"block"` 时向 Claude 显示的说明 |
 | `additionalContext` | 与工具结果一起添加到 Claude 上下文中的字符串。请参阅[为 Claude 添加上下文](#add-context-for-claude) |
 | `classifierContext` | 关于此调用结果的简短说明，供[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器而非 Claude 使用。请参阅[为自动模式分类器注释结果](#annotate-a-result-for-the-auto-mode-classifier)。需要 Claude Code v2.1.236 或更高版本 |
-| `updatedToolOutput` | 在工具输出发送给 Claude 之前，用提供的值替换它。该值必须与工具的输出结构相匹配 |
-| `updatedMCPToolOutput` | 仅替换 [MCP 工具](#match-mcp-tools)的输出。建议优先使用适用于所有工具的 `updatedToolOutput` |
+| `updatedToolOutput` | 在发送给 Claude 之前，用提供的值替换工具的输出。该值必须与工具的输出结构匹配。在 [Cowork](https://claude.com/docs/cowork/overview) 云端会话中，当工具为 `AskUserQuestion` 或 `ExitPlanMode` 时，Claude Code 会忽略此字段，Claude 会读取原始回答或计划 |
+| `updatedMCPToolOutput` | 仅替换 [MCP 工具](#match-mcp-tools)的输出。建议优先使用 `updatedToolOutput`，它也适用于内置工具 |
 
 下面的示例替换了一次 `Bash` 调用的输出。替换值与 `Bash` 工具的输出结构相匹配：
 

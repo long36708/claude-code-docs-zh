@@ -14,7 +14,7 @@
 >
 > 如需在 GitHub 上自动审查仓库中的每个 Pull Request，请参阅 [Code Review](https://code.claude.com/docs/zh-CN/code-review.md)，这是一项由 Owner 为您的组织启用的托管服务。
 
-`/review` 是 `/code-review` 的别名。在 v2.1.223 之前，`/review` 是一个单独的命令，对 GitHub Pull Request 执行单次、只读的审查。
+`/review` 是 `/code-review` 的别名。
 
 **1. 运行 /code-review**
 
@@ -90,8 +90,6 @@
 * **非交互运行**：在非交互的 `-p` 运行中传入的级别不会更新记住的级别
 * **`ultra`**：审查既不使用也不更新记住的级别
 * **从未输入过级别**：审查使用会话当前的 effort
-
-在 v2.1.223 之前，不带级别的 `/code-review` 始终使用会话当前的 effort。
 
 ### 将发现的问题发布到 GitLab 合并请求
 

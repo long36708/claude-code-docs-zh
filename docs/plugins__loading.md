@@ -175,9 +175,25 @@ Claude Code 在这些终端会话中既不下载也不加载同步插件，即�
 
 ### 在项目设置中启用但未安装
 
-当插件的唯一 `true` 在项目的 `.claude/settings.json` 中时，Claude Code 不会在未安装它的机器上获取它，除非其市场条目具有[相对路径源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)或[种子目录](https://code.claude.com/docs/zh-CN/plugins/org.md#seed-containers-and-ci)已经保存它。相反，`/plugin` **Errors** 选项卡显示 `Plugin "<name>" is enabled in project settings but isn't installed here`。
+默认情况下，仅在项目的 `.claude/settings.json` 中启用的插件在您将其安装到您的机器上之前，不会在会话启动时加载。当市场位于您的机器上时，`/plugin` **Errors** 选项卡会显示 [`Plugin "<name>" is enabled in project settings but isn't installed here`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-is-enabled-in-project-settings-but-isnt-installed-here) 或 [`Plugin "<name>" not cached at <path>`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-not-cached-at)。
 
-相对路径插件不需要安装记录，因为它从市场本身加载。
+> [!NOTE]
+>
+> 如果该选项卡未显示上述任一消息，请在安装之前[添加市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace)。您可以在 `.claude/settings.json` 的 `extraKnownMarketplaces` 设置中找到其源，或询问您的维护者。
+
+要进行安装，请在项目中的 shell 里运行以下命令，并使用该插件在 `enabledPlugins` 中的键：
+
+```shell theme={null}
+claude plugin install <name>@<marketplace> --scope project
+```
+
+要加载插件，请在会话中运行 `/reload-plugins` 或启动新会话。在您的每个克隆中重复安装，或使用 `--scope user` 覆盖您的所有项目。
+
+在以下情况下，您无需安装即可加载插件：
+
+* **位于[种子目录](https://code.claude.com/docs/zh-CN/plugins/org.md#seed-containers-and-ci)中**：您无需运行任何命令
+* **在您从本地路径添加的市场中通过[相对路径](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)列出**：您无需运行任何命令，因为插件会在会话启动时加载
+* **在您已添加的 git 市场的 `marketplace.json` 中通过相对路径（例如 `./plugins/formatter`）列出**：运行 `/reload-plugins` 以仅为当前会话加载它。要为单次[非交互式 `-p` 运行](https://code.claude.com/docs/zh-CN/headless)加载它，请设置 [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL=1`](https://code.claude.com/docs/zh-CN/env-vars)。
 
 Claude Code 仅当以下源之一将其设置为 `true` 时才获取具有外部源的插件：
 

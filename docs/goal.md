@@ -178,7 +178,7 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 
 ## 要求
 
-Claude Code 在与 [设置文件中的 hooks 相同的工作区信任规则](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)下提供 `/goal`，因为评估器是 hooks 系统的一部分。当 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/hooks#disable-or-remove-hooks) 为 `true`（在应用设置优先级后）或当在托管设置中设置了 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 时，`/goal` 也不可用。在每种情况下，该命令会告诉你原因，而不是默默地什么都不做。
+Claude Code 在与 [设置文件中的 hooks 相同的工作区信任规则](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)下提供 `/goal`，因为评估器是 hooks 系统的一部分。当 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/hooks#disable-or-remove-hooks) 为 `true`（在应用设置优先级后）或当在托管设置中设置了 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 时，`/goal` 也不可用。
 
 ## 另请参阅
 

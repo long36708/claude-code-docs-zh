@@ -189,7 +189,7 @@ Claude Code 在其下命名空间每个组件，因此 plugin `deploy-tools` 中
 
 ### `metadata`
 
-用于您自己数据的自由形式对象，例如目录或权利字段。Claude Code 不读取它。需要 Claude Code v2.1.222 或更高版本。
+用于您自己数据的自由形式对象，例如目录或权利字段。Claude Code 不读取它。
 
 ### 目录列表字段
 
@@ -394,7 +394,7 @@ monitor `command` 不能引用 `${user_config.*}`。参见[通过 shell 运行�
 
 manifest 中的每个组件路径相对于 plugin 根目录，必须以 `./` 开头。路径如 `commands/foo.md` 验证失败。`skills` 和 `mcpServers` 各接受该规则之外的一种形式：
 
-* **`skills`**：也接受 `"."`。`"."` 和 `"./"` 都表示 plugin 根目录。在 v2.1.221 之前，`"."` 验证失败，因此当 plugin 必须在较早版本上加载时使用 `"./"`
+* **`skills`**：也接受 `"."`。`"."` 和 `"./"` 都表示插件根目录
 * **`mcpServers`**：也接受 `https://` 包 URL
 
 `experimental.evals` 不是组件路径，因此本节中的规则不适用于它，而是由 `claude plugin eval` 在运行时检查该值。它指定插件根目录下的一个目录，例如 `"quality/evals"`，可以带或不带 `./` 前缀。如果是数组，则仅使用第一个条目。有关该值接受的内容以及值不可用时会发生什么，请参阅[使用不同的 eval 目录](https://code.claude.com/docs/zh-CN/plugin-evals.md#use-a-different-eval-directory)。

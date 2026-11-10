@@ -892,8 +892,6 @@ Background sessions still running will stop in about a minute. Run 'claude agent
 
 该命令还会在运行的监督进程版本与您调用的 `claude` 版本不同时发出警告，这发生在监督进程尚未重新启动到新版本的更新之后。警告显示两个版本，并告诉您运行 `claude daemon stop --any` 以获取新版本。
 
-会话在该版本不匹配时完好无损：更新会话 `state.json` 的较旧 Claude Code 版本会保留它不识别的字段并保持会话列出。`roster.json` 中的会话列表遵循相同的规则，因此由较新版本启动的会话保持可达并在监督进程重新启动后继续接受输入。
-
 ### 关闭 agent view
 
 要完全关闭后台 Agent 和 agent view，请将 `disableAgentView` [设置](https://code.claude.com/docs/zh-CN/settings.md)设为 `true` 或设置 `CLAUDE_CODE_DISABLE_AGENT_VIEW` 环境变量。管理员可以通过[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)强制执行此项。

@@ -205,7 +205,7 @@ View: https://claude.ai/code/session_01DiUkqY2kzbUbDmW1w96rfi?from=cli&m=0
 * **使用 `/teleport`**：在现有 CLI 会话内，运行 `/teleport` 或 `/tp` 以打开相同的会话选择器，无需重启 Claude Code。
 * **从 `/tasks`**：运行 `/tasks` 以查看您的后台会话，然后按 `t` 以 teleport 到其中一个。
 * **从 claude.ai/code**：从会话菜单中选择 **Open in > Terminal** 以复制可以粘贴到终端的命令。
-* **从云会话内部**：键入 `/teleport`，Claude Code 会回复该会话的确切 `claude --teleport <session-id>` 命令，准备从存储库的检出运行。需要会话环境中的 Claude Code v2.1.223 或更高版本。
+* **从云端会话内部**：键入 `/teleport`，Claude Code 会回复该会话的确切 `claude --teleport <session-id>` 命令，可直接从仓库的检出运行。
 
 当您 teleport 会话时，Claude 验证您在正确的仓库中，从云端会话获取并检出分支，并将对话加载到您的终端。
 

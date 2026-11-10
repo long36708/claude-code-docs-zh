@@ -89,7 +89,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 * **交互式会话**：Claude Code 仅在贡献者接受该文件夹的[工作区信任对话](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)后注册市场。
 * **[非交互式 `-p` 运行](https://code.claude.com/docs/zh-CN/headless)** ：条目仅在贡献者已交互式接受其信任的文件夹中应用，或您在 `~/.claude.json` 中设置其 `hasTrustDialogAccepted` 标志的文件夹中应用。
 
-市场按相对路径列出的插件在存储库的 `extraKnownMarketplaces` 条目应用后从市场副本加载。市场条目指向外部源（例如插件自己的 GitHub 存储库）的插件不会仅从存储库的设置安装。每个贡献者看到 `Plugin "<name>" is enabled in project settings but isn't installed`，直到他们运行 `claude plugin install <name>@<marketplace> --scope project`，如[安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md)所述。
+在仓库中设置 `enabledPlugins` 不会安装插件。市场注册后，请让每位贡献者运行 `claude plugin install <name>@<marketplace> --scope project`。在他们运行之前，`/plugin` 的 **Errors** 选项卡可能会显示 `Plugin "<name>" is enabled in project settings but isn't installed here` 或 [`not cached`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-not-cached-at)。当本地 `directory` 或 `file` 市场使用[相对路径 `source`](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#plugin-sources) 列出该插件时，贡献者无需执行安装。
 
 如果您使用带有相对路径的本地 `directory` 或 `file` 源，路径相对于您的存储库的主检出解析。当您从 git worktree 运行 Claude Code 时，路径仍指向主检出，因此所有 worktree 共享相同的市场位置。
 

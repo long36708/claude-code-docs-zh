@@ -252,15 +252,15 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`AbovePrompt`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `hasSurvey`、`isWorking`、`maxRows`、`bodyColumns`、`scroll`、`view` | 单一实例 | 终端、Desktop |
 | [`Placed`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#place-a-row-in-the-transcript) | `id`、`plugin`、`onScreen` | `$.ui.place` 返回的 `requestId` | 终端 |
 | [`Backdrop`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `id`、`plugin`、`glass`、`colorScheme` | `backdrop` | `desktop` 和 `mobile` 使用入口。当 Desktop 或移动应用请求绘制背景时，您的 hook 会运行。 |
-| `UserMessage` | `text`、`origin`、`isExpanded`，以及视来源而定的 `task` 或 `from` | 消息 id | 终端、Desktop、VS Code |
-| `AssistantMessage` | 回复的文本 | 消息 id | 终端、Desktop、VS Code |
+| `UserMessage` | `text`、`origin`、`isExpanded`，以及视来源而定的 `task` 或 `from` | 所绘制行的 id | 终端、Desktop、VS Code |
+| `AssistantMessage` | 回复的文本 | 所绘制行的 id | 终端、Desktop、VS Code |
 | `ToolUse`, `ToolResult`, `ToolGroup` | 工具的名称、输入和结果 | 工具调用 id | 终端、Desktop、VS Code |
-| `CommandOutput` | `command`、`text` | 消息 id | 终端、Desktop |
+| `CommandOutput` | `command`、`text` | 所绘制行的 id | 终端、Desktop |
 | [`AskUserQuestion`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) | 问题和选项 | 工具调用 id | 终端、Desktop、VS Code |
 | `ToolProgress` | `kind` | 工具调用 id | 终端 |
 | [`Spinner`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#change-what-claude-code-already-draws) | `word`、`message`、`suffix`、`mode` | Agent id | 终端、Desktop、VS Code |
-| `TurnDuration` | `word`、`durationMs` | 消息 id | 终端 |
-| `InfoNotice` | `text`、`command` | 消息 id | 终端 |
+| `TurnDuration` | `word`、`durationMs` | 所绘制行的 id | 终端 |
+| `InfoNotice` | `text`、`command` | 以 `notice:` 为前缀的通知 `text` | 终端 |
 | `SessionMode` | `modes` | 单一实例 | 终端、Desktop |
 | `PromptHint` | `isDraft`、`isWorking`、`hint` | 单一实例 | 终端、Desktop |
 

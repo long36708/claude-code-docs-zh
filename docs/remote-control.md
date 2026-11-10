@@ -198,7 +198,7 @@ VS Code 扩展和 Desktop 应用也有自动连接开关：
 * **VS Code 扩展**：[命令菜单](https://code.claude.com/docs/zh-CN/vs-code.md#use-the-prompt-box) Settings 部分中的 **Enable Remote Control for all sessions**。
 * **Desktop 应用**：**Settings > Code** 或 **Settings > Claude Code** 中的 **Connect new sessions to Remote Control**。请参阅[控制哪些会话显示在您的其他设备上](https://code.claude.com/docs/zh-CN/desktop.md#control-which-sessions-appear-on-your-other-devices)。
 
-如果要改为通过设置文件开启自动连接，请在您的用户 `~/.claude/settings.json` 或[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中将 [`remoteControlAtStartup`](https://code.claude.com/docs/zh-CN/settings-reference#remotecontrolatstartup) 设为 `true`。在项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中，Claude Code 会遵循 `false` 并为该仓库关闭自动连接，但会忽略 `true`，因此签入仓库的文件无法为每个打开该仓库的人开启 Remote Control。
+如果要改为通过设置文件开启自动连接，请在您的用户 `~/.claude/settings.json` 或[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中将 [`remoteControlAtStartup`](https://code.claude.com/docs/zh-CN/settings-reference#remotecontrolatstartup) 设为 `true`。在项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中，Claude Code 会遵循 `false` 并为该仓库关闭自动连接。它会忽略 `true`，因此签入仓库的文件无法为每个打开该仓库的人开启 Remote Control。
 
 自动连接使用您自己的 claude.ai 账户登录，因此它启动的会话仅显示在您自己账户的 Claude 应用中，不会向任何其他人授予访问权限。
 

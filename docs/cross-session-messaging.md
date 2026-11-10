@@ -56,7 +56,7 @@ Let @api-worker know the schema migration finished
 
 ### 消息传递
 
-接收 Claude 在活跃轮次中的工具调用之间读取消息，所以运行中的工具永远不会被中断。当接收会话处于空闲状态时，Claude Code 会用消息启动新的轮次。
+接收方 Claude 会在活跃轮次中的工具调用之间读取消息。当接收会话处于空闲状态时，Claude Code 会以该消息启动一个新的轮次。
 
 来自另一个会话的消息以纯文本形式到达。如果它用 `@` 提及文件或 [MCP 资源](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-resources)，Claude 会看到按原样写的提及，Claude Code 不会附加任何内容，无论消息是启动新轮次还是在现有轮次中到达。Claude 仍然可以用自己的工具在接收机器上打开提及的路径，受该会话的权限限制。
 

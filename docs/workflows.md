@@ -375,9 +375,10 @@ Claude Code 按 Agent 的启动顺序重放运行，每个 Agent 要么返回其
 
   在 v2.1.305 之前，如果您重新启动一个未经编辑的脚本，而该脚本的 `pipeline()` 项或 `parallel()` 任务各自运行了多个 Agent，已完成的 Agent 也可能再次运行。要让新的运行不再出现这类重复运行，请更新 Claude Code。
 * **停止时仍在运行**：从头开始。停止整个运行不会将任何 Agent 计为失败。
+* **[在 v2.1.318 或更高版本上因达到用量限制而失败](#when-a-run-hits-your-usage-limit)**：再次运行，已完成的 Agent 会返回其保存的结果。如果您的脚本在失败之后调用了另一个 Agent，且该 Agent 返回了结果，那么脚本在失败的 Agent 之后启动的每个 Agent 也会再次运行。
 * **失败**：再次运行，脚本在其之后启动的每个 Agent 也会再次运行，即使它们已经完成。单独停止某一个 Agent（在 [`/workflows`](#watch-the-run) 中选中它并按 `x`）会被计为失败。
 
-最后一种情况意味着，扇出过程中途的失败会导致已完成的工作重新运行。如果一个脚本按顺序启动 A、B、C 和 D，而 B 失败了，重新启动时会从缓存返回 A，并再次运行 B、C 和 D。
+最后一种情况意味着，扇出过程中途的某个**失败** Agent 会导致已完成的工作重新运行。如果一个脚本按顺序启动 A、B、C 和 D，而 B 处于**失败**状态，重新启动时会从缓存返回 A，并再次运行 B、C 和 D。
 
 如果您编辑一个原本启动 A、B、C 和 D 的脚本，使其改为启动 A、C、B 和 D，那么第二个启动的 Agent 现在是 C，而上一次运行中是 B。重新启动时会从缓存返回 A，并再次运行 C、B 和 D。
 
@@ -395,16 +396,21 @@ Claude Code 按 Agent 的启动顺序重放运行，每个 Agent 要么返回其
 
 ### 运行达到用量限制时
 
-当某个 Agent 达到您的 claude.ai [用量限制](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)时，运行会暂停，而不是让该 Agent 失败：达到限制的 Agent 会等待重置，并且不会启动新的 Agent。限制重置后不久，等待中的 Agent 会再次运行，运行会自行继续。需要 Claude Code v2.1.271 或更高版本；在更早的版本中，受影响的 Agent 会失败。
+当某个 Agent 达到您的 claude.ai [用量限制](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)时，运行会暂停，而不是让该 Agent 失败。达到限制的 Agent 会等待重置，并且不会启动新的 Agent。限制重置后不久，等待中的 Agent 会再次运行，运行会自行继续。需要 Claude Code v2.1.271 或更高版本，在 Desktop [Code 标签页](https://code.claude.com/docs/zh-CN/desktop.md)中则需要 [v2.1.319 或更高版本](https://code.claude.com/docs/zh-CN/desktop.md#claude-code-version-in-the-code-tab)。在更早的版本中，受影响的 Agent 会失败。
 
-运行等待期间，任务面板中的进度行和 [`/workflows`](#watch-the-run) 标题会显示限制的重置时间。
+运行等待期间，任务面板中的进度行和 [`/workflows`](#watch-the-run) 标题会显示限制的重置时间。在 Code 标签页中，运行会显示类似 `Paused at usage limit · continues after 3:45 PM if the app stays open` 的一行。请保持应用打开。
 
 只有当以下所有条件都满足时，运行才会暂停；任一条件不满足时，受影响的 Agent 会失败：
 
-* 会话是交互式的，并且已使用 claude.ai 订阅登录。在使用 `claude -p` 的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)或 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 中、在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，或在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 或 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友会话中，运行不会暂停。
+* 会话已使用未启用[按用量计费](https://code.claude.com/docs/zh-CN/interactive-mode.md#start-a-wait-yourself)的 claude.ai 订阅登录，并且属于以下会话类型之一：
+  * 交互式终端会话。在使用 `claude -p` 的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)或 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 中、在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，或在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 或 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友会话中，运行不会暂停。
+  * 您在 Code 标签页中启动的本地会话。在 SSH、WSL、[Dispatch](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch) 或[定时任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md)会话中，在从 Remote Control 启动或通过[企业启动器](https://code.claude.com/docs/zh-CN/corporate-launcher.md)启动的会话中，或在设置了 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars#variables) 时，运行不会暂停。
 * [`autoContinueAtUsageLimit`](https://code.claude.com/docs/zh-CN/settings-reference#autocontinueatusagelimit) 已开启，这也是让会话本身能够[等待用量限制重置](https://code.claude.com/docs/zh-CN/interactive-mode.md#wait-for-a-usage-limit-to-reset)的同一设置。如果您在等待期间将其关闭，等待会结束，等待中的 Agent 会失败。
+* 在 Code 标签页中，[会话限制卡片](https://code.claude.com/docs/zh-CN/errors.md#youve-hit-your-session-limit)上的 **Auto-continue when limits reset** 复选框处于选中状态（默认即为选中）。如果您取消选中，您的 Code 标签页会话中的运行将不再暂停，除非托管设置将 `autoContinueAtUsageLimit` 设为 `true`。
 * 限制在 24 小时内重置。每周限制的重置时间可能更远。
 * 运行尚未等待过两次。当第三次达到限制时，该 Agent 会失败。
+
+要完成其 Agent 因达到限制而失败的运行，请在限制重置后让 Claude [重新启动工作流](#which-agents-run-again)。
 
 ### Agent 停滞并重新启动时
 

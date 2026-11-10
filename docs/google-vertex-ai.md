@@ -134,12 +134,12 @@ export VERTEX_REGION_CLAUDE_4_6_SONNET=europe-west1
 
 要提高您的速率限制，请联系 Google Cloud 支持。使用 Google Cloud 的 Agent Platform 时，`/logout` 命令不可用，因为身份验证通过 Google Cloud 凭证处理。
 
-Claude Code 在 [MCP tool search](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search) 和预先加载之间进行决策，具体取决于模型生成：
+Claude Code 根据模型代际在 [MCP 工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)和预先加载之间进行选择：
 
 * **Claude Opus 4.5、Sonnet 4.5、Haiku 4.5 及更高版本**：Claude Code 默认启用工具搜索。
 * **早期模型**：Claude Code 预先加载 MCP 工具定义，因为它们的 Agent Platform 服务堆栈拒绝所需的 beta 标头。设置 `ENABLE_TOOL_SEARCH=true` 不会覆盖此行为。
 
-设置 `ENABLE_TOOL_SEARCH=false` 以在每个模型上禁用工具搜索。在 v2.1.221 之前，Claude Code 在 Google Cloud 的 Agent Platform 上为所有模型禁用工具搜索，除非您设置 `ENABLE_TOOL_SEARCH=true`。
+设置 `ENABLE_TOOL_SEARCH=false` 以在每个模型上禁用工具搜索。
 
 ### 固定模型版本
 

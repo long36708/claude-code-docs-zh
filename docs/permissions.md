@@ -578,6 +578,8 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 * `mcp__puppeteer__*` 使用通配符语法，也匹配来自 `puppeteer` 服务器的所有工具
 * `mcp__puppeteer__puppeteer_navigate` 匹配由 `puppeteer` 服务器提供的 `puppeteer_navigate` 工具
 
+为 MCP 工具编写 allow 规则时不要带[说明符](#use-specifiers-for-fine-grained-control)（[权限更新](https://code.claude.com/docs/zh-CN/hooks.md#permission-update-entries)中称之为 `ruleContent`）。如果您添加说明符以仅允许某个工具的部分调用，该规则不会匹配任何调用。如需改为阻止部分调用，请参阅[按输入参数匹配](#match-by-input-parameter)。
+
 对于 `<server>`，请按照服务器名称在该服务器工具名称中出现的形式编写。以下示例展示了对于包含特殊字符的名称、来自插件的服务器，以及包含 `__` 或以 `_` 结尾的名称应编写的规则：
 
 * **包含 `.` 或空格等字符的名称**：这些字符会变为 `_`，因此对于您配置为 `my.server` 的服务器，请编写 `mcp__my_server__*`

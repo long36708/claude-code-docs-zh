@@ -346,7 +346,7 @@ $env:CLAUDE_CODE_NO_FLICKER = "1"; claude
 
 Claude Code 将每个 `[Pasted text #N]` 占位符后面的内容保存在 `~/.claude/paste-cache/` 下，因此当您从[命令历史](https://code.claude.com/docs/zh-CN/interactive-mode.md#command-history)中调用提示并重新提交时，完整的粘贴内容会再次发送，包括在后续会话中。
 
-早于 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays) 的缓存文件会根据[保留扫描规则](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)被删除，因此调用的提示可能引用不再存在的粘贴文本。当您提交这样的提示时，Claude Code 永远不会发送字面上的 `[Pasted text #N]` 字符串，而是显示一个通知，命名缺失的粘贴：
+早于 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays) 的缓存文件会根据[保留扫描规则](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)被删除，因此调出的提示词可能引用不再存在的粘贴文本。当您提交这样的提示词时，Claude Code 不会发送字面上的 `[Pasted text #N]` 字符串，而是显示一个通知，指明缺失的粘贴：
 
 * 在包含剩余文本的纯提示中，Claude Code 移除占位符并发送剩余文本。
 * 在[shell 模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#shell-mode-with-prefix)命令或 `/` 命令中，其中移除会改变运行内容，以及在任何移除会留下空白的提示中，Claude Code 取消提交并在输入中保留原始文本，占位符仍在其中。删除占位符或编辑命令，然后重新提交。

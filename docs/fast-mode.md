@@ -227,7 +227,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 如果您在会话中途用完使用额度，Claude Code 会在标准速度和定价下重试每个被拒绝的快速模式请求，因此您可以继续工作，没有冷却。您看到拒绝的方式取决于会话类型：
 
 * 在交互式会话中，Claude Code 显示"快速模式已禁用 · 使用额度已耗尽"通知，并关闭快速模式。您保存的快速模式偏好设置不会改变；运行 `/fast` 以重新打开快速模式。
-* 在[非交互式模式](https://code.claude.com/docs/zh-CN/headless.md)中使用 `--output-format stream-json`，以及通过 Agent SDK，Claude Code 在消息流上作为 `system` 消息发出相同的文本，子类型为 `notification`，在您用完使用额度时每轮一次。快速模式保持打开。需要 Claude Code v2.1.221 或更高版本。
+* 在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中使用 `--output-format stream-json` 时，以及通过 Agent SDK 时，Claude Code 会在消息流上以子类型为 `notification` 的 `system` 消息发出相同的文本。在您用完使用额度期间，该消息每个轮次出现一次。快速模式保持打开。
 
 ## 研究预览
 

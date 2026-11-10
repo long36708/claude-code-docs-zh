@@ -247,7 +247,7 @@ SDK 匹配器遵循与[设置文件中的匹配器](https://code.claude.com/docs
 * **顶级字段**在每个事件上被接受：`systemMessage` 向用户显示消息，`continue`（Python 中的 `continue_`）确定 Agent 在此 hook 后是否继续运行。某些事件会丢弃它们或将它们传递到其他地方。hooks 页面上每个[事件的部分](https://code.claude.com/docs/zh-CN/hooks.md#hook-events)说明了它们的去向。
 * **`hookSpecificOutput`** 控制当前操作。内部的字段取决于 hook 事件类型：
   * 对于 `PreToolUse` hook，这是您设置 `permissionDecision`（`"allow"`、`"deny"`、`"ask"` 或 `"defer"`）、`permissionDecisionReason` 和 `updatedInput` 的地方。如果您返回 `"defer"`，该轮次将以一条 `stop_reason` 为 `"tool_deferred"` 的结果消息结束，以便您可以[稍后恢复该调用](https://code.claude.com/docs/zh-CN/hooks.md#defer-a-tool-call-for-later)。
-  * 对于 `PostToolUse` hook，您可以设置 `additionalContext` 以将信息附加到工具结果。要在 Claude 看到之前替换工具的输出，请设置 `updatedToolOutput`，这适用于两个 SDK 中的任何工具。较旧的 `updatedMCPToolOutput` 字段仅替换 MCP 工具输出。
+  * 对于 `PostToolUse` hook，您可以设置 `additionalContext` 以将信息附加到工具结果。要在 Claude 看到之前替换工具的输出，请设置 `updatedToolOutput`，这适用于两个 SDK 中的内置工具和 MCP 工具。较旧的 `updatedMCPToolOutput` 字段仅替换 MCP 工具输出。
   * 在 TypeScript SDK 中，`PostToolUse` 回调也可以返回 `classifierContext`，这是关于工具调用结果的简短说明，用于[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)权限分类器。因为您的回调在您的应用程序自己的进程中运行，分类器可能会将您在说明中转达的用户声明视为用户意图。该字段需要 TypeScript Agent SDK v0.3.236 或更高版本。[为自动模式分类器注释结果](https://code.claude.com/docs/zh-CN/hooks.md#annotate-a-result-for-the-auto-mode-classifier)涵盖了长度上限、仅同步规则以及不要在说明中放入的内容。
 
 返回 `{}` 以允许操作而不进行更改。SDK 回调 hook 使用与 [Claude Code shell 命令 hook](https://code.claude.com/docs/zh-CN/hooks.md#json-output) 相同的 JSON 输出格式，其中记录了每个字段和事件特定的选项。对于 SDK 类型定义，请参阅 [TypeScript](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#synchookjsonoutput) 和 [Python](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#synchookjsonoutput) SDK 参考。

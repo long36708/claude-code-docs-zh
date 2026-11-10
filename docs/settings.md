@@ -66,7 +66,7 @@ Claude Code 还会保留第五个文件 [`~/.claude.json`](https://code.claude.c
 
 ### 与团队共享设置
 
-提交 `.claude/settings.json`，以便克隆仓库的每个人都获得相同的权限、hook 和插件。每位队友仍可以在自己的 `.claude/settings.local.json` 中为自己覆盖它，因此个人例外无需提交。有关完整的团队文件，请参阅[团队的共享设置](https://code.claude.com/docs/zh-CN/settings-example.md#a-teams-shared-settings)。
+提交 `.claude/settings.json`，以便克隆仓库的每个人都获得相同的权限、hook 和插件设置。每位队友仍可以在自己的 `.claude/settings.local.json` 中为自己覆盖它，因此个人例外无需提交。有关完整的团队文件，请参阅[团队的共享设置](https://code.claude.com/docs/zh-CN/settings-example.md#a-teams-shared-settings)。
 
 您提交的部分内容要等到每位队友[信任该文件夹](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)后才会生效，还有少数键永远不会从仓库文件中生效；[排查不生效的设置](#common-cases)涵盖了这两种情况。
 
