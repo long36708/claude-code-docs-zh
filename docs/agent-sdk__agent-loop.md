@@ -220,7 +220,7 @@ Claude Code 在模型响应到达后才将支出与 `max_budget_usd` / `maxBudge
 
 > [!NOTE]
 >
-> `effort` 在每个响应内交换延迟和令牌成本以获得推理深度。[扩展思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking) 是一个单独的功能，在输出中产生 `thinking` 块，[Python](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#thinkingconfig) 或 [TypeScript](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#thinkingconfig) 上 `ThinkingConfig` 的 `display` 字段控制你是否接收它们的文本。它们是独立的：你可以设置 `effort: "low"` 并启用扩展思考，或 `effort: "max"` 而不启用它。
+> `effort` 在每个响应内以延迟和 token 成本换取推理深度。[扩展思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking) 会在输出中产生 `thinking` 块，[Python](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#thinkingconfig) 或 [TypeScript](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#thinkingconfig) 上 `ThinkingConfig` 的 `display` 字段控制您是否接收它们的文本。
 
 对于执行简单、范围明确的任务（如列出文件或运行单个 grep）的 Agent，使用较低的 effort 来降低成本和延迟。在顶级 `query()` 选项中为[会话](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-an-effort-level)设置 `effort`，或在 [`AgentDefinition`](https://code.claude.com/docs/zh-CN/agent-sdk/subagents#agentdefinition-configuration) 上使用 `effort` 字段为每个子代理设置以覆盖会话级别。
 

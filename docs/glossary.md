@@ -54,7 +54,7 @@ Claude 根据您的更正和偏好为自己编写的笔记，按 git 存储库�
 
 ### Auto mode
 
-一种[权限模式](#permission-mode)，其中单独的分类器模型审查操作而不是您，因此 Claude Code 可以在不询问您的情况下运行大多数操作。Claude Code 仍然会在您的显式 ask 规则匹配的操作之前询问您。分类器阻止范围升级、不受信任的基础设施和[提示词注入](#prompt-injection)。工具结果从它看到的内容中被剥离，因此文件或网页中的恶意内容无法直接操纵它。
+一种[权限模式](#permission-mode)，其中由单独的分类器模型代替您审查操作，因此 Claude Code 可以在不询问您的情况下运行大多数操作。Claude Code 仍然会在您的显式 ask 规则匹配的操作之前询问您。分类器阻止范围升级、不受信任的基础设施和[提示词注入](#prompt-injection)。
 
 * **Claude Code v2.1.283 或更高版本**：自动模式是交互式终端和 VS Code 会话的[内置起始权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)
 * **早期版本**：自动模式仅在 Pro、Max、Ultra 和 Team 计划上是内置起始权限模式
@@ -261,7 +261,7 @@ Hook 配置有三个级别：
 
 ### Prompt injection
 
-嵌入在文件、网页或工具结果中的恶意指令，试图将 Claude 重定向到您从未要求的操作。Claude Code 的防御包括权限系统、命令注入检测和信任验证。[Auto mode](#auto-mode) 添加了一个服务器端探针，扫描工具结果中的可疑内容，以及一个分类器，用于审查剥离工具结果的操作，因此注入的文本无法直接操纵它。
+嵌入在文件、网页或工具结果中的恶意指令，试图将 Claude 重定向到您并未要求的操作。Claude Code 的防御包括权限系统、命令注入检测和信任验证。在[自动模式](#auto-mode)中，一个服务器端探针会扫描工具结果中的可疑内容，并由一个分类器审查操作。
 
 了解更多：[防止提示注入](https://code.claude.com/docs/zh-CN/security.md#protect-against-prompt-injection)
 

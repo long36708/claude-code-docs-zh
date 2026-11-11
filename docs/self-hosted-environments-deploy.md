@@ -916,15 +916,21 @@ claude self-hosted-runner doctor
 * **运行器记录包含 `rejecting the malformed poll response` 的 `Poll failed` 行**：运行器收到的工作轮询响应的正文不是队列的预期 JSON。原因之一是拦截代理或强制门户用自己的页面进行了应答。如果运行器通过代理连接，请配置代理以将来自 `api.anthropic.com` 的响应原封不动地传递。
 
   运行器拒绝该格式错误的响应，在 `claude_code_self_hosted_runner_poll_errors_total` [指标](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference.md#prometheus-metrics) 的 `transport` 类型下计数，并按 [会话生命周期](https://code.claude.com/docs/zh-CN/self-hosted-environments#session-lifecycle) 中描述的失败轮询计划重试。运行器继续为其实时会话提供服务。在 v2.1.246 之前，运行器将这样的响应读取为空工作队列，这可能会结束其实时会话或使其退出。
-* **会话失败，显示 `no longer exists on the remote` 或 `couldn't find remote ref`**：运行器会将 git 的 `couldn't find remote ref` 理解为分支已被删除。但该分支可能仍然存在。请在您的 git 主机上按消息中的确切名称查找该分支，然后逐一检查符合情况的原因：
+* **会话失败，显示 `couldn't be found in the remote repository` 或 `couldn't find remote ref`**：在您的 git 主机上查找该分支。请按消息中的确切名称进行搜索。
 
-  * **分支已不存在**：请按消息的要求恢复该分支。
+  会话的错误中包含 `Retrying will fail the same way until you fix the missing branch described below.`。当错误指明了分支时，`Last output before exit:` 下的文本如下：
+
+  ```text theme={null}
+  The branch '<ref>' couldn't be found in the remote repository <repo>. If it was never pushed, push it. If it was deleted after a merge, restore it from its pull request. Then send a new message, or start a new session from a branch that has been pushed. (couldn't find remote ref)
+  ```
+
+  * **分支不在主机上**：如果该分支从未被推送，请推送它；如果它在合并后被删除，请从其 Pull Request 中恢复它。
   * **分支存在，且您不管理该运行器**：将完整消息发送给运行器的管理员，并告知其该分支存在。
   * **分支存在，且运行器有 `checkout` hook**：您的 hook 中的某个 git 命令可能会在 hook 以非零状态退出之前将 `couldn't find remote ref` 打印到 stderr。找到该命令，并更正它请求的 ref 或它从中获取的远程。运行器会将会话请求的修订版本作为 [`CLAUDE_RUNNER_REPO_REF`](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 传递给您的 hook。
   * **分支存在，且运行器没有 `checkout` hook**：运行器会自行获取该分支。如果某个 [`--git-host-rewrite`](#rewrite-git-urls-for-private-networks) 适用于该仓库，请确认其重写到的目标主机上存在同名分支，如果不存在，请将该分支推送到那里。
   * **分支存在，且运行器早于 v2.1.301**：按照 [固定版本](#pin-the-version) 中的说明升级运行器，以便其他类型的失败显示其自身的错误。在 v2.1.301 之前，错误输出中包含 `couldn't find remote ref` 的其他失败也会被报告为分支已删除。
 
-  升级运行器或修复原因后，请重试该会话或启动新会话。如果这些检查都未能找到原因，请[报告问题](#report-an-issue)。
+  升级运行器或修复原因后，请向该会话发送一条新消息，或从一个已推送的分支启动新会话。如果这些检查都未能找到原因，请[报告问题](#report-an-issue)。在 v2.1.314 之前，该消息显示分支 `no longer exists on the remote`。对于该消息，请执行相同的检查。
 
   对于会话推送结果的源，删除的分支会导致会话失败。对于会话仅从中读取的 git 源，运行器跳过该源并继续处理其余源。当跳过会导致会话完全没有仓库时，运行器会使会话失败。在 v2.1.228 之前，这样的会话在空目录中启动。
 * **Claude Tag 有时不在 Slack 中发布其回复**：回复提醒是一个[由控制平面提供的 hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled)。请使用 `claude --version` 确认运行器为 Claude Code v2.1.229 或更高版本，因为较旧的运行器会忽略所提供的 hook；确认 `python3 --version` 在运行器镜像中能够成功执行，因为这些 hook 会运行 `python3`；并确认没有任何设置文件关闭了 hook，无论是 `managed-settings.json`、运行器用户的 `~/.claude/settings.json`、仓库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `disableAllHooks`，还是托管设置中的 `allowManagedHooksOnly` 或涵盖 hook 的 [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization)。

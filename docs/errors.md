@@ -2349,7 +2349,7 @@ Couldn't send feedback: Feedback has not been enabled for your organization. To 
 **解决方法：**
 
 * **未登录**：消息后续为 `: not signed in. Run /login, then retry.`。请运行 `/login`，然后再次发送
-* **您的组织拒绝**：例如 `: Feedback has not been enabled for your organization.` 或 `: Feedback collection is not available for organizations with custom data retention policies.`。如果消息附有 `To report a bug, open an issue`，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交 issue。之后在七天内，`/feedback` 可能会提示它已[被您组织的策略禁用](#feedback-is-disabled-by-your-organizations-policy)。已排队的草稿会保留在队列中，并仍会[按计划过期](https://code.claude.com/docs/zh-CN/tools-reference.md#discard-or-keep-a-draft)
+* **您的组织拒绝**：例如 `: Feedback has not been enabled for your organization.` 或 `: Feedback collection is not available for organizations with custom data retention policies.`。之后在七天内，`/feedback` 可能会提示它已[被您组织的策略禁用](#feedback-is-disabled-by-your-organizations-policy)。已排队的草稿会保留在队列中，并仍会[按计划过期](https://code.claude.com/docs/zh-CN/tools-reference.md#discard-or-keep-a-draft)
 * **凭据被拒绝**：消息后续为 `: the sign-in this session uses is not allowed to send feedback` 或 `: the server did not accept the credentials this session uses`。请在 Claude Code 提示符处运行 `/status`，查看此会话发送的是哪个登录、令牌或 API 密钥
 * **紧跟在 `Couldn't send feedback` 之后的 `(request timed out)` 或 `(couldn't reach the service)`**：请再次发送报告或已排队的草稿。对话框会保留您的文本，已排队草稿的消息会显示 `The draft is still queued.`。如果其他请求也在失败，请检查您的网络连接，并参阅 [Unable to connect to API](#unable-to-connect-to-api)。如果持续失败，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告
 * **紧跟在 `Couldn't send feedback` 之后的 `(server returned <status>)`，或没有任何原因**：该状态码是服务的响应代码。如果服务发送了自己的消息，该消息会跟在状态码之后，例如 `(server returned 403: Access Forbidden)`。如果持续失败，请在 [github.com/anthropics/claude-code/issues](https://github.com/anthropics/claude-code/issues) 提交报告
@@ -6622,7 +6622,7 @@ Two Claude Code config files exist: this run uses /home/you/.claude/.config.json
 
 **2. 更新共享该主目录的每台主机**
 
-如果多台主机共享此主目录，请先将每台主机上的 Claude Code 更新到消息中指出的版本或更高版本。旧版本可能会将已移走的 `.config.json` 写回。
+如果多台主机共享此主目录，请先将每台主机上的 Claude Code 更新到消息中指出的版本或更高版本。
 
 **3. 停止 Claude Code**
 

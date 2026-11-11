@@ -168,7 +168,7 @@
 
 有关这些消息，请参阅 [Model is not a recognized model id](https://code.claude.com/docs/zh-CN/errors.md#model-is-not-a-recognized-model-id) 和 [Model not found](https://code.claude.com/docs/zh-CN/errors.md#model-not-found)。
 
-如果您使用 `--model` 标志、`ANTHROPIC_MODEL` 环境变量或 `model` 设置来设置模型，Claude Code 不会预先拒绝拼写错误的值。会话会正常启动，第一个请求会产生 [There's an issue with the selected model](https://code.claude.com/docs/zh-CN/errors.md#theres-an-issue-with-the-selected-model)。在 Anthropic API 上，不以 `claude-` 开头且与某个模型名称或别名拼写相近的值，还可能产生一条[建议该名称的启动警告](#fix-a-mistyped-model-name)。
+如果您使用 `--model` 标志、`ANTHROPIC_MODEL` 环境变量或 `model` 设置来设置模型，Claude Code 不会预先拒绝拼写错误的值。会话会正常启动，第一个请求会产生 [There's an issue with the selected model](https://code.claude.com/docs/zh-CN/errors.md#theres-an-issue-with-the-selected-model)。在 Anthropic API 上，如果该值与某个模型名称或别名拼写相近且不以 `claude-` 开头，您可能会看到一条[建议最接近名称的警告](#fix-a-mistyped-model-name)。
 
 当请求的模型有计划的停用日期或会被自动重新映射到较新版本时，Claude Code 会显示一条指明所请求模型的警告。交互式会话将其显示为启动通知。从 v2.1.182 开始，在使用默认文本输出格式的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中，相同的警告会写入 stderr。该检查也涵盖在[子代理 frontmatter](https://code.claude.com/docs/zh-CN/sub-agents.md) 中设置的 `model`。对于 `--output-format json` 和 `stream-json`，stderr 警告会被抑制；请改为从[结果消息](https://code.claude.com/docs/zh-CN/headless.md#get-structured-output)的 `modelUsage` 字段读取实际模型。
 
@@ -194,6 +194,18 @@ claude --model opus
     "model": "opus"
 }
 ```
+
+#### 修复拼写错误的模型名称
+
+以下任一警告都表示 Claude Code 无法识别您设置的模型 ID，而该 ID 与它能识别的某个模型名称或别名拼写相近：
+
+```text theme={null}
+⚠ Model "<model>" isn't recognized · did you mean "<suggestion>"?
+Claude Code doesn't recognize the model "<model>". Did you mean "<suggestion>"?
+```
+
+* **您输错了 ID**：[在您设置模型的位置](#setting-your-model)将其改为建议的值
+* **该 ID 是有意设置的**：保持原样。会话会按您所写的内容发送它。如果 Claude Code 为其假定的上下文窗口不正确，请[更正该窗口](#correct-the-window-for-a-gateway-or-custom-model-id)
 
 #### 为新会话设置默认模型
 
@@ -772,11 +784,18 @@ Fable 模型、Sonnet 5 及更高版本、Haiku 5.5 和 Opus 4.7 及更高版本
 | :- | :- |
 | 当前会话的切换 | 在 macOS 上按 `Option+T` 或在 Windows 和 Linux 上按 `Alt+T` |
 | 设置全局默认值 | 运行 `/config` 并切换思考模式。保存为 `~/.claude/settings.json` 中的 `alwaysThinkingEnabled` |
-| 通过环境变量禁用 | 设置 [`MAX_THINKING_TOKENS=0`](https://code.claude.com/docs/zh-CN/env-vars)，这在 Anthropic API 上关闭思考，除了 Opus 5.5、Sonnet 5.5、Haiku 5.5 和 Fable 模型。在[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上，Claude Code 改为省略 `thinking` 参数，自适应推理模型可能仍然思考 |
+| 通过环境变量禁用 | 设置 [`MAX_THINKING_TOKENS=0`](https://code.claude.com/docs/zh-CN/env-vars) |
+
+Claude Code 默认折叠思考输出。按 `Ctrl+O` 切换详细模式并将推理视为灰色斜体文本。Anthropic API 上的交互式会话默认接收编辑的思考块，因此如果您想要完整摘要在展开时可用，请在设置中设置 [`showThinkingSummaries: true`](https://code.claude.com/docs/zh-CN/settings-reference#showthinkingsummaries)。您需要为所有生成的思考 token 付费，即使折叠或编辑。
+
+#### 无法关闭思考的情况
 
 您不能在 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 模型上关闭思考。对于这些模型，会话切换和 `/config` 行显示 `Thinking can't be turned off`，而不是提供切换，保存的 `alwaysThinkingEnabled: false` 或 `MAX_THINKING_TOKENS=0` 在那里没有效果。在这些模型上，模型根据 effort 级别按步骤决定思考多少。保存的设置在您切换到接受它的模型时再次应用。
 
-Claude Code 默认折叠思考输出。按 `Ctrl+O` 切换详细模式并将推理视为灰色斜体文本。Anthropic API 上的交互式会话默认接收编辑的思考块，因此如果您想要完整摘要在展开时可用，在[设置](https://code.claude.com/docs/zh-CN/settings.md)中设置 `showThinkingSummaries: true`。您需要为所有生成的思考 token 付费，即使折叠或编辑。
+要停止或减少思考，请使用适用于您的提供商的步骤：
+
+* **Anthropic API**：您可以在 `claude-opus-5`、`claude-sonnet-5` 和 `claude-haiku-4-5` 等模型上关闭思考。`sonnet` 等[别名](#model-aliases)选择的是无法关闭思考的模型，因此请按其 ID [设置模型](#setting-your-model)。
+* **[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)**：在 Amazon Bedrock 和 Microsoft Foundry 等提供商上，具有[自适应推理](#adaptive-reasoning-and-fixed-thinking-budgets)的模型在关闭思考后仍可能思考。请[降低 effort 级别](#set-the-effort-level)以减少思考。
 
 ### 扩展上下文
 
@@ -899,18 +918,6 @@ Claude Code 会在假设的 200K 处[自动压缩](#default-auto-compact-thresho
 * **任何其他窗口**：在启动 Claude Code 的环境中将 [`CLAUDE_CODE_MAX_CONTEXT_TOKENS`](https://code.claude.com/docs/zh-CN/env-vars) 设置为以 token 为单位的窗口大小，例如 `CLAUDE_CODE_MAX_CONTEXT_TOKENS=400000`。对于不以 `claude-` 开头且没有 `[1m]` 后缀的无法识别的 ID，该变量会单独生效。对于任何其他 ID，请先查看[它适用于哪些 ID](#which-ids-claude_code_max_context_tokens-applies-to)。
 
 一旦 Claude Code 识别了该 ID 或使用了您提供的窗口，在该 ID 上启动会话时就不会再出现该警告。
-
-#### 修正拼错的模型名称
-
-以下任一警告都表示 Claude Code 无法识别您设置的模型 ID，且该 ID 的拼写与它能识别的某个模型名称或别名非常接近：
-
-```text theme={null}
-⚠ Model "<model>" isn't recognized · did you mean "<suggestion>"?
-Claude Code doesn't recognize the model "<model>". Did you mean "<suggestion>"?
-```
-
-* **您拼错了 ID**：在[您设置模型的位置](#setting-your-model)将其改为建议的名称
-* **该 ID 是有意设置的**：保持原样即可。会话会按您填写的内容原样发送该 ID。如果 Claude Code 为其假设的上下文窗口不正确，请[更正窗口](#correct-the-window-for-a-gateway-or-custom-model-id)
 
 #### `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 适用于哪些 ID
 

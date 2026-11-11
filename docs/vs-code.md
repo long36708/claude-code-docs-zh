@@ -399,6 +399,8 @@ VS Code 扩展支持检查点，它会跟踪 Claude 的文件编辑，并允许�
 
 如果重新加载在 Claude 执行某个步骤的过程中将其中断，对话恢复后 Claude 会继续该步骤，并在聊天中显示一条通知来标记此次继续。需要 Claude Code v2.1.274 或更高版本。如果该步骤是在一小时以前被中断的，或者该会话在其他地方打开，对话恢复后将处于空闲状态。
 
+当聊天中的通知包含 `plan mode is now off, so Claude did not continue on its own` 时，表示该步骤是在计划模式下被中断的。若要继续制定计划，请在发送下一条消息之前，在模式指示器中选择 **Plan**。
+
 #### 关闭重新加载后的继续执行
 
 若要阻止 Claude 在重新加载后继续被中断的步骤，请打开 [Continue After Reload 设置](vscode://settings/claudeCode.continueAfterReload)并取消勾选。
@@ -626,7 +628,7 @@ summarize the changes I've made to the auth module
 
 ## VS Code 命令和快捷键
 
-要打开命令面板，请在 Mac 上按 `Cmd+Shift+P`，在 Windows/Linux 上按 `Ctrl+Shift+P`。在其中输入"Claude Code"即可查看 Claude Code 扩展的所有可用 VS Code 命令。
+要打开命令面板，请在 Mac 上按 `Cmd+Shift+P`，在 Windows/Linux 上按 `Ctrl+Shift+P`。在其中输入"Claude Code"即可查看该扩展在命令面板中提供的命令。
 
 某些快捷键取决于当前哪个面板处于"焦点"状态（接收键盘输入）。当光标位于代码文件中时，编辑器处于焦点状态。当光标位于 Claude 的提示词输入框中时，Claude 处于焦点状态。使用 `Cmd+Esc` / `Ctrl+Esc` 在两者之间切换。
 
@@ -651,6 +653,7 @@ summarize the changes I've made to the auth module
 | Rename Session Tab | - | 重命名当前活动 Claude 标签页中的会话。需要 Claude Code v2.1.257 或更高版本 |
 | Add Session Tab to Group | - | 将当前活动 Claude 标签页中的会话添加到您选择或创建的[会话组](#organize-sessions-into-groups)中。需要 Claude Code v2.1.257 或更高版本 |
 | Mark Session as Unread | - | 在会话列表中将当前活动 Claude 标签页中的会话标记为未读。需要 Claude Code v2.1.257 或更高版本 |
+| `claude-vscode.toggleDictation` | `Cmd+D` (Mac) / `Ctrl+D` (Windows/Linux) | 开始或停止[语音听写](https://code.claude.com/docs/zh-CN/voice-dictation.md)。该快捷键需要 Claude 处于焦点状态。此命令不在命令面板中 |
 | Show Logs | - | 查看扩展调试日志 |
 | Logout | - | 注销您的 Anthropic 账户 |
 

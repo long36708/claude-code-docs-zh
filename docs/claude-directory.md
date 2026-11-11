@@ -170,7 +170,7 @@ Claude Code 在这些情况下跳过基于年龄的扫描：
 * **Linux**：`/tmp/claude-<uid>/<project>/<session-id>/scratchpad/`，或当您的系统设置 `$TMPDIR` 时在其下的相同形状
 * **Windows**：`%TEMP%\claude\<project>\<session-id>\scratchpad\`
 
-`<project>` 是您的工作目录路径，其中除字母和数字外的每个字符都被替换为 `-`，例如 `-Users-you-my-project`。如果您设置了 [`CLAUDE_CODE_TMPDIR`](https://code.claude.com/docs/zh-CN/env-vars)，树会改为移动到该目录下。Hooks 接收当前会话的路径作为 [`scratchpad_dir`](https://code.claude.com/docs/zh-CN/hooks#common-input-fields)。
+`<project>` 是您的工作目录路径，其中除字母和数字外的每个字符都被替换为 `-`，例如 `-Users-you-my-project`。在 Windows 上，`<project>` 是该字符串的 16 个字符的哈希值，例如 `73295dabccd14c56`。在 Desktop 应用会话中，它可以是该字符串本身。要获取确切路径，请询问 Claude。如果您设置了 [`CLAUDE_CODE_TMPDIR`](https://code.claude.com/docs/zh-CN/env-vars)，树会改为移动到该目录下。hook 接收当前会话的路径作为 [`scratchpad_dir`](https://code.claude.com/docs/zh-CN/hooks#common-input-fields)。
 
 暂存文件的生命周期与会话的会话记录相同：[保留扫描](#cleaned-up-automatically)在删除会话记录时删除该目录，而 [`claude purge`](#clear-local-data) 不会触及临时目录。由于该目录位于系统临时位置下，您的操作系统也可能清除它，例如在重启时。要保留 Claude 在那里写入的内容，请让 Claude 将其移动到您的项目中。
 

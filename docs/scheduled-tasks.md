@@ -229,7 +229,7 @@ cancel the deploy check job
 
 ## 禁用会话范围的定时任务
 
-在您的环境中设置 `CLAUDE_CODE_DISABLE_CRON=1` 以完全禁用调度程序。cron 工具和 `/loop` 变得不可用，任何已计划的任务都停止触发。有关禁用标志的完整列表，请参阅[环境变量](https://code.claude.com/docs/zh-CN/env-vars.md)。
+在您的环境中设置 `CLAUDE_CODE_DISABLE_CRON=1` 以完全禁用调度程序。`CronCreate` 和 `/loop` 变得不可用，任何已计划的任务都停止触发。当项目的 `.claude/scheduled_tasks.json` 文件中存有任务时，`CronList` 和 `CronDelete` 仍然可用，因此您仍可以让 Claude 列出或取消这些任务。有关禁用标志的完整列表，请参阅[环境变量](https://code.claude.com/docs/zh-CN/env-vars.md)。
 
 ## 限制
 

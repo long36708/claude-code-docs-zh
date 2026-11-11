@@ -183,10 +183,10 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"
 
 * **会话向其推送结果的仓库**：运行器会使会话失败，并在非零退出时将脚本 stderr 的末尾部分呈现给用户。请将原因以简短的一行写入 stderr，将其放在最后写入，然后以非零状态退出。请勿将机密信息打印到 stderr，并在部署 hook 之前移除 `set -x`。
 
-  如果 git 的 `couldn't find remote ref` 出现在 hook stderr 的大约最后 4 KB 中，运行器会改为报告分支已被删除。此时会话的错误消息会说明该分支在远程上已不存在，并请用户恢复它。如果该分支确实存在，请参阅[会话失败并显示 `no longer exists on the remote` 或 `couldn't find remote ref`](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#no-longer-exists-on-the-remote)。
+  如果 git 的 `couldn't find remote ref` 出现在 hook stderr 的大约最后 4 KB 中，运行器会改为报告分支缺失。如果该分支确实存在，请参阅[会话失败并显示 `couldn't be found in the remote repository` 或 `couldn't find remote ref`](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#no-longer-exists-on-the-remote)。
 * **会话仅从中读取的仓库**，例如添加到正在运行的会话中的仓库：运行器会跳过该仓库并继续处理其余仓库。运行器会向会话发布一个 `Skipped` 步骤，并删除 hook 在检出路径处留下的任何内容。
 
-  当 `Skipped` 步骤提到 checkout hook 时，请在运行器日志中的 `[runner:warn] checkout hook failed` 行中查找失败详情。当该步骤表示某个源引用 `no longer exists on remote` 时，请参阅[会话失败并显示 `no longer exists on the remote` 或 `couldn't find remote ref`](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#no-longer-exists-on-the-remote)。如果跳过后会话完全没有仓库，运行器仍然会使会话失败。
+  当 `Skipped` 步骤提到 checkout hook 时，请在运行器日志中的 `[runner:warn] checkout hook failed` 行中查找失败详情。当该步骤表示某个源引用 `no longer exists on remote` 时，请参阅[会话失败并显示 `couldn't be found in the remote repository` 或 `couldn't find remote ref`](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#no-longer-exists-on-the-remote)。如果跳过后会话完全没有仓库，运行器仍然会使会话失败。
 
 当 hook 成功时，运行器会在会话结束后删除检出路径。
 

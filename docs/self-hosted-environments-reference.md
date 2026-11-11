@@ -125,6 +125,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 | `SELF_HOSTED_RUNNER_MAX_LIFETIME_GRACE_MS` | `900000` | 运行器在会话达到其 `--kill-session-after-min` 限制后等待的时间，以便运行中的轮次完成或释放完成，然后才终止会话 |
 | `SELF_HOSTED_RUNNER_POST_TURN_SETTLE_MS` | `7000` | 运行器在轮次完成后计算会话繁忙的时间上限，用于 `--drain-wait-sec` 排空，而会话的进程向 Anthropic 报告轮次的结束。`0` 或不可用的值回退到默认值，因此无法关闭保持。需要 Claude Code v2.1.275 或更高版本。 |
 | `SELF_HOSTED_RUNNER_SIGKILL_GRACE_MS` | `30000` | 运行器等待操作系统向陷入不可中断 I/O 的子进程传递 `SIGKILL` 的时间，然后自己退出。下限为 `--post-session-hook-timeout-sec` 加 15 秒，设置 `--push-outcome-on-release` 时再加 30 秒，因此有效最小值在默认值处为 75 秒。 |
+| `CLAUDE_RUNNER_DISABLE_RENEWAL_WARNING` | 未设置 | 当为 `1` 时，运行器不会在会话中发布 `The server has refused to renew this session's access to the model`。每次被拒绝后，它会等到下一次计划的续订时再次请求。需要 Claude Code v2.1.319 或更高版本。 |
 | `CLAUDE_RUNNER_FETCH_DEPTH` | `50` | 新克隆的 git 获取深度。设置正整数，或 `full` 或 `0` 以进行完整获取。对于工作区中已存在的克隆，请参阅[复用预热的检出](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#reuse-a-pre-warmed-checkout)。 |
 | `CLAUDE_RUNNER_FETCH_SERVER_PROGRESS_CAP_MS` | `600000` | 在 git 服务器自身的进度数字持续上升期间（例如服务器为大型仓库准备 pack 时），每次尝试中 git 获取等待首批数据的最长时间（以毫秒为单位）。`0` 或 `off` 会关闭此等待：此类获取在两分钟内没有收到数据时将被中断。任何其他整数都会被限制在 `120000` 到 `1800000` 之间，即 2 到 30 分钟。需要 Claude Code v2.1.295 或更高版本。 |
 | `CLAUDE_RUNNER_SKIP_GIT_VERIFY` | 未设置 | 当为 `1` 时，跳过 `checkout` 钩子运行后的 `.git` 存在检查。当您的钩子物化非 git 源时设置此项。 |

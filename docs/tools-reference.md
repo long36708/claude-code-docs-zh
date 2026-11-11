@@ -197,7 +197,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 时间限制从命令进入后台的时刻开始计算：
 
 * Claude 在后台启动的命令获得 30 分钟，或 Claude 使用 `run_in_background` 传递的 `timeout`，最多 2 小时
-* 在前台启动然后移到后台的命令，例如在其超时时，从移动时获得 30 分钟
+* 在前台启动、然后在达到其超时时移到后台的命令，从移动时起获得 30 分钟
 
 在使用 `-p` 标志且以文本形式（而不是使用 `--input-format stream-json`）传递提示词的运行中，两个默认值都是 10 分钟而不是 30 分钟，因为该运行会[在其结果之后等待后台命令](https://code.claude.com/docs/zh-CN/headless.md#background-tasks-at-exit)。
 

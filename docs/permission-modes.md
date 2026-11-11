@@ -484,9 +484,11 @@ claude --permission-mode auto --debug-file classifier-debug.log
 * 向其他仓库或组织发起 Pull Request、使用 `gh repo fork` 进行 fork，或推送到第三方仓库，除非您指定了该外部目标
 * 来自敏感本地存储的内容，或来自名称、路径或类型表明其为敏感文件的内容，进入提交、推送、PR 或 issue 文本、gist 或粘贴、或包发布，除非您同时指定了来源和目标。会话记录和对话日志、凭据和配置类点文件夹（例如 SSH 密钥、云凭据、浏览器配置文件和 shell 历史记录）以及用户数据导出都包括在内，仓库为私有也不能解除此阻止
 * 写入 Claude Code 会话记录，即 `~/.claude/projects/` 或您所配置的配置目录下的 `.jsonl` 历史文件，无论是直接写入还是通过 shell 命令写入。该规则还涵盖 Claude Code 为其自身检查而附加到每条会话记录条目中的元数据行。读取会话记录不会被阻止
-* 递归强制删除，例如 `rm -rf "$VAR"` 或 `Remove-Item -Recurse -Force $dir`，其目标是在分类器所见对话中任何地方都未赋值的 shell 变量，或以此类变量为根的 glob。该值仅来自先前的命令输出，而分类器从不接收这些输出，因此分类器无法根据其他删除规则验证删除目标。当您指明要删除的确切路径，或 Claude 将解析后的字面路径写入命令并重新运行删除时，该阻止会解除。分类器能够解析目标的删除操作不受影响。
+* 递归强制删除，例如 `rm -rf "$VAR"` 或 `Remove-Item -Recurse -Force $dir`，其目标是在分类器所见对话中未赋值的 shell 变量，或以此类变量为根的 glob。没有该赋值，分类器就无法判断该命令会删除什么。
 
-  直接位于变量下的 glob（例如 `rm -rf "$VAR"/*`）则属于[关键路径](#critical-paths)。目标为单独的 `*` 或以 `/*` 或 `\*` 结尾的 `Remove-Item` 永远不会到达分类器：Claude Code 会[直接拒绝它们](#remove-item-in-powershell)。
+  当您指明要删除的确切路径，或 Claude 将解析后的字面路径写入命令并重新运行删除时，该阻止会解除。分类器能够解析目标的删除操作不受影响。
+
+  直接位于变量下的 glob（例如 `rm -rf "$VAR"/*`）则属于[关键路径](#critical-paths)。对于目标为单独的 `*` 或以 `/*` 或 `\*` 结尾的 `Remove-Item`，请参阅 [PowerShell 中的 Remove-Item](#remove-item-in-powershell)：Claude Code 会直接拒绝该命令。
 
 其中一些类别依赖于[环境](https://code.claude.com/docs/zh-CN/auto-mode-config.md#define-trusted-infrastructure)条目，例如敏感远程目标和受保护的 IaC 作用域，您可以将它们收窄到具体名称。
 

@@ -128,7 +128,7 @@ Chrome 未运行时，Claude Code 会正常启动。
 
 ### 计划模式下的浏览器工具
 
-在[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，Claude 在录制 GIF、打开新标签页或运行快捷方式之前会显示权限提示。在交互式 CLI 会话中，如果[绕过权限模式可用](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)且[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)已关闭，这些调用将在不提示的情况下运行。
+在[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，Claude 在录制 GIF 或打开新标签页之前会显示权限提示。在交互式 CLI 会话中，如果[绕过权限模式可用](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)且[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)已关闭，这些调用将在不提示的情况下运行。
 
 设置了 `createIfEmpty` 的 `tabs_context_mcp` 调用也会触发提示，包含上述任一操作的 `browser_batch` 调用同样如此。
 

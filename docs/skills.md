@@ -91,6 +91,7 @@ Claude 仅在它引导运行出错时编辑记录的文件，例如失败的命�
 | `managed-agents-secure [<agent-id>]` | 读取某个 Managed Agent 的设置，并报告其中哪些与[保护您的 Managed Agents 部署](https://platform.claude.com/docs/en/managed-agents/secure-deployment)指南相符、哪些与之不同。需要 [`ant` CLI](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/quickstart) | v2.1.304 或更高版本 |
 | `prompt-audit` | 标记为旧模型编写的指令在您的提示、技能和工具描述中，并提议修复作为差异 | v2.1.221 或更高版本 |
 | `cost-optimize` | 分析您的项目的 Claude API 支出去向，并提议从提示缓存、修剪不需要的输入和输出令牌、批处理、工作量和模型选择等选项中节省成本，一次一个更改 | v2.1.247 或更高版本 |
+| `latency-optimize` | 找出您现有 Claude API 代码中时间花在哪里，并提议缩短用户等待时间的更改 | v2.1.319 或更高版本 |
 | `build-eval` | 为您的 Claude 驱动的应用构建评估集 | v2.1.259 或更高版本 |
 | `hillclimb` | 针对现有评估迭代改进您的应用 | v2.1.259 或更高版本 |
 | `preserved-thinking-migration` | 查找您的集成对早期轮次、其系统提示或其工具列表所做的编辑，这些编辑使[保留的思考](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking)块失效，测量每个块丢弃多少推理，并提议一次一个修复，在每次更改后重新测量 | v2.1.282 或更高版本 |

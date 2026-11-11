@@ -466,7 +466,7 @@ claude --continue
 claude --worktree feature-auth
 ```
 
-在第二个终端中使用不同的名称运行相同的命令以启动隔离的并行会话。在没有提交的存储库中，该命令失败并显示 `Failed to resolve base branch "HEAD": git rev-parse failed`。有关清理、`.worktreeinclude` 和非 git VCS 支持，请参阅 [Worktrees](https://code.claude.com/docs/zh-CN/worktrees.md)。要从一个屏幕而不是单独的终端监视并行会话，请参阅[后台代理](https://code.claude.com/docs/zh-CN/agent-view.md)。
+在第二个终端中使用不同的名称运行相同的命令以启动隔离的并行会话。有关清理、`.worktreeinclude` 和非 git VCS 支持，请参阅 [Worktrees](https://code.claude.com/docs/zh-CN/worktrees.md)。要从一个屏幕而不是单独的终端监视并行会话，请参阅[后台 Agent](https://code.claude.com/docs/zh-CN/agent-view.md)。
 
 ## 编辑前规划
 

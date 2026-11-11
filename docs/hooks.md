@@ -2341,7 +2341,7 @@ hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 
 
 #### 为自动模式分类器注释结果
 
-返回 `classifierContext` 可将关于工具调用结果的简短说明发送给[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器，而不是发送给 Claude。分类器[从不接收工具结果本身](https://code.claude.com/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)，因此该字段是在分类器审查后续操作之前，告知其某次调用返回内容的受支持方式。该字段需要 Claude Code v2.1.236 或更高版本。
+返回 `classifierContext` 可将关于工具调用结果的简短说明发送给[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器，而不是发送给 Claude。该说明供分类器审查后续操作时使用。该字段需要 Claude Code v2.1.236 或更高版本。
 
 下面的示例告知分类器某次查询输出的来源：
 
