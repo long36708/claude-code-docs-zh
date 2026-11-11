@@ -313,7 +313,7 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 >
 > `gatewayInternalNetworks` 适用于恰好使用公网地址空间编址的内部网络。它并不能让网关暴露在互联网上变得安全：受信任的网关可以推送在开发人员机器上运行命令的设置。
 >
-> 请通过防火墙或负载均衡器规则，确保从您的网络外部无法访问网关。将网关的 [`access_control.allow_cidrs`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning) 设置为您在此处声明的相同地址块，使网关本身拒绝来自其他任何地方的客户端。如果网关位于负载均衡器或入口之后，还需将 `listen.trusted_proxies` 设置为该前端，否则网关会用前端自身的地址而不是开发人员的地址来匹配 `allow_cidrs`。
+> 请通过防火墙或负载均衡器规则，确保从您的网络外部无法访问网关。将网关的 [`access_control.allow_cidrs`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning) 设置为您在此处声明的相同地址块。如果负载均衡器或入口[应列入 `listen.trusted_proxies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#listen)，也请将其列在那里，否则网关会用前端自身的地址而不是开发人员的地址来匹配 `allow_cidrs`。
 
 请将该键添加到与登录键相同的托管设置来源中：托管设置文件、MDM 配置描述文件或注册表策略。Claude Code 会忽略用户设置、项目设置和服务器托管设置中的该键。
 

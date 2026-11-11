@@ -169,7 +169,9 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 当列表[按目录分组](#organize-the-list)时，摘要以彩色文字显示的会话状态开头，例如 `Needs input · double jump or wall climb?`。在默认的按状态分组中，组标题已经指明了状态，因此行只显示摘要。
 
-轮次结束时的摘要和每次轮次中途的重写，都是通过您的常规提供商发送的一个简短 Haiku-class 请求，按与会话本身相同的[数据使用条款](https://code.claude.com/docs/zh-CN/data-usage.md)计费和处理。两次模型重写之间每 15 秒的更新复用会话自身的输出，不发送请求。在未配置 Haiku-class 模型的第三方提供商或网关上，请求改用会话的主模型；设置 [`ANTHROPIC_DEFAULT_HAIKU_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables) 可选择一个模型。
+#### 行摘要的成本
+
+轮次结束时的摘要和每次轮次中途的重写，都是通过您的常规提供商发送的一个简短请求，按与会话本身相同的[数据使用条款](https://code.claude.com/docs/zh-CN/data-usage.md)计费和处理。在第三方提供商或网关上，摘要使用您在 [`ANTHROPIC_DEFAULT_HAIKU_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables) 中设置的模型。未设置该变量时，摘要使用您的提供商用于后台任务的模型：请参阅 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#4-pin-model-versions)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#5-pin-model-versions)、[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md#4-pin-model-versions) 或您的[网关](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#requests-and-defaults-by-connection-method)。
 
 ### 拉取请求状态
 

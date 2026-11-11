@@ -92,13 +92,15 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 * 处理当前分支的 Pull Request：评审意见、失败的 CI 运行、合并冲突
 * 在没有其他待处理事项时，执行清理工作，例如查找 bug 或简化代码
 
-Claude 不会在该范围之外发起新的工作，并且推送或删除等不可逆操作只有在延续会话记录中已授权的内容时才会执行。
+每次运行在推送或删除任何内容之前，都会经过会话的[权限检查](https://code.claude.com/docs/zh-CN/permissions.md)。
+
+单独的 `/loop` 会以[动态选择的间隔](#let-claude-choose-the-interval)运行此提示词：
 
 ```text theme={null}
 /loop
 ```
 
-单独的 `/loop` 会以[动态选择的间隔](#let-claude-choose-the-interval)运行此提示词。添加间隔（例如 `/loop 15m`）即可改为按固定计划运行。要用您自己的默认提示词替换内置提示词，请参阅[使用 loop.md 自定义默认提示词](#customize-the-default-prompt-with-loop-md)。
+添加间隔（例如 `/loop 15m`）即可改为按固定计划运行。要用您自己的默认提示词替换内置提示词，请参阅[使用 loop.md 自定义默认提示词](#customize-the-default-prompt-with-loop-md)。
 
 ### 使用 loop.md 自定义默认提示词
 

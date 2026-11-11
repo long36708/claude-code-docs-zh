@@ -173,6 +173,20 @@ Claude Code 在这些终端会话中既不下载也不加载同步插件，即�
 
 要在您的机器上选择退出项目启用的插件，请在 `.claude/settings.local.json` 中将 id 设置为 `false`，它的优先级高于项目文件。
 
+### 在 `--add-dir` 目录中启用但未加载
+
+仅当已添加目录中某个文件对应的设置源处于开启状态时，Claude Code 才会读取该文件中值为 `true` 的 `enabledPlugins` 条目：
+
+* **`.claude/settings.json`**：`project`
+* **`.claude/settings.local.json`**：`project` 和 `local`
+
+请检查会话加载了哪些设置源。您可以使用 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 设置它们。在 CLI 中，`user`、`project` 和 `local` 默认全部开启。
+
+例如，如果您在 shell 中运行 `claude --setting-sources user --add-dir ./shared`，Claude Code 不会读取 `./shared` 中的任何一个文件。请针对包含 `true` 的文件传递相应的标志：
+
+* **`settings.json`**：`--setting-sources user,project`
+* **`settings.local.json`**：`--setting-sources user,project,local`
+
 ### 在项目设置中启用但未安装
 
 默认情况下，仅在项目的 `.claude/settings.json` 中启用的插件在您将其安装到您的机器上之前，不会在会话启动时加载。当市场位于您的机器上时，`/plugin` **Errors** 选项卡会显示 [`Plugin "<name>" is enabled in project settings but isn't installed here`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-is-enabled-in-project-settings-but-isnt-installed-here) 或 [`Plugin "<name>" not cached at <path>`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-not-cached-at)。

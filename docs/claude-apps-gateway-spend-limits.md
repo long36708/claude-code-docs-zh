@@ -76,7 +76,7 @@ spend limit reached · resets Dec 1 · request an increase at https://go.example
 3. 你映射到该上游 ID 的 [`models[].id`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#models) 的列表价格，对于不包含模型名称的上游字符串，例如 Amazon Bedrock 应用推理配置文件 ARN 或 Microsoft Foundry 部署名称。需要 v2.1.218 或更高版本。
 4. 未知模型层级 \$5/\$25 每百万输入/输出令牌，因此计量器无法识别的 ID 永远不会免费。网关在启动时和运行时每个 ID 一次警告何时使用此层级。
 
-无论应用哪种费率，计量器然后将金额乘以 [`pricing.multiplier`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#pricing)，默认为 `1`。
+无论应用哪种费率，计量器然后将金额乘以 [`pricing.multiplier`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#pricing)，默认为 `1`。需要运行 Claude Code v2.1.227 或更高版本的网关服务器。
 
 客户端中止也被计费。当流在没有上游最终使用帧的情况下结束时，计量器为已发送给客户端的文本计费约每输出令牌四个字符的下限估计，因此提前中止请求不会规避上限。
 

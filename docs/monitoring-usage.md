@@ -710,8 +710,9 @@ Claude Code 导出以下指标。"单位"列显示附加到每个指标的 OpenT
 * `skill.name`：请求活跃的 skill，由 Skill 工具或 `/` 命令设置，或由生成的子代理继承。内置、捆绑、用户定义以及官方市场插件的 skill 名称按原样显示。第三方插件的 skill 名称会被替换为 `"third-party"`。当没有活跃的 skill 时不存在。
 * `plugin.name`：当活跃的 skill 或子代理由插件提供时，为所属插件。官方市场插件名称按原样显示。第三方插件名称会被替换为 `"third-party"`。当 skill 和子代理都没有所属插件时不存在。
 * `marketplace.name`：所属插件的安装来源市场。即使设置了 `OTEL_LOG_TOOL_DETAILS=1`，也仅针对官方市场插件发出。否则不存在。
-* `mcp_server.name`：此请求所使用的工具结果对应的 MCP 服务器。内置、claude.ai 代理以及官方注册表的服务器名称按原样显示。用户配置的服务器名称会被替换为 `"custom"`。当请求未使用任何 MCP 工具结果时不存在。在 v2.1.222 之前，Claude Code 会在 MCP 工具调用之后的每个请求上设置此属性，而不仅仅是在使用了工具结果的请求上，因此在您升级后，聚合此属性的仪表板会显示数值下降。
-* `mcp_tool.name`：此请求所使用的结果对应的 MCP 工具，其编辑和版本行为与 `mcp_server.name` 相同。当请求未使用任何 MCP 工具结果时不存在。
+* `mcp_server.name`：该请求所使用的工具结果所属的 MCP 服务器。内置、claude.ai 代理和官方注册表中的服务器名称按原样显示。用户配置的服务器名称会被替换为 `"custom"`。当请求未使用任何 MCP 工具结果时不存在。在 v2.1.222 之前，Claude Code 会在 MCP 工具调用之后的每个请求上设置此属性，而不仅仅是在使用了工具结果的请求上设置，因此聚合此属性的仪表板在您升级后会显示下降。
+  * 从 v2.1.312 开始，由 Anthropic 官方市场中的插件声明的、具有固定 URL 的远程服务器名称也会按原样显示，格式为 `plugin_<plugin>_<server>`。当插件的市场副本并非来自 Anthropic 注册的来源时（例如在云端会话中从种子目录挂载的副本），该名称会被替换为 `"custom"`。
+* `mcp_tool.name`：该请求所使用的结果所属的 MCP 工具，其编辑和版本行为与 `mcp_server.name` 相同，只是当 `mcp_server.name` 显示 `plugin_<plugin>_<server>` 名称时，它可能为 `"custom"`。当请求未使用任何 MCP 工具结果时不存在。
 
 #### Token 计数器
 
@@ -998,7 +999,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
     * 在同一交互式 CLI 会话中较早的权限提示中授予的、在会话剩余时间内有效的授权
     * 工具本身是安全的
 
-    `source` 值并不表明匹配的是其中哪个来源。要查明是哪个来源拒绝了调用，请查找具有相同 `tool_use_id` 的[安全事件](#safety-event)，并读取其 `category` 和 `rule_source` 属性。部分被拒绝的调用[没有安全事件](#calls-without-a-safety-event)。
+    `source` 值并不指明匹配的是上述哪个来源。当存在 `classifier_verdict` 时，它给出决定该调用的分类器结果。没有任何 `tool_decision` 属性会指明拒绝该调用的权限规则或设置。
 
     当权限提示请求本身失败时，Claude Code 也会报告 `"config"`。例如，当 Agent SDK 的 [`canUseTool`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#canusetool) 回调或 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 工具返回无效结果时，或者当请求挂起期间输入流关闭时，该请求都会失败。
   * `"hook"`：由 `PreToolUse` 或 `PermissionRequest` hook 返回了该决策。
@@ -1046,7 +1047,18 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 #### 安全事件
 
-当某项检查拒绝工具调用或要求权限提示时记录，但[没有安全事件的调用](#calls-without-a-safety-event)除外。当[沙箱的网络代理](https://code.claude.com/docs/zh-CN/sandboxing.md#network-isolation)拒绝连接或请求时，以及当 hook 阻止结果时，也会记录。需要 Claude Code v2.1.307 或更高版本。
+Claude Code 已停止发送 `claude_code.safety_event`：
+
+* **v2.1.312 及更高版本**：这些版本不发送该事件，也没有任何设置可以启用它
+* **v2.1.307 至 v2.1.311**：会话在下一次刷新功能标志时停止发送该事件。不[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话（例如在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上）可能会继续发送该事件。
+
+要查看被拒绝的工具调用，请查询 [`tool_decision`](#tool-decision-event) 事件，这些事件会显示调用被拒绝，但并不总是显示是哪项检查拒绝了它。
+
+此处的事件详情描述的是 v2.1.307 至 v2.1.311 版本中的事件，在这些版本中，安全事件会记录如下[情况](#safety-event-categories)：
+
+* 某项检查拒绝了工具调用或要求显示权限提示，但[没有安全事件的调用](#calls-without-a-safety-event)除外
+* [沙箱的网络代理](https://code.claude.com/docs/zh-CN/sandboxing.md#network-isolation)拒绝了某个连接或请求
+* 某个 hook 阻止了结果或轮次的结束
 
 该事件与其他事件一起导出，没有单独的设置。该事件自身的属性不包含命令文本、文件路径、主机名或 MCP 服务器和工具名称。该记录还携带每个事件都有的[标准属性](#standard-attributes)，其中可能包括 `workspace.host_paths` 和[仓库属性](#repository-attributes)。要查看事件背后的命令或 MCP 工具，请设置 `OTEL_LOG_TOOL_DETAILS=1`，并读取匹配的 `tool_decision` 事件上的 `tool_parameters`。
 
@@ -1458,7 +1470,12 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
 与本页上的所有 OTel 事件一样，该事件仅发送到您配置的遥测后端。需要 Claude Code v2.1.227 或更高版本。
 
-当 Claude Code 无法安全地确定保留期限时，会暂停清理，并发出 `result` 设置为 `"skipped"` 且带有 `skip_reason` 的事件。当[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)设置了 `cleanupPeriodDays` 时，托管值会固定保留期限，即使较低优先级作用域中的设置文件损坏或无效，清理也会运行。当 `managed-settings.json` 本身无法读取时，Claude Code 仍会暂停清理，除非[托管层级](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)从其他位置提供了 `cleanupPeriodDays`，例如服务器托管设置，或位于损坏文件旁的 `managed-settings.d/` 附加文件。删除计数器属性仅在 `result` 为 `"complete"` 时存在。
+读取 `result` 以了解扫描是否已运行：
+
+* `"complete"`：扫描已运行，事件包含其计数
+* `"skipped"`：Claude Code 无法安全地确定保留期，因此暂停了扫描，事件不包含计数。如果 `skip_reason` 为 `"settings_unknowable"` 或 `"settings_invalid_key_set"`，请修复该机器上 `/status` 报告的设置错误，以便之后的会话可以运行扫描
+
+当[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)设置了 `cleanupPeriodDays` 时，托管值会固定保留期，即使较低优先级作用域中的设置文件损坏或无效，扫描也会运行。
 
 **事件名称**：`claude_code.retention_sweep`
 
@@ -1469,8 +1486,8 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.timestamp`：ISO 8601 时间戳
 * `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
 * `result`：清理已运行时为 `"complete"`，Claude Code 暂停清理时为 `"skipped"`
-* `period_days`：合并后设置中的 `cleanupPeriodDays` 值（以天为单位），如果没有任何来源设置该值，则为 `30`。在 skipped 事件中，为清理本应使用的值，根据 Claude Code 能够读取的设置来源计算得出
-* `used_default`：没有可读取的设置来源设置 `cleanupPeriodDays` 时为 `"true"`，否则为 `"false"`。在 complete 事件中，`"true"` 表示应用了 30 天的默认值
+* `period_days`：扫描开始时使用的保留期（以天为单位）：合并设置中的 `cleanupPeriodDays`，并应用 [`settings.read` hook](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-hook) 所做的任何更改。如果这使该键未设置，则为 `30`。在 skipped 事件中，为扫描本应使用的值，根据 Claude Code 能够读取的设置来源计算得出
+* `used_default`：当 `period_days` 回退到 `30` 时为 `"true"`，否则为 `"false"`。在 complete 事件中，`"true"` 表示应用了 30 天默认值
 * `skip_reason`：Claude Code 暂停清理的原因。仅当 `result` 为 `"skipped"` 时存在：
   * `"user_source_disabled"`：用户设置被排除（例如通过 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 标志或 SDK 的 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 选项），且没有启用的来源提供 `cleanupPeriodDays`
   * `"settings_unknowable"`：某个设置文件无法读取或解析，因此 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 可能被设置为 Claude Code 看不到的值
@@ -1658,6 +1675,8 @@ export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_i
 
 ### 将安全问题映射到事件
 
+涉及 `safety_event` 的行仅适用于 v2.1.307 至 v2.1.311 版本中[仍发送该事件](#safety-event)的会话。
+
 构建检测规则时，查找您想要监控的信号并查询您的后端以获取相应的事件和属性：
 
 | 信号 | 事件 | 关键属性 |
@@ -1667,8 +1686,9 @@ export OTEL_RESOURCE_ATTRIBUTES="enduser.id=jdoe@example.com,enduser.directory_i
 | 自动模式分类器允许或阻止了工具调用，或 Claude Code 在没有分类器判定的情况下拒绝了调用 | 存在 `classifier_verdict` 的 [`tool_decision`](#tool-decision-event)。对于没有判定的拒绝，`classifier_verdict` 为 `"no_verdict"` 或 `"unavailable"` | `classifier_verdict`、`permission_mode`、`tool_name`；设置 `OTEL_LOG_TOOL_DETAILS=1` 时还有 `classifier_category` |
 | 权限模式升级 | `permission_mode_changed` | `from_mode`、`to_mode`、`trigger` |
 | 每个工具调用在哪种权限模式下接受检查，包括子代理发起的调用 | [`tool_decision`](#tool-decision-event) | `permission_mode`、`session.id` |
-| 策略 hook 阻止了操作 | `hook_execution_complete` | `hook_event`、`num_blocking` |
-| hook 拒绝了哪个工具调用，以及 hook 阻止了哪个结果或轮次结束 | [`safety_event`](#safety-event)，对于被拒绝的调用，其 `category` 为 `"hook"` 且 `decision` 为 `"reject"`；对于被阻止的结果或轮次结束，其 `category` 为 `"hook_review"` | `category`、`decision`、`hook_event`；工具调用还有 `tool_use_id` |
+| 策略 hook 阻止了操作 | `hook_execution_complete`，它不与某个调用或 `tool_use_id` 关联 | `hook_event`、`num_blocking` |
+| hook 拒绝的工具调用 | `decision` 为 `"reject"` 且 `source` 为 `"hook"` 的 [`tool_decision`](#tool-decision-event) | `decision`、`source`、`tool_use_id` |
+| hook 阻止了哪个结果或轮次结束 | `category` 为 `"hook_review"` 的 [`safety_event`](#safety-event) | `category`、`hook_event`；工具调用还有 `tool_use_id` |
 | 沙箱的网络代理拒绝了来自 Bash 或 PowerShell 命令的连接或请求 | 存在 `sandbox_violation_count` 且其值不为 `"0"` 的 [`safety_event`](#safety-event) | `sandbox_violation_count`、`category`、`sandbox_enabled`、`tool_use_id` |
 | 登录、注销和身份验证失败 | `auth` | `action`、`success`、`error_category` |
 | MCP 服务器连接或失败 | `mcp_server_connection` | `status`、`server_name`、`is_plugin`、`error_code` |

@@ -135,7 +135,7 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 
 会话子进程向 Anthropic 发送操作遥测，除非您关闭它。不发送代码或存储库内容。在运行器进程上设置遥测变量；运行器在应用服务器提供的环境变量后重新声明它们，因此操作员的设置始终优先。
 
-一个控制特定于自托管环境：`CLAUDE_CODE_BYOC_ENABLE_DATADOG=1` 选择加入 Datadog 操作指标，这在自托管环境中默认关闭。一般 Claude Code 遥测控制 `DISABLE_TELEMETRY`、`DO_NOT_TRACK`、`DISABLE_ERROR_REPORTING` 和 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 适用于会话子进程，如[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md)中所述。`DISABLE_GROWTHBOOK` 相关但不同：设置 `DISABLE_GROWTHBOOK=1` 禁用功能标志获取，遥测保持开启，除非也设置了 `DISABLE_TELEMETRY`。
+一个控制特定于自托管环境：`CLAUDE_CODE_BYOC_ENABLE_DATADOG=1` 选择加入 Datadog 操作指标，这在自托管环境中默认关闭。一般 Claude Code 遥测控制 `DISABLE_TELEMETRY`、`DO_NOT_TRACK`、`DISABLE_ERROR_REPORTING` 和 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 适用于会话子进程，如[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md)中所述。[`CLAUDE_CODE_DISABLE_FEATURE_FLAGS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 相关但不同：设置 `CLAUDE_CODE_DISABLE_FEATURE_FLAGS=1` 禁用功能标志获取，遥测保持开启，除非也设置了 `DISABLE_TELEMETRY`。`CLAUDE_CODE_DISABLE_FEATURE_FLAGS` 需要 Claude Code v2.1.319 或更高版本。
 
 `CLAUDE_CODE_ENABLE_TELEMETRY` 无关：它启用 OpenTelemetry 导出到您自己的收集器，如[监控](https://code.claude.com/docs/zh-CN/monitoring-usage.md)中所述，不控制 Anthropic 的分析。
 

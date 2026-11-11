@@ -180,7 +180,7 @@
 
 Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体接受或放弃该草稿，因此如需调整单个条目，请在之后编辑 `~/.claude/settings.json`。当您接受时，Claude Code 会写入草稿，并将其与您已有的设置进行协调：
 
-* Claude Code 写入的 `environment` 列表不包含 `"$defaults"`，因为草稿已逐一列出其未更改的内置条目
+* 如果您选择添加到 `~/.claude/settings.json` 中的 `environment` 列表，该列表中的任何 `"$defaults"` 条目都会保留。如果您选择替换该列表，则会失去该条目，因此如果您需要默认条目，请重新添加 `"$defaults"`
 * 对于草稿添加了条目的 `allow`、`soft_deny` 和 `hard_deny` 列表，Claude Code 会在每个列表中包含 `"$defaults"`，除非您已经编写了不含它的 `allow` 列表，这样您未替换的[内置规则](#override-the-block-and-allow-rules)将继续生效
 * 保存后，Claude Code 会提议删除 `~/.claude/settings.json` 中被自动模式忽略的 `permissions.allow` 规则（例如 `Bash(*)`），或会自动批准破坏性命令的规则
 
@@ -216,7 +216,7 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 
 三个额外的字段让您替换分类器的内置规则列表：
 
-* `autoMode.hard_deny`：无条件安全边界
+* `autoMode.hard_deny`：即使用户要求也要阻止的操作
 * `autoMode.soft_deny`：用户意图可以清除的破坏性操作
 * `autoMode.allow`：软阻止规则的例外
 
@@ -229,9 +229,11 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 * `allow` 规则然后覆盖匹配的 `soft_deny` 规则作为例外。
 * 明确的用户意图覆盖剩余的软阻止：如果用户的消息直接且具体地描述 Claude 即将采取的确切操作，分类器允许它，即使 `soft_deny` 规则匹配。
 
-一般请求不算作明确意图。要求 Claude"清理代码库"不授权强制推送，但要求 Claude"强制推送此分支"则授权。
+一般请求不算作明确意图。要求 Claude“清理仓库”不授权强制推送，但要求 Claude“强制推送此分支”则授权。
 
-要放松，当分类器重复标记默认例外不涵盖的常规模式时，添加到 `allow`。要收紧，为您的环境特定的破坏性风险添加到 `soft_deny`（默认值会遗漏），或为必须永远不能跨越的安全边界添加到 `hard_deny`。要保持内置规则同时添加您自己的规则，请在数组中包含字面字符串 `"$defaults"`。默认规则会在该位置拼接，因此您的自定义规则可以在它们之前或之后，并且当内置列表在版本发布中更改时，您继续继承更新。
+要放松，当分类器重复标记默认例外不涵盖的常规模式时，添加到 `allow`。要收紧，为您的环境特定的破坏性风险添加到 `soft_deny`（默认值会遗漏），或为即使用户要求也要阻止的操作添加到 `hard_deny`。
+
+要保持内置规则同时添加您自己的规则，请在数组中包含字面字符串 `"$defaults"`。默认规则会在该位置拼接，因此您的自定义规则可以在它们之前或之后，并且当内置列表在版本发布中更改时，您继续继承更新。
 
 以下示例在所有四个列表中保持默认值，并向每个列表添加特定于组织的规则。
 
@@ -250,7 +252,7 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
     "soft_deny": [
       "$defaults",
       "Never run database migrations outside the migrations CLI, even against dev databases",
-      "Never modify files under infra/terraform/prod/: production infrastructure changes go through the review workflow"
+      "Running terraform apply in infra/terraform/prod/ needs an explicit request: production infrastructure changes go through the review workflow"
     ],
     "hard_deny": [
       "$defaults",
@@ -267,7 +269,9 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 > * `soft_deny`：每个内置软阻止规则，包括强制推送、`curl | bash`、生产部署和自动模式绕过
 > * `hard_deny`：内置的数据泄露规则
 
-每个部分独立评估，因此单独设置 `environment` 会保持默认 `allow`、`soft_deny` 和 `hard_deny` 列表完整。仅在您打算完全拥有该列表时才省略 `"$defaults"`。要安全地执行此操作，请运行 `claude auto-mode defaults` 打印内置规则，将它们复制到您的设置文件中，然后根据您自己的管道和风险容限审查每条规则。
+每个部分独立评估，因此单独设置 `environment` 会保持默认 `allow`、`soft_deny` 和 `hard_deny` 列表完整。
+
+仅在您打算完全拥有该列表时才省略 `"$defaults"`。要安全地执行此操作，请运行 `claude auto-mode defaults` 打印内置规则，将它们复制到您的设置文件中，然后根据您自己的管道和风险容限审查每条规则。
 
 ## 从 `/permissions` 编辑规则
 

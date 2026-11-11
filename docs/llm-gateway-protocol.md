@@ -40,7 +40,7 @@ Google Cloud 的 Agent Platform 是 Google Cloud 的 Claude 端点，原名为 V
 
 | 格式 | 选择方式 | 端点 | 原样转发 |
 | :- | :- | :- | :- |
-| Anthropic Messages | `ANTHROPIC_BASE_URL` | `/v1/messages`, `/v1/messages/count_tokens`（可选） | `anthropic-beta` 和 `anthropic-version` 请求头 |
+| Anthropic Messages | `ANTHROPIC_BASE_URL` | `/v1/messages`, `/v1/messages/count_tokens`（可选） | `anthropic-beta` 和 `anthropic-version` 请求头，以及当 [claude.ai 登录](#request-headers)向 Anthropic 对请求进行身份验证时的 `Authorization` |
 | Amazon Bedrock InvokeModel | `ANTHROPIC_BEDROCK_BASE_URL` 配合 `CLAUDE_CODE_USE_BEDROCK=1` | `/model/{model}/invoke`, `/model/{model}/invoke-with-response-stream`, `/model/{model}/count-tokens`（可选） | `anthropic_beta` 和 `anthropic_version` 请求体字段 |
 | Google Cloud's Agent Platform rawPredict | `ANTHROPIC_VERTEX_BASE_URL` 配合 `CLAUDE_CODE_USE_VERTEX=1` | `:rawPredict`, `:streamRawPredict`, `count-tokens:rawPredict`（可选） | `anthropic-beta` 和 `anthropic-version` 请求头，以及 `anthropic_version` 请求体字段 |
 
@@ -115,11 +115,11 @@ Claude Code 会在每个流式推理响应到达时逐个事件地读取它，�
 
 ## 请求标头
 
-Claude Code 会在 API 请求中包含以下标头。标头名称在传输时不区分大小写。请原样转发 `anthropic-version` 和 `anthropic-beta`，当上游为 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 时还需转发 `anthropic-workspace-id`；其余标头网关可用于路由、归因和追踪，无需转发。
+Claude Code 会在 API 请求中包含以下标头。标头名称在传输时不区分大小写。请原样转发 `anthropic-version` 和 `anthropic-beta`，当上游为 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 时还需转发 `anthropic-workspace-id`。当您的网关使用开发者的 claude.ai 登录（而非网关自己的密钥）向 Anthropic 进行身份验证时，还需转发 `Authorization`。其余标头网关可用于路由、归因和追踪，无需转发。
 
 | 标头 | 描述 |
 | :- | :- |
-| `Authorization`、`x-api-key` | 开发者的网关凭据，根据开发者设置的[凭据变量](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#set-the-credential-variable)，出现在其中一个或两个标头中 |
+| `Authorization`、`x-api-key` | 开发者的网关凭据，根据开发者设置的[凭据变量](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#set-the-credential-variable)，出现在其中一个或两个标头中。在使用 claude.ai 登录且没有网关凭据时，`Authorization` 携带该登录的令牌 |
 | `anthropic-version` | API 版本，当前为 `2023-06-01`。Amazon Bedrock 格式和 Google Cloud's Agent Platform 格式的请求还会携带 `anthropic_version` 请求体字段，其值为提供商的方言字符串，而不是此标头的值 |
 | `anthropic-beta` | 请求的以逗号分隔的功能值。请原样转发此标头；不要对单个值设置允许列表，因为该集合会随 Claude Code 版本发布而变化。当开发者使用 claude.ai 登录进行身份验证时（在设置了 `ANTHROPIC_BASE_URL` 但未设置网关凭据变量的情况下可能出现），此标头还会携带上游所需的 OAuth 功能值，将其移除会导致这些请求以 `401` 失败 |
 | `x-claude-code-session-id` | 当前 Claude Code 会话的唯一标识符。可用它汇总来自同一会话的所有请求，而无需解析请求体 |

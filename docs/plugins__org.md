@@ -185,7 +185,7 @@ CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin install code-formatt
 | `disableSideloadFlags` | 在启动时拒绝 `--plugin-dir`、`--plugin-url`、`--agents`、Agent SDK `plugins` 选项以及 [`CLAUDE_CODE_PLUGIN_DIRS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 变量中命名的文件夹，并且也拒绝 `--mcp-config`，除非其中的每个服务器都是进程内 `type: "sdk"` 条目。拒绝 Agent SDK 应用程序在会话中途通过 [`addPlugins`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#load-more-plugin-folders-with-addplugins) 添加的插件文件夹 | 不限制 `.mcp.json`、`claude mcp add` 或 SDK 提供的服务器。将其与[`allowedMcpServers`](https://code.claude.com/docs/zh-CN/managed-mcp)配对 |
 | `disableCommandPluginSources` | 阻止具有 `command` 源的插件安装、更新或加载。`command` 源是其插件目录通过在机器上运行命令产生的源。未设置时，它采用 `allowManagedHooksOnly` 的值 | 不影响其他源类型 |
 | `allowManagedHooksOnly` | 限制哪些 hooks 运行。请参阅[`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) | 不信任用户自己启用的插件中的 hooks |
-| `strictPluginOnlyCustomization` | 阻止不来自插件、托管设置或 Claude Code 内置的 skill、Agent、hook 和 MCP 服务器。它还会阻止 [skill 目录插件](#keep-skills-directory-plugins-loading)加载。设置 `true` 以覆盖所有四种类型，或 `skills`、`agents`、`hooks` 和 `mcp` 值的数组（例如 `["skills", "hooks"]`）以覆盖某些 | 不限制用户安装哪些插件。将其与 `strictKnownMarketplaces` 配对 |
+| `strictPluginOnlyCustomization` | 阻止来自用户和项目源的 skill、Agent、hook 和 MCP 服务器。它还会阻止 [skill 目录插件](#keep-skills-directory-plugins-loading)加载。设置 `true` 以覆盖所有四种类型，或设置 `skills`、`agents`、`hooks` 和 `mcp` 值的数组（例如 `["skills", "hooks"]`）以覆盖其中部分类型 | 不限制用户安装哪些插件，也不拒绝旁加载插件、Agent 和 MCP 服务器的 CLI 标志。将其与 `strictKnownMarketplaces` 和 `disableSideloadFlags` 配对 |
 | `pluginSuggestionMarketplaces` | 其插件可能在终端中显示为安装建议的市场。请参阅[推荐插件](#recommend-plugins) | 不影响内置提示 |
 | `pluginTrustMessage` | 将您的文本附加到 `/plugin` 在插件安装之前显示的信任警告 | 不改变警告自己的文本 |
 | `allowedChannelPlugins` | 替换允许推送频道消息的默认插件列表。需要 `channelsEnabled: true` | 请参阅[限制哪些频道插件可以运行](https://code.claude.com/docs/zh-CN/channels.md#restrict-which-channel-plugins-can-run) |
@@ -336,12 +336,13 @@ skill 目录插件是用户在 `~/.claude/skills/` 或项目的 `.claude/skills/
 
 ### 为用户组分配发布频道
 
-要运行稳定和早期访问频道，托管两个指向相同插件的不同 ref 的市场。然后通过单独的端点托管设置或网关策略为每个用户组提供自己的市场。来自管理控制台的服务器托管设置[应用于组织中的每个用户](https://code.claude.com/docs/zh-CN/server-managed-settings.md#current-limitations)，因此它们无法为不同的组分配不同的设置。
+要运行稳定和早期访问频道，托管两个指向相同插件的不同 ref 的市场。然后通过单独的端点托管设置或网关策略为每个用户组提供自己的市场。在 Enterprise 计划中，您还可以使用来自管理控制台的服务器托管设置。
 
 * 将单独的[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)（例如托管设置文件或 MDM 配置文件）部署到每个组的设备。要检查按组文件或配置文件是否在也有组织范围源的设备上应用，请参阅[Claude Code 如何组合托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#precedence-within-the-managed-tier)。
 * 为每个组定义一个[Claude 应用网关策略](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#managed)。默认情况下，网关应用第一个匹配规则适合用户的策略，因此请对策略进行排序，使每个用户都能到达其所在组的策略。该策略的 `extraKnownMarketplaces` 映射不与任何其他策略的合并，因此在其中列出组需要的每个市场，而不仅仅是其频道市场。
+* 在 Enterprise 计划中，在管理控制台中[为每个组提供其自己的配置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#give-groups-different-settings)。组的配置不会与组织范围的配置合并，因此请将该组需要的每个设置都放在该组自己的配置中，包括每个市场。
 
-使用任一机制，稳定组接收此配置：
+使用上述任一机制，稳定组接收此设置：
 
 ```json theme={null}
 {
@@ -383,7 +384,7 @@ OpenTelemetry 事件和 Analytics API 告诉您您的车队安装和运行什么
 
 这些来自安全审查的请求在当前设置架构中没有专用键。最接近的现有控制是：
 
-* **按用户或按组目标**：每个插件键应用于接收设置的每个用户。服务器托管设置为每个组织交付一个配置。对于按组策略，使用单独的端点托管设置或网关策略，如[为用户组分配发布频道](#assign-release-channels-to-user-groups)下所述。
+* **按用户或按组目标**：每个插件键应用于接收设置的每个用户。对于按组策略，请为每个组交付其各自的设置，如[为用户组分配发布频道](#assign-release-channels-to-user-groups)下所述。
 * **限制允许市场内的条目**：允许列表匹配市场源。要从允许的市场阻止一个插件，在托管 `enabledPlugins` 中将其设置为 `false`。
 * **隐藏 `/plugin`**：没有键禁用命令。最接近的等效项结合仅命名您的市场的允许列表、您提供的插件的托管 `enabledPlugins` 条目和 `disableSideloadFlags`。
 * **通过允许列表门控 `--plugin-dir`**：允许列表不覆盖 `--plugin-dir`。`disableSideloadFlags` 覆盖。

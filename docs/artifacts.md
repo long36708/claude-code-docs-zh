@@ -89,6 +89,22 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 使用今天的数字更新 https://claude.ai/code/artifact/5fbea6f3-...
 ```
 
+### 关闭一步式 Artifact 更新
+
+一步式更新是指 Claude 在发布过程中对 Artifact 文件所做的小幅更改，而不是通过 `Edit` 或 `Write` 调用进行的更改。
+
+要关闭一步式更新，请将 [`CLAUDE_CODE_ARTIFACT_PUBLISH_EDITS`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `0`。以下示例将该变量添加到 `~/.claude/settings.json` 中的 `env` 块：
+
+```json theme={null}
+{
+  "env": {
+    "CLAUDE_CODE_ARTIFACT_PUBLISH_EDITS": "0"
+  }
+}
+```
+
+然后退出并重新启动 Claude Code，因为正在运行的会话不会重新读取该变量。
+
 ## 再次查找一个artifact
 
 在Claude Code中运行`/artifacts`，以列出您拥有的Artifact以及与您共享的Artifact。当前会话的Artifact排在最前面，位于**This session**下。

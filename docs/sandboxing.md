@@ -739,7 +739,7 @@ Claude Code 在您的计算机上、沙箱之外运行沙箱代理，并通过 `
 
 沙箱无法在原生 Windows 上运行，因此设置 `failIfUnavailable` 后，Claude Code 会在这些机器上于启动时退出。如果您的设备群包含 Windows 主机，您可以：
 
-* **按操作系统下发配置**：仅在 macOS 和 Linux 机器上通过您的 MDM 或作为[托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)进行部署。[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#current-limitations)适用于组织中的所有用户
+* **按操作系统下发配置**：仅在 macOS 和 Linux 机器上通过您的 MDM 或作为[托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)进行部署。[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#give-groups-different-settings)跟随成员，而非设备。
 * **将 Windows 用户迁移到受支持的环境**：让他们在 WSL2 或容器内运行 Claude Code
 
 ### 防止开发者扩大策略

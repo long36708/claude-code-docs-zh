@@ -104,6 +104,8 @@
 | `Failed to authenticate: OAuth session expired and could not be refreshed` | [身份验证](#login-expired) |
 | `Could not refresh your login because another Claude Code process is refreshing it` | [身份验证](#could-not-refresh-your-login) |
 | `Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh` | [身份验证](#could-not-refresh-your-login) |
+| `Could not refresh your login: the disk that holds the Claude Code config directory (~/.claude by default), or your disk quota on it, is full` | [身份验证](#could-not-refresh-your-login-disk-full) |
+| `Failed to refresh OAuth token: the disk that holds the Claude Code config directory (~/.claude by default), or your disk quota on it, is full` | [身份验证](#could-not-refresh-your-login-disk-full) |
 | `Your account is on hold and can't use Claude Code. View details or appeal: https://claude.ai/restricted` | [身份验证](#your-account-is-on-hold) |
 | `Your account is on hold and can't sign in to Claude Code. View details or appeal: https://claude.ai/restricted` | [身份验证](#your-account-is-on-hold) |
 | `Anthropic profile login expired · Re-authenticate your Anthropic profile` | [身份验证](#anthropic-profile-login-expired) |
@@ -242,10 +244,12 @@
 | `The current directory no longer exists (it was deleted or moved)` / `Can't read the current directory` | [命令行错误](#the-current-directory-no-longer-exists) |
 | `Temp directory <dir> ... Refusing to use it` / `Claude Code's temporary directory <dir> could not be created` | [命令行错误](#temp-directory-refused-or-cannot-be-created) |
 | `ENOSPC: no space left on device, mkdir '<dir>'` | [命令行错误](#temp-directory-refused-or-cannot-be-created) |
+| `Error: Claude Code could not save ... because the disk is full (ENOSPC)` / `because your disk quota is used up (EDQUOT)` | [命令行错误](#could-not-save-because-the-disk-is-full) |
 | `couldn't be resolved to a real location, so its skills, commands, and agents weren't loaded` | [命令行错误](#directory-couldnt-be-resolved-to-a-real-location) |
 | `Error: Workspace not trusted` when starting Remote Control | [命令行错误](#workspace-not-trusted-when-starting-remote-control) |
 | `Error: Workspace not trusted`，在运行 `claude ultrareview` 时出现 | [命令行错误](#workspace-not-trusted-when-running-claude-ultrareview) |
 | `Ultrareview did not start` | [命令行错误](#ultrareview-did-not-start) |
+| `Remote Control did not start: "<question>" got no answer` | [命令行错误](#remote-control-did-not-start-got-no-answer) |
 | `` `<flag>` before `remote-control` is not carried over to the sessions Remote Control starts `` | [命令行错误](#not-carried-over-to-the-sessions-remote-control-starts) |
 | `--sandbox is not supported by claude remote-control` / `--no-sandbox is not supported by claude remote-control` | [命令行错误](#sandbox-is-not-supported-by-claude-remote-control) |
 | `` `claude import` is not yet available in this build `` | [命令行错误](#claude-import-is-not-yet-available-in-this-build) |
@@ -320,6 +324,7 @@
 | `The packages it lists are not installed` / `The packages it lists were not installed, because` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#the-packages-it-lists-are-not-installed) |
 | `does not load (...), so Claude Code ignores the whole file` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#does-not-load-so-claude-code-ignores-the-whole-file) |
 | `path escapes plugin directory` | [Plugin 错误](#path-escapes-plugin-directory) |
+| `path not read: <path> is absolute or has a ".." part` | [插件错误](#server-file-path-not-read) |
 | `Plugin not loaded: its manifest <path> was not read` | [Plugin 错误](#plugin-not-loaded-its-manifest-was-not-read) |
 | `path could not be checked` | [Plugin 错误](#path-could-not-be-checked) |
 | `its marketplace entry path does not stay inside the marketplace directory` | [Plugin 错误](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
@@ -368,6 +373,7 @@
 | `Refusing to write <path>: where it leads on disk could not be determined` / `Refusing to read <path>: where it leads on disk could not be determined` | [工具错误](#refusing-after-a-symlink-changed) |
 | `Refusing to search <path>: a path one of its Read deny rules is written through changed while the search was being prepared` / `Refusing to search <path>: it could not be opened` | [工具错误](#refusing-after-a-symlink-changed) |
 | `its permission check expired before it ran (too many concurrent file operations)` / `ripgrep was found only by name on PATH` | [工具错误](#refusing-after-a-symlink-changed) |
+| `The search failed, so this is not a "no matches" result: matches may exist` | [工具错误](#the-search-failed) |
 | `task output swap refused (tasks dir moved or linked)` | [工具错误](#task-output-swap-refused) |
 | `Command killed: its output file was replaced or could no longer be verified` | [工具错误](#task-output-swap-refused) |
 | `Disk full: this computer's volume holding <dir> (Claude Code's temporary directory) has <n> MB free` / `Nearly out of inodes: this computer's volume holding <dir>` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
@@ -377,6 +383,7 @@
 | `Command output was lost: the temp filesystem at <dir> is full` / `is out of inodes` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary` | [工具错误](#file-is-not-valid-utf-8) |
 | `git is not installed on this Mac. To install it, run xcode-select --install, then try again.` | [工具错误](#git-is-not-installed-on-this-mac) |
+| `Refusing to apply edits to <path>: a hook is configured for file edits in this session` | [工具错误](#a-hook-is-configured-for-file-edits) |
 | `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `the source file has the replacement character U+FFFD` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `Not published: that file is on a network share` | [工具错误](#not-published-that-file-is-on-a-network-share) |
@@ -387,6 +394,7 @@
 | `The safety check for domain ... is rate-limited` | [工具错误](#webfetch-domain-safety-check-failed) |
 | `The safety check for domain ... is temporarily rate-limited` | [工具错误](#webfetch-domain-safety-check-failed) |
 | `Unable to verify if domain ... is safe to fetch` | [工具错误](#webfetch-domain-safety-check-failed) |
+| `MCP tool "<tool>" on server "<server>" gave no answer that could be read` / `answered without its text` | [如何读取 MCP 工具 hook 的结果](https://code.claude.com/docs/zh-CN/hooks.md#how-the-tools-result-is-read) |
 | `Can't open MCP settings while no terminal is attached to this background session` | [后台会话错误](#commands-refused-in-a-background-session) |
 | `Can't open MCP settings in a background session` | [后台会话错误](#commands-refused-in-a-background-session) |
 | `blocked because the path is spelled in a form that cannot be safely resolved` | [后台会话错误](#write-or-command-blocked-because-the-path-cannot-be-safely-resolved) |
@@ -397,6 +405,7 @@
 | `Can't open — this session is running in another terminal` | [后台会话错误](#this-session-is-running-in-another-terminal) |
 | `This conversation is already open in another running Claude session` | [后台会话错误](#this-session-is-running-in-another-terminal) |
 | `This session's saved conversation is no longer on disk` | [后台会话错误](#this-sessions-saved-conversation-is-no-longer-on-disk) |
+| `This forked session could not be started. Fork the conversation again to retry.` | [后台会话错误](#this-forked-session-could-not-be-started) |
 | `Bypass permissions was requested at launch and ignored` | [后台会话中忽略了 Bypass permissions](https://code.claude.com/docs/zh-CN/permission-modes.md#bypass-permissions-ignored-in-a-background-session) |
 | `kept <id> — its worktree is still at <path>` | 如果消息的下一行提到未推送的提交，请参阅 [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere)，否则请参阅 [删除会话会移除哪些内容](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes) |
 | `kept <id> — <n> unpushed commits on <branch>` | [后台会话错误](#worktree-has-commits-that-are-not-pushed-anywhere) |
@@ -548,12 +557,20 @@ Claude Code 不重试这些故障：
 | [`CLAUDE_CODE_MAX_RETRIES`](https://code.claude.com/docs/zh-CN/env-vars) | 10 | 重试尝试次数。从 v2.1.186 开始上限为 15；从 v2.1.199 开始 `CLAUDE_CODE_RETRY_WATCHDOG` 提高默认值并移除上限。降低它以在脚本中更快地显示故障。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 在 CI 作业等无人值守会话中设置为 `1`，以无限期重试 `429` 和 `529` 容量错误，而不是在 `CLAUDE_CODE_MAX_RETRIES` 尝试后失败。当标准速度请求获得报告支出限制或耗尽使用额度的 `429` 时，Claude Code 立即失败，即使来自 [gateway spend cap](#spend-limit-reached) 的也是如此，该上限按计划重置。在 v2.1.239 之前，看门狗无限期重试这些。对于快速模式请求，请参阅 [Handle rate limits](https://code.claude.com/docs/zh-CN/fast-mode.md#handle-rate-limits)。在 v2.1.199 或更高版本上，它还为其他瞬时错误（例如服务器错误、超时和断开连接）提高默认重试计数至 300，大约三小时的退避，如果您明确设置该变量，则移除 `CLAUDE_CODE_MAX_RETRIES` 的 15 上限。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 时，每个 API 请求在等待 `429` 和 `529` 错误上所花费的最长时间（毫秒）。未设置时，等待时间没有限制。需要 Claude Code v2.1.295 或更高版本。 |
+| `CLAUDE_CODE_RETRY_WATCHDOG_MAX_USAGE_LIMIT_WAIT_MS` | 无上限 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 后，单个请求等待您套餐的[用量限制](#youve-hit-your-session-limit)（例如会话限制或每周限制）重置的最长时间（毫秒）。当重置时间晚于此上限时，请求会立即失败，除非使用额度仍有余量或 API 无法检查使用额度。在这些情况下，请求会被重试，如果在成功之前超过该上限，则请求失败。需要 Claude Code v2.1.301 或更高版本。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG_USAGE_LIMIT_RECHECK_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 后，当请求等待[用量限制](#youve-hit-your-session-limit)重置时，检查该限制是否已提前解除的最短间隔（毫秒）。当检查发现限制已解除时，请求会立即发出。请提供 `60000` 到 `10800000` 之间的纯数字。未设置或超出该范围时，不进行检查。关于 Claude Code 何时跳过这些检查，请参阅[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md)。需要 Claude Code v2.1.305 或更高版本。 |
 | [`CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 500 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的起始延迟（毫秒）。当 API 容量已满时，可将其提高（最高 32000），以便在更长的时间窗口内分散重试。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.292 或更高版本。 |
 | [`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 32000 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的上限（毫秒）。当 API 容量已满时，可将其提高（最高 64000），使后续重试之间的间隔持续拉大。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.296 或更高版本。 |
 | [`API_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 600000 | 每次请求尝试接收其响应头的时限（毫秒）。它不限制流式响应在此之后持续的时长。为慢速网络或代理提高它。关于它如何限制首字节截止时间，请参阅 [No response from API](#no-response-from-api)。 |
-| [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 超时的[非流式请求](#streaming-response-ended-before-any-complete-data-was-received)的重新发送次数限制。达到该限制时，请求失败。生成时间超过超时时间的 Claude 响应在每次重新发送时都会再次超时，因此请设置较低的数值（例如 `0`）以更快地失败。在本地会话中，每次非流式尝试在 300 秒后超时；当您为 `API_TIMEOUT_MS` 设置正值时，则在该值指定的时间后超时。需要 Claude Code v2.1.285 或更高版本。 |
+| [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 超时的[非流式请求](#streaming-response-ended-before-any-complete-data-was-received)的重新发送次数限制。达到该限制时，请求失败。生成时间超过超时时间的 Claude 响应在每次重新发送时都会再次超时，因此请设置较低的数值（例如 `0`）以更快地失败。关于每次尝试的超时时间，请参阅[非流式尝试的等待时长](#how-long-a-non-streaming-attempt-waits)。需要 Claude Code v2.1.285 或更高版本。 |
 | [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 流式请求的第一个响应字节的截止时间（毫秒）。需要 Claude Code v2.1.242 或更高版本。对于当此未设置时 Claude Code 如何选择截止时间，请参阅 [No response from API](#no-response-from-api)。 |
+
+#### 非流式尝试的等待时长
+
+非流式尝试会在达到其请求超时或正文空闲超时时结束，以先到者为准：
+
+* **请求超时**：当您为 `API_TIMEOUT_MS` 设置正值时为该值，否则在本地会话中为 300 秒。
+* **[正文空闲超时](https://code.claude.com/docs/zh-CN/network-config.md#streaming-idle-watchdogs)**：在该超时生效且您未将其关闭的情况下，5 到 6 分钟未收到响应即超时，无论您将 `API_TIMEOUT_MS` 设置得多高。
 
 ## 服务器错误
 
@@ -1436,8 +1453,6 @@ Failed to authenticate: OAuth session expired and could not be refreshed
 
 这与 [OAuth 令牌已撤销或已过期](#oauth-token-revoked-or-expired)并非同一状态。那些消息报告的是 API 返回的拒绝。而 `Login expired` 是 Claude Code 针对已续期失败的登录自行生成的，因此它不会发送任何请求。当续期失败是因为账户本身被暂停而不是登录过时，Claude Code 会改为显示[您的账户已被暂停](#your-account-is-on-hold)。
 
-使用 API 密钥、[`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/env-vars) 或第三方提供商进行身份验证的会话不使用已保存的登录，永远不会看到此消息。
-
 您可以在请求失败之前检查是否处于此状态：[`/status`](https://code.claude.com/docs/zh-CN/commands) 会显示一个 `Login` 行，内容为 `Expired — log in again`，以及它为该过期登录保存的组织和电子邮件。只有当已保存的登录是您当前生效的凭据且无法再刷新时，才会显示该行。以其他方式进行身份验证的会话不会显示该行，即使仍保存着已过期的登录。在 v2.1.210 之前，`/status` 在此状态下不会提供任何曾存在登录的迹象，因为凭据已被清除，没有可报告的内容。
 
 **解决方法：**
@@ -1461,13 +1476,30 @@ Could not refresh your login because another Claude Code process is refreshing i
 Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh. This is usually transient; retry in a minute, and if it persists close other Claude Code processes or sign in again
 ```
 
-使用 API 密钥、[`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/env-vars) 或第三方提供商进行身份验证的会话不使用已保存的登录，永远不会看到此消息。
-
 **解决方法：**
 
 * 一分钟后重试。如果另一个进程先完成了刷新，此会话会使用续期后的登录。
 * 如果消息反复出现，请关闭其他 Claude Code 窗口和进程，然后重试。
 * 如果在没有其他 Claude Code 进程运行的情况下仍出现该消息，请运行 `/login`。重新登录不会等待刷新锁。
+
+### Could not refresh your login: the disk that holds the Claude Code config directory is full
+
+请释放存放 Claude Code 配置目录的磁盘上的空间，然后再次发送您的消息。磁盘已满时重新登录没有帮助，因为新的登录无法被保存。除非您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，否则配置目录为您主目录中的 `~/.claude`。
+
+```text wrap theme={null}
+Could not refresh your login: the disk that holds the Claude Code config directory (~/.claude by default), or your disk quota on it, is full · Delete files you no longer need on that disk, then try again · Signing in again won't help
+```
+
+在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)（`-p`）和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 中，消息如下：
+
+```text wrap theme={null}
+Failed to refresh OAuth token: the disk that holds the Claude Code config directory (~/.claude by default), or your disk quota on it, is full. Delete files you no longer need on that disk and retry; signing in again won't help
+```
+
+**解决方法：**
+
+* 对于脚本，请重新运行其 `claude -p` 命令
+* 如果磁盘已显示有可用空间，磁盘配额或 inode 耗尽也会产生相同的消息。请删除您自己在该磁盘上的文件。如果消息再次出现，请删除大量小文件而不是少数几个大文件，因为无论文件大小如何，每个文件都占用一个 inode。
 
 ### 无法保存您的登录
 
@@ -2187,14 +2219,14 @@ x-deny-reason: host_not_allowed
 此错误并非客户端网络问题。云端会话和[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)运行在沙箱虚拟机中，其经由会话网络的出站流量会按照[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)的允许列表进行过滤：
 
 * **GitHub 和连接器流量**：[GitHub 操作](https://code.claude.com/docs/zh-CN/cloud-environments.md#github-proxy)和 MCP 连接器流量使用独立的通道，因此在其他主机被阻止时它们仍可能正常工作
-* **默认环境**：**Default** 环境使用 **Trusted** 访问级别，该级别允许包含软件包仓库、云提供商 API、容器镜像仓库和常见开发域名的[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)，并在该路径上阻止其他域名
+* **默认环境**：**Default** 环境使用 **Limited** 访问级别，并勾选了 **Allow package managers**。其会话可以访问包含软件包仓库、云提供商 API、容器镜像仓库和常见开发域名的[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)。
 
 **解决方法：**
 
 以下步骤用于更改您自己的环境。[组织共享环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)在选择器中以只读方式打开，因此请让 Owner 在[管理设置](https://claude.ai/admin-settings)的 **Cloud environments** 页面中更改其网络访问。
 
 * 打开您的环境进行编辑，可以从[云端定时任务的表单](https://code.claude.com/docs/zh-CN/routines.md#environments-and-network-access)打开，也可以从您启动云端会话的[环境选择器](https://code.claude.com/docs/zh-CN/cloud-environments.md#configure-your-environment)打开。
-* 在 **Edit cloud environment** 对话框中，将 **Network access** 从 **Trusted** 更改为 **Custom**，然后将被阻止的域名添加到 **Allowed domains**。每行输入一个域名。勾选 **Also include default list of common package managers**，可在自定义域名之外保留[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)。如果您需要不受限制的访问，请改为选择 **Full**。
+* 在 **Edit cloud environment** 对话框中，在 **Network access** 下选择 **Limited**，然后将被阻止的域名添加到 **Allowed domains**。每行输入一个域名。勾选 **Allow package managers**，可在您自己的域名之外允许[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)。如果您需要不受限制的访问，请改为选择 **Full**。
 * 点击 **Save changes**。下一次运行将使用更新后的允许列表。对于已经打开的云端会话，请参阅[网络访问更改何时作用于现有会话](https://code.claude.com/docs/zh-CN/cloud-environments.md#network-access)。
 
 有关访问级别和默认允许列表，请参阅[网络访问](https://code.claude.com/docs/zh-CN/cloud-environments.md#network-access)。本地 CLI 会话不受此策略影响。
@@ -2442,11 +2474,16 @@ Prompt is too long · the request is ~<request tokens> tokens (limit <limit>) bu
 
 ### 上下文超过 token 限制
 
-当对话超过模型的上下文窗口时，`/context` 在其输出顶部显示此警告。在您释放空间之前，请求会失败并显示 [`Prompt is too long`](#prompt-is-too-long)。交互式会话将该错误显示为 `Context limit reached` 行。
+当对话增长到超出模型的上下文窗口时，`/context` 会在其输出顶部显示以下警告：
 
 ```text theme={null}
 Context exceeds the 200k-token limit by 94k tokens — run /compact or /clear to continue.
 ```
+
+出现 `Context exceeds` 警告后，只要[自动压缩](https://code.claude.com/docs/zh-CN/settings-reference.md#autocompactenabled)处于开启状态（这是默认设置），您就无需运行这两个命令中的任何一个：
+
+* **自动压缩开启**：发送您的下一条消息。如果仍然因 [`Prompt is too long`](#prompt-is-too-long) 失败，请参阅该条目。
+* **自动压缩关闭**：在会话中，如果警告中提及 `/compact` 则运行它，或运行 `/clear` 重新开始。在您运行其中之一之前，消息会因 `Context limit reached` 失败，在 `-p` 输出中则为 `Prompt is too long`。
 
 当您超过的限制是压缩窗口（如 1M 上下文模型上的 200K 边界）时，警告的读取方式不同。压缩窗口可以位于模型的上下文窗口下方，因此超过它的请求仍然可以成功。
 
@@ -2458,7 +2495,7 @@ Context is 94k tokens past the 200k-token compaction window — run /compact to 
 
 **要做什么：**
 
-* 在多轮对话中，运行 `/compact` 以总结较早的轮次并释放空间。要重新开始，请运行 `/clear`
+* **出现压缩窗口警告后**：在多轮对话中，运行 `/compact` 总结较早的轮次并释放空间。如需重新开始，请运行 `/clear`。
 * 有关减少使用的更多方法，请参阅 [Prompt is too long](#prompt-is-too-long)
 
 在 v2.1.216 之前，`/context` 显示超过 100% 的使用情况，没有警告行解释这意味着什么或如何恢复。
@@ -3302,7 +3339,7 @@ Error: Settings file exceeds the 2MiB limit: /path/to/settings.json
 
 ### Configuration error in \~/.claude.json
 
-Claude Code 无法解析 `~/.claude.json`，该文件保存您的账户详细信息、MCP 服务器和每个项目的状态。您的文件未被更改。在您修复该文件之前，每次[非交互式](https://code.claude.com/docs/zh-CN/headless.md)启动（例如 `claude -p`）都会以退出码 1 退出。
+Claude Code 无法解析 `~/.claude.json`，该文件保存您的账户详情、MCP 服务器和每个项目的状态。[非交互式](https://code.claude.com/docs/zh-CN/headless.md)启动（例如 `claude -p`）会以退出码 1 退出。
 
 当 Claude Code 找到[备份](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)时，输出会指出该备份，并打印一行用于将其复制回来的 `cp` 命令：
 
@@ -3317,10 +3354,9 @@ Configuration error in /home/user/.claude.json: <JSON parser's message>
 
 **解决方法：**
 
-* **输出中有 `cp` 行**：在终端中运行该行。在 Windows 上，请在 PowerShell 中运行。它会用备份（`~/.claude.json` 的较早版本）替换损坏的文件。
-* **输出中没有 `cp` 行，或运行后错误再次出现**：修复 `~/.claude.json` 中的 JSON；如果 [`~/.claude/backups/`](https://code.claude.com/docs/zh-CN/claude-directory#cleaned-up-automatically) 中有另一个 `.claude.json.backup.<timestamp>` 文件，可将其复制覆盖该文件；或者将该文件重命名。当 `~/.claude.json` 处没有文件时，Claude Code 会以默认设置启动，该文件中保存的内容都将不存在。
-
-在 v2.1.318 之前，非交互式启动打印此错误后，`~/.claude.json` 中会只剩下默认值，因此下一次启动将在没有您配置的情况下运行。
+* **输出中有 `cp` 行**：在终端中运行该行。在 Windows 上，请在 PowerShell 中运行。
+* **输出中没有 `cp` 行，或运行后错误再次出现**：如果 `~/.claude.json` 中仍有您的配置，请修复其 JSON。如果无法修复，若 [`~/.claude/backups/`](https://code.claude.com/docs/zh-CN/claude-directory#cleaned-up-automatically) 中有其他 `.claude.json.backup.<timestamp>` 文件，请将其复制覆盖该文件，或将该文件重命名。当 `~/.claude.json` 不存在时，Claude Code 会以默认设置启动，原文件中保存的内容全部不会保留。
+* **`~/.claude.json` 中已没有您的配置**：在 [`~/.claude/backups/`](https://code.claude.com/docs/zh-CN/claude-directory#cleaned-up-automatically) 或您的主目录中，找到仍包含您配置的 `.claude.json.corrupted.<timestamp>` 文件。修复其 JSON，然后将其复制覆盖 `~/.claude.json`。如果找不到或无法修复，请对包含您配置的 `.claude.json.backup.<timestamp>` 文件尝试相同的步骤。如果都没有，请重命名 `~/.claude.json`，并使用 [`claude mcp add`](https://code.claude.com/docs/zh-CN/mcp#installing-mcp-servers) 重新添加您的 MCP 服务器。
 
 ### Claude configuration file was empty and no backup holds anything
 
@@ -3380,6 +3416,21 @@ Temp directory /tmp/claude-501 is not readable (its mode may have been altered, 
 * 在上述任何情况下，都可以将 [`CLAUDE_CODE_TMPDIR`](https://code.claude.com/docs/zh-CN/env-vars) 设置为您控制的目录，然后再次启动 Claude Code，而不必处理被拒绝的路径
 
 在 v2.1.309 之前，当卷已满或配额已用尽时，Claude Code 只打印操作系统的错误文本。例如 `ENOSPC: no space left on device, mkdir '/tmp/claude-501'`，同样适用上述步骤。
+
+### Claude Code could not save because the disk is full
+
+在 [`claude -p`](https://code.claude.com/docs/zh-CN/headless) 运行后，stderr 上出现这一行表示磁盘已满或您的磁盘配额已用尽，因此 Claude Code 无法保存本次运行的全部内容：
+
+```text wrap theme={null}
+Error: Claude Code could not save all of this session's transcript under /Users/you/.claude because the disk is full (ENOSPC). If you resume this session, part of the conversation may be missing. Free up space on that disk before the next run.
+```
+
+使用文本或 `json` 输出时，运行以退出码 1 退出，且答案已经打印出来。使用 `stream-json` 输出时，运行保持其通常的退出码，答案仍会送达。
+
+**解决方法：**
+
+* **`the disk is full (ENOSPC)`**：在下一次运行之前，释放消息中路径所在磁盘的空间
+* **`your disk quota is used up (EDQUOT)`**：在下一次运行之前，释放空间或申请更大的配额
 
 ### 无法将目录解析为真实位置
 
@@ -3448,9 +3499,23 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了非标志的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。如果要在本次运行中信任它，请将 PR 编号或基准分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
+
+### Remote Control did not start because a question got no answer
+
+此消息表示 [`claude remote-control`](https://code.claude.com/docs/zh-CN/remote-control) 提出了消息中引用的首次运行问题，但没有得到回答：
+
+```text theme={null}
+Remote Control did not start: "Enable Remote Control?" got no answer. Run `claude remote-control` at a terminal and answer y once; it won't ask again.
+Remote Control did not start: "Choose [1/2] (default: 1):" got no answer. You can run `claude remote-control` and choose, or pass --spawn=same-dir or --spawn=worktree.
+```
+
+**解决方法：**
+
+* **`Enable Remote Control?`**：在脚本或服务中，标准输入会在任何人能够回答之前结束。请以运行脚本或服务的用户身份，在终端中运行一次 `claude remote-control` 并回答 `y`。
+* **`Choose [1/2] (default: 1):`**：重新运行 `claude remote-control` 并[选择生成模式](https://code.claude.com/docs/zh-CN/remote-control.md#set-the-default-spawn-mode-for-a-project)，或传入 [`--spawn=same-dir` 或 `--spawn=worktree`](https://code.claude.com/docs/zh-CN/remote-control#start-a-remote-control-session) 以跳过该问题
 
 ### 不会传递到 Remote Control 启动的会话
 
@@ -3499,7 +3564,7 @@ Claude Code 通过从 Anthropic 获取并缓存在磁盘上的功能标志来启
 
 * 安装后您尚未启动过会话，因此 Claude Code 还没有获取该标志。即使该功能对您可用，第一次运行 `claude import` 也可能打印此消息。
 * 您通过 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 Claude Platform on AWS 使用 Claude Code，或通过 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway#availability-and-limitations) 使用。Claude Code 在这些会话中不会获取功能标志，因此 `claude import` 始终不可用。
-* 您设置了 `DISABLE_TELEMETRY`、`DO_NOT_TRACK`、`DISABLE_GROWTHBOOK` 或 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars)，这些会关闭功能标志的获取，因此 `claude import` 始终不可用。
+* 您设置了 `DISABLE_TELEMETRY`、`DO_NOT_TRACK`、[`CLAUDE_CODE_DISABLE_FEATURE_FLAGS`](https://code.claude.com/docs/zh-CN/env-vars#variables)、`DISABLE_GROWTHBOOK` 或 [`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`](https://code.claude.com/docs/zh-CN/env-vars)，这些变量会关闭功能标志的获取，因此 `claude import` 保持不可用。
 
 **解决方法：**
 
@@ -3741,8 +3806,8 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
 
 **解决方法：**
 
@@ -3895,7 +3960,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议运行 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议运行 `git fetch --unshallow origin`，而在完整克隆上该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 
@@ -4456,6 +4521,22 @@ commands path escapes plugin directory: ./commands\deploy.md — its path contai
 * 如果消息指出插件声明的路径包含反斜杠，请使用正斜杠编写该路径，例如 `./commands/deploy.md`
 * 如果消息以 `EACCES` 结尾，请恢复您对通往该路径所指文件或文件夹的每个目录的执行权限。检查该路径上方的各个目录，然后跟随遇到的每个符号链接，并检查通往其指向位置的各个目录。对于任何其他错误代码，请在[无法检查路径的原因和处理步骤](#path-could-not-be-checked)中查找。
 * 如果要与同一市场中的其他插件共享文件，请按照[符号链接规则](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md#share-files-within-a-marketplace-with-symlinks)，在插件目录内使用符号链接链接这些文件
+
+### 未读取服务器文件路径
+
+`path not read` 消息表示 Claude Code 由于文件路径的原因，没有读取插件所指定的 MCP 或 LSP 服务器文件。插件的其余部分会加载，但不包含该文件定义的服务器。
+
+即使路径仍在插件之内，`..` 部分也会被计入，如下例所示：
+
+```text theme={null}
+mcp-servers path not read: ./sub/../x.json is absolute or has a ".." part
+```
+
+**解决方法：**
+
+* 如果您只是安装了该插件而不负责维护它，请将该消息报告给插件作者
+* 如果您是该插件的维护者，请将服务器文件保留在插件目录内。在清单或市场条目中使用以 `./` 开头且不含 `..` 的路径指定它，例如 `./servers/x.json`
+* 如果要在同一市场的多个插件之间共享一个服务器文件，请按照[符号链接规则](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md#share-files-within-a-marketplace-with-symlinks)，使用符号链接将该文件链接到每个插件中
 
 ### Plugin not loaded: its manifest was not read
 
@@ -5065,6 +5146,23 @@ Refusing to read /path/to/file: its symlink resolution changed after permission 
 
 在 v2.1.280 之前，不会出现 `where it leads on disk could not be determined` 拒绝。
 
+### The search failed, so this is not a "no matches" result
+
+Claude 运行的 [Grep](https://code.claude.com/docs/zh-CN/tools-reference.md#grep-tool-behavior) 或 [Glob](https://code.claude.com/docs/zh-CN/tools-reference.md#glob-tool-behavior) 搜索在返回任何结果之前就失败了，因此无法确定是否存在匹配项。Claude 收到的代替结果的消息以如下内容开头：
+
+```text wrap theme={null}
+The search failed, so this is not a "no matches" result: matches may exist. What happened to the search program (ripgrep) is not known, and no results were read. Run the search once more. If it fails again, tell the user that searches are failing.
+```
+
+**处理方法：**
+
+* **首次出现时**：无需任何操作。该消息会要求 Claude 先再次搜索。
+* **如果 Claude 表示搜索持续失败**：捕获 ripgrep 的错误以用于错误报告：
+  1. 在 shell 中，使用与搜索失败的会话相同的标志启动一个会话，并加上 [`--debug-file claude-debug.log`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)
+  2. 向 Claude 发送导致搜索失败的请求
+  3. 如果搜索再次失败，在 `claude-debug.log` 中找到包含 `rg error (signal=` 的行
+  4. 在[报告问题](#report-an-error)时附上该行
+
 ### Task output swap refused
 
 Claude Code 会将每个 Bash 命令的输出保存到其临时目录下的一个文件中。每次打开这些文件之一时，它都会检查该路径是否仍然指向它创建的文件，没有符号链接、额外的硬链接或被移动的目录将其重定向。此消息表示该检查失败，因此 Claude Code 拒绝了该操作，而不是通过该路径写入或读取输出。该消息出现在 Bash 工具结果中：
@@ -5152,6 +5250,23 @@ File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shif
 * 如需继续使用 Edit 工具编辑该文件，请将其转换为 UTF-8，或修复本应是 UTF-8 的文件中的无效字节，然后让 Claude 再次进行编辑
 
 在 v2.1.296 之前，Edit 和 NotebookEdit 会应用此类编辑，并将它们无法解码的每个字节保存为 `U+FFFD`。在这些版本上，请更新 Claude Code。
+
+### Refusing to apply edits: a hook is configured for file edits in this session
+
+Claude 尝试通过[一步更新](https://code.claude.com/docs/zh-CN/artifacts.md#turn-off-one-step-artifact-updates)发布 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md)，即在发布中包含对该 Artifact 文件的一处小改动，但 Claude Code 拒绝了。没有发布任何内容，文件也保持不变。该消息出现在 Artifact 工具结果中：
+
+```text wrap theme={null}
+Refusing to apply edits to <path>: a hook is configured for file edits in this session, so a publish can't apply edits here. Edit the file, then publish it without edits. Nothing was published.
+```
+
+当您的会话中存在针对 `Edit` 或 `Write` 的 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse) 或 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 时，Claude Code 不允许一步更新。
+
+**处理方法：**
+
+* 如果 Claude 随后编辑了该文件并将其发布，则无需任何操作
+* 如果 Claude 在该消息处停止，请让 Claude 编辑该文件并发布
+* 如果该消息反复出现，请退出并重新启动 Claude Code
+* 如果重新启动后该消息仍然出现，请[关闭一步更新](https://code.claude.com/docs/zh-CN/artifacts.md#turn-off-one-step-artifact-updates)
 
 ### The source file is not valid UTF-8 text
 
@@ -5622,6 +5737,20 @@ Couldn't start a background session (working directory no longer exists or is no
 **要做什么：**
 
 * 重新创建消息命名的目录，或从存在的目录分派，然后重试
+
+### This forked session could not be started
+
+您从 claude.ai [分叉了一个 Remote Control 会话](https://code.claude.com/docs/zh-CN/remote-control.md#fork-a-session-from-your-browser)，而 Claude Code 无法完成启动在您的机器上运行该分叉的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)。此通知出现在分叉会话的会话记录中：
+
+```text theme={null}
+This forked session could not be started. Fork the conversation again to retry.
+```
+
+您分叉的那个会话会继续运行。
+
+**要做什么：**
+
+* 返回您分叉的那个会话，并在该会话空闲后再次分叉
 
 ### 分派后台会话时工作区不受信任
 

@@ -71,23 +71,23 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多 Agen
 
 **2. 选择要扫描的内容**
 
-该插件首先读取您的存储库，然后提供整个存储库或聚焦区域，每个选项都说明了文件计数和相对成本。选择整个存储库，或回答"我不知道"，插件会为您的存储库大小选择一个合理的默认值。
+该插件首先读取您的仓库，然后提供整个仓库或聚焦区域供您选择。选择整个仓库，或回答"我不知道"，插件会根据您的仓库大小选择一个合理的默认值。
 
 **3. 确认运行**
 
-扫描可能需要一段时间，可能使用大量令牌，并需要在完成期间保持 Claude Code 打开。在您确认之前，不会运行任何内容。
+扫描可能需要一段时间，可能使用大量 token，并需要在完成期间保持 Claude Code 打开。在您确认之前，不会运行任何内容。
 
 **4. 阅读报告**
 
-扫描运行时，它会在每个阶段开始时报告，详细信息可在 [`/workflows`](https://code.claude.com/docs/zh-CN/workflows) 下获得。结果进入您的存储库中的时间戳目录，在[阅读扫描结果](#read-the-scan-results)中描述。
+扫描运行时，它会在每个阶段开始时报告，详细信息可在 [`/workflows`](https://code.claude.com/docs/zh-CN/workflows) 下获得。结果会写入您的仓库中的时间戳目录，在[阅读扫描结果](#read-the-scan-results)中描述。
 
 **5. 将发现转化为补丁**
 
-再次运行 `/claude-security` 并选择 **Suggest patches**，然后选择要解决的发现。审查过的补丁进入报告的 `patches/` 文件夹；[修复发现](#fix-findings)涵盖了每个补丁如何构建和审查。
+再次运行 `/claude-security` 并选择 **Suggest patches**，然后选择要解决的发现。审查过的补丁会写入报告的 `patches/` 文件夹；[修复发现](#fix-findings)涵盖了每个补丁如何构建和审查。
 
 **6. 应用您接受的补丁**
 
-从您的 shell 中使用 `git apply` 应用每个补丁，在其自己的拉取请求中。补丁永远不会自动应用。
+从您的 shell 中使用 `git apply` 应用每个补丁，每个补丁放在各自的 Pull Request 中。补丁永远不会自动应用。
 
 您不必从菜单开始：直接要求一个任务，作为命令的参数，例如 `/claude-security scan my branch`，或用纯语言，例如"scan commit abc1234"。该插件在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md)中效果最佳，这允许扫描的代理在每一步都无需权限提示地进行。
 
@@ -95,7 +95,7 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多 Agen
 
 当您的分支有其基础没有的提交时，`/claude-security` 菜单会提供仅扫描该差异的选项，以便您可以在合并前检查分支。您也可以扫描您的一个开放拉取请求，或通过要求它来扫描单个提交，例如"scan commit abc1234"。仅扫描已提交的更改：首先提交或 stash 进行中的编辑，或运行完整扫描，它读取工作树。
 
-更改扫描需要 git 存储库；未版本化目录的完整扫描仍然有效。查找您的开放拉取请求是唯一到达网络的步骤，仅当您的会话已有权限运行 GitHub CLI 且 `gh` 已登录时才提供。
+更改扫描需要 git 仓库；未版本化目录的完整扫描仍然有效。仅当您的会话已有权限运行 GitHub CLI 且 `gh` 已登录时，才会提供查找您的开放 Pull Request 的选项。
 
 ### 限制大型存储库的范围
 
@@ -120,11 +120,11 @@ Claude Security plugin 在 Claude Code 会话中对您的代码库运行多 Agen
 * **`CLAUDE-SECURITY-RESULTS.md`**：报告，包含每个发现的 ID，例如 `F1`，加上其影响、利用场景、严重性、置信度和建议
 * **`CLAUDE-SECURITY-RESULTS.jsonl`**：相同的发现以机器可读的形式，每行一个 JSON 对象
 * **`CLAUDE-SECURITY-RESULTS.sarif`**：相同的发现作为 [SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html) 日志，用于 GitHub 代码扫描和任何其他读取该标准的工具。扫描将发现分类在其 [CWE](https://cwe.mitre.org/) 弱点类别下
-* **`CLAUDE-SECURITY-REVISION-<commit>.json`**：修订戳，记录扫描了哪个提交、以什么[扫描工作量](#choose-a-scan-effort)、未提交的更改是否是扫描树的一部分，以及运行的验证程度如何，因此报告始终与它描述的代码相关联。版本控制外的扫描在提交位置戳上 `UNVERSIONED`
+* **`CLAUDE-SECURITY-REVISION-<commit>.json`**：修订戳，记录扫描了哪个提交、以什么[扫描工作量](#choose-a-scan-effort)、未提交的更改是否是扫描树的一部分，以及运行的验证程度如何。版本控制外的扫描在提交位置戳上 `UNVERSIONED`
 
 该目录是扫描对您的检出所做的唯一更改，它有自己的 `.gitignore`，因此随意的 `git add` 永远不会将报告扫入提交。要在历史中保留报告以供审计跟踪，删除那一个 `.gitignore` 文件并像任何其他文件一样提交目录。
 
-发现仅在独立验证代理分析它们后才出现在报告中，这使报告简短且值得阅读。扫描是非确定性的：同一代码的两次扫描可能会发现不同的发现。定期运行扫描，并使用修订戳将每个报告归属于它覆盖的确切代码和设置。
+发现仅在独立验证 Agent 分析它们后才出现在报告中，这使报告简短且值得阅读。扫描是非确定性的：同一代码的两次扫描可能会发现不同的发现。请定期运行扫描。
 
 ## 修复发现
 

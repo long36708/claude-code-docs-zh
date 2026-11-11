@@ -142,10 +142,11 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 `sessions/` 中的会话文件、自动内存以及 Claude Desktop 和 Cowork 记录各自遵循自己的保留规则：
 
 * **`sessions/`**：为每个运行的会话保存一个小文件，用于检测并发会话和崩溃。它不是基于年龄的扫描的一部分：Claude Code 在其会话退出时删除每个文件，并在下次启动时清理崩溃遗留物。
+* **`seed-admin/`**：Claude Code 在为 [ultrareview](https://code.claude.com/docs/zh-CN/ultrareview.md) 或[云端会话上传](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github)打包您的仓库时创建的临时 git 目录。当上传结束时（如果上传被中断，则在之后的某个会话中），Claude Code 会删除该上传的目录，并保留 `seed-admin/` 本身。
 * **自动内存**：扫描不删除项目 [自动内存](https://code.claude.com/docs/zh-CN/memory.md#auto-memory) 目录中的内存文件，`projects/<project>/memory/`。Claude Code 仅在整个保留期内该目录为空时才删除该目录。在 v2.1.228 之前，扫描将内存目录内的文件夹视为会话数据，可能删除其下的旧文件。
 * **Claude Desktop 和 Cowork 会话记录**：Claude Code 保留您在 Claude Desktop 或 Cowork 中启动或最近继续的会话的会话记录，无论其年龄如何。要给这些会话记录设置年龄限制，请设置 [`desktopSessionCleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#desktopsessioncleanupperioddays)。需要 Claude Code v2.1.248 或更高版本；早期版本在 `cleanupPeriodDays` 后删除它们。
 
-  在以下任一情况下，Claude Code 改为在 `cleanupPeriodDays` 后删除这些会话记录：
+  在以下情况下，Claude Code 会改为在 `cleanupPeriodDays` 之后删除这些会话记录：
 
   * [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)设置了 `cleanupPeriodDays`
   * [HIPAA 配置适用于您的会话](https://code.claude.com/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect)
@@ -153,7 +154,9 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 Claude Code 在这些情况下跳过基于年龄的扫描：
 
 * **Bare mode**：当您使用 [`--bare`](https://code.claude.com/docs/zh-CN/headless#start-faster-with-bare-mode) 运行 `claude -p` 时，Claude Code 不会在该会话中运行扫描。
-* **暂停扫描**：如果 Claude Code 无法安全地确定保留期，它会暂停保留清理扫描；[`retention_sweep` 事件](https://code.claude.com/docs/zh-CN/monitoring-usage#retention-sweep-event)列出每个暂停它的配置。当原因是无法读取或解析的设置文件，或 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 明确设置的设置错误时，Claude Code 也会在 `/status` 中显示警告，直到您修复设置错误。当 [managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 提供 `cleanupPeriodDays` 时，Claude Code 在任何情况下都以 managed 值运行扫描。
+* **暂停扫描**：如果 Claude Code 无法安全地确定保留期，它会暂停扫描；[`retention_sweep` 事件](https://code.claude.com/docs/zh-CN/monitoring-usage#retention-sweep-event)列出每个暂停它的配置。当原因是无法读取或解析的设置文件，或者在设置了 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 的情况下存在设置错误时，`/status` 会显示警告，直到您修复该原因。
+
+当[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)提供 `cleanupPeriodDays` 时，即使较低优先级的设置文件存在错误，Claude Code 也会以托管值运行扫描。
 
 要检查您组织中的机器是否按您设置的保留期运行扫描，请参阅[检查保留扫描](https://code.claude.com/docs/zh-CN/monitoring-usage.md#check-the-retention-sweep)。
 

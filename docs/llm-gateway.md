@@ -47,7 +47,7 @@
 
 当[网关凭证变量](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#set-the-credential-variable)或 `apiKeyHelper` 处于活动状态时，请求会使用该凭证代替开发人员的 claude.ai 订阅登录，订阅的使用限制不适用于这些请求。Claude Code 在机器上保存了 claude.ai 登录信息，但不会在这些请求中发送它。该流量按令牌计费给拥有网关转发的凭证的人，例如您的组织的 Anthropic Console 账户，或当网关路由到那里时您的 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 账户。
 
-[`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential)是指向 Claude Code 网关的变量。仅设置该变量，不设置网关凭证，不会替换订阅。请求仍然通过网关路由，但保存的 claude.ai 登录保持活动凭证，因此其使用限制和计费适用。将此流量转发给 Anthropic 的网关必须转发 `anthropic-beta` 中的 OAuth 功能；请参阅[请求头参考](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#request-headers)。
+[`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential) 是让 Claude Code 指向网关的变量。仅设置该变量，不设置网关凭据，不会替换订阅。请求仍然通过网关路由，但保存的 claude.ai 登录仍是活动凭据，因此其用量限制和计费适用。将此流量转发给 Anthropic 的网关必须转发 `Authorization` 以及 `anthropic-beta` 中的 OAuth 功能；请参阅[请求头参考](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#request-headers)。
 
 ## 相关页面
 

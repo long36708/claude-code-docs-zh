@@ -1923,9 +1923,9 @@ type SDKResultMessage =
 | `extra_usage_disabled` | 账户的使用额度已关闭 |
 | `network_error` | [可用性检查](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-behind-proxies-and-llm-gateways)无法到达 `api.anthropic.com` |
 | `unknown` | Claude Code 无法确定可用性 |
-| `not_first_party` | 会话使用 Anthropic API 以外的提供商 |
-| `disabled_by_env` | [`CLAUDE_CODE_DISABLE_FAST_MODE`](https://code.claude.com/docs/zh-CN/env-vars) 已设置 |
-| `model_not_allowed` | 快速模式 Opus 模型不在组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表中 |
+| `not_first_party` | 会话使用的提供商不提供快速模式 |
+| `disabled_by_env` | 已设置 [`CLAUDE_CODE_DISABLE_FAST_MODE`](https://code.claude.com/docs/zh-CN/env-vars)，或模型在 [Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-on-agent-platform) 上所在的区域不提供快速模式 |
+| `model_not_allowed` | 快速模式模型不在组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表中，或提供商拒绝为会话的模型启用快速模式 |
 | `sdk_opt_in_required` | 会话未选择加入快速模式：在 [`settings`](#options) 选项中或通过 [`applyFlagSettings()`](#applyflagsettings) 传递 `fastMode: true` |
 | `pending` | 可用性检查尚未完成 |
 
@@ -2007,7 +2007,7 @@ Claude Code 在两种帧上设置该字段：
 
 #### `startup_failure_reason`
 
-Claude Code 拒绝启动的原因，以便您的应用程序可以提供修复而不是重试。Claude Code 在它在已知启动失败时退出前写入的 `error_during_execution` 结果上设置它。该结果携带零化总计，其 `errors` 数组携带与 stderr 相同的文本。该字段在所有其他结果上不存在。需要 Agent SDK v0.3.274 或更高版本。
+Claude Code 拒绝启动的原因，以便您的应用提供修复方法而不是重试。Claude Code 在因已知启动失败而退出之前写入的 `error_during_execution` 结果上设置该字段。该结果携带归零的汇总，其 `errors` 数组携带失败消息。在其他所有结果上该字段都不存在。需要 Agent SDK v0.3.274 或更高版本。
 
 在 [`env`](#options) 中设置 `CLAUDE_CODE_STARTUP_FAILURE_RESULTS` 为 `1` 以接收每个 `SDKStartupFailureReason` 值的此结果。没有该变量，Claude Code 仅为这些失败写入结果，其余的以 stderr 输出、非零退出和无结果消息结束：
 
@@ -5918,6 +5918,7 @@ type SDKRateLimitEvent = {
     errorCode?: "credits_required";
     canUserPurchaseCredits?: boolean;
     hasChargeableSavedPaymentMethod?: boolean;
+    overageEnabled?: boolean;
   };
   uuid: UUID;
   session_id: string;
@@ -5925,6 +5926,8 @@ type SDKRateLimitEvent = {
 ```
 
 当 `errorCode` 为 `"credits_required"` 时，表示拒绝来自已用尽所含用量的 claude.ai 订阅，在用户购买使用额度之前，会话无法继续。`canUserPurchaseCredits` 表示已通过身份验证的用户是否可以为该账户购买额度，`hasChargeableSavedPaymentMethod` 表示是否存有已保存的付款方式。在不属于 credits-required 拒绝的速率限制事件上，这三个字段都不存在。需要 Claude Code v2.1.181 或更高版本。
+
+在关于套餐用量限制的警告上（即 `status` 为 `"allowed_warning"` 时），`overageEnabled` 报告该账户是否已启用[使用额度](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)。需要 Claude Code v2.1.295 或更高版本。
 
 ### `SDKLocalCommandOutputMessage`
 

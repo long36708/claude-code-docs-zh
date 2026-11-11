@@ -36,7 +36,7 @@
 
 每个云端会话都在一个[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)中运行，这是一个保存的配置，控制网络访问、环境变量和设置脚本。
 
-* **您的第一个环境**：如果您还没有环境，入门流程会设置一个具有[**受信任**网络访问](https://code.claude.com/docs/zh-CN/cloud-environments.md#access-levels)的**默认**环境，要么为您创建它，要么要求您创建它。请参阅[默认环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#the-default-environment)，了解在您的计划上会发生哪种情况
+* **您的第一个环境**：如果您还没有环境，入门流程会设置一个具有[**受限**网络访问](https://code.claude.com/docs/zh-CN/cloud-environments.md#access-levels)的**默认**环境。请参阅[默认环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#the-default-environment)，了解这在您的计划上如何运作
 * **会话使用哪个环境**：请参阅[默认环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#the-default-environment)，了解当您有多个环境时会话如何选择环境
 * **更改会话可以访问的内容或在启动时运行的内容**：请参阅[配置云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)
 * **无需任何配置即已安装的内容**：请参阅[已安装的工具](https://code.claude.com/docs/zh-CN/cloud-environments.md#installed-tools)

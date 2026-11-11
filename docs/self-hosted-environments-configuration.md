@@ -638,7 +638,7 @@ Claude Code 还会从其他来源加载 MCP 服务器：
 
 * 位于标准系统路径的企业作用域[托管 MCP 文件](https://code.claude.com/docs/zh-CN/managed-mcp.md)：Linux 运行器主机上为 `/etc/claude-code/managed-mcp.json`，macOS 主机上为 `/Library/Application Support/ClaudeCode/managed-mcp.json`。适用于只允许加载管理员列出的服务器的锁定机群。有关优先级规则，请参阅[使用 managed-mcp.json 进行独占控制](https://code.claude.com/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json)。当运行器主机上存在此文件时，Claude Code 会跳过 Anthropic 控制平面下发给会话的 MCP 服务器（包括 claude.ai 连接器），并在会话子进程的 stderr 上以警告形式列出它们的名称，运行器会以 `debug` 日志级别记录这些警告。在 v2.1.229 之前，这些会话会在启动时退出并显示 `You cannot dynamically configure MCP servers when an enterprise MCP config is present`。
 * 运行器主机上[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中的 [`managedMcpServers`](https://code.claude.com/docs/zh-CN/settings-reference#managedmcpservers) 键：提供 HTTP 和 SSE 服务器，但不进行独占控制，因此来自其他来源的服务器仍会加载。需要 Claude Code v2.1.259 或更高版本。
-* `<repo>/.mcp.json`：项目作用域。在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外，将该文件提交到仓库，其中的服务器在云端会话中会被自动批准。在包含多个仓库的会话中，[最多只会加载一个仓库的该文件](#repository-settings-in-sessions-with-several-repositories)。
+* `<repo>/.mcp.json`：项目作用域。在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外，将该文件提交到仓库，其中的服务器在云端会话中会被自动批准。在包含多个仓库的会话中，[最多只会加载一个仓库的该文件](#repository-settings-in-sessions-with-several-repositories)。使用 [`--trust-workspace false`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 时，会话会跳过该文件中的服务器，除非有未由仓库提交的设置批准了它们，例如主机 `~/.claude/settings.json` 中的 [`enabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#enabledmcpjsonservers)。需要 Claude Code v2.1.319 或更高版本。
 * 来自您的包装脚本的 [`--mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 文件：将该标志追加在 `"$@"` 之后，例如 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --mcp-config /etc/claude/mcp.json`。为了在会话中途更新会话所下发的服务器时让该文件中的服务器保持运行，请让您的包装脚本将[完整环境](#wrapper-scripts)传递给子进程，就像 `exec` 所做的那样。在 v2.1.299 之前，该文件中的 stdio、HTTP 和 SSE 服务器会在第一次未指明它们的此类更新时关闭。
 
 当您的组织启用了连接器下发时，Anthropic 的控制平面会通过服务器提供的 MCP 配置，将您在 claude.ai 上配置的连接器下发到以交互方式创建的会话，请求经由 `api.anthropic.com` 路由。以编程方式创建的会话（例如 [CLI 调度](https://code.claude.com/docs/zh-CN/self-hosted-environments-testing.md#run-the-test-loop)）不会接收连接器下发；请改为通过本节列出的任何其他来源为它们提供 MCP 服务器。子进程的 OAuth 令牌不带有直接获取连接器的作用域，因此子进程本身不会尝试获取；下发由服务器驱动。
@@ -908,7 +908,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 
 在其他任何包含多个仓库的会话中，Claude Code 从会话启动所在的目录读取项目设置，因此最多只有一个仓库的 `.claude/settings.json` 作为项目设置生效。在其他仓库的文件中定义的 hook 不会运行，其中的拒绝规则不会生效，其 `env` 也不会被设置。
 
-* **`--capacity 1`（默认值）并使用内置检出**：会话在其仓库列表中的第一个仓库中启动。该仓库的 `.claude/settings.json` 作为项目设置生效，其 `.mcp.json` 会被加载，而其他仓库的则不会。
+* **`--capacity 1`（默认值）并使用内置检出**：会话在其仓库列表中的第一个仓库中启动。该仓库的 `.claude/settings.json` 作为项目设置生效，其 [`.mcp.json`](#mcp-servers) 会被加载，而其他仓库的则不会。
 * **`--capacity` 大于 1，或使用 [`checkout` hook](#checkout)**：会话在包含各检出内容的按会话目录中启动。没有任何仓库的 `.claude/settings.json` 作为项目设置生效，没有任何仓库的 `.mcp.json` 会被加载，并且 hook 命令中的 [`$CLAUDE_PROJECT_DIR`](https://code.claude.com/docs/zh-CN/hooks#reference-scripts-by-path) 是该目录，而不是某个检出目录。
 
 无论会话在何处启动，每个仓库的 `CLAUDE.md` 都会被加载。在项目线程之外，其 skill 也会被加载。运行器将每个仓库作为[附加目录](https://code.claude.com/docs/zh-CN/permissions.md#additional-directories-grant-file-access-not-configuration)传递给 Claude Code，因此 Claude Code 还会从每个仓库的 `.claude/settings.json` 中读取 `enabledPlugins` 和 `extraKnownMarketplaces` 键。

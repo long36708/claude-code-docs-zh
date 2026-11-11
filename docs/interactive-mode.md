@@ -251,7 +251,7 @@ Claude Code 从你的用户设置文件、`--settings` 标志和[托管设置](h
 | `d`/`x` | 删除选择 |
 | `y` | 复制选择 |
 | `c`/`s` | 更改选择 |
-| `p` | 用寄存器内容替换选择 |
+| `p`/`P` | 用寄存器内容替换选择 |
 | `r{char}` | 将每个选定的字符替换为 `{char}` |
 | `~`/`u`/`U` | 切换、小写或大写选择 |
 | `>`/`<` | 缩进或取消缩进选定的行 |
@@ -275,7 +275,7 @@ Claude Code 保留了你输入的提示词的历史记录，上箭头回调可�
 * 输入历史按工作目录存储
 * 运行 `/clear` 开始新会话：回调时会首先列出新会话的提示词，然后是较早会话的提示词。前一个会话的对话被保留，可以恢复。
 * 连续两次提交相同的提示词只记录一个历史条目，因此按上箭头会跳到前一个不同的提示词
-* 当你回调包含粘贴文本的提示词时，Claude Code 在你重新提交时会再次发送完整的粘贴内容。如果内容已被[自动清理](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)，Claude Code 不会发送字面上的 `[Pasted text #N]` 字符串；有关提示词发生的情况，请参阅[粘贴大型内容](https://code.claude.com/docs/zh-CN/terminal-config.md#paste-large-content)
+* 当您回调包含粘贴文本的提示词时，Claude Code 在您重新提交时会再次发送完整的粘贴内容。如果内容已被[自动清理](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)，Claude Code 不会发送字面上的 `[Pasted text #N]` 字符串；有关提示词发生的情况，请参阅[粘贴大型内容](https://code.claude.com/docs/zh-CN/terminal-config.md#paste-large-content)
 * 使用 `!` 的历史扩展默认被禁用
 
 ### 找回已清除的草稿
@@ -303,6 +303,8 @@ Claude Code 保留了你输入的提示词的历史记录，上箭头回调可�
    * 在空搜索上按 `Backspace` 取消
 
 接受匹配项或取消搜索立即生效，即使 Claude Code 仍在加载历史记录。
+
+如果您只记得之前某个提示词中粘贴过的一段较长内容（例如错误日志），要找到该提示词，请按 `Ctrl+R` 并输入该粘贴内容中的某个词。需要 Claude Code v2.1.314 或更高版本。
 
 ## 后台 Bash 命令
 

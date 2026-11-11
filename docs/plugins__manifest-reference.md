@@ -403,7 +403,7 @@ manifest 中的每个组件路径相对于 plugin 根目录，必须以 `./` 开
 
 每个组件路径必须在 plugin 根目录内解析并且必须存在。`claude plugin validate` 检查每个组件键下的路径：
 
-* **包含**：在 plugin 根目录外解析的路径不加载，`/plugin` **Errors** 选项卡显示 `<component> path escapes plugin directory: <path>`。包含 `..` 的路径是常见情况，`claude plugin validate` 将其报告为 `Path contains ".." which could be a path traversal attempt`
+* **包含**：在插件根目录外解析的路径不加载，`/plugin` **Errors** 选项卡显示 `<component> path escapes plugin directory: <path>`。包含 `..` 的路径是常见情况，`claude plugin validate` 报告错误 `Path contains ".." which could be a path traversal attempt`。对于 `mcpServers` 或 `lspServers` 文件，[`path not read`](https://code.claude.com/docs/zh-CN/errors#server-file-path-not-read) 消息表示该路径是绝对路径或包含 `..`
 * **存在**：不存在的路径不加载，`/plugin` **Errors** 选项卡显示 `<component> path not found: <path>`。`claude plugin validate` 将其报告为 `Path not found`
 
 对于 `outputStyles`、`lspServers`、`monitors` 和 `themes` 路径，`claude plugin validate` 检查需要 Claude Code v2.1.283 或更高版本。

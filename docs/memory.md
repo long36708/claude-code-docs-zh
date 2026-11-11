@@ -163,7 +163,7 @@ CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 claude --add-dir ../shared-config
 
 内联形式为该单次启动在 Bash 或 Zsh 中设置变量。要为每个会话保持它，请将其添加到 `~/.claude/settings.json` 中的 `env` 块，如 [设置环境变量](https://code.claude.com/docs/zh-CN/env-vars.md#set-environment-variables) 中所示。
 
-这从其他目录加载 `CLAUDE.md`、`.claude/CLAUDE.md`、`.claude/rules/*.md` 和 `CLAUDE.local.md`。如果您从 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference) 中排除 `local`，则跳过 `CLAUDE.local.md`。
+设置该变量后，Claude Code 会加载其他目录中的 `CLAUDE.md`、`.claude/CLAUDE.md`、`CLAUDE.local.md` 和 `.claude/rules/*.md` 文件，但设置了 [`paths` 字段](#path-specific-rules) 的规则除外。如果您从 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference) 中排除 `local`，则跳过 `CLAUDE.local.md`。
 
 ### 使用 `.claude/rules/` 组织规则
 

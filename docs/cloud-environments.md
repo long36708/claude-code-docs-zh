@@ -37,7 +37,7 @@
 
 **Default** 本身不带有任何配置：
 
-* [**Trusted** 网络访问](#access-levels)：会话可以访问包注册表和其他[允许列表中的域](#default-allowed-domains)，但无法通过会话的网络访问其他任何内容。
+* [**Limited** 网络访问](#access-levels)：会话可以访问包注册表和其他[允许列表中的域](#default-allowed-domains)。
 * 无其他配置：**Default** 不定义任何环境变量或设置脚本，因此会话只以[预安装的工具](#installed-tools)开始。
 
 只有 **Default** 可用时，每个会话都在其中运行。当您有多个环境时，会话会按界面选择一个：
@@ -102,7 +102,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 * **Role**：在所有计划上，无论您的角色如何，您都可以在自己的环境中添加和删除机密。在 Team 和 Enterprise 上，所有者在您的 claude.ai 组织中持有组织管理员角色，管理员（Admin）不持有，这会改变您在以下情况下看到的内容：
   * **您自己的环境**：没有组织管理员角色时，**Add secret** 会打开一个[简化表单](#add-a-secret-without-the-role)
   * **共享环境**：所有者从管理设置中[添加和删除其机密](#add-a-credential)。没有组织管理员角色时，请让所有者添加机密，因为该环境的对话框中没有 **Network secrets** 部分
-* **Environment type**：一个已存在的 Anthropic 托管云环境。[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)没有网络机密
+* **Environment type**：Anthropic 托管的云环境。[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)没有网络机密
 * **API reachability**：API 接受来自互联网的连接，因为请求从 Anthropic 的网络发出
 * **Encryption keys**：如果您的组织使用客户管理的加密密钥，则无法保存网络机密
 
@@ -198,7 +198,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 ## 网络访问
 
-每个环境都设置一个网络访问级别，控制其会话可以进行的出站连接。默认级别 **Trusted** 允许包注册表和其他[允许列表中的域](#default-allowed-domains)；**Custom** 采用您自己的域列表。
+每个环境都设置一个网络访问级别，控制其会话可以进行的出站连接。新环境默认为 **Limited** 并勾选 **Allow package managers**，因此其会话可以访问包注册表和其他[允许列表中的域](#default-allowed-domains)。
 
 要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的控件出现在[Default 环境](#the-default-environment)下列出的应用使用入口上，以及[云端定时任务编辑器](https://code.claude.com/docs/zh-CN/routines.md#environments-and-network-access)中。个人环境在您的 claude.ai 账户设置中没有单独的页面。
 
@@ -210,14 +210,13 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 ### 访问级别
 
-**Network access** 字段在[环境对话框](#configure-your-environment)中采用以下四个级别之一：
+**Network access** 字段在[环境对话框](#configure-your-environment)中采用以下三个级别之一：
 
 | 级别 | 出站连接 |
 | :- | :- |
 | **None** | 通过会话的网络没有出站网络访问 |
-| **Trusted** | 仅限[允许列表中的域](#default-allowed-domains)：包注册表、GitHub、云 SDK |
+| **Limited** | 勾选 **Allow package managers** 时，包含包注册表、GitHub 和云 SDK 的[默认允许列表](#default-allowed-domains)，以及您[列出的任何域](#allow-specific-domains)。请参阅[被阻止的请求是什么样子](https://code.claude.com/docs/zh-CN/errors.md#host-not-allowed-in-a-cloud-session)。 |
 | **Full** | 任何域 |
-| **Custom** | 您自己的允许列表，可选择包含默认值 |
 
 无论您选择哪个级别，会话仍然可以访问这些，因为每一个都采用不经过会话的网络允许列表的路径：
 
@@ -226,9 +225,14 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 * 您在环境的[网络密钥](#add-network-secrets)上列出的主机，除了[永远不会获得该密钥的主机](#requests-that-never-get-the-credential)
 * Anthropic API，用于 Claude Code 自己的请求，即使在 **None** 下也是如此，如[安全性和隔离](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#security-and-isolation)下所述
 
+保存为 **Trusted** 或 **Custom** 的环境仍可访问相同的主机，并按以下方式打开：
+
+* **保存为 Trusted**：以 **Limited** 打开，并勾选 **Allow package managers**
+* **保存为 Custom**：以 **Limited** 打开，其 **Allowed domains** 列表和 **Allow package managers** 保持您的设置；如果列表包含单独的 `*`，则以 **Full** 打开
+
 ### 允许特定域
 
-要允许不在 Trusted 列表中的域，请在环境的网络访问设置中选择 **Custom**，然后在 **Allowed domains** 字段中每行列出一个域。此示例允许内部项目可能需要的三个主机。
+要允许不在[默认允许列表](#default-allowed-domains)中的域，请在环境的 **Network access** 选择器中选择 **Limited**，然后在 **Allowed domains** 字段中每行列出一个域。前导 `*.` 匹配每个子域。此示例允许内部项目可能需要的三个主机。
 
 ```text theme={null}
 api.example.com
@@ -236,14 +240,14 @@ api.example.com
 registry.example.com
 ```
 
-此环境中的会话现在可以访问 `api.example.com`、`internal.example.com` 的任何子域和 `registry.example.com`，但无法通过会话的网络访问其他域。[GitHub 流量](#github-proxy)、[MCP 连接器流量](#network-access)和对环境[网络密钥](#add-network-secrets)的主机的请求（除了[永远不会获得该密钥的主机](#requests-that-never-get-the-credential)）不经过此允许列表。前导 `*.` 匹配每个子域。要同时保留 [Trusted 域](#default-allowed-domains)，请勾选 **Also include default list of common package managers**；不勾选则只允许您列出的内容。
+勾选 **Allow package managers** 时，此环境中的会话除了可以访问您列出的域之外，还可以访问[默认允许列表](#default-allowed-domains)。清除该复选框可排除默认允许列表。[GitHub 流量](#github-proxy)、[MCP 连接器流量](#network-access)和对环境[网络密钥](#add-network-secrets)的主机的请求（除了[永远不会获得该密钥的主机](#requests-that-never-get-the-credential)）不经过此允许列表。
 
 如果您的组织使用 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#availability)，会话读取 Artifact 时不需要在列表中包含 `*.frame.claudeusercontent.com`。当列表中没有该主机时，Claude Code 通过会话与 Anthropic 的连接读取 Artifact 内容。在两种情况下保留允许列表中的主机：
 
 * **此环境中的会话打开另一个组织的公开 Artifact**：Claude Code 直接从主机获取这些 Artifact，因此将其添加到此列表。
 * **您正在配置本地 CLI 或自托管运行器**：在该允许列表中保留主机。请参阅[网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)和自托管[网络要求](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#network-requirements)。
 
-每个环境都有自己的允许域列表；没有组织级别的允许列表可供管理员推送到每个成员的环境。[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)也不会将域添加到环境的网络允许列表。要为团队提供一个标准列表，Owner 可以创建一个具有 **Custom** 网络访问和该列表的[组织共享环境](#organization-shared-environments)。
+每个环境都有自己的允许域列表；没有组织级别的允许列表可供管理员推送到每个成员的环境。[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)也不会将域添加到环境的网络允许列表。要为团队提供一个标准列表，Owner 可以创建一个具有 **Limited** 网络访问和该列表的[组织共享环境](#organization-shared-environments)。
 
 ### GitHub 代理
 
@@ -255,7 +259,7 @@ registry.example.com
 * **仓库范围**：代理为附加到会话的仓库处理 GitHub API 请求。针对其他仓库的 API 请求会收到 403，其消息以 `GitHub access to` 开头并包含 `is not enabled for this session`。当仓库未附加时，您通过 `github.com/{owner}/{repo}/archive/` 或 `codeload.github.com` URL 获取的源代码归档也会收到相同的 403，即使是公开仓库也是如此。
 * **GraphQL 限制**：代理会拒绝发往 GitHub GraphQL 端点的请求，返回 403，其消息以 `GitHub GraphQL is not available from Claude Code sessions` 开头，并指明 REST 回退方式 `gh api repos/{owner}/{repo}/...`。使用 GraphQL 的 `gh` 子命令（例如 `gh pr` 和 `gh issue`）也会收到相同的 403。无论您提供的凭据如何，限制都适用于通过代理的每个请求，因此您设置的 `GH_TOKEN` 会收到相同的 403。Claude 无法通过代理访问仅存在于 GraphQL 中的 GitHub API，例如 Projects v2。
 
-来自公开仓库的已提交文件通过 `raw.githubusercontent.com` 到达，改由[安全代理](#security-proxy)处理。该域在默认 [Trusted 列表](#default-allowed-domains)中，因此除非环境的[访问级别](#access-levels)排除它，否则这些文件保持可访问。
+来自公开仓库的已提交文件通过 `raw.githubusercontent.com` 到达，改由[安全代理](#security-proxy)处理。该域在[默认允许列表](#default-allowed-domains)中，因此只要环境的[网络访问](#access-levels)允许该列表，这些文件就保持可访问。
 
 ### 安全代理
 
@@ -391,7 +395,7 @@ service postgresql start
 service redis-server start
 ```
 
-Docker 可用于运行容器化服务。让 Claude 运行 `docker compose up` 以启动您项目的服务。拉取镜像的网络访问遵循您环境的[访问级别](#access-levels)，[Trusted 默认值](#default-allowed-domains)包括 Docker Hub 和其他常见注册表。
+Docker 可用于运行容器化服务。让 Claude 运行 `docker compose up` 以启动您项目的服务。拉取镜像的网络访问遵循您环境的[访问级别](#access-levels)，[默认允许列表](#default-allowed-domains)包括 Docker Hub 和其他常见注册表。
 
 如果您的镜像很大或拉取速度很慢，请将 `docker compose pull` 或 `docker compose build` 添加到您的[设置脚本](#setup-scripts)。[环境缓存](#environment-caching)保留拉取的镜像，因此每个新会话的磁盘上都有它们。缓存仅保存文件，不保存运行中的进程，因此 Claude 仍然在每个会话中启动容器。
 
@@ -445,7 +449,7 @@ apt update && apt install -y shellcheck
 
 * **以零退出**：如果脚本以非零状态退出，会话将[无法启动](https://code.claude.com/docs/zh-CN/web-quickstart.md#setup-script-failed)，或者在缺少脚本未能安装的内容的情况下启动。在非关键命令后附加 `|| true`，以便间歇性安装失败不会导致脚本失败。
 * **在五分钟内完成**：将脚本的总运行时间保持在大约五分钟以内，以便[环境缓存](#environment-caching)可以建立。当设置耗时超过五分钟时，环境不会被缓存。使用 `&` 和 `wait` 并行运行独立的安装，并将任何无法容纳的单个下载移至 [SessionStart hook](#setup-scripts-vs-sessionstart-hooks)，在后台启动它。如果新会话在设置期间停滞或失败，请参阅[新会话在设置期间挂起或超时](https://code.claude.com/docs/zh-CN/web-quickstart.md#new-sessions-hang-or-time-out-during-setup)。
-* **安装需要网络访问**：包安装需要连接到注册表。默认的 **Trusted** 级别涵盖[常见包注册表](#default-allowed-domains)，包括 npm、PyPI、RubyGems 和 crates.io；使用 **None** 网络访问时，安装会失败。
+* **安装需要网络访问**：包安装需要连接到注册表。在默认的 **Limited** 级别下勾选 **Allow package managers** 时，可访问[常见包注册表](#default-allowed-domains)，包括 npm、PyPI、RubyGems 和 crates.io。使用 **None** 网络访问时，安装会失败。
 * **环境的变量尚未设置**：脚本在会话设置环境的[环境变量](#set-environment-variables)之前运行。请在脚本本身中设置脚本所需的任何值。
 
 ### 环境缓存
@@ -541,7 +545,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 * **每个会话一个仓库**：在 Anthropic 托管环境中，具有多个仓库的会话不会从任何仓库的 `.claude/settings.json` 加载 hook，因此您在那里定义的 SessionStart hook 不会运行。请改为使用[设置脚本](#setup-scripts)为这些会话安装依赖项。对于自托管环境，请参阅[适用哪个仓库的设置](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories)。
 * **不适用于项目的云端线程**：[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)中的云端线程不会运行来自仓库 `.claude/settings.json` 的 hook，无论仓库数量多少。在 Anthropic 托管环境中，请使用[设置脚本](#setup-scripts)为线程安装依赖项。在自托管环境中，请改为使用[运行程序主机设置](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories)中的 hook。
 * **没有仅云端的范围**：hooks 在本地和云会话中都运行。要跳过本地运行，请在 `CLAUDE_CODE_REMOTE` 环境变量不为 `true` 时提前退出，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
-* **需要网络访问**：安装命令需要连接到包注册表。如果您的环境使用 **None** 网络访问，这些 hooks 会失败。**Trusted** 下的[默认允许列表](#default-allowed-domains)涵盖 npm、PyPI、RubyGems 和 crates.io。
+* **需要网络访问**：安装命令需要连接到包注册表。如果您的环境使用 **None** 网络访问，这些 hook 会失败。在默认的 **Limited** 级别下勾选 **Allow package managers** 时，[默认允许列表](#default-allowed-domains)涵盖 npm、PyPI、RubyGems 和 crates.io。
 * **代理兼容性**：在 Anthropic 托管环境中，所有出站流量都经过[安全代理](#security-proxy)，某些包管理器无法与此代理正确配合工作；Bun 是一个已知的例子。在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)中，出站流量改为经过您自己的网络边界。
 * **增加启动延迟**：hook 在每次会话启动或恢复时运行，不同于受益于[环境缓存](#environment-caching)的设置脚本。请通过跳过已完成的工作来保持安装脚本快速，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 
@@ -549,7 +553,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 
 ## 默认允许的域
 
-使用 **Trusted** 网络访问，会话默认可以访问以下域。标记为 `*` 的域表示通配符子域匹配，因此 `*.gcr.io` 允许 `gcr.io` 的任何子域。
+在 **Limited** 网络访问下勾选 **Allow package managers** 时（新环境中默认即为此状态），会话可以访问以下域。标记为 `*` 的域表示通配符子域匹配，因此 `*.gcr.io` 允许 `gcr.io` 的任何子域。
 
 > [accordion] Anthropic 服务
 >

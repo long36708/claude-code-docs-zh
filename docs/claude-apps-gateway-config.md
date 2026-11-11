@@ -59,7 +59,11 @@ Claude 应用网关部署由一个 YAML 文件配置，按惯例命名为 `gatew
 | `port` | 否 | 绑定端口。默认 `8080`。 |
 | `public_url` | 除非 `host` 是环回地址 | 外部可见的 `https://` 源，用于构建 IdP `redirect_uri` 和发现元数据。当 `host` 不是环回地址时需要，无论 TLS 是在代理（如 ALB、Ingress 或 Cloud Run）还是通过 `tls` 在网关本身终止，因为网关永远不会从 `X-Forwarded-*` 标头派生自己的源；这些标头可被客户端欺骗。没有它启动会失败。下面的 `trusted_proxies` 仅控制客户端 IP 解析。还需要启用[遥测](#telemetry)，因为网关从此 URL 构建它推送给客户端的 OTLP 端点。 |
 | `tls.cert` / `tls.key` | 否 | 如果网关自己终止 TLS，则为 PEM 路径 |
-| `trusted_proxies` | 否 | 网关前面的负载均衡器的 CIDR 或 IP。设置后，网关仅从这些对等方信任 `X-Forwarded-For`，并记录真实客户端 IP 用于按 IP 速率限制和审计。等同于 nginx `set_real_ip_from`。`X-Forwarded-For` 条目写成 `ipv4:port` 或 `[ipv6]:port`（如某些负载均衡器所做），读取时端口被丢弃。带有端口附加且无括号的 IPv6 地址可能被读取为不同的地址或根本不被读取，因此在任何写入该形式的代理上关闭端口选项。 |
+| `trusted_proxies` | 否 | 要信任的前端的 CIDR 或 IP。设置后，网关仅信任来自这些对端的 `X-Forwarded-For`，并记录真实客户端 IP，用于按 IP 的速率限制和审计。 |
+
+仅当某个前端传递的最后一个 `X-Forwarded-For` 条目不是由任何开发者写入的时，才将其列入 `trusted_proxies`。不要列出开发者连接时使用的任何地址或地址范围。为收到的每个连接追加其地址的前端符合条件。按开发者发送的原样传递该标头的前端则不符合条件。
+
+以 `ipv4:port` 或 `[ipv6]:port` 形式写入的 `X-Forwarded-For` 条目（某些负载均衡器会这样写）在读取时会去掉端口。附加了端口但没有方括号的 IPv6 地址可能被读取为另一个地址，或根本无法读取。请在任何写入该形式的代理上关闭端口选项。
 
 ### `oidc`
 
@@ -1659,7 +1663,7 @@ Claude Code 在直接导出信号之前会检查端点，检查失败时该信�
 
 这两种信号都使用网关解析得到的客户端地址。如果负载均衡器、端口转发或隧道中继了流量，但未列在 `listen.trusted_proxies` 中，网关看到的将是中继的地址（通常是私有地址），因此运行时警告和私有允许列表都无法捕获经由它中继的流量。
 
-在此类前端之后，请先设置 [`listen.trusted_proxies`](#listen)，使网关能看到真实的客户端地址，并且无论如何都要确保网关及其前面的所有组件无法从公网访问。
+如果该中转方[应列入 `listen.trusted_proxies`](#listen)，请将其列入。无论如何，都应确保网关及其前面的所有组件无法从公共互联网访问。
 
 ### `load_test_mode`
 

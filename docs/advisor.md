@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> 顾问工具是实验性的，需要 Anthropic API。它在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。行为、定价和可用性可能会改变。
+> 顾问工具是实验性的，需要 Anthropic API 或 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)。在 Claude Platform on AWS 上，需要 Claude Code v2.1.300 或更高版本。它在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。行为、定价和可用性可能会改变。
 
 顾问工具让 Claude 在任务期间的关键时刻咨询第二个通常更强大的模型，例如在提交方法之前、陷入重复错误时或在声明任务完成之前。顾问接收完整的对话，包括每个工具调用和结果，并返回 Claude 在继续之前应用的指导。
 
@@ -174,11 +174,10 @@ Claude 在决策点而不是每一轮都调用顾问，因此将更快的主模�
 
 ## 要求
 
-顾问工具需要以下所有条件：
-
-* **仅 Anthropic API**：顾问是服务器执行的工具。它在 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用。通过配置了 `ANTHROPIC_BASE_URL` 的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)，可用性取决于网关是否将请求完整转发到 Anthropic API。如果网关或其上游不识别顾问工具，请参阅[自动重试和错误转发](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#automatic-retry-and-error-forwarding)了解 Claude Code 如何响应。
+* **提供商**：Anthropic API 或 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)，而不是 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry。在 Claude Platform on AWS 上，顾问需要 Claude Code v2.1.300 或更高版本。
+* **LLM 网关**：通过配置了 `ANTHROPIC_BASE_URL` 的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)，可用性取决于网关是否将请求完整转发到 Anthropic API。如果网关或其上游不识别顾问工具，请参阅[自动重试和错误转发](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#automatic-retry-and-error-forwarding)了解 Claude Code 如何响应。
 * **支持的主模型**：Fable、Opus 4.6 或更高版本、Sonnet 4.6 或更高版本、Haiku 4.5 或 Haiku 5.5。请参阅[选择顾问模型](#choose-an-advisor-model)了解每个主模型接受哪些顾问。
-* **功能标志获取**：Claude Code 通过从 Anthropic 获取的功能标志来启用顾问。在设置了关闭标志获取的变量（例如 `DISABLE_TELEMETRY`）的会话中，顾问保持关闭状态。请参阅[需要功能标志获取的功能](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)。
+* **功能标志获取**：除非您使用的是 Claude Platform on AWS，否则顾问需要从 Anthropic 获取的功能标志。设置了关闭获取的变量（例如 `DISABLE_TELEMETRY`）的会话不会拥有该标志。要检查您的会话，请参阅[哪些会话会跳过获取或在没有该标志的情况下启动](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)。
 
 ## 关闭顾问
 

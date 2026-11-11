@@ -95,6 +95,8 @@ Hooks 使用与 `settings.json` 中相同的格式。
 
 要确认设置正在被应用，请要求用户重新启动 Claude Code。如果配置包含触发[安全批准对话框](#security-approval-dialogs)的设置，用户会在 Claude Code 下次获取它们时看到描述托管设置的提示：在下次启动时，或在运行的交互式会话中的一小时内。您还可以通过让用户运行 `/permissions` 来验证托管权限规则是否处于活动状态，以查看其有效的权限规则。
 
+在会话中，请让用户运行 `/status`。当服务器管理的设置生效时，[`Setting sources` 行](https://code.claude.com/docs/zh-CN/managed-settings#read-the-source-in-/status)会列出 `Enterprise managed settings`，并在括号中注明 `remote`。
+
 要检查特定机器上的获取结果，请让用户运行 `claude doctor` 并读取 `Managed settings (remote)` 行。需要 Claude Code v2.1.248 或更高版本。该行报告以下四种结果之一：
 
 * 传递的设置已加载
@@ -106,6 +108,45 @@ Hooks 使用与 `settings.json` 中相同的格式。
 
 在运行的会话中，`/status` 在获取失败后显示相同的行，对于某些跳过获取的原因，例如第三方提供商变量或用户 shell 中导出的自定义 `ANTHROPIC_BASE_URL`。
 
+### 为不同的组提供不同的设置
+
+在 Enterprise 计划中，您可以为每个成员组提供各自的配置，而不是使用一个组织范围的配置。如果您的组织已[启用 HIPAA](https://code.claude.com/docs/zh-CN/hipaa-setup.md)，则组配置暂不可用。每个组都必须已经存在，可以是通过 SCIM 从您的身份提供商同步的组，也可以是您在管理控制台中管理的自定义组。
+
+每个成员最多接收一个配置，并且在每台设备上都相同：
+
+* **属于某个有配置的组的成员**：其所属组中排名最高的配置
+* **其他任何人**，包括其唯一有配置的组已被删除的成员：通用配置（如果您设置了的话）
+
+各配置之间不会合并，也不会与组织范围的配置合并，因此每个配置都必须包含您希望该组拥有的所有设置。要对每个成员应用某项限制，请将其放入每个组配置以及通用配置中。
+
+在完成以下最后一个步骤之前，成员会继续接收组织范围的配置，因此您可以先设置并测试所有内容：
+
+**1. 为每个组添加配置**
+
+在 [**Organization settings > Claude Code > Managed settings**](https://claude.ai/admin-settings/claude-code) 中，点击 **Add configuration**，选择组，然后选择一个起点。要为某个组放宽策略，请选择由您的身份提供商同步的组，这样就没有人能在管理控制台中将自己添加到该组。
+
+要保留成员当前拥有的内容并更改少数设置，请从组织范围配置的副本开始。编辑该配置并保存。
+
+**2. 设置通用配置**
+
+在 **Everyone else** 上点击 **Set**，并为不匹配任何组配置的成员添加 JSON。要让他们保持当前拥有的内容，请粘贴您的组织范围配置。如果您跳过此步骤，他们的本地会话将不会接收任何服务器管理的设置，而设备上的任何[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)仍然适用。
+
+**3. 对组进行排名**
+
+拖动配置以调整顺序。属于多个组的成员只会接收排名最高的配置，因此请将限制最严格或最具体的组放在顶部。
+
+**4. 检查谁会获得什么**
+
+在页面底部的 **Check effective settings** 下，搜索某个成员以查看其将接收哪个配置。请分别检查每个组中的一个成员、属于多个组的一个成员，以及不匹配任何组配置的一个成员。
+
+**5. 切换到基于组的模式**
+
+点击页面顶部横幅中的 **Switch to group-based configurations** 并确认。成员会在大约一小时内接收其配置，但[仅在下次启动时生效的键](#fetch-and-caching-behavior)除外。要切换回去，请从同一横幅切换到组织范围模式：组织范围的配置将再次生效（如果您有的话），并且您的组配置会被保留。
+
+组的模型限制仅在本地会话中有效。云端和远程 Cowork 会话使用通用配置中的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 列表。如果您没有设置通用配置，该列表来自您的组织范围配置，即使在您切换到基于组的模式之后也是如此。如果您在通用配置中省略该键，则成员在这些会话中不受此列表限制。
+
+如果您使用组的配置来设置 API 请求的去向，这仅适用于 Claude Code，而不适用于调用该 API 的其他工具。
+
 ### 访问控制
 
 以下角色可以管理服务器管理的设置：
@@ -113,7 +154,7 @@ Hooks 使用与 `settings.json` 中相同的格式。
 * **Primary Owner**
 * **Owner**
 
-限制对受信任人员的访问，因为设置更改适用于组织中的所有用户。
+限制对受信任人员的访问，因为设置更改可能会适用于组织中的所有用户。
 
 ### 仅限托管的设置
 
@@ -123,7 +164,7 @@ Hooks 使用与 `settings.json` 中相同的格式。
 
 服务器管理的设置有以下限制：
 
-* 设置统一应用于组织中的所有用户。尚不支持按组配置。
+* 在 Team 计划中，设置统一应用于组织中的所有用户。[组配置](#give-groups-different-settings)需要 Enterprise 计划。
 * 您无法通过服务器管理的设置分发 [`managed-mcp.json`](https://code.claude.com/docs/zh-CN/managed-mcp) 文件。改为在那里传递 `allowedMcpServers` 和 `deniedMcpServers` 策略键。在 Claude Code v2.1.259 或更高版本上，您还可以通过 [`managedMcpServers`](https://code.claude.com/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings) 提供远程服务器，它仅接受 `http` 和 `sse` 服务器，并且不会像文件那样获得独占控制。
 
   Claude Code 在其[系统路径](https://code.claude.com/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json)处部署的 `managed-mcp.json` 与托管设置层分开读取，因此当服务器管理的设置生效时，该文件仍然适用。
@@ -247,7 +288,7 @@ Claude Code 会将大多数设置更新应用到正在运行的会话中，无�
 * 如果网关对有人值守的交互式启动返回 `401`，且此设置处于关闭状态，则表示网关已结束该登录。Claude Code 会打印 [`Cloud gateway session expired — run /login to reconnect.`](https://code.claude.com/docs/zh-CN/errors#cloud-gateway-session-expired)，并在用户运行 `/login` 之前以未登录网关的状态打开会话。
 * 当获取以任何其他方式失败时，或在除 `claude auth` 子命令之外的任何其他类型的启动中，客户端会报错退出。
 
-当此设置在获取服务器托管设置的会话中生效时，CLI 会在启动时阻塞，直到重新获取远程设置。如果获取失败，CLI 会退出，而不是在没有策略的情况下继续。此设置具有自我延续性：一旦从服务器下发，它也会被缓存到本地，这样后续启动即使在新会话首次成功获取之前也会执行相同的行为。[不获取服务器托管设置](#platform-availability)的会话会直接启动，无需等待。
+当此设置在获取服务器托管设置的会话中生效时，CLI 会在启动时阻塞，直到重新获取远程设置。如果获取失败，CLI 会退出，而不是在没有策略的情况下继续。[不获取服务器托管设置](#platform-availability)的会话会直接启动，无需等待。
 
 要启用此功能，请将该键添加到您的托管设置配置中：
 
@@ -258,6 +299,8 @@ Claude Code 会将大多数设置更新应用到正在运行的会话中，无�
 ```
 
 您也可以在[端点托管](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)的 MDM 配置描述文件或系统 `managed-settings.json` 文件中设置此键，以便在任何服务器负载到达之前、在首次启动时就执行失败即关闭的行为。此标志是上述[优先级规则](#settings-precedence)的一个例外：当任何由管理员控制的托管来源设置了它时，即使同时存在缓存的服务器托管负载，Claude Code 也会遵循它，因此当存在服务器托管设置时，它不会忽略通过 MDM 下发的值。
+
+在后续启动时，Claude Code 会从缓存的设置中读取服务器下发的值，因此该设置在新会话首次获取之前就已生效。要在不依赖缓存副本的情况下保持该设置生效，请同时在端点托管来源中设置此键。
 
 当 [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper) 提供托管设置时，对于 Claude Code 在启动后读取的键，其输出会取代所有其他托管来源。有关 Claude Code 从哪些来源读取此键，请参阅[其设置条目](https://code.claude.com/docs/zh-CN/settings-reference.md#forceremotesettingsrefresh)。`policyHelper` 条目说明了 Claude Code 从哪些来源读取该 helper 以及它何时运行。
 

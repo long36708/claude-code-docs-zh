@@ -378,7 +378,7 @@ Claude Code 默认缓存助手的输出五分钟，并在缓存生命周期过�
 设置该变量具有以下效果和限制：
 
 * 它禁用自动更新，因此请为另一个更新路径做计划，例如您的包管理器或托管分发。
-* 它抑制 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md) 可用性检查。除非之前的检查已在机器上启用了 fast mode，否则 `/fast` 报告 fast mode 不可用。
+* 它抑制[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)可用性检查。在 Anthropic API 上，如果 `/fast` 随后报告快速模式不可用，请参阅[在代理和 LLM 网关后使用快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-behind-proxies-and-llm-gateways)以恢复快速模式。
 * 它不影响[网关模型发现](#add-gateway-models-to-the-model-picker)，它仅查询您的网关。在 v2.1.257 之前，该变量也停止了发现刷新，因此选择器保留了之前缓存的列表。
 * WebFetch 工具的[域安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)不受影响，仍然调用 `api.anthropic.com`。如果您的网络阻止该主机，请在[设置](https://code.claude.com/docs/zh-CN/settings.md)中使用 `skipWebFetchPreflight: true` 单独关闭它。
 * 对于每个遥测流及控制它的变量，请参阅[遥测服务](https://code.claude.com/docs/zh-CN/data-usage.md#telemetry-services)。

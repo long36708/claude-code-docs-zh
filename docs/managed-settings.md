@@ -52,7 +52,7 @@
 * **交付控制**：[`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper)、[`wslInheritsWindowsSettings`](https://code.claude.com/docs/zh-CN/settings-reference#wslinheritswindowssettings) 和 [`managedSourcesBehavior`](https://code.claude.com/docs/zh-CN/settings-reference#managedsourcesbehavior)
 * **网关登录密钥**：[`forceLoginGatewayUrl`](https://code.claude.com/docs/zh-CN/settings-reference#forcelogingatewayurl)、[`gatewayInternalNetworks`](https://code.claude.com/docs/zh-CN/settings-reference#gatewayinternalnetworks) 和 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值
 
-托管设置文件、MDM 配置文件或 claude.ai 控制台对其到达的每个人应用一个策略。要为一组开发者提供不同的策略，请将不同的文件或配置文件部署到该组；claude.ai 控制台[还不能针对一个组](https://code.claude.com/docs/zh-CN/server-managed-settings.md#current-limitations)，而自托管[Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)按 IdP 组交付托管设置。
+使用托管设置文件或 MDM 配置文件时，其覆盖到的每个人都会获得同一个策略。要为一组开发者提供不同的策略，请将不同的文件或配置文件部署到该组。在 Enterprise 计划中，您还可以在服务器托管设置中[为每个组提供各自的配置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#give-groups-different-settings)。自托管 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)按 IdP 组交付托管设置。
 
 当多个机制向同一台机器交付策略时，Claude Code 默认使用一个并忽略其他的。[Claude Code 如何组合托管源](#how-claude-code-combines-managed-sources)给出了顺序和适用于每个源的选择加入。
 

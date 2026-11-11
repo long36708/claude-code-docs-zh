@@ -111,7 +111,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 * **Environment variables**：提供 Claude 在每次运行期间可以使用的值。它们[对使用该环境的任何人都可见](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)，因此在 Anthropic 托管的环境中，请改为将 Claude 在运行期间调用的 API 的密钥存储为[网络密钥](https://code.claude.com/docs/zh-CN/cloud-environments.md#add-network-secrets)。该部分还列出了永远不会获得密钥的请求
 * **Setup script**：安装任务所需的依赖和工具。结果会被[缓存](https://code.claude.com/docs/zh-CN/cloud-environments.md#environment-caching)，因此脚本不会在每个会话中重新运行
 
-系统提供了一个 **Default** 环境，具有 **Trusted** 网络访问，仅允许[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)中的包注册表、云提供商 API、容器注册表和常见开发域名通过会话的网络。您添加到任务中的连接器通过 Anthropic 的服务器访问其服务，因此无需更改允许列表。
+系统提供了一个 **Default** 环境，具有 **Limited** 网络访问，并勾选了 **Allow package managers**。其运行可以访问[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)：包注册表、云提供商 API、容器注册表和常见开发域名。您添加到任务中的连接器通过 Anthropic 的服务器访问其服务，因此无需更改允许列表。
 
 如果您的任务需要直接访问您自己的服务或该列表之外的域名，请在运行前编辑环境的[网络访问](https://code.claude.com/docs/zh-CN/cloud-environments.md#network-access)。要使用单独的环境，请先[创建一个](https://code.claude.com/docs/zh-CN/cloud-environments.md#configure-your-environment)。
 
@@ -431,7 +431,7 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 
 每个定时任务都使用一个[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)，用于控制网络访问、环境变量和设置脚本。任务在每次运行时都会继承该环境的网络策略。
 
-**Default** 环境使用 **Trusted** 网络访问，仅允许[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)中的主机通过会话的网络。通过该路径向允许列表以外主机发出的请求会失败，并返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP 连接器流量通过 Anthropic 的服务器路由，而不经过该路径，因此您添加到任务中的连接器无需将其主机添加到 **Allowed domains** 即可正常工作。请在[连接器](#connectors)下移除您不需要的任何连接器。
+**Default** 环境使用 **Limited** 访问并勾选了 **Allow package managers**，因此其运行可以访问[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)中的主机。向被阻止的主机发出的请求会失败，并返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP 连接器流量通过 Anthropic 的服务器路由，因此您添加到任务中的连接器无需将其主机添加到 **Allowed domains** 即可正常工作。请在[连接器](#connectors)下移除您不需要的任何连接器。
 
 要在您自己的某个环境中允许更多域名，请按照以下步骤操作。[组织共享环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)在此处以只读方式打开，因此需要由 Owner 在[管理设置](https://claude.ai/admin-settings)的 **Cloud environments** 页面中更改其网络访问。
 
@@ -447,9 +447,9 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 
 将鼠标悬停在列表中的环境上，然后点击右侧出现的设置图标。
 
-**4. 更改网络访问级别**
+**4. 添加域名**
 
-在 **Edit cloud environment** 对话框中，将 **Network access** 更改为 **Custom**，并在 **Allowed domains** 中输入您的域名。勾选 **Also include default list of common package managers**，以便在自定义域名之外保留[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)。如需不受限制的访问，请改为选择 **Full**。
+在 **Edit cloud environment** 对话框中，在 **Network access** 下选择 **Limited**，并在 **Allowed domains** 中输入您的域名。勾选 **Allow package managers**，以便在您自己的域名之外同时允许[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)。如需不受限制的访问，请改为选择 **Full**。
 
 **5. 保存**
 

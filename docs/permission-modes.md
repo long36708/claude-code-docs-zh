@@ -25,7 +25,7 @@
 
 审查每项操作的模式在 CLI 中名为 **Manual**，在 `claude --help` 中、在 VS Code 和 JetBrains 扩展中以及在桌面应用中也是如此。其配置值是 `default`，这是 hook 和 SDK 集成使用的。CLI 在您输入值的任何地方接受 `manual` 作为别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。
 
-对 [受保护路径](#protected-paths) 的写入永远不会自动批准，除非在 `bypassPermissions` 模式下以及在 plan 模式会话中，其中绕过权限可用，意味着会话以 [将 `bypassPermissions` 放入模式循环](#switch-permission-modes) 的方式启动。
+每种模式对写入 [受保护路径](#protected-paths) 都有各自的规则。
 
 模式设置基线。在顶部分层 [权限规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions) 以预批准或阻止特定工具。拒绝规则在每种模式下都会阻止，包括 `bypassPermissions`。拒绝和询问规则不适用于 [`EndConversation`](https://code.claude.com/docs/zh-CN/tools-reference#endconversation-tool-behavior)，只要 Claude 仍然至少有一个其他工具可以调用。允许规则在 `bypassPermissions` 中无效。
 
@@ -686,6 +686,8 @@ Claude Code 在您使用 [`--restricted`](https://code.claude.com/docs/zh-CN/cli
 * **如果您接受**：Claude Code 在 `~/.claude/settings.json` 中将 `skipDangerousModePermissionPrompt` 设置为 `true`，因此后续会话会跳过对话框。要再次看到对话框，请从该文件中删除该键或将其设置为 `false`。[`skipDangerousModePermissionPrompt` 参考](https://code.claude.com/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)列出了您或您的组织可以设置它的其他设置文件。
 * **如果您拒绝**：Claude Code 退出。
 
+如果您传递的 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 不包含 `user`，即使您之前已接受，对话框也可能再次出现。要跳过它，请添加 `user`，例如 `--setting-sources user,project`。
+
 在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中不显示对话框。
 
 当您的接受记录在用户设置或托管设置中时，[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)会遵循该接受：
@@ -728,13 +730,13 @@ Bypass permissions was requested at launch and ignored · if that was you, ~/.cl
 
 ## 受保护的路径
 
-对一小组路径的写入永远不会自动批准，唯一的例外是 `bypassPermissions` 模式，以及可使用[绕过权限](#skip-all-checks-with-bypasspermissions-mode)的 plan 模式交互式终端会话。这可以防止意外损坏存储库状态和 Claude 自己的配置。
+一小组路径保存着仓库状态和 Claude 自己的配置，因此每种模式对写入这些路径都有各自的规则：
 
 | 模式 | 受保护路径写入 |
 | :- | :- |
 | `default`、`acceptEdits` | 提示 |
 | `plan` | 在[绕过权限](#skip-all-checks-with-bypasspermissions-mode)可用的交互式终端会话中允许。否则，当[自动模式](#eliminate-prompts-with-auto-mode)在规划期间可用时路由到分类器，当它不可用时提示 |
-| `auto` | 路由到分类器 |
+| `auto` | 路由到分类器，由分类器决定 |
 | `dontAsk` | 拒绝 |
 | `bypassPermissions` | 允许 |
 

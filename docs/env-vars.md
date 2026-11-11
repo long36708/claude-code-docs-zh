@@ -204,7 +204,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_ARTIFACT_AUTO_OPEN` | 设置为 `0` 可阻止 Claude Code 在发布新的 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#create-an-artifact) 时自动打开浏览器 |
 | `CLAUDE_CODE_ARTIFACT_COMMENTS` | 设置为 `0` 可阻止 Claude 读取和回复 [Artifact 上的评论](https://code.claude.com/docs/zh-CN/artifacts.md#collect-comments-on-an-artifact)。当 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 已[关闭 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#availability) 时不起作用。需要 Claude Code v2.1.221 或更高版本 |
 | `CLAUDE_CODE_ARTIFACT_COMMENTS_AUTOREACT` | 设置为 `0` 可阻止 Claude [自行回复发送给它的评论](https://code.claude.com/docs/zh-CN/artifacts.md#let-claude-reply-to-comments-on-its-own)。需要 Claude Code v2.1.228 或更高版本 |
-| `CLAUDE_CODE_ARTIFACT_PUBLISH_EDITS` | 设置为 `0` 可阻止 Claude 在发布 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#update-an-artifact) 时对其文件应用小的更改。Claude 随后会使用其文件编辑工具编辑文件，并作为单独的步骤发布。需要 Claude Code v2.1.300 或更高版本 |
+| `CLAUDE_CODE_ARTIFACT_PUBLISH_EDITS` | 设为 `0` 可阻止 Claude 在发布 Artifact 的过程中对其文件[应用小的更改](https://code.claude.com/docs/zh-CN/artifacts.md#turn-off-one-step-artifact-updates)。Claude 随后会使用其文件编辑工具编辑该文件，并作为单独的步骤发布。需要 Claude Code v2.1.300 或更高版本 |
 | `CLAUDE_CODE_ATTRIBUTION_HEADER` | 设置为 `0` 可从系统提示词开头省略[归属块](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#system-prompt-attribution-block)，该块包含客户端版本和提示词指纹。无论哪种方式，直接连接到 Anthropic API 时的缓存都不受影响。在某些直接连接设置中，即使您设置了 `0`，Claude Code 也会在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器请求中保留该块。请在[系统提示词归属块](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#system-prompt-attribution-block)中查看此情况涵盖哪些连接和凭据。在 v2.1.181 之前，该块在自定义基础 URL 和 Microsoft Foundry 连接上包含一个按请求变化的 token，因此在这些版本上，当您的 LLM 网关基于请求体进行缓存或将请求转发给第三方提供商时，或者当您直接连接到 Microsoft Foundry 时，请将其设置为 `0` |
 | `CLAUDE_CODE_AUTO_BACKGROUND_WORKER_CHECKIN_SECONDS` | 已在 v2.1.283 中移除。请改用 `CLAUDE_CODE_WORKER_CHECKIN_SCHEDULE` |
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | 设置自动压缩窗口，即上下文填充到多满时进行压缩，范围为 `100000` 到 `1000000` 个 token。带后缀的值（如 `200k`）需要 v2.1.304 或更高版本。关于它与设置该窗口的其他方式之间的优先级，以及它对状态栏 `used_percentage` 的影响，请参阅[设置自动压缩窗口](https://code.claude.com/docs/zh-CN/model-config.md#set-the-auto-compact-window) |
@@ -248,6 +248,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | 设置为 `1` 可从 API 请求中移除预发布的 `anthropic-beta` 请求标头、与其配对的请求体字段，以及 `defer_loading` 和 `eager_input_streaming` 等 beta 工具架构字段。当代理网关因 `anthropic-beta` 标头返回 `Unexpected value(s)` 错误或返回 `Extra inputs are not permitted` 错误而拒绝请求时使用。[禁用预发布功能](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#disable-pre-release-capabilities)列出了该变量移除的内容（包括 [MCP 工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)）以及 Claude Code 仍会发送的内容 |
 | `CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS` | 设置为 `1` 可禁用内置的 [Explore 和 Plan 子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#built-in-subagents)。Claude 会改用其搜索工具或 general-purpose 子代理进行探索，[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)会直接读取文件，而不是启动 Explore 和 Plan Agent。名为 `Explore` 或 `Plan` 的自定义子代理不受影响。若要在 Agent SDK 或非交互模式下移除所有内置子代理类型，请改用 `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS`。需要 Claude Code v2.1.198 或更高版本 |
 | `CLAUDE_CODE_DISABLE_FAST_MODE` | 设置为 `1` 可禁用[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md) |
+| `CLAUDE_CODE_DISABLE_FEATURE_FLAGS` | 设置为 `1` 可关闭功能标志获取。需要 Claude Code v2.1.319 或更高版本。设置此变量后，[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#requirements) 和其他[需要获取功能标志的功能](#features-that-need-feature-flag-fetching)将不可用。除非同时设置了 `DISABLE_TELEMETRY`，否则遥测事件日志记录保持开启。旧名称 `DISABLE_GROWTHBOOK` 仍然有效，并且它是 v2.1.124 至 v2.1.318 唯一读取的名称 |
 | `CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY` | 设置为 `1` 可禁用 "How is Claude doing?" 会话质量调查。当设置了 `DISABLE_TELEMETRY`、`DO_NOT_TRACK` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 时，调查也会被禁用，除非 `CLAUDE_CODE_ENABLE_FEEDBACK_SURVEY_FOR_OTEL` 重新选择启用。若要设置采样率而不是完全禁用，请使用 [`feedbackSurveyRate`](https://code.claude.com/docs/zh-CN/settings-reference#feedbacksurveyrate) 设置。请参阅[会话质量调查](https://code.claude.com/docs/zh-CN/data-usage.md#session-quality-surveys) |
 | `CLAUDE_CODE_DISABLE_FILE_CHECKPOINTING` | 设置为 `1` 可禁用文件[检查点功能](https://code.claude.com/docs/zh-CN/checkpointing.md)。`/rewind` 命令将无法恢复代码更改。覆盖 [`fileCheckpointingEnabled`](https://code.claude.com/docs/zh-CN/settings-reference#filecheckpointingenabled) 设置 |
 | `CLAUDE_CODE_DISABLE_FILE_MENTIONS` | 设置为 `1` 可阻止 Claude Code 展开文件和目录的 [`@` 提及](https://code.claude.com/docs/zh-CN/common-workflows#reference-files-and-directories)。Claude 会改为获得所提及的路径，并附带一条让其使用文件工具读取这些路径的说明。在[项目和本地设置](https://code.claude.com/docs/zh-CN/settings-reference.md#variables-claude-code-ignores-in-env)中会被忽略。需要 Claude Code v2.1.299 或更高版本 |
@@ -451,7 +452,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `DISABLE_ERROR_REPORTING` | 设置为任意非空值（例如 `1`）可选择退出错误报告。与大多数开/关变量不同，**将其设置为 `0` 或 `false` 仍会选择退出**；取消设置该变量即可重新开启错误报告 |
 | `DISABLE_EXTRA_USAGE_COMMAND` | 设置为 `1` 可隐藏允许用户购买超出速率限制的额外用量的 `/usage-credits` 命令 |
 | `DISABLE_FEEDBACK_COMMAND` | 设置为 `1` 可禁用 `/feedback` 命令和 [Claude 起草的反馈](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)。同时还会禁用通过同一路径报告的 `/bug` 和 `/share`；在 v2.1.212 之前，它们是 `/feedback` 的别名，因此该命令在所有名称下都会被禁用。也接受旧名称 `DISABLE_BUG_COMMAND` |
-| `DISABLE_GROWTHBOOK` | 设置为 `1` 或 `true` 可禁用功能标志获取，并对每个标志使用代码中的默认值。这会使 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#requirements) 以及其他[需要获取功能标志的功能](#features-that-need-feature-flag-fetching)不可用。设置为 `0` 或 `false` 会保持获取开启。除非同时设置了 `DISABLE_TELEMETRY`，否则遥测事件日志记录保持开启 |
+| `DISABLE_GROWTHBOOK` | 设置为 `1` 可关闭[功能标志获取](#features-that-need-feature-flag-fetching)。需要 Claude Code v2.1.124 或更高版本。已被 `CLAUDE_CODE_DISABLE_FEATURE_FLAGS` 取代，后者需要 v2.1.319 或更高版本：请使用该名称，除非有运行 v2.1.318 或更早版本的机器读取该配置。此名称仍然有效 |
 | `DISABLE_INSTALLATION_CHECKS` | 设置为 `1` 可禁用安装警告。仅在手动管理安装位置时使用，因为这可能会掩盖标准安装中的问题 |
 | `DISABLE_INSTALL_GITHUB_APP_COMMAND` | 设置为 `1` 可隐藏 `/install-github-app` 命令。使用第三方提供商（Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry）时已默认隐藏 |
 | `DISABLE_INTERLEAVED_THINKING` | 设置为 `1` 可阻止发送 interleaved-thinking beta 标头。适用于您的 LLM 网关或提供商不支持[交错思考](https://platform.claude.com/docs/en/build-with-claude/extended-thinking#interleaved-thinking)的情况 |
@@ -569,20 +570,20 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 
 Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在以下会话中，Claude Code 会跳过该获取操作：
 
-* 设置了 `DISABLE_GROWTHBOOK`、`DISABLE_TELEMETRY`、`DO_NOT_TRACK` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的会话；[变量表](#variables)中每个变量所在的行说明了哪些值会关闭获取
+* 设置了 `CLAUDE_CODE_DISABLE_FEATURE_FLAGS`、`DISABLE_TELEMETRY`、`DO_NOT_TRACK` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的会话；[变量表](#variables)中每个变量所在的行说明了哪些值会关闭获取
 * 使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)（例如 Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 或 Microsoft Foundry）的会话，除非嵌入 Claude Code 的宿主平台设置了 `CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`
 * [Claude apps 网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)会话
 
 关闭获取后，您将无法：
 
-* 在设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 或 `DISABLE_GROWTHBOOK` 的情况下使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)。关于 `DISABLE_TELEMETRY` 和 `DO_NOT_TRACK`，请参阅 [Remote Control 要求](https://code.claude.com/docs/zh-CN/remote-control.md#requirements)
+* 在设置了 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 或 [`CLAUDE_CODE_DISABLE_FEATURE_FLAGS`](#variables) 的情况下使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)。关于 `DISABLE_TELEMETRY` 和 `DO_NOT_TRACK`，请参阅 [Remote Control 要求](https://code.claude.com/docs/zh-CN/remote-control.md#requirements)
 * 在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#requirements) 不可用时[向本机以外的会话发送消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-sessions-on-other-machines)。关闭获取后，本机上会话之间的消息传递仍可正常工作
 * 运行 [`claude import` 或 `/import` 命令](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands)
 * 运行 [`/skill-doctor`](https://code.claude.com/docs/zh-CN/skills#find-unused-skills) 或在 `/plugin` 的 **Stats** 选项卡中打开其报告
 * 在 Pro、Max 和 Ultra 计划中运行 [`/restart`](https://code.claude.com/docs/zh-CN/commands)
 * 将您的 claude.ai 账户中启用的 [skill](https://code.claude.com/docs/zh-CN/skills.md#where-synced-skills-load) 和[插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)同步到终端会话中
 * 启用 [You should know mod](https://code.claude.com/docs/zh-CN/interactive-mode.md#you-should-know-suggestions)
-* 使用 [advisor 工具](https://code.claude.com/docs/zh-CN/advisor.md#requirements)
+* 使用 [advisor 工具](https://code.claude.com/docs/zh-CN/advisor.md#requirements)，但在 Claude Platform on AWS 上使用 Claude Code v2.1.300 或更高版本时除外
 * 使用 [MCP 任务](https://code.claude.com/docs/zh-CN/mcp.md#mcp-tasks-that-run-on-the-server)
 * 阅读或回复 [Artifact 上的评论](https://code.claude.com/docs/zh-CN/artifacts.md#collect-comments-on-an-artifact)
 * 让 Claude 读取[其他组织的公开 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you)

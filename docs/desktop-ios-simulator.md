@@ -8,7 +8,7 @@
 
 > [!NOTE]
 >
-> iOS Simulator 窗格在 macOS 上的 Claude Code Desktop 中处于公开测试版。它在 Pro、Max、Ultra、Team 和 Enterprise 计划中可用，但在启用了 HIPAA 配置的 Enterprise 组织中不可用。
+> iOS Simulator 窗格在 macOS 上的 Claude Code Desktop 中处于公开测试版。它在 Pro、Max、Ultra、Team 和 Enterprise 计划中可用，但在启用了 HIPAA 配置的 Enterprise 组织中不可用。如果您使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)，则无法使用此功能。
 
 iOS Simulator 窗格在 Claude Code Desktop 中的对话旁边显示你的应用在 Apple 的 iOS Simulator 中运行。当 Claude 在模拟器中构建、安装、启动或检查你的应用时，该窗格会自动打开并实时流式传输设备屏幕。使用它来观看 Claude 运行和测试你的应用，或者在 Claude 继续工作时自己点击浏览应用。
 
@@ -147,7 +147,7 @@ Claude 可能没有识别出你想要运行或测试应用，或者模拟器工�
 * 明确说明目标，例如"在 iOS Simulator 中运行应用并点击浏览注册流程"。
 * 确认 Xcode 和 iOS 模拟器已安装，并且你的 Xcode 版本符合[要求](#requirements)。
 * 如果你的组织管理 Claude Code，[模拟器工具可能被策略禁用](#turn-off-simulator-access)。
-* 如果你在启用了 HIPAA 配置的 Enterprise 组织中，模拟器窗格对你不可用。
+* 如果您在启用了 HIPAA 配置的 Enterprise 组织中，或者您使用的是[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)，模拟器窗格对您不可用。
 * 模拟器窗格需要 Claude Desktop v1.24012.0 或更高版本。打开 **Claude > Check for Updates…**，然后重启应用。
 
 ### 模拟器窗格显示未找到模拟器

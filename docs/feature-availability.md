@@ -93,7 +93,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✓（Opus 5 和 4.8 需要预配置）</td>
       <td>✗</td>
       <td>✗</td>
-      <td>✗</td>
+      <td>✓（[Fable 5.2，有条件](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-on-agent-platform)）</td>
       <td>✗</td>
     </tr>
 
@@ -112,7 +112,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✓</td>
       <td>✓</td>
       <td>✗</td>
-      <td>✗</td>
+      <td>✓（Claude Code v2.1.300 或更高版本）</td>
       <td>✗</td>
       <td>✗</td>
     </tr>
@@ -221,7 +221,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 > [!NOTE]
 >
-> 如果您通过 [LLM gateway](https://code.claude.com/docs/zh-CN/llm-gateway) 进行身份验证，功能可用性与网关转发到的基础提供商相匹配，除了 Claude Code 本身关闭的功能。每当 `ANTHROPIC_BASE_URL` 指向 `api.anthropic.com` 以外的主机时，Claude Code 会关闭功能，例如 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#requirements) 和 [server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)，无论网关转发什么。某些仅限 Anthropic 的功能，例如 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md)，仅在网关将请求完整转发到 Anthropic API 时才有效。
+> 如果您通过 [LLM gateway](https://code.claude.com/docs/zh-CN/llm-gateway) 进行身份验证，功能可用性与网关转发到的基础提供商相匹配，除了 Claude Code 本身关闭的功能。每当 `ANTHROPIC_BASE_URL` 指向 `api.anthropic.com` 以外的主机时，Claude Code 会关闭功能，例如 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#requirements) 和 [server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)，无论网关转发什么。某些功能，例如 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md#requirements)，仅在网关完整转发请求时才有效。
 >
 > 有关 Claude Code 发送的请求在 Amazon Bedrock 或 Agent Platform 格式网关、`ANTHROPIC_BASE_URL` 网关和 Claude apps gateway 登录之间如何不同，请参阅[按连接方法的客户端行为](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#how-the-connection-method-changes-client-behavior)。
 
@@ -244,9 +244,9 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 > [tab] Claude Platform on AWS
 >
-> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 >
-> **Amazon Bedrock 不可用的地方可用：** [web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)。
+> **Amazon Bedrock 不可用的地方可用：** [web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)，以及 Claude Code v2.1.300 或更高版本中的 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md)。
 >
 > **部分支持：**
 >
@@ -256,12 +256,13 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 > [tab] Google Cloud's Agent Platform
 >
-> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 >
 > **部分支持：**
 >
 > * [Desktop](https://code.claude.com/docs/zh-CN/desktop.md)：通过[托管设置](https://claude.com/docs/third-party/claude-desktop/configuration)或 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)
 > * [Web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)：Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型
+> * [Fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-on-agent-platform)：`global`、`us` 和 `eu` 区域中的 Fable 5.2；如果 Agent Platform 拒绝快速模式，则使用标准速度
 > * [Auto mode](https://code.claude.com/docs/zh-CN/auto-mode-config.md)：仅 Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
 > * [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
 > * [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md)：受您的 Google Cloud 协议约束

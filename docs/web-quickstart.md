@@ -80,7 +80,7 @@ Claude Code 在任何地方的行为都相同。改变的是会话运行的位�
 * **Pro、Max 和 Ultra**：您会自动获得一个名为**Default**的环境。
 * **Team 和 Enterprise**：入门流程显示**Create your first cloud environment**表单。保持预填充的名称和网络访问不变，然后单击**Create & finish**以创建**Default**环境。如果所有者已打开[Quick setup](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#quick-setup-for-team-and-enterprise)，入门流程会为您创建**Default**。
 
-**Default** 使用[`Trusted` 网络访问](https://code.claude.com/docs/zh-CN/cloud-environments#access-levels)：会话可以访问[常见包注册表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)和其他允许列表中的域，以及通过会话网络的其他任何内容都无法访问。有关无需任何配置即可使用的内容，请参阅[已安装的工具](https://code.claude.com/docs/zh-CN/cloud-environments.md#installed-tools)。
+**Default** 使用[**Limited** 网络访问](https://code.claude.com/docs/zh-CN/cloud-environments.md#access-levels)：会话可以访问[常见包注册表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)和其他允许列表中的域。有关无需任何配置即可使用的内容，请参阅[已安装的工具](https://code.claude.com/docs/zh-CN/cloud-environments.md#installed-tools)。
 
 对于第一个项目，**Default** 环境可以按原样使用。要更改其网络访问、添加环境变量或在会话启动前运行[设置脚本](https://code.claude.com/docs/zh-CN/cloud-environments.md#setup-scripts)，请[编辑它或创建其他环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#configure-your-environment)。
 
@@ -116,7 +116,9 @@ gh auth login
 /web-setup
 ```
 
-确认提示以将您的 `gh` 令牌发送到您的 Claude 账户。成功后，Claude Code 打印 `Connected as <your-github-username>` 并在您的浏览器中打开 [claude.ai/code](https://claude.ai/code)。如果您还没有云环境，`/web-setup` 会创建一个具有 Trusted 网络访问且没有设置脚本的环境。您可以[稍后编辑环境或添加变量](https://code.claude.com/docs/zh-CN/cloud-environments.md#configure-your-environment)。`/web-setup` 完成后，您可以使用 [`--cloud`](https://code.claude.com/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 从终端启动云会话，或使用 [`/schedule`](https://code.claude.com/docs/zh-CN/routines) 设置定期任务。
+确认提示以将您的 `gh` 令牌发送到您的 Claude 账户。成功后，Claude Code 打印 `Connected as <your-github-username>` 并在您的浏览器中打开 [claude.ai/code](https://claude.ai/code)。
+
+如果您还没有云环境，`/web-setup` 会创建一个具有默认 **Limited** 网络访问且没有设置脚本的环境。您可以[稍后编辑环境或添加变量](https://code.claude.com/docs/zh-CN/cloud-environments.md#configure-your-environment)。`/web-setup` 完成后，您可以使用 [`--cloud`](https://code.claude.com/docs/zh-CN/claude-code-on-the-web#from-terminal-to-cloud) 从终端启动云端会话，或使用 [`/schedule`](https://code.claude.com/docs/zh-CN/routines) 设置定期任务。
 
 #### 删除 `/web-setup` 令牌
 
@@ -246,7 +248,7 @@ Claude 将其更改推送到分支后，聊天旁边面板中的 **Changes** 卡
 
 常见原因：
 
-* 包安装失败，因为注册表不在您的[网络访问级别](https://code.claude.com/docs/zh-CN/cloud-environments.md#access-levels)中。`Trusted` 涵盖大多数包管理器；`None` 阻止它们全部。
+* 包安装失败，因为注册表不在您的[网络访问级别](https://code.claude.com/docs/zh-CN/cloud-environments.md#access-levels)中。勾选了 **Allow package managers** 的 **Limited** 涵盖大多数包管理器；**None** 阻止它们全部。
 * 脚本引用在新鲜克隆中不存在的文件或路径。
 * 在本地工作的命令在 Ubuntu 上需要不同的调用。
 

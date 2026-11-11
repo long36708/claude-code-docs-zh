@@ -6,7 +6,7 @@
 
 > 比较 Claude Code 沙箱选项：内置沙箱化 Bash 工具、沙箱运行时、开发容器、Docker 和虚拟机。为您的威胁模型选择合适的隔离方案。
 
-隔离 Claude Code 会限制会话可以读取、写入和访问网络的内容。当您让 Claude 在较少权限提示的情况下工作、以无人值守方式运行它，或将其指向您不完全信任的代码时，这一点最为重要。
+隔离 Claude Code 会限制会话可以读取、写入和访问网络的内容。当您让 Claude 在较少权限提示的情况下工作或以无人值守方式运行它时，这一点最为重要。
 
 Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙箱到完全独立的虚拟机。本页面比较了它们隔离的内容和所需条件，帮助您为威胁模型选择合适的方案，并展示如何在整个组织中强制实施该选择。
 
@@ -44,7 +44,6 @@ Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙�
 | 在您自己的机器上日常工作期间减少权限提示 | [sandboxed Bash tool](https://code.claude.com/docs/zh-CN/sandboxing.md)，使用 `/sandbox` 启用 |
 | 让 Claude 使用 `--dangerously-skip-permissions` 或自动模式无人值守工作 | 预配置的 [dev container](https://code.claude.com/docs/zh-CN/devcontainer.md)、任何容器或虚拟机，或 [sandbox runtime](#sandbox-runtime) |
 | 隔离 MCP 服务器和 hooks 以及 Bash，不使用 Docker | sandbox runtime |
-| 在不受信任的存储库上工作 | 专用虚拟机，或 [cloud session](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)（如果您有 Claude 订阅）；使用 `claude --cloud` 启动时不需要 GitHub |
 | 在团队中标准化沙箱环境 | 预配置的 [dev container](https://code.claude.com/docs/zh-CN/devcontainer.md)，复制到您的存储库中 |
 | 从没有本地设置的设备使用 Claude Code | [cloud session](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，需要 Claude 订阅；如需克隆 GitHub 仓库，还需要连接的 GitHub 账户 |
 | 为组织中的每个开发人员要求隔离 | [在整个组织中强制实施隔离](#enforce-isolation-across-an-organization) |
@@ -157,7 +156,7 @@ Claude Code 存储库发布了一个 [example dev container](https://code.claude
 
 ## Virtual machine
 
-专用虚拟机提供最强的分离，具有自己的内核，在云或 microVM 部署中，还有自己的虚拟化硬件。选项包括云实例、本地虚拟机管理程序和 microVM（如 Firecracker）。当您评估不受信任的代码、您的安全策略要求代理和主机之间的内核级分离，或没有主机级方法满足您的合规要求时，使用此方法。
+专用虚拟机提供最强的分离，具有自己的内核，在云或 microVM 部署中，还有自己的虚拟化硬件。选项包括云实例、本地虚拟机管理程序和 microVM（如 Firecracker）。当您的安全策略要求 Agent 和主机之间的内核级分离，或没有主机级方法满足您的合规要求时，使用此方法。
 
 [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/) 提供了一个具有自己的 Docker 守护程序和工作区同步的 microVM，可以在任何安装了 Docker Sandboxes 的主机上运行 Claude Code。它是来自 Docker 的免费独立产品，不需要 Docker Desktop。
 

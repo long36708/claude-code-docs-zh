@@ -245,7 +245,7 @@
 * `cleanupPeriodDays` 将会话记录和其他本地数据的保留期缩短为七天
 * `companyAnnouncements` 在启动时显示消息
 
-管理员将这样的文件部署为 `managed-settings.json`，或通过 MDM 或 [server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 部署相同的 JSON。一个部署的文件适用于它到达的每台机器或帐户。要为一个组提供不同的值，请将不同的文件或配置文件部署到该组，因为 [server-managed settings 还不支持按组策略](https://code.claude.com/docs/zh-CN/server-managed-settings.md#current-limitations)。
+管理员将这样的文件部署为 `managed-settings.json`，或通过 MDM 或 [server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 部署相同的 JSON。一个部署的文件适用于它到达的每台机器或帐户。要为一个组提供不同的值，请将不同的文件或配置文件部署到该组。在 Enterprise 计划中，您也可以改为在 server-managed settings 中[为该组提供其自己的配置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#give-groups-different-settings)。
 
 > [tab] Copyable settings file
 >

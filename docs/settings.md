@@ -199,7 +199,7 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 * **设置错误**：用户、项目或本地文件有无效的 JSON 或架构拒绝的值。在交互式会话启动时，Claude Code 显示一个对话框，让您在 Claude 的帮助下修复文件、退出，或在不加载这些损坏设置的情况下继续。
 * **设置警告**：仅单个条目失败，如格式错误的权限规则或未知的 hook 事件名称。Claude Code 跳过这些值并保持文件的其余部分生效。
 * **托管设置**：Claude Code 继续强制执行文件的其余部分。[托管设置中的无效条目](https://code.claude.com/docs/zh-CN/managed-settings.md#invalid-entries-in-managed-settings)说明它删除什么以及哪些键回退到更严格的值，直到您修复它们。对于不是有效 JSON 的托管设置文档，请参阅[托管设置文档无法解析](https://code.claude.com/docs/zh-CN/errors.md#managed-settings-document-could-not-be-parsed)。
-* **配置错误**：[`~/.claude.json`](https://code.claude.com/docs/zh-CN/claude-directory#ce-claude-json) 无法解析。`claude -p` 运行会退出，您的文件保持不变。请参阅 [Configuration error in \~/.claude.json](https://code.claude.com/docs/zh-CN/errors.md#configuration-error-in-claude-json) 以恢复较早的副本。Claude Code 将损坏的文件复制到 `~/.claude/backups/.claude.json.corrupted.<timestamp>`，并在交互式会话中询问是退出并修复它，还是重置为默认配置。当文件为空且没有可恢复的备份时，Claude Code 以默认设置启动。
+* **配置错误**：[`~/.claude.json`](https://code.claude.com/docs/zh-CN/claude-directory#ce-claude-json) 无法解析。`claude -p` 运行会退出。请参阅 [Configuration error in \~/.claude.json](https://code.claude.com/docs/zh-CN/errors.md#configuration-error-in-claude-json) 以恢复较早的副本。Claude Code 将损坏的文件复制到 `~/.claude/backups/.claude.json.corrupted.<timestamp>`，并在交互式会话中询问是退出并修复它，还是重置为默认配置。当文件为空且没有可恢复的备份时，Claude Code 以默认设置启动。
 
 在您继续后，运行 `/status` 以查看受影响的文件，`claude doctor` 以查看每个错误的详情。
 
