@@ -5375,126 +5375,127 @@ Unable to verify if domain example.com is safe to fetch. This may be due to netw
 
 ## 后台会话错误
 
-[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)在没有自己的交互式终端的情况下运行，因此需要终端的命令在那里的行为会有所不同。这些消息出现在后台会话的会话记录中、附加到后台会话的终端中、您分派的会话或 shell 中，或者对于下面的[worktree-guard 条目](#write-or-command-blocked-because-the-path-cannot-be-safely-resolved)，出现在任何在 worktree 中隔离的会话或运行 worktree 隔离子代理中；当消息特定于一个使用入口时，其条目会说明这一点。
+[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)运行时没有属于自己的交互式终端，因此需要交互式终端的命令在其中的行为有所不同。这些消息会出现在后台会话的会话记录中、连接到后台会话的终端中、您从中分派会话的会话或 shell 中；对于下方的 [worktree 防护条目](#write-or-command-blocked-because-the-path-cannot-be-safely-resolved)，还会出现在任何隔离在 worktree 中或正在运行 worktree 隔离子代理的会话中。如果某条消息只出现在某一个使用入口，其条目会加以说明。
 
-### 后台会话中拒绝的命令
+### 在后台会话中被拒绝的命令
 
-打开交互式对话框的命令在没有终端附加到后台会话时无法执行。`/install-github-app`、`/mcp` 设置列表和 MCP 服务器菜单中的身份验证操作会响应一条消息。对于 `/install-github-app` 和 `/mcp` 设置列表，该会话也在 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)中的**需要输入**下显示，以便您可以找到它、附加并再次运行该命令。附加终端时，这些命令正常工作。
+在没有终端连接到后台会话时，会打开交互式对话框的命令无法打开对话框。`/install-github-app`、`/mcp` 设置列表以及 MCP 服务器菜单中的身份验证操作会以一条消息作为响应。对于 `/install-github-app` 和 `/mcp` 设置列表，该会话还会出现在 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 的 **Needs input** 下，以便您找到它、连接并再次运行该命令。在有终端连接时，这些命令可正常工作。
 
-在 v2.1.216 之前，会话在拒绝 `/install-github-app` 或 `/mcp` 设置列表后不会在**需要输入**下显示。在 v2.1.213 到 v2.1.215 中，附加终端时命令仍然有效，拒绝消息告诉您附加并再次运行该命令。从 v2.1.208 到 v2.1.212，Claude Code 即使附加了终端也拒绝了它们，消息如 `Can't open MCP settings in a background session`；在这些版本上，从常规 `claude` 会话运行该命令，或升级。在 v2.1.208 之前，它们在后台会话内打开了对话框。在仅 v2.1.208 中，Claude Code 也拒绝了后台会话中的 `/model` 选择器，`/upgrade` 打印了升级 URL 而不是打开浏览器。
+在 v2.1.216 之前，`/install-github-app` 或 `/mcp` 设置列表被拒绝后，会话不会出现在 **Needs input** 下。在 v2.1.213 至 v2.1.215 中，这些命令在有终端连接时仍可正常工作，拒绝消息会提示您连接并再次运行该命令。从 v2.1.208 至 v2.1.212，即使有终端连接，Claude Code 也会拒绝这些命令，并显示类似 `Can't open MCP settings in a background session` 的消息；在这些版本上，请改为在常规 `claude` 会话中运行该命令，或进行升级。在 v2.1.208 之前，这些命令会在后台会话内打开其对话框。仅在 v2.1.208 中，Claude Code 还会在后台会话中拒绝 `/model` 选择器，并且 `/upgrade` 会打印升级 URL 而不是打开浏览器。
 
-措辞命名该命令。`/mcp` 设置列表报告：
+消息措辞中会指明具体命令。`/mcp` 设置列表会报告：
 
 ```text theme={null}
 Can't open MCP settings while no terminal is attached to this background session. This session now shows "needs input" in agent view — open it and run /mcp to manage servers, or use `/mcp enable|disable|reconnect <server>` to steer without the panel.
 ```
 
-**要做什么：**
+**解决方法：**
 
-* 从 Agent 视图附加到会话并再次运行该命令
-* 或使用消息命名的形式，例如 `/mcp reconnect <server>`、`/mcp enable` 或 `/mcp disable`，这些不需要附加即可工作
+* 从 agent view 连接到该会话，然后再次运行该命令
+* 或者使用消息中指明的形式，例如 `/mcp reconnect <server>`、`/mcp enable` 或 `/mcp disable`，这些形式无需连接即可使用
 
-### 写入或命令被阻止，因为路径无法安全解析
+### Write or command blocked because the path cannot be safely resolved
 
-Claude 通过 [worktree 隔离保护](https://code.claude.com/docs/zh-CN/agent-view.md#how-file-edits-are-isolated)无法解析为一个可验证位置的拼写来寻址文件或工作目录。保护检查[任何在 worktree 中隔离的会话](https://code.claude.com/docs/zh-CN/worktrees.md#how-claude-code-enforces-isolation)中的写入和命令工作目录，交互式或后台，以及[worktree 隔离的子代理](https://code.claude.com/docs/zh-CN/worktrees.md#isolate-subagents-with-worktrees)中的写入和命令工作目录。它在检查操作不会到达共享检出之前解析符号链接，当解析失败时，它会阻止操作而不是让它落在那里。消息命名它拒绝的路径形式以及如何重试：
+Claude 使用了一种 [worktree 隔离防护](https://code.claude.com/docs/zh-CN/agent-view.md#how-file-edits-are-isolated)无法解析为单一可验证位置的写法来引用文件或工作目录。该防护会在[任何隔离在 worktree 中的会话](https://code.claude.com/docs/zh-CN/worktrees.md#how-claude-code-enforces-isolation)（无论是交互式还是后台会话）以及 [worktree 隔离的子代理](https://code.claude.com/docs/zh-CN/worktrees.md#isolate-subagents-with-worktrees)中检查写入操作和命令的工作目录。它会先解析符号链接，再检查该操作是否会触及共享检出；当解析失败时，它会阻止该操作，而不是任其落入共享检出。消息会指明它拒绝的路径形式以及如何重试：
 
 ```text theme={null}
 This write was blocked because the path is spelled in a form that cannot be safely resolved (for example through a symlink storing a raw dot segment, a network-share or device-namespace shape, or an unreadable ancestor directory). If the file is inside the worktree /path/to/worktree, address it by its direct symlink-free path instead.
 ```
 
-被阻止的命令为其工作目录报告相同的原因，并以 `re-run the command from its direct symlink-free path` 结尾。在 v2.1.217 之前，保护在不解析符号链接的情况下比较路径拼写，因此这些拼写未被阻止，通过符号链接路由的写入可能会落在共享检出中。
+被阻止的命令会针对其工作目录报告相同的原因，并以 `re-run the command from its direct symlink-free path` 结尾。在 v2.1.217 之前，该防护在比较路径写法时不解析符号链接，因此这些写法不会被阻止，经由符号链接路由的写入可能会落入共享检出。
 
-**要做什么：**
+**解决方法：**
 
-* 通常什么都不做：完整消息作为工具错误发送给 Claude，Claude 使用它命名的直接路径重试。对于被阻止的文件编辑，对话视图仅显示简短的 `Error editing file` 行；完整消息出现在您使用 `Ctrl+O` 打开的会话记录视图中。被阻止的命令在其命令输出中打印它。
-* 如果同一文件上的阻止重复出现，路径可能通过包含 `..` 的已提交符号链接运行，例如 `docs/current -> ../README.md`；要求 Claude 通过其真实路径而不是通过链接编辑目标文件
+* 通常无需操作：完整消息会作为工具错误发送给 Claude，Claude 会使用消息中指明的直接路径进行重试。对于被阻止的文件编辑，对话视图只显示一行简短的 `Error editing file`；完整消息显示在会话记录视图中，您可以按 `Ctrl+O` 打开该视图。被阻止的命令会在其命令输出中打印该消息。
+* 如果同一文件上反复出现阻止，则该路径很可能经过一个已提交的、目标包含 `..` 的符号链接，例如 `docs/current -> ../README.md`；请让 Claude 通过目标文件的真实路径而不是通过该链接来编辑它
 
-### 写入或命令被阻止，因为路径命名网络位置
+### Write or command blocked because the path names a network location
 
-Claude 通过命名不在您机器上的驱动器、UNC 共享（如 `\\server\share\file`）或 `/net` 自动挂载路径的路径来寻址文件或工作目录，而会话的检出在本地磁盘上。相同的 [worktree 隔离保护](#write-or-command-blocked-because-the-path-cannot-be-safely-resolved)无法验证这样的路径保持在共享检出之外，因此它会阻止操作。在 worktree 中隔离会话不会解除阻止。消息命名要使用的路径形式：
+Claude 通过一个指向不在您机器上的驱动器的路径来引用文件或工作目录，例如 `\\server\share\file` 这样的 UNC 共享或 `/net` 自动挂载路径，而该会话的检出位于本地磁盘上。同一个 [worktree 隔离防护](#write-or-command-blocked-because-the-path-cannot-be-safely-resolved)无法验证此类路径不会进入共享检出，因此会阻止该操作。将会话隔离在 worktree 中并不能解除这一阻止。消息会指明应改用的路径形式：
 
 ```text theme={null}
 This write was blocked because the path is network-shaped (a UNC share or /net automount spelling) while this session's checkout is local. Isolating cannot unblock it. If the file is genuinely inside the worktree /path/to/worktree, address it by its local, plainly-spelled path instead.
 ```
 
-被阻止的命令为其工作目录报告相同的原因，并以 `re-run the command from its local, plainly-spelled path` 结尾。在 v2.1.217 之前，保护仅比较路径文本，因此通过 UNC 或 `/net` 路径寻址检出内的文件未被阻止。
+被阻止的命令会针对其工作目录报告相同的原因，并以 `re-run the command from its local, plainly-spelled path` 结尾。在 v2.1.217 之前，该防护只比较路径文本，因此通过 UNC 或 `/net` 路径引用检出内的文件不会被阻止。
 
-**要做什么：**
+**解决方法：**
 
-* 通常什么都不做：Claude 使用消息要求的本地拼写重试
+* 通常无需操作：Claude 会使用消息要求的本地写法进行重试
 
 ### 命令被 worktree 隔离检查阻止
 
-Claude 在[在 worktree 中隔离的会话](https://code.claude.com/docs/zh-CN/worktrees.md#how-claude-code-enforces-isolation)中运行了 Bash、[PowerShell](https://code.claude.com/docs/zh-CN/tools-reference.md#powershell-tool) 或 [Monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool) 命令，Claude Code 因以下原因之一拒绝了它：
+Claude 在[隔离在 worktree 中的会话](https://code.claude.com/docs/zh-CN/worktrees.md#how-claude-code-enforces-isolation)中运行了 Bash、[PowerShell](https://code.claude.com/docs/zh-CN/tools-reference.md#powershell-tool) 或 [Monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool) 命令，而 Claude Code 出于以下原因之一拒绝了它：
 
-* 该命令将在主检出或另一个 worktree 中运行。消息会说明其工作目录 `resolved to the shared checkout` 或 `is in a different worktree`。
-* Bash 或 Monitor 命令将 git 指向主检出。
-* Claude Code 无法从 Bash 或 Monitor 命令的文本验证该命令运行的任何 git 都保留在 worktree 内。从不命名 git 的命令仍然可能因此原因被拒绝，因为展开变量间接寻址（如 `${!name}`）或运行 Bash 函数替换（如 `${ command; }`）会产生在运行时本身可能是命令的值。
+* 该命令会在主检出或另一个 worktree 中运行。消息会说明其工作目录 `resolved to the shared checkout` 或 `is in a different worktree`。
+* Bash 或 Monitor 命令将 git 指向了主检出。
+* Claude Code 无法从 Bash 或 Monitor 命令的文本中验证该命令运行的任何 git 都停留在 worktree 内。即使某条命令从未提及 git，也仍可能因此被拒绝，因为展开诸如 `${!name}` 的变量间接引用或运行诸如 `${ command; }` 的 Bash 函数替换会在运行时产生一个值，而这个值本身可能就是一条命令。
 
-消息会说 `is isolated in the worktree <path>, but this command`，后跟原因，例如 Claude Code 无法验证其文本的命令：
+消息会显示 `is isolated in the worktree <path>, but this command`，后面跟着原因，例如 Claude Code 无法验证其文本的命令：
 
 ```text wrap theme={null}
 This session is isolated in the worktree /path/to/worktree, but this command evaluates ${!x@P} arithmetically inside a construct too complex to verify, which can run a command hidden in a variable's value. Refusing to run it — a worktree-isolated session's git operations must target its own worktree. Split it into plain, separate commands and run them from /path/to/worktree.
 ```
 
-**要做什么：**
+**解决方法：**
 
-* **git 指向主检出，或命令文本无法验证**：什么都不用做。Claude 读取消息并按照其最后一句要求的方式重写命令。如果您要求的命令因其文本中的展开而持续被拒绝，请按字面拼写被标记的值，并从 worktree 内将 git 作为独立的纯命令运行
-* 要有意对主检出采取行动，在会话外的终端中自己运行该命令
+* **git 指向主检出，或命令文本无法验证**：无需操作。Claude 会阅读该消息，并按照其最后一句的要求重写命令。如果您要求运行的命令因其文本中的某个展开而反复被拒绝，请以字面形式写出被标记的值，并在 worktree 内将 git 作为一条独立的简单命令运行
+* 如果确实要对主检出进行操作，请在会话之外的终端中自行运行该命令
 
-### 此会话没有保存的会话记录
+### This session has no saved transcript
 
-您附加到一个通过 `←` 或 `/background` [移至后台](https://code.claude.com/docs/zh-CN/agent-view.md#from-inside-a-session)的会话，该会话在运行自己的轮次之前就已停止。Claude Code 找不到您将其移出的那个对话，因此该会话没有可恢复的内容。消息以此会话的 `claude respawn` 命令结尾：
+您连接到了一个通过 `←` 或 `/background` [移至后台](https://code.claude.com/docs/zh-CN/agent-view.md#from-inside-a-session)、且在运行自己的任何一个轮次之前就已停止的会话。Claude Code 找不到您将其移出时所在的对话，因此该会话没有可恢复的内容。消息以该会话的 `claude respawn` 命令结尾：
 
 ```text theme={null}
 This session has no saved transcript — it was stopped before its first response finished. If it was backgrounded from another conversation, that one is still intact; `claude respawn <id>` starts this one fresh.
 ```
 
-在 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)中打开相同会话的行则会在列表下方显示 `Press enter again to restart this session fresh`，在该行上第二次按 `Enter` 会使用空对话重启会话。
+在 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 中打开同一会话的行时，列表下方会改为显示 `Press enter again to restart this session fresh`，在该行上再次按 `Enter` 会以空对话重新启动该会话。
 
-**要做什么：**
+**解决方法：**
 
-* 要重新启动停止的会话，请使用消息中的 ID 运行 `claude respawn <id>`，或在 Agent 视图中的其行上按 `Enter` 两次
-* 如果会话确实完成了回复，您仍然在 v2.1.214 之前的版本上看到此拒绝，`~/.claude/projects` 中的不可读文件夹可能会使会话记录扫描错过保存的对话；更新到 v2.1.214 或更高版本，它在扫描期间容忍不可读的文件夹
+* 要重新启动已停止的会话，请使用消息中的 ID 运行 `claude respawn <id>`，或在 agent view 中该会话的行上按两次 `Enter`
+* 如果该会话确实完成了回复，但您在 v2.1.214 之前的版本上仍看到此拒绝，则可能是 `~/.claude/projects` 中某个不可读的文件夹导致会话记录扫描遗漏了已保存的对话；请更新到 v2.1.214 或更高版本，这些版本在扫描期间会容忍不可读的文件夹
 
-### 此会话在另一个终端中运行
+### This session is running in another terminal
 
-您在 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)中打开了停止的会话的行，其保存的对话已在此机器上的另一个实时 Claude Code 进程中打开，因此 Claude Code 拒绝启动将写入相同会话记录的第二个进程。您看到的消息取决于[什么持有对话](https://code.claude.com/docs/zh-CN/agent-view.md#opening-a-session-says-the-conversation-is-already-open)：
+您在 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 中打开了一个已停止会话的行，而其已保存的对话已在本机另一个正在运行的 Claude Code 进程中打开，因此 Claude Code 拒绝启动第二个会写入同一会话记录的进程。您看到哪条消息取决于[占用该对话的是什么](https://code.claude.com/docs/zh-CN/agent-view.md#opening-a-session-says-the-conversation-is-already-open)：
 
 ```text theme={null}
 Can't open — this session is running in another terminal
 This conversation is already open in another running Claude session — use that one, or close it and try again
 ```
 
-* **`running in another terminal`**：终端持有对话，例如您使用 `claude --resume` 或 `/resume` 恢复它的终端。该行也显示 `Open in a terminal`。
-* **`already open in another running Claude session`**：另一个非交互式 Claude Code 进程持有它，例如相同对话的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)进程尚未退出。
+* **`running in another terminal`**：占用该对话的是后台会话以外的进程，例如 `claude -p` 运行，或者您通过 `claude --resume` 或 `/resume` 恢复了该对话的终端。该行还会显示 `Open in a terminal`。
+* **`already open in another running Claude session`**：占用它的是另一个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)。
 
-**要做什么：**
+**解决方法：**
 
-* 在持有它的进程中继续对话，或退出该进程并再次打开该行
+* 对于 `running in another terminal`：在那个终端中继续，或者退出该进程或等待其结束，然后重试
+* 对于 `already open in another running Claude session`：使用那个会话，或者将其停止后重试
 
-在 v2.1.248 之前，仅存在 `already open in another running Claude session` 拒绝：在终端中恢复的对话不计为打开，打开该行启动了第二个 Claude Code 进程写入相同的对话。
+在 v2.1.248 之前，只存在 `already open in another running Claude session` 这一种拒绝：在终端中恢复的对话不会被视为已打开，打开该行会启动第二个写入同一对话的 Claude Code 进程。
 
-### 此会话的保存对话不再在磁盘上
+### This session's saved conversation is no longer on disk
 
-您打开了一个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，该会话在后台服务关闭时结束，[会话记录清理](https://code.claude.com/docs/zh-CN/settings-reference.md#cleanupperioddays)随后删除了其保存的对话，例如在机器关闭数周后。通常打开这样的行会[恢复其保存的对话](https://code.claude.com/docs/zh-CN/agent-view.md#sessions-show-as-failed-after-shutdown)。没有什么可恢复的，Claude Code 拒绝而不是在不询问的情况下重新运行会话的原始提示词：
+您打开了一个在后台服务关闭期间结束的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，而此后[会话记录清理](https://code.claude.com/docs/zh-CN/settings-reference.md#cleanupperioddays)已删除了其保存的对话，例如在机器关机数周之后。打开此类行通常会[恢复其已保存的对话](https://code.claude.com/docs/zh-CN/agent-view.md#sessions-show-as-failed-after-shutdown)。由于没有任何可恢复的内容，Claude Code 会拒绝，而不是在未经询问的情况下重新运行该会话的原始提示词：
 
 ```text theme={null}
 This session's saved conversation is no longer on disk (it ended while the background service was off, and old transcripts are cleaned up), so there is nothing to resume. `claude rm 7c5dcf5d` deletes the row; `claude respawn 7c5dcf5d` runs its original prompt again instead.
 ```
 
-`claude attach <id>` 打印此文本。在 Agent 视图中，页脚更短，以 `ctrl+x deletes the row` 结尾。
+`claude attach <id>` 会打印这段文本。在 agent view 中，页脚较短，并以 `ctrl+x deletes the row` 结尾。
 
-**要做什么：**
+**解决方法：**
 
-* 运行 `claude rm <id>` 删除该行。当[保留的情况](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)之一适用时，`claude rm` 保留该行和 worktree，并命名原因
-* 要再次运行会话的原始提示词作为新对话，请运行 `claude respawn <id>`
+* 运行 `claude rm <id>` 删除该行。当适用某种[保留情形](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)时，`claude rm` 会改为保留该行和 worktree，并指明原因
+* 要将该会话的原始提示词作为全新对话再次运行，请运行 `claude respawn <id>`
 
-在 v2.1.248 之前，打开这样的行会重新运行会话的原始提示词，而不是拒绝，将数周前的任务拉回前台。
+在 v2.1.248 之前，打开此类行会重新运行该会话的原始提示词而不是拒绝，从而把一个几周前的任务重新拉回前台。
 
-### Worktree 有未推送到任何地方的提交
+### Worktree has commits that are not pushed anywhere
 
-您尝试删除一个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)，其 worktree 持有 Claude Code 无法确认保存在其他地方的提交。Claude Code 保留 worktree 和会话行，而不是在未查看的情况下销毁提交。`claude rm` 命名分支和未推送的提交，并说明如何继续：
+您尝试删除一个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)，而其 worktree 中包含 Claude Code 无法确认已保存在别处的提交。Claude Code 会保留该 worktree 和会话行，而不是在您未察看的情况下销毁这些提交。`claude rm` 会指明分支和未推送的提交，并说明如何继续：
 
 ```text theme={null}
 kept 7c5dcf5d — its worktree is still at “/home/you/project/.claude/worktrees/fix-login”
@@ -5502,278 +5503,278 @@ kept 7c5dcf5d — its worktree is still at “/home/you/project/.claude/worktree
   push them and run 'claude rm 7c5dcf5d' again, or discard the worktree and its commits: claude rm 7c5dcf5d --discard-unpushed a1b2c3d000000000000000000000000000000000@0123456789abcdef0123456789abcdef
 ```
 
-当 Claude Code 无法总结提交时，详细行读取 `The worktree has unpushed commits`。在 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)中，会话的行显示 `not deleted` 和相同的原因。
+当 Claude Code 无法汇总这些提交时，详情行会改为显示 `The worktree has unpushed commits`。在 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 中，该会话的行会显示 `not deleted` 以及相同的原因。
 
-远程上的提交不会阻止删除。本地副本中您的 `origin` 远程的默认分支上的提交也不会，只要该分支在您的主检出中检出，即仓库目录本身而不是 worktree。
+远程上的提交不会阻止删除。您的 `origin` 远程默认分支的本地副本上的提交也不会阻止删除，前提是该分支已在您的主检出（即仓库目录本身，而非某个 worktree）中检出。
 
-**要做什么：**
+**解决方法：**
 
-* 要保留提交，推送 worktree 的分支，或将其合并到在主检出中检出的默认分支，然后再次删除会话
-* 要丢弃提交，运行消息打印的 `claude rm <id> --discard-unpushed` 命令，或在 Agent 视图中的会话行上再次按 `Ctrl+X` 两次。这会删除会话和 worktree 以及其分支、未推送的提交和任何未提交的更改。如果删除再次被拒绝，请按照新消息操作。
-* 当消息说 worktree 也由另一个完成的会话记录时，再次删除不会丢弃它：推送提交，然后再次删除会话
+* 要保留这些提交，请推送该 worktree 的分支，或将其合并到主检出中已检出的默认分支，然后再次删除该会话
+* 要丢弃这些提交，请运行消息中打印的 `claude rm <id> --discard-unpushed` 命令，或在 agent view 中该会话的行上再次按两次 `Ctrl+X`。这会删除该会话和 worktree，连同其分支、未推送的提交以及所有未提交的更改。如果删除再次被拒绝，请按照新消息操作。
+* 当消息说明该 worktree 还被另一个已结束的会话记录时，再次删除不会丢弃它：请推送这些提交，然后再次删除该会话
 
-在 v2.1.268 之前，`claude rm` 将提交摘要放在 `kept` 行本身上。当 `claude rm` 无法总结提交时，`kept` 行读取 `worktree has commits that are not pushed anywhere` 代替摘要。
+在 v2.1.268 之前，`claude rm` 会将提交摘要放在 `kept` 行本身。当 `claude rm` 无法汇总提交时，`kept` 行会以 `worktree has commits that are not pushed anywhere` 代替摘要。
 
-在 v2.1.260 之前，消息没有命名分支或提交，也没有丢弃途径。您仍然可以删除会话，这会丢失未提交的更改，但保留分支和提交。使用拒绝消息打印的路径运行 `git worktree remove --force --force <path>`，然后运行 `claude rm <id>`。对于已锁定的 worktree，Git 需要两次 `--force`。
+在 v2.1.260 之前，该消息不会指明分支或提交，也没有丢弃途径。您仍然可以删除该会话，这会丢失未提交的更改，但保留分支和提交。请使用拒绝消息中打印的路径运行 `git worktree remove --force --force <path>`，然后运行 `claude rm <id>`。对于已锁定的 worktree，Git 需要两次 `--force`。
 
-在 v2.1.248 之前，在主检出中检出的默认分支不计数：您已经合并到那里的分支仍然触发此拒绝，直到其提交到达远程。
+在 v2.1.248 之前，主检出中已检出的默认分支不算在内：即使某个分支已在那里合并，在其提交到达远程之前仍会触发此拒绝。
 
-### 终端主机进程已死亡
+### Terminal host process died
 
-每个[后台会话的](https://code.claude.com/docs/zh-CN/agent-view.md)终端在后台服务下的主机进程中运行，该进程在服务仍然持有其连接时死亡，因此无法到达会话。
+每个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)的终端都运行在后台服务下的一个宿主进程中，而该进程在服务仍持有其连接时终止了，因此无法访问该会话。
 
-在 Linux 和 WSL 上，后台服务每隔几秒检查每个主机进程，当进程已退出但其与服务的连接从未关闭时标记会话失败，并在 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md#read-session-state)中的其行上显示原因：
+在 Linux 和 WSL 上，后台服务每隔几秒检查一次每个宿主进程，当进程已退出但其与服务的连接从未关闭时，会将该会话标记为失败，并在 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md#read-session-state) 中该会话的行上显示原因：
 
 ```text theme={null}
 terminal host process died — press Enter to restart
 ```
 
-从 shell，`claude attach <id>` 重启已标记为死主机失败的会话，否则打印原因并退出：
+在 shell 中，`claude attach <id>` 会重新启动已因宿主终止而被标记为失败的会话，否则会打印原因并退出：
 
 ```text theme={null}
 Couldn't attach to <id> — This session's terminal host process died (the conversation is saved) — run `claude attach <id>` again to restart it on a fresh host.
 ```
 
-对话无论如何都被保存。
+无论哪种情况，对话都已保存。
 
-运行 [shell 命令](https://code.claude.com/docs/zh-CN/agent-view.md#run-a-shell-command)的行显示 `terminal host process died — its output is gone; the command was not run again`，`claude attach` 打印 `This command's terminal host process died — its output is gone and the command was not run again`。Claude Code 从不为您重新运行该命令。
+运行 [shell 命令](https://code.claude.com/docs/zh-CN/agent-view.md#run-a-shell-command)的行则会显示 `terminal host process died — its output is gone; the command was not run again`，而 `claude attach` 会打印 `This command's terminal host process died — its output is gone and the command was not run again`。Claude Code 从不会替您重新运行该命令。
 
-**要做什么：**
+**解决方法：**
 
-* 在 Agent 视图中，在失败的行上按 `Enter`；会话在新的主机进程上重启，对话恢复
-* 从 shell，再次运行 `claude attach <id>`。Claude Code 打印 `Session <id>'s terminal host died — restarting it on a fresh one…` 并重新打开会话
-* 您无法以这种方式重启 shell 命令行；再次分派命令以重新运行它
+* 在 agent view 中，在失败的行上按 `Enter`；会话会在一个新的宿主进程上重新启动，对话随之恢复
+* 在 shell 中，再次运行 `claude attach <id>`。Claude Code 会打印 `Session <id>'s terminal host died — restarting it on a fresh one…` 并重新打开该会话
+* 无法以这种方式重新启动 shell 命令行；请再次分派该命令以重新运行它
 
-在 v2.1.247 之前，死主机进程可能通过后台服务运行的每个活跃性检查，因此打开会话无限期地显示 `opening… · esc to cancel`，`claude attach <id>` 等待而不报告错误。
+在 v2.1.247 之前，已终止的宿主进程可能会通过后台服务运行的所有存活检查，因此打开该会话时会无限期显示 `opening… · esc to cancel`，而 `claude attach <id>` 会一直等待而不报告错误。
 
-### 会话没有响应
+### Session isn't responding
 
-您打开了一个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，后台服务接受了打开，但大约十秒钟内没有输出到达，因此 Claude Code 得出结论，中继会话终端的进程无法传递输出，并结束尝试而不是等待。
+您打开了一个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，后台服务接受了打开请求，但大约十秒内都没有输出到达，因此 Claude Code 判定负责转发该会话终端的进程无法传递输出，并结束此次尝试而不是继续等待。
 
-在 Agent 视图中，Claude Code 在页脚中提供重启：
+在 agent view 中，Claude Code 会在页脚中提供重新启动选项：
 
 ```text theme={null}
 Press enter again to restart this session — it isn't responding (its conversation is saved and resumes).
 ```
 
-从 shell，`claude attach <id>` 打印原因并退出：
+在 shell 中，`claude attach <id>` 会打印原因并退出：
 
 ```text theme={null}
 Couldn't attach to <id> — Session isn't responding — `claude stop <id>`, then `claude attach <id>` restarts it (the conversation is saved).
 ```
 
-Claude Code 从不为您重启运行 [shell 命令](https://code.claude.com/docs/zh-CN/agent-view.md#run-a-shell-command)的行，因为重启会再次运行该命令。
+Claude Code 从不会替您重新启动运行 [shell 命令](https://code.claude.com/docs/zh-CN/agent-view.md#run-a-shell-command)的行，因为重新启动会再次运行该命令。
 
-**要做什么：**
+**解决方法：**
 
-* 在 Agent 视图中，在同一行上再次按 `Enter`。Claude Code 停止无响应的进程并重启会话，对话恢复。没有第二次按下就不会停止任何东西
-* 从 shell，运行 `claude stop <id>`，然后 `claude attach <id>`
-* 对于 shell 命令行，在 Agent 视图中按 `Ctrl+X` 或运行 `claude stop <id>` 停止它；再次分派命令以重新运行它
+* 在 agent view 中，再次在同一行上按 `Enter`。Claude Code 会停止无响应的进程并重新启动会话，对话随之恢复。没有第二次按键，任何内容都不会被停止
+* 在 shell 中，运行 `claude stop <id>`，然后运行 `claude attach <id>`
+* 对于 shell 命令行，在 agent view 中按 `Ctrl+X` 或运行 `claude stop <id>` 将其停止；再次分派该命令以重新运行它
 
-### 会话在 respawn 进行中时被停止
+### Session was stopped while the respawn was in flight
 
-您打开了一个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，其进程未运行，当 Claude Code 重启它时，另一个 Claude Code 进程停止了它，例如在另一个终端中 `claude stop`。Claude Code 保持会话停止：
+您打开了一个进程未在运行的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，而在 Claude Code 重新启动它的过程中，另一个 Claude Code 进程停止了它，例如在另一个终端中运行的 `claude stop`。Claude Code 会让该会话保持停止状态：
 
 ```text theme={null}
 Session <id> was stopped while the respawn was in flight
 ```
 
-打开您刚刚分派的会话，当其进程仍在启动时，会改为等待进程。在 v2.1.246 之前，在那一刻打开它可能会停止它并显示此消息。
+打开一个刚分派、其进程仍在启动中的会话时，会改为等待该进程。在 v2.1.246 之前，在那个时刻打开它可能会将其停止并显示此消息。
 
-**要做什么：**
+**解决方法：**
 
-* 如果您没有停止会话，在 Agent 视图中再次打开其行或运行 `claude respawn <id>` 重启它
-* 如果您自己停止了它，没有什么剩下要做的：会话保持停止
+* 如果不是您停止的该会话，请在 agent view 中再次打开其行，或运行 `claude respawn <id>` 来重新启动它
+* 如果是您自己停止的，则无需再做任何操作：该会话会保持停止状态
 
-### 会话 Agent 不再可用
+### Session agent no longer available
 
-您恢复了一个正在运行[自定义 Agent](https://code.claude.com/docs/zh-CN/sub-agents.md#invoke-subagents-explicitly) 的会话，该会话使用 `--agent` 或 `agent` 设置启动，Claude Code 没有找到具有该名称的 Agent。它首先搜索会话的原始目录（当您已[信任该工作区](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)时），然后搜索您恢复的目录。会话仍然恢复，但使用默认工具，因此 Agent 的工具限制不再适用：
+您恢复了一个正在运行[自定义 Agent](https://code.claude.com/docs/zh-CN/sub-agents.md#invoke-subagents-explicitly)（通过 `--agent` 或 `agent` 设置启动）的会话，而 Claude Code 找不到该名称的 Agent。它会先搜索该会话的原始目录（前提是您已[信任该工作区](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)），然后搜索您从中恢复的目录。该会话仍会恢复，但使用默认工具，因此该 Agent 的工具限制不再适用：
 
 ```text theme={null}
 This session was running agent 'code-reviewer', which is no longer available (no agent by that name in /home/you/project). Continuing with the default tools and system prompt — the agent's tool restrictions no longer apply. To restore it, re-create the agent, or resume with an explicit --agent <name>.
 ```
 
-警告仅命名 Claude Code 搜索的目录，它出现在恢复的对话中，无论您唤醒[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)、运行 `/resume` 或 `claude --resume`，还是在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中恢复，在非交互模式中它也会发送到 stderr。使用 `--input-format stream-json` 的会话不显示它，因为 Agent SDK 在启动后提供 Agent。
+该警告只会列出 Claude Code 搜索过的目录，无论您是唤醒[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)、运行 `/resume` 或 `claude --resume`，还是在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下恢复，它都会出现在恢复后的对话中；在非交互模式下，它还会输出到 stderr。使用 `--input-format stream-json` 的会话不会显示它，因为 Agent SDK 在启动后才提供 Agent。
 
-Claude Code 不会将回退保存到会话，因此警告在每次恢复时重复，直到您采取行动。内置 `claude` Agent 不触发警告，因为回退到默认工具集对它没有改变。在 v2.1.216 之前，Claude Code 无声地继续作为默认 Agent，查找仅覆盖您恢复的目录，因此项目范围的 Agent 在从另一个目录恢复时丢失。
+Claude Code 不会将回退结果保存到会话中，因此在您采取行动之前，每次恢复时都会重复显示该警告。内置的 `claude` Agent 不会触发该警告，因为回退到默认工具集对它来说没有任何变化。在 v2.1.216 之前，Claude Code 会静默地以默认 Agent 继续，并且查找只覆盖您从中恢复的目录，因此从其他目录进行任何恢复时都会丢失项目范围的 Agent。
 
-**要做什么：**
+**解决方法：**
 
-* 在会话的项目中的 `.claude/agents/<name>.md` 或个人 Agent 的 `~/.claude/agents/<name>.md` 重新创建 Agent 文件，然后再次恢复
-* 或使用 `--agent <name>` 恢复，命名确实存在的 Agent，以改为作为该 Agent 运行会话
-* 如果 Agent 是项目范围的，您还没有信任会话的原始目录，在那里运行一次 Claude Code，接受信任对话框，然后再次恢复
+* 在该会话的项目中的 `.claude/agents/<name>.md` 重新创建 Agent 文件，或者对于个人 Agent，在 `~/.claude/agents/<name>.md` 重新创建，然后再次恢复
+* 或者使用 `--agent <name>` 恢复，指定一个确实存在的 Agent，以该 Agent 的身份运行会话
+* 如果该 Agent 属于项目范围，而您尚未信任该会话的原始目录，请在那里运行一次 Claude Code，接受信任对话框，然后再次恢复
 
-### 此会话在其下一次 /loop 唤醒到期后才重启
+### This session restarted after its next /loop wakeup was due
 
-[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中的[自定节奏 `/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval) 已停止。会话的进程在循环等待下一次唤醒时结束，而该唤醒在会话的[下一个进程](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)启动之前就已到期。错过的唤醒不会延迟触发。通知会说明会话重启时该唤醒已逾期多久：
+[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中一个[自定节奏的 `/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval) 已停止。该会话的进程在循环等待下一次唤醒时结束了，而那次唤醒在该会话的[下一个进程](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)启动之前就已到期。错过的唤醒不会延后触发。通知会说明会话重新启动时该唤醒已逾期多久：
 
 ```text theme={null}
 This session restarted 12m after its next /loop wakeup was due, so that wakeup will not fire. The loop stays stopped until Claude schedules it again: reply to continue it.
 ```
 
-在 v2.1.295 之前，循环在这种情况下会停止且不显示通知。
+在 v2.1.295 之前，在这种情况下循环会停止，且不会显示通知。
 
-**要做什么：**
+**解决方法：**
 
-* 要继续循环，请[回复该会话](https://code.claude.com/docs/zh-CN/agent-view.md#peek-and-reply)并说明这一点，例如 `keep the loop running`。Claude 会连同您的回复一起读取通知，并可以安排下一次唤醒
-* 如果您已不再需要该循环，则无需任何操作。它已经停止
+* 要继续循环，请[回复该会话](https://code.claude.com/docs/zh-CN/agent-view.md#peek-and-reply)并说明这一点，例如 `keep the loop running`。Claude 会连同您的回复一起阅读该通知，并可以安排下一次唤醒
+* 如果您不再需要该循环，则无需操作。它已经停止了
 
 ### No LLM gateway: a gateway set in your shell isn't passed to a session opened from another folder
 
-显示此消息的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)没有使用您的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)：它没有获得网关的地址，因此其请求会失败。该消息出现在对话中原本 Claude 回复的位置，并填入您的会话 ID 和文件夹：
+显示此消息的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)没有使用您的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)：它没有获得网关的地址，因此其请求会失败。该消息会出现在对话中 Claude 回复的位置，并填入您会话的 ID 和文件夹：
 
 ```text wrap theme={null}
 No LLM gateway: a gateway set in your shell isn't passed to a session opened from another folder. To fix, run `claude respawn abc12345` from ~/project in another terminal where your gateway is set, or set ANTHROPIC_BASE_URL and its API key or token in a settings file's env block.
 ```
 
-当您附加到该会话时，其输入框下方的通知会显示简短形式 `No LLM gateway: opened from another folder · respawn from ~/project`。
+当您连接到该会话时，其提示符下方的通知会显示简短形式 `No LLM gateway: opened from another folder · respawn from ~/project`。
 
-您在 `ANTHROPIC_BASE_URL` 设置为您的网关时，从消息所指文件夹以外的文件夹分派、唤醒或重启了该会话。有关在 shell 中导出的网关确实能到达后台会话的情况，请参阅 [LLM 网关](https://code.claude.com/docs/zh-CN/agent-view.md#llm-gateway)。
+您在 `ANTHROPIC_BASE_URL` 设置为您的网关时，从消息所指文件夹以外的文件夹分派、唤醒或重新启动了该会话。关于 shell 中导出的网关确实会传递到后台会话的情形，请参阅 [LLM 网关](https://code.claude.com/docs/zh-CN/agent-view.md#llm-gateway)。
 
-**要做什么：**
+**解决方法：**
 
-* **您在一个由其设置指定网关的项目中使用了 Agent 视图**：将 `ANTHROPIC_BASE_URL` 及其 API 密钥或令牌放入[设置文件的 `env` 块](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-in-a-settings-file)。请使用 `~/.claude/settings.json`，或会话自身项目中的 `.claude/settings.local.json`，重新启动的会话会读取这两者。然后在 shell 中从任意文件夹运行 `claude respawn <id>`。
-* **您在终端中导出了网关**：在已导出网关变量的终端中，`cd` 到消息所指的文件夹，然后运行消息中的 `claude respawn <id>` 命令。会话会从其保存的对话重新启动。
-  * 只有当 [supervisor](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process) 本身是从导出了相同网关的 shell 启动时，网关才会到达该会话。如果不是，请按照 [Dispatch fails with `Could not resolve authentication method`](https://code.claude.com/docs/zh-CN/agent-view#dispatch-fails-with-could-not-resolve-authentication-method) 中的说明从该终端重启 supervisor，然后再次运行 respawn 命令。
+* **您在一个其设置中设定了网关的项目中使用了 agent view**：将 `ANTHROPIC_BASE_URL` 及其 API 密钥或令牌放入[设置文件的 `env` 块](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-in-a-settings-file)中。使用 `~/.claude/settings.json`，或该会话自身项目中的 `.claude/settings.local.json`，重新启动的会话会读取这两者。然后在 shell 中从任意文件夹运行 `claude respawn <id>`。
+* **您在终端中导出了网关**：在已导出网关变量的终端中，`cd` 到消息所指的文件夹，并运行消息中的 `claude respawn <id>` 命令。该会话会从其已保存的对话重新启动。
+  * 只有当 [supervisor](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process) 本身是从导出了相同网关的 shell 启动时，网关才会传递到该会话。如果 supervisor 不是这样启动的，请按照 [Dispatch fails with `Could not resolve authentication method`](https://code.claude.com/docs/zh-CN/agent-view#dispatch-fails-with-could-not-resolve-authentication-method) 中的说明，从该终端重新启动它，然后再次运行 respawn 命令。
 
-在 v2.1.302 之前，处于这种情况的后台会话会改为显示登录错误，例如 [`Not logged in · Please run /login`](#not-logged-in)，且不会指出文件夹。
+在 v2.1.302 之前，处于这种情况的后台会话会改为显示登录错误，例如 [`Not logged in · Please run /login`](#not-logged-in)，且不会指明文件夹。
 
 ### CLAUDE\_CODE\_PROCESS\_WRAPPER 启动器错误
 
-[`CLAUDE_CODE_PROCESS_WRAPPER`](https://code.claude.com/docs/zh-CN/corporate-launcher) 已设置，其值无法使用，因此 Claude Code 拒绝启动受影响的进程，而不是在没有启动器的情况下运行它。配置问题报告为以变量名开头并说明原因的消息，例如：
+已设置 [`CLAUDE_CODE_PROCESS_WRAPPER`](https://code.claude.com/docs/zh-CN/corporate-launcher)，但其值无法使用，因此 Claude Code 拒绝启动受影响的进程，而不是在没有启动器的情况下运行它。配置问题会以一条以该变量名开头并说明原因的消息报告，例如：
 
 ```text theme={null}
 CLAUDE_CODE_PROCESS_WRAPPER: launcher `/opt/corp/launcher` is not an executable regular file
 ```
 
-启动但在用 Claude Code 替换自己之前退出的启动器会使其启动的会话失败，会话在 Agent 视图中的行报告启动器 `must exec, not daemonize`，后跟启动器打印的任何内容。因启动器而无法启动或到达后台服务的会话会将启动器问题作为 `Couldn't reach the background service (...)` 内的原因报告。
+如果启动器启动后退出，却没有将自身替换为 Claude Code，则它正在启动的会话会失败，agent view 中该会话的行会报告启动器 `must exec, not daemonize`，后面跟着启动器打印的所有内容。因启动器而无法启动或无法连接后台服务的会话，会在 `Couldn't reach the background service (...)` 中将启动器问题作为原因报告。
 
-**要做什么：**
+**解决方法：**
 
-* 将变量设置为以调用 `exec "$@"` 结尾的可执行文件的绝对路径。有关完整合同，请参阅[启动器合同](https://code.claude.com/docs/zh-CN/corporate-launcher.md#the-launcher-contract)
-* 检查 `/status`，它在其 Self-exec 条目中显示解析的启动命令，并在运行的后台服务不匹配时警告，或从 shell 运行 `claude daemon status`
-* 在[设置](https://code.claude.com/docs/zh-CN/corporate-launcher.md#set-up-the-launcher)的 `env` 块中修复值后，使用 `claude daemon stop --any` 重启后台服务，以便下一次分派启动一个包装的后台服务
+* 将该变量设置为一个以调用 `exec "$@"` 结束的可执行文件的绝对路径。有关完整约定，请参阅[启动器约定](https://code.claude.com/docs/zh-CN/corporate-launcher.md#the-launcher-contract)
+* 检查 `/status`，它会在其 Self-exec 条目中显示解析后的启动命令，并在正在运行的后台服务与之不匹配时发出警告；或者在 shell 中运行 `claude daemon status`
+* 在[设置](https://code.claude.com/docs/zh-CN/corporate-launcher.md#set-up-the-launcher)的 `env` 块中修正该值后，使用 `claude daemon stop --any` 重新启动后台服务，以便下一次分派启动一个经过包装的服务
 
-### 启动后台会话时 EUNKNOWN
+### 启动后台会话时出现 EUNKNOWN
 
-Windows 拒绝使用没有标准名称的错误代码启动程序，因此失败显示为 `EUNKNOWN`。通常的触发器是软件限制策略，例如组策略或 AppLocker，阻止启动的程序。当您使用 `/background` 或 `claude --bg` 启动[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)时，错误出现：
+Windows 拒绝启动某个程序，并返回了一个没有标准名称的错误码，因此该失败显示为 `EUNKNOWN`。常见的诱因是软件限制策略（例如组策略或 AppLocker）阻止了正在启动的程序。当您使用 `/background` 或 `claude --bg` 启动[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)时会出现该错误：
 
 ```text theme={null}
 Couldn't reach the background service (spawn background service: EUNKNOWN: unknown error, uv_spawn) — run 'claude daemon status'
 ```
 
-在某些帐户上，消息说 `daemon` 代替 `background service`。
+在某些账户上，该消息会用 `daemon` 代替 `background service`。
 
-在 npm 安装上，在 `npm install -g @anthropic-ai/claude-code` 替换二进制文件时出现的 `EUNKNOWN` 与[重新安装期间的 `EACCES`](#eacces-when-starting-a-background-session) 有相同的原因，并在您在安装完成后重试时清除。
+在 npm 安装中，如果 `EUNKNOWN` 出现在 `npm install -g @anthropic-ai/claude-code` 正在替换二进制文件期间，其原因与[重新安装期间的 `EACCES`](#eacces-when-starting-a-background-session) 相同，待安装完成后重试即可消除。
 
-Claude Code 通过 PowerShell 启动后台服务，以便服务在关闭终端后存活，在安装时使用 PowerShell 7，否则使用 Windows PowerShell 5.1。当两个 PowerShell 都无法运行时，Claude Code 直接启动服务，因此仅阻止 PowerShell 的策略不会导致此错误。
+Claude Code 通过 PowerShell 启动后台服务，以便在关闭终端后服务仍能继续运行：如果已安装 PowerShell 7，则使用 PowerShell 7，否则使用 Windows PowerShell 5.1。当两种 PowerShell 都无法运行时，Claude Code 会改为直接启动服务，因此仅阻止 PowerShell 的策略不会导致此错误。
 
-在 v2.1.212 之前，Claude Code 仅使用 Windows PowerShell 5.1 启动服务，因此任何组策略阻止 PowerShell 5.1 的机器失败，出现 `Couldn't start the session — EUNKNOWN: unknown error, uv_spawn`，即使安装了 PowerShell 7。
+在 v2.1.212 之前，Claude Code 只使用 Windows PowerShell 5.1 来启动服务，因此任何组策略阻止了 PowerShell 5.1 的机器都会失败并显示 `Couldn't start the session — EUNKNOWN: unknown error, uv_spawn`，即使已安装 PowerShell 7 也是如此。
 
-**要做什么：**
+**解决方法：**
 
-* 如果消息读取 `Couldn't start the session`，升级到 v2.1.212 或更高版本。在早期版本上，您也可以在单独的终端中首先运行 `claude daemon run`，然后再次启动后台会话。该命令在终端的前台运行后台服务，因此服务仅在该终端保持打开时持续。
-* 如果 npm 安装正在替换二进制文件，等待它完成，然后再次启动后台会话
-* 如果错误在 v2.1.212 或更高版本上出现，而没有 npm 安装运行，请向您的 Windows 管理员确认是否有限制策略阻止了 Claude Code 可执行文件
-* 如果关闭终端时后台服务停止，Claude Code 在没有 PowerShell 的情况下启动了它。安装 PowerShell 7，或要求您的管理员解除对 PowerShell 的阻止，以便服务可以超越终端。
+* 如果消息显示 `Couldn't start the session`，请升级到 v2.1.212 或更高版本。在更早的版本上，您也可以先在单独的终端中运行 `claude daemon run`，然后再次启动后台会话。该命令会在终端前台运行后台服务，因此服务只在该终端保持打开期间持续运行。
+* 如果当时有 npm 安装正在替换二进制文件，请等待其完成，然后再次启动后台会话
+* 如果在 v2.1.212 或更高版本上、没有 npm 安装正在运行时出现该错误，请向您的 Windows 管理员确认是否有限制策略阻止了 Claude Code 可执行文件
+* 如果关闭终端时后台服务随之停止，说明 Claude Code 是在不使用 PowerShell 的情况下启动它的。请安装 PowerShell 7，或请管理员解除对 PowerShell 的阻止，以便服务能够在终端关闭后继续运行。
 
-### 启动后台会话时 EACCES
+### 启动后台会话时出现 EACCES
 
-Claude Code 无法运行其自己的二进制文件来启动[后台服务](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)，该服务托管后台会话。在 npm 安装上，这通常意味着 `npm install -g @anthropic-ai/claude-code` 在那一刻替换二进制文件，无论您运行它还是[自动更新程序](https://code.claude.com/docs/zh-CN/setup.md#auto-updates)运行。当您从 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)打开会话时，错误出现：
+Claude Code 无法运行自身的二进制文件来启动承载后台会话的[后台服务](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)。在 npm 安装中，这通常意味着 `npm install -g @anthropic-ai/claude-code` 当时正在替换该二进制文件，无论是您运行的还是[自动更新程序](https://code.claude.com/docs/zh-CN/setup.md#auto-updates)运行的。当您从 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 打开会话时会出现该错误：
 
 ```text theme={null}
 Couldn't start the background service — spawn background service: EACCES: permission denied, posix_spawn '/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude'
 ```
 
-当您使用 `/background` 或 `claude --bg` 启动会话时，相同的原因出现在 `Couldn't reach the background service (...)` 内。在相同的重新安装窗口期间，错误可能命名另一个代码，例如 `ENOENT` 或 `ENOEXEC`，或在 Windows 上 `EUNKNOWN` 或 `EPERM`；跨重试持续的 `EUNKNOWN` 有[不同的原因](#eunknown-when-starting-a-background-session)。
+当您使用 `/background` 或 `claude --bg` 启动会话时，相同的原因会出现在 `Couldn't reach the background service (...)` 中。在同一重新安装窗口期间，错误也可能显示其他错误码，例如 `ENOENT` 或 `ENOEXEC`，在 Windows 上则可能是 `EUNKNOWN` 或 `EPERM`；重试后仍持续出现的 `EUNKNOWN` 有[不同的原因](#eunknown-when-starting-a-background-session)。
 
-在 npm 安装上，Claude Code 等待重新安装完成并自动重试：最多十秒，以及在 npm 安装 Claude Code 在机器上仍然可见运行时最多两分钟，这涵盖了另一个 Claude Code 进程下载更新。当安装超过该等待时，失败命名更新而不是裸错误代码：
+在 npm 安装中，Claude Code 会等待重新安装完成并自行重试：最多等待十秒；若机器上明显仍有 Claude Code 的 npm 安装在运行，则最多等待两分钟，这涵盖了另一个 Claude Code 进程正在下载更新的情形。当安装时间超过该等待时长时，失败消息会指明更新，而不只是显示错误码：
 
 ```text theme={null}
 Claude Code is being updated by npm on this machine (still not runnable after 2 min, EACCES) — try again when the update finishes
 ```
 
-在 v2.1.257 之前，等待在每种情况下都在十秒处停止，因此此错误在另一个 Claude Code 进程仍在下载更新时出现。在 v2.1.246 之前，Claude Code 立即失败，没有等待。
+在 v2.1.257 之前，等待在任何情况下都会在十秒时停止，因此在另一个 Claude Code 进程仍在下载更新时会出现此错误。在 v2.1.246 之前，Claude Code 会立即失败，不会等待。
 
-**要做什么：**
+**解决方法：**
 
-* 等待几秒钟，然后打开会话或再次分派。当消息说 Claude Code 正在更新时，在更新完成后重试。
-* 如果错误在没有 npm 安装运行时持续，您的用户无法运行已安装的二进制文件。检查其权限及其目录的权限，或重新安装 Claude Code。
+* 等待几秒钟，然后再次打开会话或分派。当消息说明 Claude Code 正在更新时，请在更新完成后重试。
+* 如果在没有 npm 安装运行时错误仍然存在，则说明您的用户无法运行已安装的二进制文件。请检查该文件及其所在目录的权限，或重新安装 Claude Code。
 
-### 后台服务在变得可达之前退出
+### 后台服务在可访问之前退出
 
-Claude Code 作为[后台服务](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)启动的进程在接受连接之前退出，因此 Claude Code 无法打开您的会话。当服务在退出前打印错误时，括号中的原因给出退出码或信号以及服务打印的第一行，它命名停止它的内容：
+Claude Code 作为[后台服务](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)启动的进程在接受连接之前就退出了，因此 Claude Code 无法打开您的会话。如果服务在退出前打印了错误，括号中的原因会给出退出码或信号以及服务打印的第一行，该行会指明导致其停止的原因：
 
 ```text theme={null}
 Couldn't reach the background service (background service exited before it became reachable (exit code N): <the service's first error line>) — run 'claude daemon status'
 ```
 
-当您从 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)打开会话时，相同的原因跟随 `Couldn't start the background service —`。当服务在退出前没有打印任何内容时，消息说 `nothing on stderr`。
+当您从 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 打开会话时，相同的原因会跟在 `Couldn't start the background service —` 之后。如果服务在退出前没有打印任何内容，消息会改为显示 `nothing on stderr`。
 
-Claude Code 使用服务的错误行报告失败。在 v2.1.246 之前，失败仅在 45 秒等待后显示，作为 `background service did not become reachable within 45s`，没有服务的错误行。
+Claude Code 会连同服务的错误行一起报告失败。在 v2.1.246 之前，失败只会在等待 45 秒后才显示为 `background service did not become reachable within 45s`，且不包含服务的错误行。
 
-两个引用的原因有已知的成因：
+有两种引用的原因具有已知成因：
 
-* `Error: claude native binary not installed.`：npm 安装在那一刻替换 Claude Code 二进制文件，因此服务运行了 npm 的占位符。在安装完成后重试；如果在没有安装运行时该行持续出现，[完成 npm 安装](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#native-binary-not-found-after-npm-install)。在 v2.1.257 之前，macOS npm 自更新在安装窗口期间的每次启动时产生此失败。
-* 在 Windows 上，`nothing on stderr` 和退出码 1，每次启动：`daemon.lock` 命名一个 Claude Code 既无法发信号也无法证明已消失的进程，因此每个新服务得出结论另一个持有锁并退出。Claude Code 可以证明其编写者已消失的锁会自动替换，不会产生此失败。当失败在每次启动时重复时，删除 `~/.claude/daemon.lock`，然后打开会话或再次分派。在 v2.1.257 之前，这样的锁阻止了每次启动，直到您删除了文件。
+* `Error: claude native binary not installed.`：当时有 npm 安装正在替换 Claude Code 二进制文件，因此服务运行的是 npm 的占位程序。请在安装完成后重试；如果在没有安装运行时该行仍然出现，请[完成 npm 安装](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#native-binary-not-found-after-npm-install)。在 v2.1.257 之前，macOS 上的 npm 自更新会在安装窗口期间的每次启动时都产生此失败。
+* 在 Windows 上每次启动都出现退出码为 1 的 `nothing on stderr`：`daemon.lock` 指向一个 Claude Code 既无法发送信号、也无法证明已不存在的进程，因此每个新服务都会认定另一个服务持有该锁并退出。如果 Claude Code 能够证明锁的写入者已不存在，则会自行替换该锁，不会产生此失败。当每次启动都重复出现该失败时，请删除 `~/.claude/daemon.lock`，然后再次打开会话或分派。在 v2.1.257 之前，这样的锁会阻止每次启动，直到您删除该文件。
 
-**要做什么：**
+**解决方法：**
 
-* 如果消息引用一行，修复它命名的内容，然后打开会话或再次分派。下一次尝试再次启动服务
-* 运行 `claude daemon status` 检查现在是否有服务运行
+* 如果消息引用了某一行，请修复其所指的问题，然后再次打开会话或分派。下一次尝试会再次启动该服务
+* 运行 `claude daemon status` 检查当前是否有服务正在运行
 
-### 启动后台会话时工作目录不再存在
+### 启动后台会话时工作目录已不存在
 
-您启动[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)所在的目录在会话启动期间被删除。Claude Code 不启动会话，消息命名缺失的目录：
+您启动[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)所在的目录在会话启动期间被删除了。Claude Code 不会启动该会话，消息会指明缺失的目录：
 
 ```text theme={null}
 Couldn't start a background session (working directory no longer exists or is not accessible: /tmp/demo)
 ```
 
-在 v2.1.257 之前，会话似乎启动，然后在 Agent 视图中显示为具有相同原因的失败行。
+在 v2.1.257 之前，该会话看起来会启动，然后在 agent view 中显示为一个带有相同原因的失败行。
 
-在 v2.1.281 之前，当您启动会话之前目录已经消失时，此消息也出现。该情况报告 [`could not be resolved on disk`](#workspace-not-trusted-when-dispatching-a-background-session)。
+在 v2.1.281 之前，当目录在您启动会话之前就已不存在时，也会出现此消息。这种情况现在会报告 [`could not be resolved on disk`](#workspace-not-trusted-when-dispatching-a-background-session)。
 
-**要做什么：**
+**解决方法：**
 
-* 重新创建消息命名的目录，或从存在的目录分派，然后重试
+* 重新创建消息所指的目录，或从一个存在的目录进行分派，然后重试
 
 ### This forked session could not be started
 
-您从 claude.ai [分叉了一个 Remote Control 会话](https://code.claude.com/docs/zh-CN/remote-control.md#fork-a-session-from-your-browser)，而 Claude Code 无法完成启动在您的机器上运行该分叉的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)。此通知出现在分叉会话的会话记录中：
+您从 claude.ai [分叉了一个 Remote Control 会话](https://code.claude.com/docs/zh-CN/remote-control.md#fork-a-session-from-your-browser)，而 Claude Code 无法完成启动在您机器上运行该分叉的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)。此通知会出现在分叉会话的会话记录中：
 
 ```text theme={null}
 This forked session could not be started. Fork the conversation again to retry.
 ```
 
-您分叉的那个会话会继续运行。
+您分叉的原会话会继续运行。
 
-**要做什么：**
+**解决方法：**
 
-* 返回您分叉的那个会话，并在该会话空闲后再次分叉
+* 返回您分叉的那个会话，待该会话空闲后再次分叉
 
 ### 分派后台会话时工作区不受信任
 
-您在未[信任](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)的目录中启动或重启[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，工作区信任对话框无法出现以询问您。Claude Code 不启动会话：
+您在一个尚未[信任](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)的目录中启动或重新启动了[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，而工作区信任对话框无法出现来询问您。Claude Code 不会启动该会话：
 
 ```text theme={null}
 Workspace not trusted. Run `claude` in /path/to/project once and accept the trust prompt, then retry.
 ```
 
-从会话自己的目录中的终端，相同的命令会改为显示信任对话框，并在您接受后启动会话。此消息出现在无法显示对话框的地方，例如在脚本中，或当您从不同于其自己的目录重启会话时。
+如果在会话自身目录中的终端里运行同一命令，则会改为显示信任对话框，并在您接受后启动会话。此消息出现在无法显示对话框的场合，例如在脚本中，或者当您从会话自身目录以外的目录重新启动会话时。
 
-两个变体命名不同的原因：
+有两种变体指明了不同的原因：
 
-* **`The home directory is trusted one session at a time`**：会话的目录是您的主目录。Claude Code 从不保存主目录的信任，因此在早期会话中在那里接受对话框不计数。
-* **`<path> could not be resolved on disk`**：Claude Code 无法在磁盘上找到会话的目录。
+* **`The home directory is trusted one session at a time`**：会话的目录是您的主目录。Claude Code 从不保存对主目录的信任，因此在之前的会话中于该目录接受过对话框并不算数。
+* **`<path> could not be resolved on disk`**：Claude Code 在磁盘上找不到该会话的目录。
 
-在 v2.1.286 之前，在 Windows 上，如果某个您已信任的目录的信任记录是以不同字母大小写的路径保存的，此消息也可能在该目录中出现。请更新到 v2.1.286 或更高版本。
+在 v2.1.286 之前，在 Windows 上，如果某个您已信任的目录的信任记录以不同的字母大小写保存了路径，也可能出现此消息。请更新到 v2.1.286 或更高版本。
 
-**要做什么：**
+**解决方法：**
 
-* 在消息命名的目录中运行 `claude` 并接受信任对话框，然后再次运行该命令
-* 对于主目录消息，从您的主目录中的终端运行该命令，以便对话框可以出现，或改为从项目目录启动会话
-* 对于 `could not be resolved on disk` 消息，重新创建目录，或从存在的目录启动新会话
+* 在消息所指的目录中运行 `claude` 并接受信任对话框，然后再次运行该命令
+* 对于主目录消息，请在位于主目录的终端中运行该命令，以便对话框能够出现，或者改为从项目目录启动会话
+* 对于 `could not be resolved on disk` 消息，请重新创建该目录，或从一个存在的目录启动新会话
 
 ## 包装器和 IDE 错误
 

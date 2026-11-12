@@ -218,9 +218,9 @@ Mod、设置 hook、skill 和 MCP 服务器的功能有所重叠。此表说明�
 
 ## 内置于 Claude Code 的 Mods
 
-Claude Code 的一些自己的功能是 mods。要查看您的会话拥有的，在 Claude Code 提示符处运行 `/plugin` 并转到**已安装**选项卡，它在**内置**下列出它们。您不能更新或卸载内置 mod，表的最后一列说明如何关闭每一个。[`mods active` 行](#see-which-mods-a-session-loaded)排除了内置 mods。
+Claude Code 自身的一些功能就是 mod。要查看您的会话拥有哪些，请在 Claude Code 输入框中运行 `/plugin` 并转到**已安装**选项卡，它在**内置**下列出这些 mod。您不能更新或卸载内置 mod。[`mods active` 行](#see-which-mods-a-session-loaded)不包含内置 mod。
 
-此表按 `/plugin` 显示的名称列出每个条目：
+此表按 `/plugin` 显示的名称列出部分**内置**条目：
 
 | `/plugin` 中的名称 | 它做什么 | 它在哪里打开 | 如何关闭它 |
 | :- | :- | :- | :- |
@@ -230,6 +230,8 @@ Claude Code 的一些自己的功能是 mods。要查看您的会话拥有的，
 | `cc-plugin-sec-default` | 保护您的组织管理的内容免受用户安装的 mods | [保护加载的地方](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default) | 您不能。管理员在托管设置中[设置顺序](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods) |
 | `cc-plugin-telemetry` | 发送 Claude Code 及其内置 mods 记录的分析记录 | 无论 Claude Code 自己的分析在哪里打开 | 在 `/plugin` 中禁用它，或关闭分析，例如使用 [`DISABLE_TELEMETRY`](https://code.claude.com/docs/zh-CN/env-vars) |
 | `cc-plugin-you-should-know` | [You should know](https://code.claude.com/docs/zh-CN/interactive-mode.md#you-should-know-suggestions)：一个侧边 Agent 在发现您可能错过的内容时，会在输入框上方显示一条注释 | 默认关闭，直到您[将其打开](https://code.claude.com/docs/zh-CN/interactive-mode.md#you-should-know-suggestions) | 在 `/plugin` 中禁用它 |
+
+对于不在表中的**内置**插件，请[在 `/plugin` 中打开其详细信息](https://code.claude.com/docs/zh-CN/plugins/install#manage-installed-plugins)，以了解它的作用或将其禁用。
 
 停止已安装 mods 的设置和标志，例如 `disableAllHooks`、`--bare` 和 `--safe-mode`，不会停止内置 mods。
 
