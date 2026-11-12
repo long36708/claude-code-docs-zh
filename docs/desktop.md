@@ -2123,7 +2123,14 @@ IT 团队可以通过 macOS 上的 MDM、Windows 上的组策略或 Linux 上的
 >
 > 部署之前，请检查 `forceLoginOrgUUID` 值。如果该 ID 不是您组织的 ID，您组织中的人员将无法使用 Claude Desktop，除非他们同时属于具有该 ID 的组织。要恢复，请部署正确的 ID，并让他们重新启动 Claude Desktop。
 
-如果您在 Claude Code 的[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `forceLoginMethod` 和 `forceLoginOrgUUID`，并不会改变 Claude Desktop 的登录屏幕。
+如果您在 Claude Code 的[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `forceLoginMethod` 和 `forceLoginOrgUUID`，并不会改变 Claude Desktop 的登录屏幕。用户仍然可以使用自己的 Claude API 密钥或 [Claude Console 帐户](https://claude.com/docs/third-party/claude-desktop/claude-api#which-devices-offer-the-claude-api-account-sign-in)来使用 Claude Desktop，并以这种方式运行 Code 选项卡会话。
+
+要阻止这种情况，还需在 Claude Desktop 策略中（Windows 上位于 `HKLM` 中）部署 `forceLoginOrgUUID`，并填入您的 claude.ai 组织 ID。除非策略本身[选择了 Claude API](https://claude.com/docs/third-party/claude-desktop/claude-api#choose-an-authentication-approach)，否则 Claude Desktop 会在应用下次启动时停止使用个人自己的 API 密钥或 Console 帐户。
+
+部署之前，请检查以下两种情况：
+
+* **Claude Console 组织**：不要仅凭 Claude Console 组织的 ID 单独部署 `forceLoginOrgUUID`，否则会将您组织中的人员锁定在 Claude Desktop 之外。请改为参阅[哪些设备提供 Claude API 帐户登录](https://claude.com/docs/third-party/claude-desktop/claude-api#which-devices-offer-the-claude-api-account-sign-in)。
+* **Enterprise Admin Console**：如果它为您的计算机提供 Claude Desktop 配置，请先将这些计算机更新到 Claude Desktop v2.37337.0 或更高版本，因为一旦设置了此键，早期版本会忽略该配置。请参阅[使设备保持使用其托管配置文件](https://claude.com/docs/third-party/claude-desktop/admin-console#keep-a-device-on-its-managed-profile)。
 
 ### 网络访问要求
 

@@ -86,6 +86,7 @@
 | [`disabledMcpjsonServers`](#disabledmcpjsonservers) | 拒绝项目 [`.mcp.json`](https://code.claude.com/docs/zh-CN/mcp#project-scope) 中的特定服务器 | MCP | 任意文件 |
 | [`disableMobileSimulatorTools`](#disablemobilesimulatortools) | 在[桌面版](https://code.claude.com/docs/zh-CN/desktop.md) iOS Simulator 面板中屏蔽 Claude 的工具 | 工具 | 托管 |
 | [`disableRemoteControl`](#disableremotecontrol) | 在所有可启动 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 的位置将其关闭 | 远程、桌面与通知 | 任意文件 |
+| [`disableRemotePreviewScripts`](#disableremotepreviewscripts) | 在 SSH 和 WSL 会话中关闭[桌面版](https://code.claude.com/docs/zh-CN/desktop.md#preview-html-files-in-ssh-and-wsl-sessions)应用 HTML 预览中的脚本 | 远程、桌面与通知 | 托管 |
 | [`disableSideloadFlags`](#disablesideloadflags) | 拒绝用于旁加载[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)、[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)和 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)的 CLI 标志 | 企业与托管设置 | 托管 |
 | [`disableSkillShellExecution`](#disableskillshellexecution) | 阻止 [skill](https://code.claude.com/docs/zh-CN/skills.md) 和自定义命令运行内联 shell | 插件与 skill | 任意文件 |
 | [`disableWorkflows`](#disableworkflows) | 为所有人关闭[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)；若仅针对自己，请使用 `enableWorkflows` | hook 与自动化 | 任意文件 |
@@ -147,6 +148,7 @@
 | [`permissions.blockWritesOutsideWorkingDirectories`](#permissions-blockwritesoutsideworkingdirectories) | 使 `Write`、`Edit` 和 `NotebookEdit` 工具在所有权限模式下拒绝[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的路径，[Claude Code 自身的部分文件](#what-the-write-block-refuses-and-what-stays-writable)除外 | 权限设置 | 任意文件 |
 | [`permissions.defaultMode`](#permissions-defaultmode) | 为新会话设置默认的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in) | 权限设置 | 任意文件 |
 | [`permissions.deny`](#permissions-deny) | 阻止所列的[工具使用](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)，包括读取包含机密的文件 | 权限设置 | 任意文件 |
+| [`permissions.denyInsteadOfPrompting`](#permissions-denyinsteadofprompting) | 拒绝原本需要等待[权限提示](https://code.claude.com/docs/zh-CN/permissions.md#permission-system)的工具调用，使无人值守的会话能够继续工作 | 权限设置 | 用户或托管 |
 | [`permissions.disableBypassPermissionsMode`](#permissions-disablebypasspermissionsmode) | 阻止任何人进入 [bypassPermissions 模式](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode) | 权限设置 | 任意文件 |
 | [`plansDirectory`](#plansdirectory) | 选择[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)写入计划文件的位置 | 记忆与上下文 | 任意文件 |
 | [`pluginConfigs`](#pluginconfigs) | 存储您在[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)配置对话框中给出的答案 | 插件与 skill | 用户或托管 |
@@ -228,10 +230,10 @@
 | [`statusLine`](#statusline) | 运行您自己的命令，在输入框下方渲染[状态栏](https://code.claude.com/docs/zh-CN/statusline.md) | 界面与终端 | 任意文件 |
 | [`strictKnownMarketplaces`](#strictknownmarketplaces) | 通过允许列表限定用户可以添加并从中安装的[市场](https://code.claude.com/docs/zh-CN/plugins/overview.md)来源 | 插件与 skill | 托管 |
 | [`strictPluginOnlyCustomization`](#strictpluginonlycustomization) | 屏蔽来自用户和项目来源的 [skill](https://code.claude.com/docs/zh-CN/skills.md)、[Agent](https://code.claude.com/docs/zh-CN/sub-agents.md)、[hook](https://code.claude.com/docs/zh-CN/hooks.md) 和 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md) | 插件与 skill | 托管 |
-| [`strictPluginOnlyCustomization.agents`](#strictpluginonlycustomization-agents) | 将 [Agent](https://code.claude.com/docs/zh-CN/sub-agents.md) 限定为插件和托管来源 | 插件与 skill | 托管 |
-| [`strictPluginOnlyCustomization.hooks`](#strictpluginonlycustomization-hooks) | 将 [hook](https://code.claude.com/docs/zh-CN/hooks.md) 限定为插件和托管来源 | 插件与 skill | 托管 |
-| [`strictPluginOnlyCustomization.mcp`](#strictpluginonlycustomization-mcp) | 将 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)限定为插件和托管来源 | 插件与 skill | 托管 |
-| [`strictPluginOnlyCustomization.skills`](#strictpluginonlycustomization-skills) | 将 [skill](https://code.claude.com/docs/zh-CN/skills.md) 限定为插件和托管来源 | 插件与 skill | 托管 |
+| [`strictPluginOnlyCustomization.agents`](#strictpluginonlycustomization-agents) | 屏蔽来自用户和项目来源的 [Agent](https://code.claude.com/docs/zh-CN/sub-agents.md) | 插件与 skill | 托管 |
+| [`strictPluginOnlyCustomization.hooks`](#strictpluginonlycustomization-hooks) | 屏蔽来自用户和项目来源的 [hook](https://code.claude.com/docs/zh-CN/hooks.md) | 插件与 skill | 托管 |
+| [`strictPluginOnlyCustomization.mcp`](#strictpluginonlycustomization-mcp) | 屏蔽来自用户和项目来源的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md) | 插件与 skill | 托管 |
+| [`strictPluginOnlyCustomization.skills`](#strictpluginonlycustomization-skills) | 屏蔽来自用户和项目来源的 [skill](https://code.claude.com/docs/zh-CN/skills.md) | 插件与 skill | 托管 |
 | [`subagentPromptCacheTtl`](#subagentpromptcachettl) | 为子代理和主对话之外的其他请求选择[提示缓存生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime) | 模型与回复 | 任意文件 |
 | [`subagentStatusLine`](#subagentstatusline) | 使用您自己的命令重写[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)任务显示中的行 | 界面与终端 | 任意文件 |
 | [`switchModelsOnFlag`](#switchmodelsonflag) | 当[安全分类器](https://code.claude.com/docs/zh-CN/model-config.md#ask-before-switching)标记某个请求时，自动切换模型或暂停 | 模型与回复 | 任意文件 |
@@ -288,7 +290,7 @@
 }
 ```
 
-在 advisor [不可用](https://code.claude.com/docs/zh-CN/advisor.md#requirements)的提供商上（例如 Amazon Bedrock 和 Claude Platform on AWS），此键不起作用。`"fable"` 需要 [Fable 访问权限](https://code.claude.com/docs/zh-CN/advisor.md#choose-an-advisor-model)。
+在 advisor [不可用](https://code.claude.com/docs/zh-CN/advisor.md#requirements)的提供商上（例如 Amazon Bedrock），此键不起作用。在 Claude Platform on AWS 上，此键需要 Claude Code v2.1.300 或更高版本。`"fable"` 需要 [Fable 访问权限](https://code.claude.com/docs/zh-CN/advisor.md#choose-an-advisor-model)。
 
 ### `alwaysThinkingEnabled`
 
@@ -448,7 +450,7 @@
 
 在可用的会话中开启[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)，适用于快速迭代或实时调试等需要以更高的每 token 成本换取速度的交互式工作。通常无需手动编辑此键。运行 `/fast` 会将 `fastMode: true` 写入 `~/.claude/settings.json`，再次运行以关闭快速模式则会移除该键。
 
-只有 Fable 5.2、Opus 5.5、Opus 5 和 Opus 4.8 支持快速模式。在其他模型上运行 `/fast` 会将您切换到 Opus，而切换到不受支持的模型则会关闭快速模式。请参阅[在快速模式开启时切换模型](https://code.claude.com/docs/zh-CN/fast-mode.md#switch-models-while-fast-mode-is-on)。
+在 Anthropic API 上，只有 Fable 5.2、Opus 5.5、Opus 5 和 Opus 4.8 支持快速模式。在其他模型上运行 `/fast` 会将您切换到 Opus，而切换到不受支持的模型则会关闭快速模式。请参阅[在快速模式开启时切换模型](https://code.claude.com/docs/zh-CN/fast-mode.md#switch-models-while-fast-mode-is-on)。在 Google Cloud 的 Agent Platform 上，[`/fast` 则会将您切换到 Fable 5.2](https://code.claude.com/docs/zh-CN/fast-mode#use-fast-mode-on-agent-platform)，且不会写入此键，Claude Code 也会忽略已保存的 `true`。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：Boolean
@@ -904,7 +906,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 控制 Claude 无需询问即可使用哪些工具、哪些工具需要提示、哪些工具被阻止。还可设置新会话的默认[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。下面的每个 `permissions.*` 键都嵌套在此对象下。
 
 * **作用域**：[`Any file`](#scopes)
-* **类型**：包含 `allow`、`ask`、`deny`、`additionalDirectories`、`blockReadsOutsideWorkingDirectories`、`blockWritesOutsideWorkingDirectories`、`defaultMode`、`disableBypassPermissionsMode` 和 `disableAutoMode` 的对象
+* **类型**：包含 `allow`、`ask`、`deny`、`additionalDirectories`、`blockReadsOutsideWorkingDirectories`、`blockWritesOutsideWorkingDirectories`、`defaultMode`、`denyInsteadOfPrompting`、`disableBypassPermissionsMode` 和 `disableAutoMode` 的对象
 * **默认值**：未设置
 
 此示例无需询问即批准 `npm run` 命令，在 `git push` 之前进行提示，阻止读取 `.env`，并以 `acceptEdits` 启动会话：
@@ -1163,6 +1165,66 @@ Claude Code 自身的部分文件仍可写入，例如计划文件、[草稿区]
 
 权限规则叠加在每种模式之上：`deny` 规则在所有模式下都会阻止，包括 `bypassPermissions`。请参阅[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。在云端会话中，Claude Code 仅采用此键中的 `acceptEdits`、`plan`、`default` 和 `auto`。对于 VS Code 扩展启动的对话，请参阅[扩展读取哪个设置作为起始权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)。
 
+### `permissions.denyInsteadOfPrompting`
+
+将此项设置为 `true`，可在无人回答权限提示时让会话继续运行。Claude Code 会拒绝原本需要等待提示的工具调用，轮次继续进行。需要 Claude Code v2.1.319 或更高版本。
+
+如果允许规则、您的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)或自动模式的分类器批准了某个调用，该调用会继续执行。要允许大多数原本会发出提示的调用，请通过 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 进行应答。
+
+* **作用域**：[`User or managed`](#scopes)，以及 `--settings`。仓库无法替您设置它。
+* **类型**：Boolean
+  * `true`：Claude Code 拒绝原本会发出提示的调用
+  * `false`：与未设置相同；如果这些来源中的另一个设置了 `true`，调用仍会被拒绝
+* **默认值**：未设置，因此需要批准的调用会向您发出提示
+
+在 `~/.claude/settings.json` 中，此示例以自动模式启动会话，并拒绝所有仍会回退到提示的操作：
+
+```json settings.json theme={null}
+{
+  "permissions": {
+    "defaultMode": "auto",
+    "denyInsteadOfPrompting": true
+  }
+}
+```
+
+此键适用于 `-p` 运行、交互式终端会话、[VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)、[Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md)中的本地会话、[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)以及 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md)。如果只想在单次[非交互式](https://code.claude.com/docs/zh-CN/headless.md)运行中拒绝会发出提示的操作，请改为将 [`--permission-prompts none`](https://code.claude.com/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs) 与 `-p` 一起传入。
+
+#### `denyInsteadOfPrompting` 还会阻止什么
+
+启用此设置后，Claude Code 还会停止以下需要应答的请求：
+
+* **问题和计划工具**：Claude Code 会省略 [`AskUserQuestion`](https://code.claude.com/docs/zh-CN/tools-reference#askuserquestion-tool-behavior)、`EnterPlanMode` 和 `ExitPlanMode`，因此处于计划模式的会话无法自行退出该模式。agent team 中的队友会保留 `EnterPlanMode` 和 `ExitPlanMode`
+* **MCP elicitation**：Claude Code 会取消 [elicitation 请求](https://code.claude.com/docs/zh-CN/mcp.md#respond-to-mcp-elicitation-requests)，除非有 [`Elicitation` hook](https://code.claude.com/docs/zh-CN/hooks#elicitation) 对其作出应答
+* **权限宿主**：Claude Code 不会询问您的 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input)或 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)。要通过代码批准调用，请通过 `PermissionRequest` hook 应答。某些调用会在询问任何 hook 之前就被拒绝，例如 `auto` 模式下未被任何 ask 规则覆盖的[关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-path-removals-in-each-permission-mode)。
+* **分类器计费通知**：在[关于计费分类器请求的通知](https://code.claude.com/docs/zh-CN/auto-mode-classifier-billing.md)会打开对话框的情况下，Claude Code 不会显示该通知，并会拒绝需要这些请求的操作
+
+会话仍可能等待[工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)和[项目 MCP 服务器批准](https://code.claude.com/docs/zh-CN/mcp.md#project-server-approvals-and-workspace-trust)。请在让会话无人值守地运行之前先应答这两项。
+
+#### 来自 `denyInsteadOfPrompting` 的消息
+
+这些消息报告被拒绝的调用。它们不是提示，因此不会等待您的应答。
+
+Claude 读取到的拒绝信息可能以以下文本开头：
+
+```text theme={null}
+Permission for this tool use was denied. It requires approval, and this session has no approval surface
+```
+
+在 `stream-json` 输出中，[发出 `permission_denied` 消息的运行](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkpermissiondeniedmessage)会报告以下 `decision_reason`：
+
+```text theme={null}
+no approval surface in this session; permission request denied automatically
+```
+
+在启用此设置的自动模式下，当连续 20 次调用被分类器阻止或被[安全检查拒绝](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)后，该轮次会结束，您会看到以下消息：
+
+```text theme={null}
+20 actions were refused and no work went ahead in between, so Claude stopped.
+```
+
+`-p` 运行会将该轮次报告为 `error_during_execution`。
+
 ### `permissions.disableBypassPermissionsMode`
 
 阻止任何人进入 `bypassPermissions` 模式。此后 Claude Code 会拒绝 `--dangerously-skip-permissions` 标志，并忽略 [Agent 定义](https://code.claude.com/docs/zh-CN/sub-agents.md#permission-modes)中的 `permissionMode: bypassPermissions`，因此子代理会以父会话的权限模式运行。
@@ -1202,7 +1264,7 @@ Claude Code 自身的部分文件仍可写入，例如计划文件、[草稿区]
 
 跳过 Claude Code 在会话进入 `bypassPermissions` 模式之前显示的确认对话框，无论是由 `--dangerously-skip-permissions` 还是 `defaultMode: "bypassPermissions"` 触发。当您接受过一次该对话框后，Claude Code 会在您的用户设置中此处写入 `true`。
 
-* **作用域**：[`User, local, or managed`](#scopes)。不受信任的仓库无法替您跳过该对话框。
+* **作用域**：[`User, local, or managed`](#scopes)，以及通过 `--settings` 传入的文件。[后台会话](https://code.claude.com/docs/zh-CN/permission-modes.md#bypass-permissions-ignored-in-a-background-session)仅计入用户设置和托管设置。不受信任的仓库无法替您跳过该对话框。
 * **类型**：Boolean
   * `true`：Claude Code 在会话进入 `bypassPermissions` 模式之前跳过确认对话框
   * `false`：与未设置相同；除非这些文件中的另一个设置了 `true`，否则对话框会出现
@@ -3132,7 +3194,7 @@ Claude 工作时，Claude Code 会在加载指示器中以您的前缀显示您�
 
 ### `syntaxHighlightingDisabled`
 
-Claude Code 使用其内置的高亮器，按语言为其在终端中显示的 diff、代码块和文件预览中的代码着色；不涉及任何插件或语言服务器。将此键设置为 `true` 可改为以纯文本显示，例如当颜色与您的终端主题冲突或拖慢屏幕阅读器时。
+Claude Code 使用其内置的高亮器，按语言为其在终端中显示的 diff、代码块和文件预览中的代码着色。将此键设置为 `true` 可改为以纯文本显示，例如当颜色与您的终端主题冲突或拖慢屏幕阅读器时。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：布尔值
@@ -4110,10 +4172,10 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 ### `strictPluginOnlyCustomization`
 
-阻止来自用户和项目来源的 skill、Agent、hook 和 MCP 服务器，使它们只能来自插件或托管设置。将其与 [`strictKnownMarketplaces`](#strictknownmarketplaces) 结合使用可控制完整的自定义供应链：市场允许列表控制用户可以安装哪些插件。
+阻止来自用户和项目来源的 skill、Agent、hook 和 MCP 服务器。将其与 [`strictKnownMarketplaces`](#strictknownmarketplaces) 结合使用，可选择用户能够从哪些市场安装插件。再添加 [`disableSideloadFlags`](#disablesideloadflags)，可拒绝那些为单次运行旁加载插件、Agent 和 MCP 服务器的 CLI 标志。
 
 * **作用域**：[`Managed`](#scopes)
-* **类型**：`true` 表示锁定全部四种自定义，或者是一个数组，从 `"skills"`、`"agents"`、`"hooks"` 和 `"mcp"` 中指定要锁定的类型
+* **类型**：`true` 表示锁定全部，或者是一个数组，从 `"skills"`、`"agents"`、`"hooks"` 和 `"mcp"` 中指定要锁定的类型
 * **默认值**：未设置，因此不锁定任何内容
 
 此示例锁定 skill 和 hook，而不锁定 Agent 和 MCP 服务器：
@@ -4216,17 +4278,15 @@ frontmatter hook 停止运行的 skill、自定义命令和 Agent，只要其自
 每个作用域有不同的用途：
 
 * **用户设置**：您的个人插件偏好
-* **项目设置**：与仓库中所有人共享的插件
+* **项目设置**：为仓库中所有人启用的插件。这并不会安装它们，因此每个用户需要[自行安装](https://code.claude.com/docs/zh-CN/plugins/org.md#require-plugins-per-repository)。
 * **本地设置**：按机器的覆盖，Claude Code 在此保存设置时会将其加入 gitignore
 * **托管设置**：组织范围的策略。在此设置为 `false` 的插件在所有作用域中都被禁止安装，并在市场中隐藏
 
 项目设置优先于用户设置，因此在 `~/.claude/settings.json` 中将插件设置为 `false` 不会禁用项目的 `.claude/settings.json` 所启用的插件。要在您的机器上退出项目启用的插件，请改为在 `.claude/settings.local.json` 中将其设置为 `false`。由托管设置强制启用的插件无法通过这种方式禁用，因为托管设置会覆盖本地设置。
 
-在项目的 `.claude/settings.json` 中启用来自外部来源（例如 GitHub 仓库或 npm 包）的插件，并不会为其他人安装该插件。在每条加载插件的路径上，Claude Code 都会报告该插件未安装，直到每个用户[自行安装](https://code.claude.com/docs/zh-CN/plugins/org.md#require-plugins-per-repository)。
-
 ### `extraKnownMarketplaces`
 
-按名称注册额外的插件市场，使打开该仓库的人或您的托管设置覆盖到的所有人无需自行添加即可获得该市场。Claude Code 会注册每个它尚不知道的市场。[`enabledPlugins`](#enabledplugins) 从中指定的插件是否会安装，取决于插件的来源以及由哪个文件启用它；该条目介绍了相关规则。
+按名称注册额外的插件市场，使打开该仓库的人或您的托管设置覆盖到的所有人无需自行添加即可获得该市场。Claude Code 会注册每个它尚不知道的市场。[`enabledPlugins`](#enabledplugins) 从中指定的插件是否会安装，取决于插件的来源以及由哪个文件启用它；[已在项目设置中启用但未安装](https://code.claude.com/docs/zh-CN/plugins/loading.md#enabled-in-project-settings-but-not-installed)介绍了相关规则。
 
 * **作用域**：[`Any file`](#scopes)。只有在您接受该文件夹的工作区信任对话框后，Claude Code 才会识别仓库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的条目；在您尚未信任的文件夹中（包括在那里执行的 `-p` 运行），它会忽略这些条目且不显示消息。
 * **类型**：将市场名称映射到对象的对象，该对象包含一个 `source` 对象和一个可选的 `autoUpdate` Boolean
@@ -4354,7 +4414,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 列出托管插件，其 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 会按列出的顺序在用户安装的所有 mod 之前运行。在托管设置中设置此键时，请在列表中指定 `sec-default@builtin` 以保留内置守卫。在托管设置中，如果某个 id 对应的插件不算作您组织的插件，Claude Code 会跳过它。有关这些条件以及两个排序键如何协同工作，请参阅[安装您组织的 mod 并设置顺序](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)。
 
-* **作用域**：[`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅当机器上没有托管设置，且会话的凭据不是 Team 或 Enterprise `/login` 时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
+* **作用域**：[`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅当机器上既没有托管设置也没有 `managed-mcp.json` 文件，且会话的凭据不是 Team 或 Enterprise `/login` 时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
 * **类型**：`plugin-name@marketplace-name` 字符串数组
 * **默认值**：未设置
 
@@ -4374,7 +4434,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 列出托管插件，其 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 会按列出的顺序在用户安装的所有 mod 之后运行。同时列在 `prependPlugins` 和 `appendPlugins` 中的 id 会被前置。在托管设置中，如果某个 id 对应的插件不[算作您组织的插件](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)，Claude Code 会跳过它。
 
-* **作用域**：[`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅当机器上没有托管设置，且会话的凭据不是 Team 或 Enterprise `/login` 时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
+* **作用域**：[`User or managed`](#scopes)。Claude Code 从托管设置中读取此键。仅当机器上既没有托管设置也没有 `managed-mcp.json` 文件，且会话的凭据不是 Team 或 Enterprise `/login` 时，它才会从用户设置中读取此键。它会忽略项目设置、本地设置以及 `--settings` 文件中的此键。
 * **类型**：`plugin-name@marketplace-name` 字符串数组
 * **默认值**：未设置
 
@@ -4612,7 +4672,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 ### `crossSessionInbound`
 
-选择此会话如何处理[来自您其他 Claude Code 会话的消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#control-inbound-messages)。当没有适用的值时，Claude Code 会根据两个会话的权限模式类别逐条消息做出决定。需要 Claude Code v2.1.224 或更高版本。
+选择此会话如何处理[来自您其他 Claude Code 会话的消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#control-inbound-messages)。当没有适用的值时，Claude Code 会根据两个会话的权限模式类别逐条消息做出决定。
 
 * **作用域**：[`任意文件`](#scopes)。项目或本地值仅在比托管设置、`--settings` 标志或用户设置给出的值更严格时才生效。
 * **类型**：字符串，取值之一：
@@ -4946,6 +5006,30 @@ Claude Desktop 会向 Code 会话提供从您的桌面配置派生的策略，�
 }
 ```
 
+### `disableRemotePreviewScripts`
+
+当用户在桌面应用中从 SSH 或 WSL 会话[预览 HTML 文件](https://code.claude.com/docs/zh-CN/desktop.md#preview-html-files-in-ssh-and-wsl-sessions)时，阻止脚本运行。Browser 窗格中的外部浏览不受影响。
+
+桌面应用读取此设置项；终端 CLI 会忽略它。需要 Claude Desktop v5.1231.0 或更高版本。更早的版本会忽略此设置项：要在这些版本中阻止脚本运行，还需设置 [`disableBrowserExternalNavigation`](#disablebrowserexternalnavigation)，它也会关闭外部浏览。
+
+* **作用域**：[`Managed`](#scopes)。桌面应用不会从远程机器或 WSL 发行版读取此设置项。
+* **类型**：Boolean；只有 JSON Boolean `true` 才会生效
+  * `true`：SSH 和 WSL 会话中的 HTML 预览不运行脚本
+  * `false`：此设置项不会关闭脚本
+* **默认值**：未设置，因此此设置项不起作用
+
+如果运行桌面应用的计算机未收到任何其他 Claude Code 托管设置，还需在您创建的托管设置中将 [`parentSettingsBehavior`](#parentsettingsbehavior) 设置为 `"merge"`。在 Windows 上，如果您创建托管设置文件，用户还会失去 WSL 会话，直到您[允许这些会话](https://code.claude.com/docs/zh-CN/admin-setup.md#wsl-sessions-in-claude-code-desktop)。[为您的组织关闭 SSH 和 WSL 预览中的脚本](https://code.claude.com/docs/zh-CN/desktop.md#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)对这两点进行了说明，并介绍了在何处设置此设置项。
+
+此示例仅显示此设置项本身，即您将其添加到计算机已接收的托管设置中时的写法：
+
+```json managed-settings.json theme={null}
+{
+  "disableRemotePreviewScripts": true
+}
+```
+
+桌面应用会忽略任何其他值，而非 Boolean 的值（例如字符串 `"true"` 或 `1`）还会记录一条警告。
+
 ### `enableArtifact`
 
 关闭 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 工具，该工具会将会话输出发布为 claude.ai 上的私有网页。当您在 `/config` 中关闭 **Artifacts** 行时，Claude Code 会将此设置项写入您的用户设置，因此您通常无需手动编辑它。
@@ -5219,14 +5303,14 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 ### `forceLoginMethod`
 
-限制用户可以使用哪种账户登录。设置为 `"claudeai"` 仅允许 claude.ai 账户，设置为 `"console"` 仅允许 Claude Console 账户，设置为 `"gateway"` 则将用户引导至 [cloud gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，而不是第一方登录。管理员在托管设置中设置此项，并与 [`forceLoginOrgUUID`](#forceloginorguuid) 搭配使用，使开发者的 claude.ai 登录限定在一个组织内。
+限制用户可以使用哪种账户登录：`"claudeai"` 表示 claude.ai 登录，`"console"` 表示 Claude Console 登录。设置为 `"gateway"` 则将用户引导至 [cloud gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，而不是第一方登录。管理员在托管设置中设置此项，并与 [`forceLoginOrgUUID`](#forceloginorguuid) 搭配使用，使开发者的 claude.ai 登录限定在一个组织内。
 
 如果您在任何设置文件中将其设置为 `"claudeai"`，Claude Code 还会在该文件适用的会话中停止提供[无密钥 Console 登录](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)。仅设置 `"console"` 时，用户在登录失败后仍可访问无密钥登录。要让 Claude Code 停止提供该登录方式，请参阅[在托管机器上停止提供无密钥登录](https://code.claude.com/docs/zh-CN/authentication.md#stop-offering-the-keyless-sign-in-on-managed-machines)，其中还列出了 `forceLoginOrgUUID` 带来的其他变化。
 
 * **作用域**：[`Any file`](#scopes)。Claude Code 仅在与 [`forceLoginGatewayUrl`](#forcelogingatewayurl) 相同的来源中认可 `"gateway"`，在其他任何地方都将其视为未设置。
 * **类型**：字符串，以下之一：
-  * `"claudeai"`：只有 claude.ai 账户可以登录
-  * `"console"`：只有 Claude Console 账户可以登录
+  * `"claudeai"`：claude.ai 登录
+  * `"console"`：Claude Console 登录
   * `"gateway"`：Claude Code 将用户引导至 cloud gateway，而不是第一方登录
 * **默认值**：未设置，因此用户自行选择登录方式
 
@@ -5471,6 +5555,8 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 设置 Claude Code 在删除[会话记录和其他应用程序数据](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)之前保留它们的天数。只要 Claude Code 能够安全地确定保留期限，它就会在会话启动后以后台清理的方式执行删除。清理在删除会话记录时不会显示任何消息，因此超过保留期限未使用的会话将不再出现在 [`/resume`](https://code.claude.com/docs/zh-CN/sessions#resume-a-session) 选择器中。
 
+默认情况下，对于您在 Claude Desktop 或 Cowork 中启动或最近继续的会话，Claude Code 会在超过此期限后继续保留其会话记录，即使您自己设置了此键也是如此。在某些情况下（例如在 HIPAA 配置下），[此期限仍适用于这些会话记录](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。在 v2.1.248 之前，Claude Code 会在此期限后删除它们。
+
 * **作用域**：[`任意文件`](#scopes)
 * **类型**：天数，整数，最小值为 `1`
 * **默认值**：`30`
@@ -5485,7 +5571,9 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 ### `desktopSessionCleanupPeriodDays`
 
-为您在 Claude Desktop 或 Cowork 中启动或最近继续的会话的会话记录设置以天为单位的期限。如果未设置此键，Claude Code 会[无论时长都保留这些会话记录](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。当每条会话记录的时长同时超过此期限和 [`cleanupPeriodDays`](#cleanupperioddays) 时，Claude Code 会将其删除，因此在 `cleanupPeriodDays` 为默认值 30 的情况下，值 `7` 仍会保留它们 30 天。[自动清理](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)列出了改用 `cleanupPeriodDays` 且 Claude Code 忽略此键的情况。需要 Claude Code v2.1.248 或更高版本。
+为您在 Claude Desktop 或 Cowork 中启动或最近继续的会话的会话记录设置以天为单位的期限。如果未设置此键，Claude Code 会[无论时长都保留这些会话记录](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)，但某些情况除外，例如您在 Claude Desktop 中删除的会话。需要 Claude Code v2.1.248 或更高版本。
+
+当每条会话记录的时长同时超过此期限和 [`cleanupPeriodDays`](#cleanupperioddays) 时，Claude Code 会将其删除，因此在 `cleanupPeriodDays` 为默认值 30 的情况下，值 `7` 仍会保留它们 30 天。[自动清理](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)列出了改用 `cleanupPeriodDays` 且 Claude Code 忽略此键的情况。
 
 * **作用域**：[`用户或托管`](#scopes)。Claude Code 也会从您通过 `--settings` 传入的文件中读取此键，并在项目设置和本地设置中忽略它。
 * **类型**：天数，整数，最小值为 `0`

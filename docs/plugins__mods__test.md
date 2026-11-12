@@ -194,7 +194,18 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 | `session.receive` | `($, e) => ({ text: e.text })`。使用 `$.session.receive({ origin: { kind: 'peer-send-message' }, text })` 触发它。 |
 | `ui.render` | `() => ({ type: 'Text', props: {}, children: ['...'] })` |
 
-`expect` 有断言 `toBe`、`toEqual`、`toMatch`、`toMatchObject`、`toContain`、`toBeDefined`、`toBeUndefined` 和 `toThrow`，以及任何之前的 `.not`。
+### 使用 `expect` 检查结果
+
+工具包提供以下断言，所选的断言跟在您要检查的值之后，例如 `expect(answer.text).toBe('ok')`：
+
+* **相等性**：`toBe` 用于相同的值或对象，`toEqual` 用于结构，`toStrictEqual` 用于结构以及 `undefined` 字段和原型，`toMatchObject` 用于您指定的字段
+* **文本**：`toMatch`（接受正则表达式或子字符串）、`toStartWith` 和 `toEndWith`
+* **数字**：`toBeGreaterThan`、`toBeGreaterThanOrEqual`、`toBeLessThan`、`toBeLessThanOrEqual`
+* **内容**：`toContain` 用于子字符串或成员，`toContainEqual` 用于按结构比较的成员，以及 `toHaveLength` 和 `toHaveProperty`
+* **存在性和类型**：`toBeDefined`、`toBeUndefined`、`toBeNull`、`toBeTruthy`、`toBeFalsy`、`toBeNaN`、`toBeInstanceOf`
+* **抛出**：`toThrow`，用于由 `expect` 调用的函数，或用于您通过 `.rejects` 检查的 promise
+
+在断言前加上 `.not` 可检查相反的情况，加上 `.resolves` 或 `.rejects` 可检查 promise 最终兑现或拒绝的结果。
 
 当 `expect` 在您以普通函数（而非异步生成器）形式传给 `on` 的 stub 或 hook 中失败时，测试会失败。引擎会跳过该 hook，失败输出会指出其名称，例如 `in the test's store.set hook`。
 
