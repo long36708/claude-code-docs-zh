@@ -148,9 +148,13 @@ Claude 根据您的项目创建初始服务器配置。如果您的应用使用�
 
 #### 为您的组织关闭 SSH 和 WSL 预览中的脚本
 
-要阻止 [SSH 和 WSL 会话中的 HTML 预览](#preview-html-files-in-ssh-and-wsl-sessions)运行脚本，请将 [`disableBrowserExternalNavigation` 托管设置](#managed-settings)设置为 `true`。启用此设置后，用户也无法在浏览器窗格中[浏览外部网站](#restrict-external-browsing-for-your-organization)。
+要阻止 [SSH 和 WSL 会话中的 HTML 预览](#preview-html-files-in-ssh-and-wsl-sessions)运行脚本，请将 [`disableRemotePreviewScripts` 托管设置](#managed-settings)设置为 `true`。用户仍然可以浏览外部网站。需要 Claude Desktop v5.1231.0 或更高版本。
 
-请在您的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中设置它，或在运行 Desktop 的计算机上的 [Claude Code MDM 策略或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#where-each-mechanism-stores-the-policy)中设置它。Desktop 不会从远程机器或 WSL 发行版读取它。使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)时，请使用 MDM 策略或该文件。
+> [!NOTE]
+>
+> 早期版本会忽略 `disableRemotePreviewScripts`。要在这些版本中阻止脚本，请更新 Desktop，或同时将 `disableBrowserExternalNavigation` 设置为 `true`。这样，在任何接收 `disableBrowserExternalNavigation` 的计算机上，用户都[无法浏览外部网站](#restrict-external-browsing-for-your-organization)。
+
+请在您的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中设置每个键，或在运行 Desktop 的计算机上的 [Claude Code MDM 策略或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#where-each-mechanism-stores-the-policy)中设置。Desktop 不会从远程机器、WSL 发行版、[`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper) 或 [Desktop 自身的策略](#device-management-policies)中读取这些键。使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)时，请使用 MDM 策略或该文件。
 
 > [!WARNING]
 >
@@ -160,9 +164,13 @@ Claude 根据您的项目创建初始服务器配置。如果您的应用使用�
 
 然后让用户重启 Desktop 以确保设置生效，并告诉他们会出现什么情况：
 
-* **他们打开的文件**：预览不运行脚本，因此由脚本绘制的图表和表格会保持为空
+* **他们打开的文件**：预览不运行脚本，因此由脚本绘制的图表和表格会保持为空。其提示以 `This preview doesn't run scripts` 开头。
 * **正在运行脚本的预览**：如果 Desktop 在重启之前就获取了该设置，这些预览会关闭。用户会看到 `This preview closed because scripts are turned off for previews. Open the file again to view it without scripts.`
 * **他们导出的文件**：如果用户[导出文件](#preview-html-files-in-ssh-and-wsl-sessions)并在浏览器中打开，无论是否启用此设置，其脚本都会在那里运行
+
+##### 检查计算机上是否仍有脚本运行
+
+重启后，在该计算机上从 SSH 或 WSL 会话打开一个 HTML 文件。如果预览上方的提示以 `This preview doesn't load anything from the web` 开头，说明脚本在那里仍会运行。请检查 [Desktop 的版本](#check-your-version)、您放置该键的位置，以及其值是否为 JSON 布尔值 `true`。
 
 ### 浏览外部网站
 
@@ -2037,6 +2045,7 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 | `browserExternalPageTools` | 设置为 `"disabled"` 以防止 Claude 使用工具在[浏览器窗格](#browse-external-sites)中读取或作用于外部页面。用户仍然可以自己导航到外部网站，本地开发服务器预览不受影响。 |
 | `disableMobileSimulatorTools` | 设置为 `true` 以阻止 Claude 在 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md#turn-off-simulator-access)中控制和捕获设备的工具。该窗格仍可用于用户自己的点击；仅删除 Claude 的访问权限。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `disableBrowserExternalNavigation` | 设置为 `true` 以完全关闭[浏览器窗格](#browse-external-sites)中的外部浏览。用户和 Claude 都无法导航到外部网站，localhost 开发服务器预览不受影响。SSH 和 WSL 会话中的 HTML 预览[不运行脚本](#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
+| `disableRemotePreviewScripts` | 设置为 `true` 以[仅关闭 SSH 和 WSL 会话中 HTML 预览的脚本](#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。Desktop 不会从远程机器或 WSL 发行版中读取它。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。需要 Claude Desktop v5.1231.0 或更高版本。 |
 | `sshConfigs` | 预配置[SSH 连接](#pre-configure-ssh-connections-for-your-team)，在环境选择器中显示。用户无法删除托管连接，也无法编辑除其自己的 **Worktree folder** 之外的任何内容。 |
 | `sshHostCommands` | 为用户提供[主机来自命令的 SSH 连接](#distribute-commands-to-your-team)，与用户自己的连接并存。Desktop 从计算机上的托管设置文件或 MDM 策略中读取它，并在[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中忽略它。需要 macOS 或 Linux 上的 Claude Desktop v3.6556.0 或更高版本，或 Windows 上的 v4.16336.0 或更高版本，并使用 Claude 帐户登录。在 Windows 上，Desktop 还必须[通过 OpenSSH 客户端连接](#use-your-ssh-configuration)。 |
 | `sshHostAllowlist` | 限制 [SSH 会话](#restrict-which-ssh-hosts-users-can-connect-to)连接到已解析主机名与这些模式之一匹配的主机。仅从托管设置中读取。 |
@@ -2044,7 +2053,12 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 | `disableSshSavedPasswords` | 设置为 `true` 以阻止 Desktop 提供记住 SSH 密码的选项，并阻止其使用或显示之前保存的密码。启用此设置不会删除这些密码。仅从托管设置中读取。需要 Claude Desktop v1.49585.0 或更高版本。 |
 | `managedMcpServers` | 将 MCP 服务器配置推送到所有用户。仅在第三方 (3P) Desktop 部署中可用。在每个条目中，设置 `"http"`、`"sse"` 或 `"stdio"` 的传输、连接详细信息，以及可选的 `toolPolicy` 映射，该映射限制该服务器中用户可以调用的工具。通过托管设置文件、MDM 或 Claude apps gateway 策略的 [`desktop` 块](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)提供它，因为 3P 部署不接收管理员控制台设置。要通过网关提供它，您需要网关服务器上的 Claude Code v2.1.232 或更高版本。这是桌面应用自己的键；Claude Code 读取自己的[同名托管设置](https://code.claude.com/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings)，具有不同的条目形状。 |
 
-如果您在计算机的[最高优先级 MDM 策略或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)中使用 `browserExternalPageTools`、`disableMobileSimulatorTools` 或 `disableBrowserExternalNavigation` 关闭某项功能，该功能将在该计算机上保持关闭。即使您的[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)未设置该键或允许该功能，它也会保持关闭。请勿为此使用用户级 `HKCU` 注册表值。要重新打开该功能，请在您设置该值的所有位置将其删除。需要 Claude Desktop v4.4212.0 或更高版本。
+如果您在计算机的[最高优先级 MDM 策略或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)中使用以下四个键之一关闭某项功能，该功能将在该计算机上保持关闭：
+
+* **`browserExternalPageTools`、`disableMobileSimulatorTools`、`disableBrowserExternalNavigation`**：需要 Claude Desktop v4.4212.0 或更高版本
+* **`disableRemotePreviewScripts`**：需要 Claude Desktop v5.1231.0 或更高版本
+
+即使您的[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)未设置该键或允许该功能，它也会保持关闭。请勿为此使用用户级 `HKCU` 注册表值。要重新打开该功能，请在您设置该值的所有位置将其删除。
 
 哪些托管设置到达 Desktop 会话取决于该会话运行的位置。模型限制（如 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection)）在 Desktop 的 Claude Code 会话中的执行方式与在终端 CLI 中相同；请参阅[使用入口覆盖范围](https://code.claude.com/docs/zh-CN/model-config.md#surface-coverage)。
 
