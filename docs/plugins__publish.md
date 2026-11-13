@@ -59,7 +59,7 @@
 
 **5. 填写用户看到的元数据**
 
-在 `plugin.json` 中设置 `description`、`author`、`homepage` 和 `repository`，并在插件根目录添加 `README.md`。`homepage` 必须解析为 URL。[清单参考](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#fields)列出了每个字段。
+在 `plugin.json` 中设置 `description`、`author`、`homepage` 和 `repository`，并在插件根目录添加 `README.md`。`homepage` 必须解析为 URL。有关每个字段接受的内容，请参阅[清单参考](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#fields)。
 
 **6. 运行您的 eval 套件**
 

@@ -235,7 +235,6 @@
 | [`strictPluginOnlyCustomization.mcp`](#strictpluginonlycustomization-mcp) | 屏蔽来自用户和项目来源的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md) | 插件与 skill | 托管 |
 | [`strictPluginOnlyCustomization.skills`](#strictpluginonlycustomization-skills) | 屏蔽来自用户和项目来源的 [skill](https://code.claude.com/docs/zh-CN/skills.md) | 插件与 skill | 托管 |
 | [`subagentPromptCacheTtl`](#subagentpromptcachettl) | 为子代理和主对话之外的其他请求选择[提示缓存生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime) | 模型与回复 | 任意文件 |
-| [`subagentStatusLine`](#subagentstatusline) | 使用您自己的命令重写[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)任务显示中的行 | 界面与终端 | 任意文件 |
 | [`switchModelsOnFlag`](#switchmodelsonflag) | 当[安全分类器](https://code.claude.com/docs/zh-CN/model-config.md#ask-before-switching)标记某个请求时，自动切换模型或暂停 | 模型与回复 | 任意文件 |
 | [`syncClaudeAiPlugins`](#syncclaudeaiplugins) | 停止加载[在您的 claude.ai 账户上启用的插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)，并停止下载新插件 | 插件与 skill | 用户、本地或托管 |
 | [`syncClaudeAiSkills`](#syncclaudeaiskills) | 停止加载[在您的 claude.ai 账户上启用的 skill](https://code.claude.com/docs/zh-CN/skills.md#how-synced-skills-behave)，并停止下载新 skill | 插件与 skill | 用户、本地或托管 |
@@ -3175,25 +3174,6 @@ Claude 工作时，Claude Code 会在加载指示器中以您的前缀显示您�
 
 该示例需要安装 [`jq`](https://jqlang.org/) 并在 shell 中运行。有关 PowerShell 和 Git Bash 的等效写法，请参阅 [Windows 配置](https://code.claude.com/docs/zh-CN/statusline.md#windows-configuration)；有关完整设置，请参阅[手动配置状态栏](https://code.claude.com/docs/zh-CN/statusline.md#manually-configure-a-status-line)。
 
-### `subagentStatusLine`
-
-当 Claude 运行[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)时，Claude Code 会在输入框下方的任务显示区域中列出它们，每个子代理占一行，显示 `name · description · token count`。此键允许您运行自己的命令来改写这些行，例如以百分比显示每个子代理的上下文使用情况。每次刷新时，Claude Code 会通过 stdin 发送一个 JSON 对象来表示可见的行，其中 `tasks` 数组包含每个子代理的 `id`、`name`、`status`、`model`、`tokenCount` 等信息；对于您以 `{"id", "content"}` 行形式写回的每个 `id`，Claude Code 会替换相应的行。您未写回的行保持默认渲染。
-
-* **作用域**：[`Any file`](#scopes)。当 [`allowManagedHooksOnly`](#allowmanagedhooksonly) 开启，或在托管设置之外设置了 [`disableAllHooks`](#disableallhooks) 时，仅运行托管设置中的值。
-* **类型**：对象，包含设置为 `"command"` 的 `type` 和 `command` 字符串
-* **默认值**：未设置，因此 Claude Code 渲染默认行
-
-```json settings.json theme={null}
-{
-  "subagentStatusLine": {
-    "type": "command",
-    "command": "jq -c '.tasks[] | {id, content: \"\\(.name): \\(.tokenCount) tokens\"}'"
-  }
-}
-```
-
-请参阅[子代理状态栏](https://code.claude.com/docs/zh-CN/statusline.md#subagent-status-lines)。
-
 ### `syntaxHighlightingDisabled`
 
 Claude Code 使用其内置的高亮器，按语言为其在终端中显示的 diff、代码块和文件预览中的代码着色。将此键设置为 `true` 可改为以纯文本显示，例如当颜色与您的终端主题冲突或拖慢屏幕阅读器时。
@@ -3650,7 +3630,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 * **其他所有内容都会被阻止**：用户、项目和本地 hook，其他已安装插件中的 hook 和 mod，以及在 Agent frontmatter 中声明的 hook。[Claude Code 内置的 mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#mods-built-into-claude-code) 会继续运行。如果只想阻止用户的 mod，请改为设置 [`allowManagedModsOnly`](https://code.claude.com/docs/zh-CN/plugins/mods/admin#set-options-on-the-built-in-guard)。
 * **命令来源的插件会被禁用**：Claude Code 还会禁用具有 [`command` 来源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)的插件，包括在托管 `enabledPlugins` 中强制启用的插件，除非您显式将 [`disableCommandPluginSources`](#disablecommandpluginsources) 设置为 `false`
 * **市场的 `headersHelper` 命令会被阻止**：Claude Code 还会阻止市场的 [`headersHelper` 命令](https://code.claude.com/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads)，除非显式将 [`disableCommandPluginSources`](#disablecommandpluginsources) 设置为 `false`，但由托管设置本身声明的市场除外。需要 Claude Code v2.1.238 或更高版本
-* **状态栏和文件建议仅限于托管设置**：Claude Code 仅从托管设置中读取 [`statusLine`](https://code.claude.com/docs/zh-CN/statusline)、[`fileSuggestion`](#filesuggestion) 和 [`subagentStatusLine`](https://code.claude.com/docs/zh-CN/statusline#subagent-status-lines)，遵循[状态栏和文件建议的限制规则](#status-line-and-file-suggestion-gates)
+* **状态栏和文件建议仅限于托管设置**：Claude Code 仅从托管设置中读取 [`statusLine`](https://code.claude.com/docs/zh-CN/statusline) 和 [`fileSuggestion`](#filesuggestion)，遵循[状态栏和文件建议的限制规则](#status-line-and-file-suggestion-gates)
 
 设置此键后，[`/goal`](https://code.claude.com/docs/zh-CN/goal) 命令无法运行，因为它依赖于 hook。
 
@@ -3689,7 +3669,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 #### 状态栏和文件建议的限制规则
 
-对于 `statusLine`、`fileSuggestion` 和 `subagentStatusLine`，Claude Code 会按以下顺序做出两项判断：
+对于 `statusLine` 和 `fileSuggestion`，Claude Code 会按以下顺序做出两项判断：
 
 * **完全关闭**：当托管设置设置了 `disableAllHooks` 时，或者当文件夹在与[设置文件中的 hook 相同的工作区信任规则](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)下不受信任时
 * **仅限于托管设置**：当设置了 [`allowManagedHooksOnly`](#allowmanagedhooksonly) 时，当应用[设置优先级](https://code.claude.com/docs/zh-CN/hooks.md#disable-or-remove-hooks)后 `disableAllHooks` 在托管设置之外为 `true` 时，或者当您使用 `--safe-mode` 启动 Claude Code 时
@@ -4661,7 +4641,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 * **作用域**：[`任意文件`](#scopes)
 * **类型**：字符串，内置或自定义 Agent 的名称
-* **默认值**：未设置，因此主线程以 Claude Code 的默认 Agent 运行
+* **默认值**：未设置
 * **单会话覆盖**：`--agent` 在单个会话中优先于此键
 
 ```json settings.json theme={null}
@@ -4669,8 +4649,6 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
   "agent": "code-reviewer"
 }
 ```
-
-插件自身的 `settings.json` 也可以提供此键；请参阅[随插件提供默认设置](https://code.claude.com/docs/zh-CN/plugins/components.md#default-settings)。
 
 ### `crossSessionInbound`
 

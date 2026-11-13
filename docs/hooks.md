@@ -257,7 +257,7 @@ Hooks 在 JSON 设置文件中定义。配置有三个嵌套级别：
 管理员可以在 [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md) 中使用 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 来限制哪些 hooks 运行：
 
 * 您的用户、项目、本地和插件 hooks 被阻止。在托管设置 `enabledPlugins` 中强制启用的插件中的 Hooks 除外
-* Claude Code 还将您的 [`statusLine`](https://code.claude.com/docs/zh-CN/statusline)、[`fileSuggestion`](https://code.claude.com/docs/zh-CN/settings-reference#filesuggestion) 和 [`subagentStatusLine`](https://code.claude.com/docs/zh-CN/statusline#subagent-status-lines) 设置缩小到托管设置
+* Claude Code 还将您的 [`statusLine`](https://code.claude.com/docs/zh-CN/statusline) 和 [`fileSuggestion`](https://code.claude.com/docs/zh-CN/settings-reference#filesuggestion) 设置缩小到托管设置
 * Claude Code 还禁用具有 [`command` 源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#command-plugin-source) 的插件，包括在托管设置 `enabledPlugins` 中强制启用的插件，除非 [`disableCommandPluginSources`](https://code.claude.com/docs/zh-CN/settings-reference#disablecommandpluginsources) 明确设置为 `false`。`command` 源需要 Claude Code v2.1.229 或更高版本
 * Claude Code 还阻止市场 [`headersHelper` 命令](https://code.claude.com/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads)，除非 [`disableCommandPluginSources`](https://code.claude.com/docs/zh-CN/settings-reference#disablecommandpluginsources) 明确设置为 `false`，但托管设置本身声明的市场除外
 

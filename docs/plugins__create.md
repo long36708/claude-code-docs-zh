@@ -72,7 +72,7 @@ mkdir -p my-first-plugin/.claude-plugin
 * **`version`**：可选。设置它可以让用户保持该版本，直到您更改它；[发布新版本](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md#release-a-new-version)说明何时设置或省略它。
 * **`author`**：要归功的人。其中 `name` 是必需的；`email` 和 `url` 是可选的。
 
-每个其他字段都在[清单参考](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#fields)上。
+其他字段请参阅[清单参考](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#fields)。
 
 只有 `plugin.json` 放在 `.claude-plugin/` 内。您接下来添加的技能直接放在 `my-first-plugin/` 下，在该文件夹旁边。
 

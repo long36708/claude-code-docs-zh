@@ -36,7 +36,7 @@ Claude Code 插件是一个目录，包含 skills、agents、hooks、MCP 服务�
 
 ![两列图表，由五个直箭头连接。左侧是名为 my-plugin 的插件目录，包含 .claude-plugin/plugin.json 处的清单、skills/review/SKILL.md、agents/reviewer.md、hooks/hooks.json、.mcp.json 和其他组件。右侧是每个文件在您的会话中提供的内容：清单设置插件名称 my-plugin；skill 作为 /my-plugin:review 运行；agent 文件是 Claude 可以委派给的子代理；hooks 文件包含在生命周期事件上运行的 hooks；.mcp.json 添加了一个 MCP 服务器，为 Claude 提供工具。](https://mintcdn.com/claude-code/2Q_GtOEovg5qaBem/images/plugin-directory.svg?fit=max\&auto=format\&n=2Q_GtOEovg5qaBem\&q=85\&s=f623b64e82713b830e48174f0a922888)
 
-对于插件可以包含的每种组件类型，以及每种的示例，请参阅[插件组件](https://code.claude.com/docs/zh-CN/plugins/components.md)。要查看每个部分在插件目录中的位置，请使用该页面上的[插件浏览器](https://code.claude.com/docs/zh-CN/plugins/components.md#explore-the-plugin-directory)。
+有关插件可以包含的组件类型及每种类型的示例，请参阅[插件组件](https://code.claude.com/docs/zh-CN/plugins/components.md)。要查看每个部分在插件目录中的位置，请使用该页面上的[插件浏览器](https://code.claude.com/docs/zh-CN/plugins/components.md#explore-the-plugin-directory)。
 
 ### 决定您是否需要插件
 

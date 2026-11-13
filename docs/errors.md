@@ -4533,11 +4533,10 @@ Claude Code 既会拒绝按字面写法就指向插件之外的路径（例如 `
 commands path escapes plugin directory: ./commands/deploy.md — it resolves to /home/user/shared/deploy.md, outside the plugin directory
 ```
 
-如果消息给出的是市场插件自身某个文件（例如 `hooks/hooks.json`）的完整路径，则表示 Claude Code 跳过了该文件。当 Claude Code 无法确认该文件位于插件之内，或者对于[本地市场](https://code.claude.com/docs/zh-CN/plugins/loading.md#in-place-and-copied-plugins)中的插件，无法确认其位于该市场之内时，就会出现这种情况。消息会在以下所示的组件名称下报告这些文件：
+如果某条消息给出了市场插件自身某个文件（例如 `hooks/hooks.json`）的完整路径，则表示 Claude Code 跳过了该文件。当 Claude Code 无法确认该文件位于插件内部，或者对于[本地市场](https://code.claude.com/docs/zh-CN/plugins/loading.md#in-place-and-copied-plugins)中的插件，无法确认该文件位于其市场内部时，就会跳过该文件。该消息会在下列组件名称下报告这些文件：
 
 * `hooks/hooks.json`：`hooks`
 * `monitors/monitors.json`：`monitors`
-* `settings.json`：`settings`
 * 插件根目录下的 `SKILL.md`：`skills`
 
 例如，以下消息针对的是一个解析到插件及其本地市场之外的 `hooks/hooks.json`：

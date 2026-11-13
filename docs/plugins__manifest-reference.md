@@ -2,9 +2,9 @@
 > Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
 > Use this file to discover all available pages before exploring further.
 
-# Plugin manifest 参考
+# 插件 manifest 参考
 
-> plugin.json 的完整参考：每个字段的类型和默认值、接受的路径形式，以及 userConfig 和环境变量模式。
+> plugin.json 的完整参考：每个字段的类型和默认值、接受的路径形式，以及 userConfig 和环境变量的 schema。
 
 Plugin manifest 是 plugin 的 `.claude-plugin/` 目录中的 `plugin.json` 文件。它包含 plugin 的元数据和 Claude Code 提示用户输入的 [`userConfig`](#user-configuration) 值。它还声明任何在其[默认位置](#standard-layout)之外定义内联或保留的组件。
 
@@ -117,7 +117,7 @@ claude plugin validate ./my-plugin
 
 ## 字段
 
-该表列出了 `plugin.json` 中的顶级键。`name` 是唯一必需的键。如果字段名称是链接，链接的部分有其完整规则。
+下表列出了 `plugin.json` 中的顶级键。`name` 是唯一必需的键。如果字段名称是链接，则链接的部分包含其完整规则。
 
 对于组件键（如 `commands` 和 `hooks`），[组件路径形式](#component-path-forms)显示每个接受的形式及示例，每个路径遵循 `./` 前缀、扩展名和包含的[路径规则](#path-rules)。
 
@@ -141,7 +141,6 @@ claude plugin validate ./my-plugin
 | [`termsOfServiceUrl`](#directory-listing-fields) | String | 插件在 Anthropic 目录中的列表所用的服务条款链接。Claude Code 不读取它 |
 | [`defaultEnabled`](#defaultenabled) | Boolean | 当用户未设置时 plugin 是否在启用时启动。默认为 `true` |
 | [`dependencies`](#dependencies) | Array of strings or objects | 必须为此 plugin 启用的 plugin |
-| [`settings`](#settings) | Object | Claude Code 在 plugin 启用时应用的设置。仅 `agent` 和 `subagentStatusLine` 生效 |
 | [`userConfig`](#user-configuration) | Object | Claude Code 在 plugin 启用时提示用户输入的值 |
 | `types` | Path | 声明 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#files) 的 `$.state` 值和 `$` 名词的 `.d.ts` 文件 |
 | [`channels`](#channels) | Array of objects | plugin 提供的消息频道，每个绑定到其 MCP 服务器之一 |
@@ -210,10 +209,6 @@ Claude Code 在其下命名空间每个组件，因此 plugin `deploy-tools` 中
 ### `dependencies`
 
 必须为此 plugin 启用的 plugin。每个条目是 `"name"`、`"name@marketplace"` 或 `{ "name": "...", "marketplace": "...", "version": "..." }`。裸名称针对此 plugin 自己的 marketplace 解析。参见[依赖约束](https://code.claude.com/docs/zh-CN/plugins/dependencies.md)。
-
-### `settings`
-
-Claude Code 在 plugin 启用时应用的设置。仅 `agent` 和 `subagentStatusLine` 生效；其他键在加载时被删除。plugin 根目录处的 `settings.json` 优先于此键。参见[默认设置](https://code.claude.com/docs/zh-CN/plugins/components.md#default-settings)。
 
 ## 组件路径形式
 
@@ -626,9 +621,8 @@ Claude Code 为 plugin 组件提供三个路径变量。在[每个变量解析�
 | 主题 | `themes/` | 主题 JSON 文件 |
 | Monitors | `monitors/monitors.json` | monitors 数组 |
 | 可执行文件 | `bin/` | 此处的文件在 plugin 启用时位于 Bash 工具的 `PATH` 上，因此 Claude 将它们作为裸命令运行。claude.ai 和 Cowork 不安装具有此目录的 plugin，包括您[通过 claude.ai 组织设置分发](https://claude.com/docs/plugins/org-sync#keep-executables-out-of-the-top-level-bin-directory)的 plugin |
-| 设置 | `settings.json` | 在 plugin 启用时应用的 `agent` 和 `subagentStatusLine` 默认值 |
 
-使用每个默认位置的 plugin，加上其 hooks 调用的 `scripts/` 文件夹，布局如下：
+使用默认位置的插件，加上其 hook 调用的 `scripts/` 文件夹，布局如下：
 
 ```text theme={null}
 deploy-tools/
@@ -655,7 +649,6 @@ deploy-tools/
 │   └── deploy-tool
 ├── scripts/
 │   └── format.sh
-├── settings.json
 ├── .mcp.json
 └── .lsp.json
 ```
