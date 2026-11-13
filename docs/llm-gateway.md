@@ -43,6 +43,10 @@
 
 要使通过 `ANTHROPIC_BASE_URL` 访问的网关成为托管机器唯一可以使用的目标，请在同一托管设置文件中将 [`allowedProviders`](https://code.claude.com/docs/zh-CN/settings-reference#allowedproviders) 设置为 `["customEndpoint"]`，并将网关的 `ANTHROPIC_BASE_URL` 放在该文件的 `env` 块中。Claude Code 随后会拒绝指向其他任何地方的会话，包括直接指向 Anthropic 或开发人员自己的代理，并仅接受您在那里设置的值的 `ANTHROPIC_BASE_URL`。对于通过提供商特定端点变量（如 `ANTHROPIC_BEDROCK_BASE_URL`）访问的网关，`allowedProviders` 条目指定要固定的变量。需要 Claude Code v2.1.285 或更高版本。
 
+> [!NOTE]
+>
+> 当 Desktop 已登录 claude.ai 时，用户机器上的 Cowork 会话计为 [`"anthropic"`](https://code.claude.com/docs/zh-CN/settings-reference#allowedproviders)。如果您在 MDM 策略或托管设置文件中将其排除在此列表之外，该会话将被拒绝。如果将其包含在内，直接发送到 Anthropic 的会话也会通过此列表。
+
 ## 订阅和网关
 
 当[网关凭证变量](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#set-the-credential-variable)或 `apiKeyHelper` 处于活动状态时，请求会使用该凭证代替开发人员的 claude.ai 订阅登录，订阅的使用限制不适用于这些请求。Claude Code 在机器上保存了 claude.ai 登录信息，但不会在这些请求中发送它。该流量按令牌计费给拥有网关转发的凭证的人，例如您的组织的 Anthropic Console 账户，或当网关路由到那里时您的 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 账户。

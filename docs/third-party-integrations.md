@@ -173,6 +173,10 @@ Contact sales
 
 要限制托管机器可以使用的这些部署选项，请在托管设置中设置 [`allowedProviders`](https://code.claude.com/docs/zh-CN/settings-reference#allowedproviders)。例如，`["bedrock"]` 仅允许 Amazon Bedrock；同时启用 Mantle 端点的 Bedrock 队列也列出 `"mantle"`。该条目说明哪些端点变量还需要托管 `env` 固定。需要 Claude Code v2.1.285 或更高版本。
 
+> [!NOTE]
+>
+> 当 Desktop 已登录 claude.ai 时，用户机器上的 Cowork 会话计为 [`"anthropic"`](https://code.claude.com/docs/zh-CN/settings-reference#allowedproviders)。如果您在 MDM 策略或托管设置文件中未将其列入此列表，该会话将被拒绝。如果将其列入，直接发送到 Anthropic 的会话也会通过此列表。
+
 ### 利用 MCP 进行集成
 
 MCP 是为 Claude Code 提供更多信息的好方法，例如连接到票证管理系统或错误日志。让一个中央团队配置 MCP 服务器并将 `.mcp.json` 配置检入代码库，以便所有用户受益。[了解更多](https://code.claude.com/docs/zh-CN/mcp.md)。

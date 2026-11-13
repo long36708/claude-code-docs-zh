@@ -16,7 +16,7 @@ Claude 应用网关部署由一个 YAML 文件配置，按惯例命名为 `gatew
 
 ## 文件结构
 
-五个部分是[必需的](#required-sections)。其他所有部分都是[可选的](#optional-sections)，省略的部分采用其默认值。未知的键会导致启动失败，因此拼写错误会显示为命名错误，而不是被静默忽略的设置。
+五个部分是[必需的](#required-sections)。其他所有部分都是[可选的](#optional-sections)，省略的部分采用其默认值。
 
 **必需部分：**
 
@@ -519,6 +519,10 @@ models:
 
 需要网关运行 Claude Code v2.1.281 或更高版本。[AWS 上的成本属性](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-aws.md#cost-attribution)覆盖 IAM 角色和 AWS 计费显示会话的位置。
 
+> [!NOTE]
+>
+> 要实现按开发者归属，请在每个 `bedrock` 和 [`mantle`](#amazon-bedrock-mantle-endpoint) 上游上设置带 `session_name` 的 `assume_role`，使用 `aws_bearer_token` 的上游除外。这些上游[无法使用 `assume_role`](#bedrock-in-another-aws-account)，因此其请求仍归属于同一个主体。
+
 ```yaml theme={null}
 upstreams:
   - provider: bedrock
@@ -534,8 +538,6 @@ upstreams:
 活跃开发人员每小时每个网关副本成本一个 STS 调用，并发首次请求共享一个调用。
 
 网关也在此角色上进行一个调用：客户端放弃的请求的 token 计数，因此[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)保持准确。该计数及其[单 token 回退请求](#amazon-bedrock)由共享 `claude-apps-gateway` 会话签署，因此 AWS 将回退属性到 `claude-apps-gateway` 而不是开发人员。
-
-对于严格的每开发人员属性，在您列出的每个 Bedrock 上游上设置 `assume_role` 与 `session_name`。没有它的上游使用其自己的凭据签署它提供的请求。
 
 #### Amazon Bedrock Mantle 端点
 
@@ -1283,6 +1285,10 @@ Claude Code 应用此变量时不会向开发者显示批准对话框。该变�
 
 要改为关闭 1M 上下文，请在同一 `env` 块中设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT: "1"`](https://code.claude.com/docs/zh-CN/model-config#extended-context)。Claude Code 随后将每个模型视为具有 200K 窗口。在交互式会话中，每位开发者需要在[批准对话框](#what-goes-in-cli)中批准此变量后它才会生效。
 
+> [!NOTE]
+>
+> Claude Code 不会读取别名的 `upstream_model` 来确定其上下文窗口大小。要让 `models` 中一个 Claude Code 无法识别的别名获得其模型的窗口，请参阅[为网关或自定义模型 ID 修正窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。
+
 #### 一小时提示缓存
 
 要请求一小时的[提示缓存 TTL](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime) 而非默认的五分钟，请将以下键添加到策略现有的 [`code`、`cli` 或 `settings` 块](#choose-cli-or-code)中，然后重启网关。这些键要求网关服务器和客户端上运行 Claude Code v2.1.242 或更高版本。
@@ -1385,20 +1391,31 @@ managed:
 
 ##### 网关在启动时拒绝的内容
 
-网关在启动时根据 Claude Desktop 自身使用的配置 schema 验证每个 `desktop` 块，因此错误会在网关启动时以指明该键的错误形式暴露出来，而不会传递到每个已连接的桌面客户端。当块中包含以下内容时，网关会在启动时失败：
+当 `desktop` 块包含以下内容时，网关会在启动时失败：
 
-* 未知的键
-* 已识别的键，但其值会被 Claude Desktop 拒绝或静默丢弃，例如空值或嵌套条目中拼写错误的子键。在 v2.1.260 之前，对于 `managedMcpServers` 或 `orgPluginSettings` 条目的嵌套对象中拼写错误的字段，网关会静默丢弃，而不是在启动时失败。
+* 可识别的键，但其值会被 Claude Desktop 拒绝或静默丢弃，例如空值。
 * 由网关自行计算的键：推理连接、模型列表和 OTLP 中继。请通过 [`upstreams`](#upstreams)、[`models`](#models) 以及 [`telemetry`](#telemetry) 部分的 `forward_to` 配置这些内容。
 * 当前键的旧版别名。在启动错误中，网关会指明应写入的规范键。
+* 从 v2.1.300 开始，任何名称以 `selfHosted` 开头的键，例如用于自托管会话主机的键。请在将网关升级到 v2.1.300 或更高版本之前移除这些键。
 
 如果您使用已弃用的值或条目形式，例如不带 `transport` 的 `managedMcpServers` 条目，网关会启动并记录一条指明替代项的警告。
 
 在 v2.1.232 之前，网关只接受由 11 个功能开关键组成的固定列表（例如 `chatTabEnabled` 和 `disableAutoUpdates`），并在启动时拒绝其他所有键。在 v2.1.227 之前，网关还会在启动时拒绝 `chatTabEnabled` 和 `chatAdvancedFileAnalysisEnabled`。
 
+##### 网关不认识的键
+
+在运行 Claude Code v2.1.295 或更高版本的网关上，较新 Claude Desktop 版本中的大多数键都无需升级网关。在 v2.1.321 或更高版本上，已知键内部的大多数新子键也无需升级网关。
+
+某些键和值仍会在启动时失败，例如：
+
+* 已知键的固定值列表中的新选项。
+* 您可以在 `desktop` 块中设置的某个键的疑似拼写错误，例如将 `disableAutoUpdates` 写成 `disable_auto_updates`。错误会给出建议的名称。
+
+在每种情况下，如果该名称或值在较新的 Claude Desktop 版本中确实存在，请将[网关升级](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#upgrades)到最新版本。否则请更正或删除它。若要在部署之前发现问题，请[测试策略](#test-a-policy-before-deployment)。
+
 ##### 需要更新的网关或 Claude Desktop 版本的键
 
-网关根据其已安装版本捆绑的 schema 验证 `desktop` 块，与验证 `cli` 块的方式相同。要交付由较新 Claude Desktop 版本引入的设置，请先升级网关。例如，`userPluginMarketplacesEnabled` 和 `userPluginUploadsEnabled` 需要网关服务器上的 Claude Code v2.1.260 或更高版本，以及成员机器上的 Claude Desktop 1.37937.0 或更高版本。
+`userPluginMarketplacesEnabled` 和 `userPluginUploadsEnabled` 需要网关服务器上的 Claude Code v2.1.260 或更高版本，以及成员机器上的 Claude Desktop 1.37937.0 或更高版本。
 
 `blockReadsOutsideWorkingDirectories`、`disableBypassPermissionsMode`、`configRecheckIntervalMinutes` 和 `sshClientPath` 需要网关服务器上的 Claude Code v2.1.281 或更高版本。`microsoftAuthBroker` 的 `required` 值以及 Microsoft 365 `managedMcpServers` 条目的 `continuousAccessEvaluation` 字段也是如此。早于 `required` 值的 Claude Desktop 版本会将其读取为 `disabled`，因此请仅在每位成员的 Claude Desktop 都支持后再设置 `required`。Claude Desktop 的[托管配置参考](https://claude.com/docs/third-party/claude-desktop/configuration)列出了首次读取每个键的版本。
 

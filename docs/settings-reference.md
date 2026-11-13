@@ -5187,7 +5187,7 @@ Desktop 无法读取为主机列表的值（例如 `true` 或对象）在您更�
 
 * **作用域**：[`Managed`](#scopes)。当服务器托管设置也下发列表时，由机器自身的管理员来源（MDM 策略和托管设置文件）设置的列表仍然生效：此时会话只能使用同时出现在两个列表中的提供商，因此服务器托管列表可以收窄机器允许的范围，但永远无法扩大。哪个机器来源的 `allowedProviders` 生效，遵循 [Claude Code 如何合并托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)。仅通过服务器托管设置下发的列表只会作用于[获取服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)的会话。
 * **类型**：字符串数组，每项为以下之一：
-  * `"anthropic"`：Anthropic 自有主机上的 Anthropic API，通过 claude.ai 或 Console 登录或 API 密钥访问。将其与 [`forceLoginMethod`](#forceloginmethod) 或 [`forceLoginOrgUUID`](#forceloginorguuid) 搭配使用，可同时限制登录
+  * `"anthropic"`：Anthropic 自有主机上的 Anthropic API，通过 claude.ai 或 Console 登录或 API 密钥访问。将其与 [`forceLoginMethod`](#forceloginmethod) 或 [`forceLoginOrgUUID`](#forceloginorguuid) 搭配使用，可同时限制登录。[在用户机器上](https://code.claude.com/docs/zh-CN/managed-settings.md#where-and-when-a-policy-applies)运行的 Desktop Cowork 在登录 claude.ai 时算作 `"anthropic"`，因此如果机器的列表中没有该条目，Cowork [会在启动时被拒绝](https://code.claude.com/docs/zh-CN/errors.md#managed-settings-dont-allow-this-api-provider)。要让 Cowork 启动，请添加该条目，这也会使此列表对直接的 Anthropic 会话开放。
   * `"bedrock"`：[Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)
   * `"vertex"`：[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)，前身为 Vertex AI
   * `"foundry"`：[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)
