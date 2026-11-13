@@ -98,7 +98,7 @@ Opus 4.7 不支持快速模式，因此切换到它会关闭快速模式。Opus 
 
 * **Pro、Max 和 Ultra**：您从使用额度中支付快速模式费用。转到 claude.ai 上的 [**Settings > Usage**](https://claude.ai/settings/usage)，其中 **Usage credits** 部分显示您本月在使用额度中花费了多少。该数字包括快速模式，但不单独列出。
 * **Team 和 Enterprise**：您的组织从其使用额度中支付您的快速模式使用费用。要查看您自己的使用额度支出，运行 [`/usage`](https://code.claude.com/docs/zh-CN/costs#check-your-usage-credits-spend)。有关您的组织在哪里看到该支出，请参阅 [Claude for Teams and Enterprise](https://code.claude.com/docs/zh-CN/costs.md#claude-for-teams-and-enterprise)。
-* **Claude Console**：您的组织使用其 API 使用的其余部分支付快速模式费用。在 Console [Usage](https://platform.claude.com/usage) 和 [Cost](https://platform.claude.com/cost) 页面上，在 **Group by** 菜单中选择 **Speed (research preview)** 以将快速模式与标准速度使用分开。只有当选定的日期范围包括快速模式使用时，您才会看到该选项。
+* **Claude Console**：您的组织使用其 API 使用的其余部分支付快速模式费用。在 Console [Usage](https://platform.claude.com/usage) 和 [Cost](https://platform.claude.com/cost) 页面上，在 **Group by** 菜单中选择 **Speed** 以将快速模式与标准速度使用分开。只有当选定的日期范围包括快速模式使用时，您才会看到该选项。
 
 ## 决定何时使用快速模式
 

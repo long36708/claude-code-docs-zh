@@ -152,7 +152,7 @@ echo $VTE_VERSION
 > apk add ripgrep
 > ```
 >
-> `ripgrep` 在 Alpine 的社区存储库中。如果 `apk` 报告包缺失，请参阅 [Alpine Linux 设置](https://code.claude.com/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)。
+> `ripgrep` 位于 Alpine 的 community 仓库中。
 
 > [tab] Arch
 >

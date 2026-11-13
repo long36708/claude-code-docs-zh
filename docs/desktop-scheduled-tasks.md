@@ -83,11 +83,16 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 **8. 选择权限模式和模型**
 
-在指令输入框的工具栏中，选择[权限模式](#permissions-for-scheduled-tasks)和模型。如果保持不变，运行时将使用您的 Claude Code 设置和默认模型。
+在指令输入框的工具栏中，选择[权限模式](#permissions-for-scheduled-tasks)和模型。
+
+* **权限模式**：如果保持不变，运行时将使用您的 Claude Code 设置。
+* **模型**：如果模型菜单显示 **Default · Set by admin**，且您没有选择其他模型，运行时将使用您的组织在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置的模型。在应用打开时启动的[补运行](#missed-runs)可能会改为使用[您账户的运行时默认模型](https://code.claude.com/docs/zh-CN/model-config.md#default-model-setting)。
 
 **9. 创建任务**
 
 单击 **Create**。如果您尚未信任该文件夹，Desktop 会在此时要求您信任它。随后将打开该任务的详情页面。
+
+要查看 **Default · Set by admin** 代表哪个模型，请在详情页面上单击 **Run now** 以立即运行该任务。然后[打开该次运行的会话](#find-a-runs-session)，输入框下方的行会显示该模型的名称。
 
 在详情页面上，单击铅笔图标以打开 [**Edit** 表单](#manage-scheduled-tasks)。在该表单中，您可以更改 Desktop 根据您的指令填写的 **Description**、选择 **Worktree**，或将计划切换为 **Manual** 或 **Custom**。
 
@@ -181,7 +186,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 要让任务使用 `update_scheduled_task` MCP 工具更改其自己的调度或提示词，请单击 **Run now** 并每次批准该调用。
 
-要在磁盘上编辑任务的提示，请打开 `~/.claude/scheduled-tasks/<task-name>/SKILL.md`（如果设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，则在其下）。该文件使用 YAML frontmatter 表示 `name` 和 `description`，提示作为正文。更改在下一次运行时生效。Schedule、folder、model 和 enabled 状态不在此文件中：通过 Edit 表单更改它们或询问 Claude。
+要在磁盘上编辑任务的提示词，请打开 `~/.claude/scheduled-tasks/<task-name>/SKILL.md`（如果设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，则在其下）。该文件使用 YAML frontmatter 表示 `name` 和 `description`，提示词作为正文。更改在下一次运行时生效。Schedule、folder 和 enabled 状态不在此文件中：通过 Edit 表单更改它们或询问 Claude。
 
 ## 相关资源
 

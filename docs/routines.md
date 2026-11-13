@@ -431,7 +431,7 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 
 每个定时任务都使用一个[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)，用于控制网络访问、环境变量和设置脚本。任务在每次运行时都会继承该环境的网络策略。
 
-**Default** 环境使用 **Limited** 访问并勾选了 **Allow package managers**，因此其运行可以访问[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)中的主机。向被阻止的主机发出的请求会失败，并返回 `403` 和 `x-deny-reason: host_not_allowed`。MCP 连接器流量通过 Anthropic 的服务器路由，因此您添加到任务中的连接器无需将其主机添加到 **Allowed domains** 即可正常工作。请在[连接器](#connectors)下移除您不需要的任何连接器。
+**Default** 环境使用 **Limited** 访问并勾选了 **Allow package managers**，因此其运行可以访问[默认允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)中的主机。向被阻止的主机发出的请求会失败，并返回[诸如 `403` 或 `ENOTFOUND` 之类的错误](https://code.claude.com/docs/zh-CN/errors#host-not-allowed-in-a-cloud-session)。MCP 连接器流量通过 Anthropic 的服务器路由，因此您添加到任务中的连接器无需将其主机添加到 **Allowed domains** 即可正常工作。请在[连接器](#connectors)下移除您不需要的任何连接器。
 
 要在您自己的某个环境中允许更多域名，请按照以下步骤操作。[组织共享环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)在此处以只读方式打开，因此需要由 Owner 在[管理设置](https://claude.ai/admin-settings)的 **Cloud environments** 页面中更改其网络访问。
 

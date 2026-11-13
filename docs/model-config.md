@@ -157,9 +157,11 @@
 
 当启动时的活动模型来自项目或托管设置而不是您自己的选择时，启动标题会显示是哪个设置文件设置了它。运行 `/model` 可覆盖；项目或托管设置会在下次启动时重新应用。在嵌入 Claude Code 并设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](https://code.claude.com/docs/zh-CN/env-vars) 的平台上，主机的模型配置优先于托管模型设置，而托管的 `availableModels` 允许列表仍然有效，除非主机提供自己的允许列表；[Exceptions to managed settings precedence](https://code.claude.com/docs/zh-CN/settings.md#exceptions-to-managed-settings-precedence) 说明主机会覆盖哪些键和变量。
 
-如果您或您的组织配置了 [PreModelSwitch hook](https://code.claude.com/docs/zh-CN/hooks.md#premodelswitch)，它们会在请求的切换生效之前运行，并可以阻止切换或要求您确认。
+如果您或您的组织配置了 [PreModelSwitch hook](https://code.claude.com/docs/zh-CN/hooks.md#premodelswitch)，它们会在请求的切换生效之前运行，并可以阻止切换或要求您确认。要了解 hook 阻止切换的原因以及应如何处理，请参阅 [Model switch was blocked by a PreModelSwitch hook](https://code.claude.com/docs/zh-CN/errors.md#model-switch-was-blocked-by-a-premodelswitch-hook)。
 
-当 Claude Code 无法判断您组织的[托管插件](https://code.claude.com/docs/zh-CN/settings-reference.md#enabledplugins)提供了哪些 PreModelSwitch hook 时（例如因为某个托管插件加载失败），它会拒绝切换而不是在未经检查的情况下应用，并在每次新尝试时再次检查。有关消息和恢复方法，请参阅 [Model switch was blocked by a PreModelSwitch hook](https://code.claude.com/docs/zh-CN/errors.md#model-switch-was-blocked-by-a-premodelswitch-hook)。
+如果某个[托管插件](https://code.claude.com/docs/zh-CN/settings-reference.md#enabledplugins)或其 hook 加载失败，您仍然可以切换模型。该插件的 PreModelSwitch hook 不会运行，因此原本会被其中某个 hook 阻止的切换可以继续进行。其他已加载的 PreModelSwitch hook 仍会运行，并可以阻止切换。如果 v2.1.323 之前的 Claude Code 以 `so organization-managed PreModelSwitch hooks could not be checked` 拒绝切换，请更新 Claude Code。
+
+要查看失败的内容，请在会话中运行 `/plugin` 并打开 [**Errors** 选项卡](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#failed-to-load-hooks-from-and-hooks-that-dont-fire)。如果其中没有列出任何内容，请从 shell 使用 `claude --debug` 启动新会话并切换到其他模型，然后阅读[调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks)。在您修复插件后，或者[插件更新](https://code.claude.com/docs/zh-CN/plugins/install.md#keep-plugins-updated)将管理员的修复带到您的计算机上后，请在会话中运行 `/reload-plugins` 以使其 hook 运行。
 
 当您通过 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 的 `setModel()` 方法、通过应用（如 [Desktop app](https://code.claude.com/docs/zh-CN/desktop.md)）或从通过 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 连接的设备切换模型时，Claude Code 会在切换时检查该值：
 
@@ -903,7 +905,7 @@ Claude Code 无法检测网关或其后面的服务器强制的更低限制。�
 
 ### 为网关或自定义模型 ID 更正窗口
 
-以下任一启动警告都表示 Claude Code 无法识别您会话的模型 ID，因此无法得知该模型的上下文窗口，并假设其为 200K token：
+以下任一警告都表示 Claude Code 无法识别您会话的模型 ID，因此无法得知该模型的上下文窗口，并假设其为 200K token：
 
 ```text theme={null}
 ⚠ Model "my-gateway-opus" isn't recognized · context assumed to be 200k tokens · ...

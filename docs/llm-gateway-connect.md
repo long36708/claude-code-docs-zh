@@ -156,7 +156,7 @@ Shell 导出仅适用于该终端会话和从它启动的程序。从 dock 或�
 
 ### 与现有登录的冲突
 
-网关凭据变量优先于保存的 claude.ai 登录或 Console 密钥。使用 `ANTHROPIC_AUTH_TOKEN`，变量立即优先。使用 `ANTHROPIC_API_KEY`，在交互模式下提示您一次以批准密钥，然后它接管。
+您的请求使用网关凭据变量，而不是保存的 claude.ai 登录。使用 `ANTHROPIC_AUTH_TOKEN` 时，该变量立即优先。使用 `ANTHROPIC_API_KEY` 时，在交互模式下会提示您一次以批准该密钥，之后它才会接管。
 
 运行 `/status` 以确认哪个凭证源处于活动状态。如果启动显示命名两个源的身份验证冲突警告，请参阅[故障排除表](#troubleshoot-gateway-errors)的第一行，了解要删除哪一个。要清除保存的登录，以便仅保留网关凭证，请运行 `/logout`。
 
@@ -506,7 +506,7 @@ AWS auth skipped
 
 | 错误 | 原因 | 修复 |
 | :- | :- | :- |
-| 启动警告命名两个凭证源并以 `auth may not work as expected` 结尾。较旧的版本显示 `Auth conflict: Both a token (SOURCE) and an API key (SOURCE) are set` 代替。 | 网关凭证和保存的登录都处于活动状态；变量用于请求，但过时的登录可能导致意外的身份验证行为 | 取消设置变量以使用保存的登录，或运行 `/logout` 以使用网关凭证 |
+| 启动警告命名两个凭据源并以 `auth may not work as expected` 结尾。较旧的版本显示 `Auth conflict: Both a token (SOURCE) and an API key (SOURCE) are set` 代替。 | 网关凭据和保存的登录都处于活动状态 | 取消设置变量以使用保存的登录，或运行 `/logout` 以使用网关凭据 |
 | `401` 错误命名无效或无法识别的令牌 | 凭证不是网关颁发的，或它处于网关不读取的标头中 | 确认变量与[凭证表](#set-the-credential-variable)中的凭证类型匹配，如果凭证被撤销，请在网关处重新生成密钥 |
 | `Your apiKeyHelper script is failing`，或在非交互模式下 stderr 上的 `apiKeyHelper failed:` | [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 设置中的命令未生成可用的密钥，因此请求携带占位符密钥 | 直接运行该命令以查看失败原因，如果报告会话过期，请使用您的凭证提供商重新身份验证；请参阅[错误参考](https://code.claude.com/docs/zh-CN/errors.md#your-apikeyhelper-script-is-failing) |
 | 当没有任何东西在地址处应答时 `Connection refused — a firewall or proxy may be blocking it (ConnectionRefused)`，或当主机名无法解析时 `Can't reach the API server — check your internet or DNS (ENOTFOUND)`，通常在 Claude Code [使用退避重试](https://code.claude.com/docs/zh-CN/errors.md#automatic-retries)时的静默暂停之后。括号中的代码会变化；[Unable to connect to API](https://code.claude.com/docs/zh-CN/errors.md#unable-to-connect-to-api) 涵盖代码拼写和较早的措辞 | 没有任何东西在基础 URL 处应答：地址错误，或 VPN 或防火墙阻止了网关的路径 | 运行上面的 [curl 测试](#verify-the-connection)，它会立即因相同原因失败，并与您的网关团队确认 URL 和网络路径 |
@@ -520,6 +520,7 @@ AWS auth skipped
 | `/fast` 报告 `Fast mode unavailable due to network connectivity issues`，而推理请求有效 | [快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)可用性检查直接转到 `api.anthropic.com`，不遵循 `ANTHROPIC_BASE_URL`，因此阻止的直接出口会导致检查失败 | 如果出口被阻止，请将 `api.anthropic.com` 加入允许列表，或设置跳过变量。请参阅[在代理和 LLM 网关后面使用快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-behind-proxies-and-llm-gateways) |
 | `/fast` 在使用 `ANTHROPIC_API_KEY` 中网关颁发的密钥进行身份验证的会话中报告 `Fast mode is currently unavailable` | 当 `ANTHROPIC_BASE_URL` 指向您的网关且密钥不符合 Anthropic API 密钥的格式时，Claude Code 不会发送[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)可用性检查。在没有缓存先前成功检查结果的情况下，它会将快速模式视为不可用 | 设置 `CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS=1`；请参阅[在代理和 LLM 网关后面使用快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-behind-proxies-and-llm-gateways) |
 | `/fast` 在使用 `ANTHROPIC_AUTH_TOKEN` 进行身份验证的会话中报告 `Fast mode has been disabled by your organization`，即使组织已启用快速模式 | 可用性检查需要 claude.ai 登录或 API 密钥；仅使用持有者令牌，Claude Code 会将快速模式视为已禁用，而不发送检查 | 设置 `CLAUDE_CODE_SKIP_FAST_MODE_ORG_CHECK=1`；请参阅[在代理和 LLM 网关后面使用快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-behind-proxies-and-llm-gateways) |
+| `/feedback` 在使用 `ANTHROPIC_BASE_URL` 的会话中保存本地文件 | 在网关后面，`ANTHROPIC_AUTH_TOKEN` 以及不符合 Anthropic API 密钥格式的密钥都不是 Anthropic 凭据。在没有此类凭据的情况下，Claude Code 会将报告写入 `~/.claude/feedback-bundles/` 下的本地归档，而不是发送它 | 将该文件发送给您的 Anthropic 客户代表，或将其附加到支持请求中。请参阅[遥测服务](https://code.claude.com/docs/zh-CN/data-usage.md#telemetry-services) |
 | Claude Code 要求您登录，即使 [curl 测试](#verify-the-connection)成功 | CLI 没有自己的凭证：可达的基础 URL 不是一个，在交互会话中，项目的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的 `env` 块仅在首次运行向导和[信任提示](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)之后应用 | 在 Claude Code 在首次运行设置之前读取的某处设置 `ANTHROPIC_AUTH_TOKEN`：shell 导出、`~/.claude/settings.json` 中的 `env` 块或托管设置 |
 | `ANTHROPIC_API_KEY` 已设置但被忽略，没有提示 | 密钥需要在交互会话中进行一次性批准，之前拒绝的密钥被忽略而不再询问 | 在 `/config` 下使用 `Use custom API key` 选项启用它 |
 | `This machine's managed settings require a first-party login`，或当托管设置将 `forceLoginMethod` 设置为 `"gateway"` 或也设置 `forceLoginGatewayUrl` 时 [`Administrator policy requires a Cloud gateway sign-in`](https://code.claude.com/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in) | 托管设置包括 `forceLoginMethod` 或 `forceLoginOrgUUID`，不能与 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 共存 | 您的管理员必须从托管设置中删除 `forceLoginMethod`、`forceLoginOrgUUID` 和 `forceLoginGatewayUrl` 以使用网关凭证，或删除网关凭证以使用托管设置要求的登录。两者不能组合 |

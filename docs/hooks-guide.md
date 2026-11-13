@@ -50,7 +50,7 @@ Hooks 是用户定义的 shell 命令。Claude Code 在其生命周期中的特�
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
-        "hooks": [{ "type": "command", "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write" }]
+        "hooks": [{ "type": "command", "command": "f=$(jq -r '.tool_input.file_path') && npx prettier --write --ignore-unknown \"$f\"" }]
       }
     ],
     "Notification": [
@@ -221,7 +221,7 @@ hook 让您可以在 Claude Code 生命周期的关键节点运行代码：在�
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write"
+            "command": "f=$(jq -r '.tool_input.file_path') && npx prettier --write --ignore-unknown \"$f\""
           }
         ]
       }
@@ -336,7 +336,7 @@ Claude Code 会将您的命令写入 stdout 的纯文本添加到 Claude 的上�
 
 跟踪会话期间设置文件或 skill 文件何时发生变更。当外部进程或编辑器修改配置文件时，会触发 `ConfigChange` 事件，因此您可以记录变更以满足合规要求，或阻止未经授权的修改。
 
-此示例将每次变更追加到审计日志中。将以下内容添加到 `~/.claude/settings.json`：
+此示例将每个事件追加到审计日志中。将以下内容添加到 `~/.claude/settings.json`：
 
 ```json theme={null}
 {

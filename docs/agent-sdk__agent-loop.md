@@ -254,7 +254,7 @@ Claude Code 在模型响应到达后才将支出与 `max_budget_usd` / `maxBudge
 | 源 | 何时加载 | 影响 |
 | :- | :- | :- |
 | **系统提示** | 每个请求 | 小的固定成本，始终存在 |
-| **CLAUDE.md 文件** | 会话开始，通过 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features) | 每个请求中的完整内容（但提示缓存，所以仅第一个请求支付全部成本） |
+| **CLAUDE.md 文件** | 会话开始，通过 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features) | 每个请求中的完整内容（但会进行提示缓存） |
 | **工具定义** | 对于 Bash、Read 和 Edit 等核心内置工具，每个请求都会加载；对于 MCP 工具和其他内置工具则按需加载，[工具搜索](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#mcp-tool-search)默认会延迟加载这些工具 | 在[配置工具搜索](https://code.claude.com/docs/zh-CN/agent-sdk/tool-search.md#configure-tool-search)中列出的情况下，所有 schema 都会预先加载 |
 | **对话历史** | 在轮次中累积 | 随着每个轮次增长：提示、响应、工具输入、工具输出 |
 | **技能描述** | 会话开始，通过设置源 | 简短摘要；完整内容仅在调用时加载 |

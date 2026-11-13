@@ -2999,7 +2999,7 @@ exit 0
 
 在会话期间配置文件发生更改时运行。可用于审计设置更改、强制执行安全策略，或阻止对配置文件的未授权修改。
 
-当设置文件、托管策略文件或 skill 文件发生更改时，Claude Code 会运行 ConfigChange hook。对于托管策略，仅当 `managed-settings.json` 或 `managed-settings.d/` 中的文件发生更改时才会运行。Claude Code 在应用[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)以及 macOS 托管偏好设置或 Windows 注册表策略的更改时不会运行这些 hook。在启用了 [`wslInheritsWindowsSettings`](https://code.claude.com/docs/zh-CN/settings-reference#wslinheritswindowssettings) 的 WSL 上，它在策略轮询时应用已更改的 Windows 端托管设置文件，同样不会运行这些 hook。
+当设置文件、托管策略文件或 skill 文件发生变更时，Claude Code 会运行 ConfigChange hook。对于托管策略，仅当 `managed-settings.json` 或 `managed-settings.d/` 中的文件发生变更时才会运行。
 
 匹配器按配置来源进行过滤：
 
@@ -3011,7 +3011,13 @@ exit 0
 | `policy_settings` | `managed-settings.json` 或 `managed-settings.d/` 中的文件发生更改 |
 | `skills` | `.claude/skills/` 中的 skill 文件发生更改 |
 
-此示例记录所有配置更改，用于安全审计：
+以下这类更改无需运行 hook 即可生效：
+
+* 通过 **Yes, and don't ask again**、`/permissions` 或 `/model` 保存的规则和设置，仅限于保存它们的那个会话。如果另一个打开的会话加载了同一文件，hook 会在该会话中运行。
+* [服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)、macOS 托管偏好设置或 Windows 注册表策略的更新
+* 在启用了 [`wslInheritsWindowsSettings`](https://code.claude.com/docs/zh-CN/settings-reference#wslinheritswindowssettings) 的 WSL 上，Windows 端托管设置文件发生的更改，Claude Code 会在其策略轮询中获取该更改
+
+以下示例记录配置更改以进行安全审计：
 
 ```json theme={null}
 {
@@ -3334,7 +3340,7 @@ Claude Code 会将 WorktreeCreate 返回的路径作为 hook 输入中的 `workt
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'jq -r .worktree_path | xargs rm -rf'"
+            "command": "bash -c 'p=$(jq -er .worktree_path) && rm -rf -- \"$p\"'"
           }
         ]
       }

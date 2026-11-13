@@ -26,7 +26,7 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
 | 终端 | Shift+Enter 换行 |
 | :- | :- |
-| Ghostty、Kitty、iTerm2、WezTerm、Warp、Apple Terminal、Windows Terminal | 无需设置即可工作 |
+| Ghostty、Kitty、iTerm2、WezTerm、Warp、Windows Terminal | 无需设置即可工作 |
 | 支持 kitty 键盘协议的其他终端，例如 foot 和 Alacritty 0.16 或更高版本 | 无需设置即可工作。需要 Claude Code v2.1.269 或更高版本 |
 | VS Code、Cursor、Devin Desktop、Alacritty 0.16 之前版本、Zed | 运行一次 `/terminal-setup` |
 | gnome-terminal、JetBrains IDE（如 PyCharm 和 Android Studio） | 不可用；使用 Ctrl+J 或 `\` 然后 Enter |

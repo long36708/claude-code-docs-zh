@@ -349,11 +349,16 @@ Claude Code 不会检查以下固定版本，也不会针对它们进行提示�
 
 ### 当模型在会话中被禁用时
 
-如果您的账户失去对会话正在运行的模型的访问权限，例如因为管理员在您的 Amazon Bedrock 账户中禁用了它，Claude Code 会将会话切换到另一个模型，而不是使每个请求都失败，并显示 `Switched to <fallback> because <model> is not available`。它尝试与启动回退相同的模型：首先尝试同一层级的早期版本，对于没有可用 Opus 版本的 Opus 会话，则使用默认 Sonnet 模型。
+当 Amazon Bedrock 以您的账户无法使用为由拒绝您会话的模型时，Claude Code 会将您的会话切换到另一个模型，您可以继续工作。您会看到一条以 `Switched to <fallback> because <model> is not available` 开头的消息。例如，当管理员禁用该模型，或者最新模型尚未对您的账户开放时，就会发生这种情况。
 
-切换仅适用于您未固定的层级，这与启动回退的条件相同。在您选择的特定版本上的会话，或在[应用推理配置文件 ARN](#map-each-model-version-to-an-inference-profile) 上的会话，会保持其模型；如果没有备用模型链，请求会改为失败。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#enable-auto-mode-on-bedrock-agent-platform-or-foundry)中，Claude Code 仅切换到自动模式在 Amazon Bedrock 上支持的模型。如果这些模型中也没有可用的，请求会失败并显示 [AWS 身份验证失败](https://code.claude.com/docs/zh-CN/errors.md#aws-authentication-failed)，并提示启用该模型。
+如果您配置了[备用模型链](https://code.claude.com/docs/zh-CN/model-config.md#fallback-model-chains)，Claude Code 会改为切换到您配置的备用模型。如果没有备用模型链，请求会在以下情况下失败：
 
-您配置的[备用模型链](https://code.claude.com/docs/zh-CN/model-config.md#fallback-model-chains)会替换层级切换：在这些拒绝上，Claude Code 会切换到您配置的备用模型。要使被拒绝的请求失败而不是切换，请设置 [`CLAUDE_CODE_DISABLE_MODEL_ACCESS_FALLBACK=1`](https://code.claude.com/docs/zh-CN/env-vars)。您配置的备用链仍会在这些拒绝上切换；如果您希望每个被拒绝的请求都失败，也请移除该链。
+* 您的会话使用的是固定模型、您选择的特定版本，或[应用推理配置文件 ARN](#map-each-model-version-to-an-inference-profile)
+* [Claude Code 尝试的模型](#startup-model-checks)均不可用。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#enable-auto-mode-on-bedrock-agent-platform-or-foundry)中，Claude Code 仅切换到自动模式在 Amazon Bedrock 上支持的模型。
+
+要继续工作，请在会话中运行 `/model`，并在您的账户可以使用的模型上按 `s`，这不会更改您的默认模型。`403` 会显示为 [AWS 身份验证失败](https://code.claude.com/docs/zh-CN/errors.md#aws-authentication-failed)。
+
+要使被拒绝的请求失败而不是切换，请设置 [`CLAUDE_CODE_DISABLE_MODEL_ACCESS_FALLBACK=1`](https://code.claude.com/docs/zh-CN/env-vars)。如果您配置了备用模型链，也请将其移除，因为 Claude Code 仍会切换到该备用模型。
 
 ## 跨区域推理配置文件前缀
 
@@ -512,7 +517,7 @@ claude --model anthropic.claude-haiku-4-5
 
 ### 在 Invoke API 旁边运行 Mantle
 
-您在 Mantle 上可用的模型可能不包括您今天使用的每个模型。设置 `CLAUDE_CODE_USE_BEDROCK` 和 `CLAUDE_CODE_USE_MANTLE` 让 Claude Code 从同一会话调用两个端点。与 Mantle 格式匹配的模型 ID 被路由到 Mantle，所有其他模型 ID 转到 Amazon Bedrock Invoke API。
+您在 Mantle 上可用的模型可能不包括您今天使用的每个模型。如果您不通过网关连接，请同时设置 `CLAUDE_CODE_USE_BEDROCK` 和 `CLAUDE_CODE_USE_MANTLE`，以便从同一会话中调用 Mantle 和 Invoke API。与 Mantle 格式匹配的模型 ID 被路由到 Mantle，所有其他模型 ID 转到 Amazon Bedrock Invoke API。
 
 ```bash theme={null}
 export CLAUDE_CODE_USE_BEDROCK=1
@@ -618,7 +623,12 @@ Amazon Bedrock 以二进制事件流格式流式传输 `InvokeModelWithResponseS
 * 如果错误命名了 `bedrock-mantle:` 操作，请为您的 IAM 身份授予该操作。
 * 如果错误没有命名任何操作且您的凭证有效，您的 AWS 账户没有被授予访问您请求的模型的权限。联系您的 AWS 账户团队以请求访问。
 
-指出模型 ID 的 `400` 意味着该模型不在 Mantle 上提供。Mantle 有其自己的模型阵容，与标准 Amazon Bedrock 目录分开，因此推理配置文件 ID（如 `us.anthropic.claude-sonnet-4-6`）不起作用。请使用 Mantle 格式的 ID，或启用[两个端点](#run-mantle-alongside-the-invoke-api)，以便 Claude Code 将推理配置文件 ID 发送到 Invoke API。
+指出模型 ID 的 `400` 意味着该模型不在 Mantle 上提供。Mantle 有其自己的模型阵容，与标准 Amazon Bedrock 目录分开，因此推理配置文件 ID（如 `us.anthropic.claude-sonnet-4-6`）不起作用。
+
+要清除该错误：
+
+* **不使用网关**：使用 Mantle 提供的 [Mantle 格式 ID](#select-a-mantle-model)，或[将 Mantle 与 Invoke API 一起运行](#run-mantle-alongside-the-invoke-api)，以便将其他格式的 ID 发送到该 API。
+* **通过网关**：向网关的运营方询问应使用哪些模型 ID。
 
 ## 其他资源
 

@@ -656,7 +656,7 @@ upstreams:
 
 | 设置 | 如何 |
 | - | - |
-| RBAC | 授予网关的身份 Microsoft Foundry 资源上的 `Azure AI User` 或 `Cognitive Services User` |
+| RBAC | 在 Microsoft Foundry 资源上为网关的身份授予 `Foundry User` 或 `Cognitive Services User` 角色 |
 | 部署 | Microsoft Foundry 使用管理员选择的部署名称，而不是规范模型 ID。添加 [`models:`](#models) 块将每个规范 ID 映射到您的部署名称。 |
 | AKS (workload identity) | 将用户分配的托管身份与集群的 OIDC 发行者联合，并将其绑定到网关的服务帐户。`use_azure_ad: true` 通过 `WorkloadIdentityCredential` 拾取它。 |
 | ACI / App Service | 在资源上启用系统分配或用户分配的托管身份。`use_azure_ad: true` 拾取它。 |
@@ -902,7 +902,7 @@ admin:
 
 #### 共享预算顺序
 
-共享预算是整个组共同消耗的一个月度限额。要设置共享预算，请在[设置该组月度上限的请求](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md#set-a-cap)中添加 `pooled_budget`，例如 `"pooled_budget": {"amount": "500000"}` 表示 \$5,000。该请求还需要该组的 `scope`、`"period": "monthly"` 和 `amount`，其中 `amount` 仍是每位成员自己的上限。
+共享预算是整个组共同消耗的一个月度限额。要设置共享预算，请在[设置该组月度上限的请求](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md#set-a-cap)中添加 `pooled_budget`，例如用 `"pooled_budget": {"amount": "500000"}` 表示 \$5,000。该请求还需要该组的 `scope`、`"period": "monthly"` 以及 `amount`，后者仍是每位成员各自的上限。
 
 对于属于多个此类组的开发者，每个请求都会计入第一个支出低于其限额的预算；当所有预算都已用完时，请求会被拒绝。`pooled_conflict_rule` 设置网关尝试这些预算的顺序：
 
@@ -1001,6 +1001,8 @@ models:
 
 `upstream_model` 下的每个键必须与已配置上游的 `name` 匹配，该名称默认为提供商名称。不匹配任何上游的键会导致启动失败，因此请省略您不使用的提供商对应的行。
 
+要在 `auto_include_builtin_models: false` 的情况下让开发者使用 `fable` 别名，请在 `models` 中添加一个 `claude-fable-5` 条目。对于登录到网关的开发者，[`fable` 别名](https://code.claude.com/docs/zh-CN/model-config#fable-alias-resolution)解析为该 ID。没有该条目时，他们的消息会失败，错误以 `API Error: 400 model claude-fable-5 is not in the operator's model allowlist` 开头。
+
 ### `managed`
 
 `managed` 块定义基于 IdP 组或电子邮件域的基于角色的访问策略。策略按顺序评估；默认情况下选择第一个匹配项，然后将其合并到 `match: {}` 兜底基础层上。匹配两个角色策略的用户只会获得第一个，因此除非您[应用所有匹配的策略](#apply-every-matching-policy)，否则第二个策略的拒绝规则不会生效。策略按用户在 `GET /managed/settings` 提供，并使用 ETag/304 缓存。
@@ -1025,7 +1027,11 @@ managed:
 `match: {}` 兜底策略按惯例放在最后，被视为基础层。其他每个策略都会从兜底策略继承自己未设置的任何键，因此按角色的条目只需列出与组织默认值不同的内容。合并规则取决于键的类型：
 
 * **允许列表**：`availableModels` 和 `permissions.allow`。特定策略的列表会完全替换基础层的列表。
-* **拒绝列表和 hook 数组**：`permissions.deny`、`permissions.ask`、`disabledMcpjsonServers`、`deniedMcpServers`、`blockedMarketplaces`、`deniedModels` 以及每个 `hooks` 事件类型数组。这些取基础层与策略的并集，因此组织范围的拒绝规则或审计 hook 不会被按角色的覆盖意外丢弃。
+* **拒绝列表和 hook 数组**：取基础策略与该策略的并集：
+  * `permissions.deny` 和 `permissions.ask`
+  * `disabledMcpjsonServers` 和 `deniedMcpServers`
+  * `blockedMarketplaces` 和 `deniedModels`
+  * `hooks` 事件类型数组
 * **记录类型的键**：`env`、`modelOverrides` 和 `skillOverrides`。这些进行浅合并，因此按角色的 `env` 块会覆盖它设置的键，并从基础层继承其余的键。
 
 `availableModels` 还会在 `/v1/messages` 的服务器端执行，因此无论客户端发送什么，被拒绝的模型都会返回 `400`。空列表会拒绝所有模型。该检查还涵盖开发者选择模型之前会话启动时使用的模型，因此请[让会话在策略允许的模型上启动](#start-sessions-on-a-model-the-policy-allows)。
@@ -1593,7 +1599,7 @@ Claude Code 还会将每个标签复制到每个指标数据点上，因此您�
 
 终端会话将 `user.groups` 放在 OTLP 资源上，并再次放在每个指标数据点和事件上。如果开发者的组在会话打开期间发生变化，下一次[静默刷新](#session)之后的使用情况所对应的数据点和事件会带有新的组。资源会保留旧的组，直到开发者重启 Claude Code，因此请按数据点或事件上的属性进行分组。
 
-如果您在 OpenTelemetry Collector 的 Prometheus remote write 导出器中启用了 `resource_to_telemetry_conversion`，该导出器会用资源的 `user.groups` 替换每个数据点的 `user.groups`，因此每个数据点都会显示旧的组。要保留数据点的值，请在该导出器之前从资源中删除 `user.groups`。
+如果您在 OpenTelemetry Collector 的 Prometheus remote write 导出器中启用了 `resource_to_telemetry_conversion`，该导出器会用资源上的值替换每个数据点的 `user.groups`，因此每个数据点都会显示旧的组。要保留数据点上的值，请在该导出器之前从资源中删除 `user.groups`。
 
 此 OpenTelemetry Collector `resource` 处理器会在列出它的管道中删除该属性：
 

@@ -51,92 +51,92 @@
 
 ## 部署
 
-网关是一个单一的无状态 Linux 二进制文件，通过 Postgres 进行协调，因此按照您在环境中部署任何其他无状态服务的方式部署它。将其保持在您的网络内，让您的开发者可以通过 HTTPS 到达它，且它可以到达您的 IdP，并将网关视为任何持有生产凭据的服务。
+网关是一个单一的无状态 Linux 二进制文件，通过 Postgres 进行协调，因此请按照您在环境中部署任何其他无状态服务的方式来部署它。将其保留在您的网络内部，使开发人员可以通过 HTTPS 访问它，并且它可以访问您的 IdP；并像对待任何持有生产凭据的服务一样对待它。
 
-除了运行位置外，还有一些决策塑造部署：
+除了运行位置之外，还有几个决策会影响部署：
 
-* **成本**：没有单独的许可证或按座位费用。网关是 `claude` 二进制文件的一部分，因此您通过现有承诺为推理付费，加上它运行的计算。
-* **绕过**：网关不强制执行通过它的唯一模型路由。具有自己凭证的开发者仍然可以直接调用提供商，因此关闭该路径是网络策略决策，例如阻止到 `api.anthropic.com` 的出口，除了来自网关的。阻止该出口也会破坏 [WebFetch 域安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)，它从每个开发者的机器调用 `api.anthropic.com`。在托管策略中设置 `skipWebFetchPreflight: true` 以禁用它。
-* **多个网关**：每个是一个单独的部署，有自己的配置，CLI 按网关主机名存储信任和凭证，因此团队可以使用不同的网关而不会冲突。要提供多个 OIDC 发行者，运行单独的实例。
-* **无服务器**：Cloud Run 可以工作，如果您设置 `min-instances: 1` 以避免冷 OIDC 发现。Lambda 和 Cloud Functions 不行，因为网关是一个长时间运行的 HTTP 服务器。
+* **成本**：没有单独的许可证费用或按席位收费。网关是 `claude` 二进制文件的一部分，因此您通过现有的承诺用量支付推理费用，外加运行它所需的计算资源。
+* **绕过**：网关并不强制要求访问模型的唯一途径必须经过它。拥有自己凭据的开发人员仍然可以直接调用提供商，因此关闭该路径属于网络策略决策，例如阻止除网关之外的出站流量访问 `api.anthropic.com`。阻止该出站流量也会破坏 [WebFetch 域安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)，该检查会从每位开发人员的机器调用 `api.anthropic.com`。在托管策略中设置 `skipWebFetchPreflight: true` 以禁用它。
+* **多个网关**：每个网关都是一个独立的部署，拥有自己的配置，并且 CLI 按网关主机名存储信任和凭据，因此不同团队可以使用不同的网关而不会产生冲突。要服务多个 OIDC 颁发者，请运行单独的实例。
+* **无服务器**：如果设置 `min-instances: 1` 以避免冷启动时的 OIDC 发现，Cloud Run 可以正常工作。Lambda 和 Cloud Functions 无法使用，因为网关是一个长时间运行的 HTTP 服务器。
 
-这里的每个生产拓扑都在普通 HTTP 副本前面放置一个 L7 代理，如 Ingress、Cloud Run 的前端或 ALB。设置 [`listen.trusted_proxies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#listen) 为代理的源范围，以便网关从 `X-Forwarded-For` 读取客户端 IP。网关仅在 TCP 对等体受信任时才遵守该标头。[Google Cloud](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-gcp.md) 和 [AWS](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-aws.md) 工作示例为每个拓扑提供具体值。没有受信任的代理，每个请求似乎都来自代理的 IP，这会将按 IP 速率限制折叠为一个共享桶，并在审计事件中记录代理的 IP。
+此处的每种生产拓扑都在纯 HTTP 副本前面放置了一个 L7 代理，例如 Ingress、Cloud Run 的前端或 ALB。将 [`listen.trusted_proxies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#listen) 设置为代理的源地址范围，以便网关从 `X-Forwarded-For` 读取客户端 IP。仅当 TCP 对端受信任时，网关才会采用该标头。[Google Cloud](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-gcp.md) 和 [AWS](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-aws.md) 完整示例提供了每种拓扑的具体值。如果没有受信任的代理，每个请求看起来都来自代理的 IP，这会使按 IP 的速率限制合并为一个共享配额，并在审计事件中记录代理的 IP。
 
-不要在网关的设备授权和令牌端点处重定向请求，例如在入口处使用 HTTP 到 HTTPS 或主机规范化重写。Claude Code 不会在这些请求上跟随重定向，因此会破坏登录和令牌刷新的入口规则。
+不要将请求重定向到网关的设备授权端点和令牌端点，例如在 ingress 处使用 HTTP 到 HTTPS 或主机名规范化的重写。Claude Code 不会跟随这些请求上的重定向，因此对这些请求进行重定向的 ingress 规则会导致登录和令牌刷新失败。
 
-给代理任何空闲超时时间长于网关的保活间隔，这取决于上游：
+为代理设置任意长于网关保活间隔的空闲超时时间，该间隔取决于上游：
 
-* 在除 `provider: anthropic` 之外的每个上游上，一旦流已经沉默约 15 秒，网关就会写入一个 SSE `ping`。
-* 在 `provider: anthropic` 上，网关原样传递响应，包括 Anthropic API 自己的 ping。
+* 在除 `provider: anthropic` 之外的所有上游上，一旦流静默约 15 秒，网关就会写入一个 SSE `ping`。
+* 在 `provider: anthropic` 上，网关会原样透传响应，包括 Anthropic API 自身的 ping。
 
-默认值（如 ALB 的 60 秒）足以保持安静的流打开。[AWS 工作示例](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-aws.md#troubleshooting) 无论如何将其提高到一小时，其故障排除行涵盖早于 v2.1.229 的网关，这些网关在现在获得 ping 的上游上的安静期间没有发送任何内容。
+诸如 ALB 默认的 60 秒这样的值足以保持安静的流处于打开状态。[AWS 完整示例](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-aws.md#troubleshooting)仍将其提高到一小时，其故障排除条目涵盖了早于 v2.1.229 的网关，这些网关在现在会收到 ping 的上游上，于安静期间不发送任何内容。
 
 ### 为网关选择地址
 
 Claude Code 通过以下两种方式之一接受网关的地址：
 
-* **私有地址**：将网关置于内部负载均衡器或 VPN 之后，并使用仅解析为私有地址（如 RFC 1918 或 CGNAT `100.64.0.0/10`）的主机名。用户的机器可以使用任何地址。[私有网络前提条件](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites) 列出了可接受的地址范围。
-* **声明的地址块**：如果您的内部网络使用贵组织拥有的公共 IPv4 地址空间，请在 `gatewayInternalNetworks` 托管设置中列出该地址块。网关和用户的机器都必须位于该地址块内。请参阅 [允许网关使用您拥有的公共地址空间](https://code.claude.com/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)。
+* **私有地址**：将网关置于内部负载均衡器或 VPN 之后，并使用仅解析为私有地址的主机名，例如 RFC 1918 或 CGNAT `100.64.0.0/10`。用户的机器可以使用任何地址。[私有网络前提条件](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)列出了接受的地址范围。
+* **声明的地址块**：如果您的内部网络使用您的组织拥有的公共 IPv4 地址空间，请在 `gatewayInternalNetworks` 托管设置中列出该地址块。网关和用户的机器都必须位于该地址块中。请参阅[允许网关使用您拥有的公共地址空间](https://code.claude.com/docs/zh-CN/claude-apps-gateway#allow-a-gateway-on-public-address-space-you-own)。
 
 如果没有单个地址块能同时包含两者，请改为给网关分配私有地址。
 
 ### 容器镜像
 
-围绕标准 Claude Code 版本中的本机 `claude` 二进制文件构建您自己的镜像：
+围绕标准 Claude Code 发行版中的原生 `claude` 二进制文件构建您自己的镜像：
 
-1. 从固定版本下载您的镜像架构的 Linux 构建；请参阅 [安装特定版本](https://code.claude.com/docs/zh-CN/setup.md#install-a-specific-version) 了解下载 URL。
-2. 根据版本的 GPG 签名 `manifest.json` 验证它，如 [二进制完整性和代码签名](https://code.claude.com/docs/zh-CN/setup.md#binary-integrity-and-code-signing) 中所述。
+1. 从固定版本中下载适用于您镜像架构的 Linux 构建版本；下载 URL 请参阅[安装特定版本](https://code.claude.com/docs/zh-CN/setup.md#install-a-specific-version)。
+2. 按照[二进制完整性和代码签名](https://code.claude.com/docs/zh-CN/setup.md#binary-integrity-and-code-signing)中的说明，根据该版本经过 GPG 签名的 `manifest.json` 对其进行验证。
 3. 将其复制到构建上下文中。
 
-如果您的构建无法到达版本主机，请将版本镜像到您的内部注册表中，并固定您的舰队运行的版本。
+如果您的构建无法访问发布主机，请将该版本镜像到您的内部镜像仓库，并固定您的机群所运行的版本。
 
-除了二进制文件外，镜像还需要：
+除了二进制文件之外，镜像还需要：
 
-* **基于 glibc 的镜像**：glibc 构建的唯一动态依赖项是 glibc 库。基于 Musl 的镜像需要 `linux-x64-musl` 或 `linux-arm64-musl` 构建加上额外的包；请参阅 [Alpine Linux 设置](https://code.claude.com/docs/zh-CN/setup.md#alpine-linux-and-musl-based-distributions)。
-* **可写状态目录**：网关以任何用户身份运行，但最小镜像没有可写的主目录。将 `CLAUDE_CONFIG_DIR` 设置为可写路径，如 `/tmp/.claude`。
-* **容器命令**：`claude gateway --config /etc/claude/gateway.yaml`，配置文件以只读方式挂载，密钥作为环境变量提供；网关在 `listen.port` 上监听，默认为 `8080`。
+* **基于 glibc 的镜像**：glibc 构建版本唯一的动态依赖是 glibc 库。基于 musl 的镜像需要 `linux-x64-musl` 或 `linux-arm64-musl` 构建版本，其唯一的动态依赖是 musl。
+* **可写的状态目录**：网关可以以任何用户身份运行，但精简镜像没有可写的主目录。将 `CLAUDE_CONFIG_DIR` 设置为可写路径，例如 `/tmp/.claude`。
+* **容器命令**：`claude gateway --config /etc/claude/gateway.yaml`，以只读方式挂载配置文件，并以环境变量的形式提供密钥；网关在 `listen.port` 上监听，默认为 `8080`。
 
 ### Kubernetes
 
-将网关作为 Deployment 运行，就像任何无状态服务一样：
+像任何无状态服务一样，将网关作为 Deployment 运行：
 
-* 从 ConfigMap 挂载配置，从 Secret 挂载密钥；通过 `${file:/path/to/secret}` 或作为环境变量在 YAML 中引用密钥
-* 在 Ingress 处终止 TLS 并将 `listen.public_url` 设置为 Ingress 主机名
-* 将就绪探针指向 `GET /readyz`，将活跃探针指向 `GET /healthz`
+* 从 ConfigMap 挂载配置，从 Secret 挂载密钥；在 YAML 中通过 `${file:/path/to/secret}` 或以环境变量的形式引用密钥
+* 在 Ingress 处终止 TLS，并将 `listen.public_url` 设置为 Ingress 主机名
+* 将就绪探针指向 `GET /readyz`，将存活探针指向 `GET /healthz`
 
-有关 AWS 上的完整工作示例，涵盖 ECS Fargate 或 EKS、Amazon RDS 和 AWS Secrets Manager，请参阅 [在 AWS 上部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-aws.md)。
+有关 AWS 上的完整示例（涵盖 ECS Fargate 或 EKS、Amazon RDS 和 AWS Secrets Manager），请参阅[在 AWS 上部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-aws.md)。
 
-优先使用平台的工作负载身份而不是静态密钥；[`upstreams` 参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#upstreams) 有每个平台的设置详情。对于跨云配对，如 GKE 上的 Amazon Bedrock 上游，在上游的 `auth` 块中设置显式凭证。
+优先使用平台的工作负载身份而不是静态密钥；[`upstreams` 参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#upstreams)提供了各平台的设置详情。对于跨云组合，例如在 GKE 上使用 Amazon Bedrock 上游，请改为在上游的 `auth` 块中设置显式凭据。
 
 ### Cloud Run
 
 按如下方式配置服务：
 
-* 将 `listen.port` 保留在其默认值 `8080`，这与 Cloud Run 的默认 `PORT` 匹配，或设置 `port: ${PORT}`
-* 将 `public_url` 设置为外部可达的源。对于生产，这通常是内部负载均衡器的主机名，因为 `/login` [拒绝公共地址](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)，而 `*.run.app` URL 解析为一个，所以单独的 Cloud Run URL 仅适用于 `curl` 或浏览器烟雾测试。例外是一个网络，其中 `*.run.app` 通过 Private Service Connect 和 Cloud DNS 私有区域私下解析；在该拓扑中，Cloud Run URL 是有效的 `public_url`。[Google Cloud 工作示例](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-gcp.md#deploy-the-gateway) 涵盖两者。
+* 将 `listen.port` 保留为默认值 `8080`（与 Cloud Run 的默认 `PORT` 一致），或设置 `port: ${PORT}`
+* 将 `public_url` 设置为外部可访问的源。对于生产环境，这通常是内部负载均衡器的主机名，因为 `/login` [会拒绝公共地址](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)，而 `*.run.app` URL 会解析为公共地址，因此仅使用 Cloud Run URL 只适用于 `curl` 或浏览器冒烟测试。例外情况是 `*.run.app` 通过 Private Service Connect 和 Cloud DNS 私有区域解析为私有地址的网络；在该拓扑中，Cloud Run URL 是有效的 `public_url`。[Google Cloud 完整示例](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-gcp.md#deploy-the-gateway)涵盖了这两种情况。
 * 将配置作为密钥卷挂载
-* 设置 `min-instances: 1` 以避免首次请求时的冷 OIDC 发现
+* 设置 `min-instances: 1`，以避免在首次请求时进行冷启动的 OIDC 发现
 
-有关 Google Cloud 上的完整工作示例，涵盖 Cloud Run 或 GKE、Cloud SQL 和 Secret Manager，请参阅 [在 Google Cloud 上部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-gcp.md)。
+有关 Google Cloud 上的完整示例（涵盖 Cloud Run 或 GKE、Cloud SQL 和 Secret Manager），请参阅[在 Google Cloud 上部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-gcp.md)。
 
-### 将网关 URL 推送到开发者机器
+### 将网关 URL 推送到开发人员机器
 
-一旦网关开始提供服务，通过托管设置、MDM 或直接写入每个操作系统的 `managed-settings.json` 将 `forceLoginMethod`、`forceLoginGatewayUrl` 和 `parentSettingsBehavior: "merge"` 推送到每个开发者的机器。
+网关开始提供服务后，通过托管设置将 `forceLoginMethod`、`forceLoginGatewayUrl` 和 `parentSettingsBehavior: "merge"` 推送到每位开发人员的机器上，可以通过 MDM 或直接写入各操作系统对应的 `managed-settings.json` 来完成。
 
-一旦您部署密钥，Claude Code 停止使用机器上剩余的 API 密钥或 claude.ai 登录，因此计划与您的登录说明一起推送。[管理员策略需要 Cloud 网关登录](https://code.claude.com/docs/zh-CN/errors.md#administrator-policy-requires-a-cloud-gateway-sign-in) 描述开发者看到的消息。
+部署这些设置项后，Claude Code 将停止使用机器上残留的 API 密钥或 claude.ai 登录，因此请将推送与您的登录说明一起规划。[Administrator policy requires a Cloud gateway sign-in](https://code.claude.com/docs/zh-CN/errors.md#administrator-policy-requires-a-cloud-gateway-sign-in) 描述了开发人员会看到的消息。
 
-请参阅 [每个机制存储策略的位置](https://code.claude.com/docs/zh-CN/managed-settings.md#where-each-mechanism-stores-the-policy) 了解文件路径，以及 [客户端托管设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#client-side-managed-settings) 了解 Claude Desktop `bootstrapUrl` 等效项。
+有关文件路径，请参阅[每种机制存储策略的位置](https://code.claude.com/docs/zh-CN/managed-settings.md#where-each-mechanism-stores-the-policy)；有关 Claude Desktop 的等效设置 `bootstrapUrl`，请参阅[客户端托管设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#client-side-managed-settings)。
 
-### 大规模推出
+### 大规模推广
 
-登录按客户端 IP 地址进行速率限制，默认值适合小团队。每个地址每 10 分钟获得 30 次登录开始和 10 次代码提交。向数千名开发者的推出可能在第一个早上达到这些限制，原因有两个：
+登录按客户端 IP 地址进行速率限制，默认值适合小型团队。每个地址每 10 分钟可发起 30 次登录和提交 10 次代码。面向数千名开发人员的推广可能在第一天早上就达到这些限制，原因有以下两种：
 
-* **网关看不到您的负载均衡器后面。** 没有 [`listen.trusted_proxies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#listen)，每个开发者似乎都来自负载均衡器的地址并共享一个限制。网关在第一次忽略 `X-Forwarded-For` 标头时会记录警告。如果该负载均衡器[应列入 `listen.trusted_proxies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#listen)，请在更改其他任何内容之前先将其列入。如果开发者仍然共享一个地址，请提高 [`rate_limits`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning)。
-* **许多开发者共享几个 NAT 或 VPN 出口地址。** 即使 `trusted_proxies` 正确，他们也共享这些地址的限制。提高 [`rate_limits`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning) 以适应。
+* **网关无法看到负载均衡器之后的地址。** 如果没有 [`listen.trusted_proxies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#listen)，每位开发人员看起来都来自负载均衡器的地址，并共享一个限制。网关首次忽略 `X-Forwarded-For` 标头时会记录一条警告。如果负载均衡器[应当列入 `listen.trusted_proxies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#listen)，请在更改任何其他内容之前先将其列入。如果开发人员仍然共享一个地址，请提高 [`rate_limits`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning)。
+* **许多开发人员共享少量 NAT 或 VPN 出口地址。** 即使 `trusted_proxies` 设置正确，他们也会共享这些地址的限制。请相应提高 [`rate_limits`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning)。
 
-要调整 `max`，将开发者数除以他们共享的出口地址数。估计在一个 `window_seconds` 周期内有多少人登录，默认为 10 分钟。然后将其加倍以覆盖重试和同时登录 Claude Code 和 Claude Desktop 的开发者。
+要确定 `max` 的大小，请用开发人员数量除以他们共享的出口地址数量。估算其中有多少人会在一个 `window_seconds` 周期（默认为 10 分钟）内登录。然后将其翻倍，以覆盖重试以及同时登录 Claude Code 和 Claude Desktop 的开发人员。
 
-例如，10,000 名开发者在 4 个出口地址后面在一小时内均匀登录。这是每个地址 2,500 名开发者，每 10 分钟约 420 名，您将其加倍并四舍五入到 1,000。下面的示例将两个限制都设置为 1,000：
+例如，位于 4 个出口地址之后的 10,000 名开发人员在一小时内均匀登录。即每个地址 2,500 名开发人员，每 10 分钟约有 420 人登录，将其翻倍并向上取整为 1,000。下面的示例将两个限制都设置为 1,000：
 
 ```yaml theme={null}
 rate_limits:
@@ -144,11 +144,11 @@ rate_limits:
   device_verify: { max: 1000, window_seconds: 600 }
 ```
 
-`device_verify` 是阻止某人猜测另一个开发者登录代码的原因，因此仅在您的估计需要的范围内提高它。即使在这些限制下，代码也是来自 20 字符字母表的 8 个字符，并在 10 分钟后过期，因此猜测仍然不切实际；请参阅 [用户代码暴力破解抵抗](#user-code-brute-force-resistance)。
+`device_verify` 用于防止有人猜测其他开发人员的登录代码，因此只需将其提高到您的估算所需的程度。即使在这些限制下，代码也是由 20 个字符的字母表组成的 8 个字符，并在 10 分钟后过期，因此猜测仍然不切实际；请参阅[用户代码防暴力破解](#user-code-brute-force-resistance)。
 
-当您的 IdP 发出刷新令牌时，Claude Code 会无声地续订会话，因此您可以在推出后将限制放回。没有刷新令牌，开发者每 [`session.ttl_hours`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#session) 再次登录。为该稳定速率调整两个限制的大小，并保持它们提高。
+当您的 IdP 颁发刷新令牌时，Claude Code 会静默续订会话，因此您可以在推广完成后恢复限制。如果没有刷新令牌，开发人员每隔 [`session.ttl_hours`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#session) 就需要重新登录。请同样按照该稳定速率确定两个限制的大小，并保持提高后的值。
 
-当达到限制时，Claude Code v2.1.274 或更高版本显示 `The gateway is limiting sign-in attempts right now`。v2.1.274 或更高版本的网关在验证页面上显示 `Too many attempts came from your network address`，并提供要检查的设置。它还写入一条 `sign-in refused` 日志行，命名要更改的设置。
+达到限制时，Claude Code v2.1.274 或更高版本会显示 `The gateway is limiting sign-in attempts right now`。v2.1.274 或更高版本的网关会在验证页面上显示 `Too many attempts came from your network address`，并列出需要检查的设置。它还会写入一条 `sign-in refused` 日志，指明需要更改的设置。
 
 ## 运维
 

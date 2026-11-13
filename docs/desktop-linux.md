@@ -71,7 +71,7 @@ sudo apt update && sudo apt install claude-desktop
 
 从应用启动器启动 **Claude**，或从终端运行 `claude-desktop`，然后使用您的 Anthropic 账户登录。
 
-Linux 应用的登录方式与 macOS 和 Windows 上相同：使用 claude.ai 订阅或通过您组织的 SSO。如需使用 API 密钥身份验证，请使用 [CLI](https://code.claude.com/docs/zh-CN/quickstart.md)。如果要改为将 Desktop 与 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 LLM 网关配合使用，请参阅 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)。有关这些部署中的代理服务器和自定义证书颁发机构，请参阅 [网络配置](https://code.claude.com/docs/zh-CN/network-config.md)。
+Linux 应用的登录方式与 macOS 和 Windows 上相同：使用 claude.ai 订阅或通过您组织的 SSO。如果要改为将 Desktop 与 Claude API 密钥、Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 LLM 网关配合使用，请参阅 [Claude Desktop on 3P](https://claude.com/docs/third-party/claude-desktop/overview)。有关这些部署中的代理服务器和自定义证书颁发机构，请参阅 [网络配置](https://code.claude.com/docs/zh-CN/network-config.md)。
 
 ### 从下载的文件安装
 

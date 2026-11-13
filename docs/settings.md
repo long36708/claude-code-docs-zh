@@ -177,7 +177,7 @@ claude --settings '{"model": "claude-opus-5-5"}'
 
 Claude Code 监视您的设置文件并在它们更改时重新加载它们，因此它在运行的会话中应用大多数编辑而不需要重启，包括对 `permissions`、`hooks` 和凭证助手（如 `apiKeyHelper`）的编辑。Claude Code 也在会话中期加载您创建的设置文件，如果其文件夹在会话启动时存在。对于项目的 `.claude/` 文件夹，即使您在同一会话中创建文件夹，它也加载文件。
 
-重新加载涵盖用户、项目、本地和托管设置，Claude Code 为每个它检测到的设置文件更改运行 [`ConfigChange` hook](https://code.claude.com/docs/zh-CN/hooks#configchange)，而不是来自 MDM 或 claude.ai 控制台的托管设置。来自 MDM 或 claude.ai 控制台的托管设置按计划而不是保存时到达运行的会话；[传递表](https://code.claude.com/docs/zh-CN/managed-settings.md#choose-a-delivery-mechanism)给出每个来源的。
+重新加载涵盖用户、项目、本地和托管设置。Claude Code 会针对设置文件的直接编辑运行 [`ConfigChange` hook](https://code.claude.com/docs/zh-CN/hooks#configchange)，而不会针对来自 MDM 或 claude.ai 控制台的托管设置运行。通过 MDM 或来自 claude.ai 控制台的托管设置按计划而不是保存时到达运行的会话；[传递表](https://code.claude.com/docs/zh-CN/managed-settings.md#choose-a-delivery-mechanism)给出每个来源的情况。
 
 Claude Code 仅在会话启动时读取某些键一次，因此对其中一个的编辑不会到达运行的会话。也等待重启的管理员端键，如 `requiredMinimumVersion`，在[策略适用的位置和时间](https://code.claude.com/docs/zh-CN/managed-settings.md#where-and-when-a-policy-applies)下列出。您最可能在会话中期编辑的：
 

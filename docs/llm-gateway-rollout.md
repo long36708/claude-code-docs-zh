@@ -142,9 +142,9 @@
 claude -p "Reply with one word: connected"
 ```
 
-**检查点**：提示返回响应，请求在网关日志中显示为对 `/v1/messages` 路径的 `POST`，状态为 `200`。Claude Code 附加查询字符串，例如 `?beta=true`，因此匹配路径，而不是完整 URL。两条失败消息指向不同的方向：
+**检查点**：提示词返回响应，请求在网关日志中显示为对 `/v1/messages` 路径的 `POST`，状态为 `200`。Claude Code 附加查询字符串，例如 `?beta=true`，因此匹配路径，而不是完整 URL。检查失败消息：
 
-* `Not logged in`：检查网关日志以区分两个原因。如果它是空的，没有凭证到达会话，没有请求离开机器；在您测试的 shell 中重新运行导出。如果它显示在 `401` 正文中带有 `x-api-key` 的被拒绝请求，网关期望密钥在该标头中；切换到 `ANTHROPIC_API_KEY`
+* `Not logged in`：检查网关日志。如果它是空的，没有凭据到达会话，也没有请求离开机器；在您测试的 shell 中重新运行导出。如果它显示来自网关且提及 `x-api-key` 的 `401`，说明网关期望密钥在该标头中；切换到 `ANTHROPIC_API_KEY`。如果它显示来自 `api.anthropic.com` 或您的提供商端点的 `401`，请修复网关持有的提供商凭据
 * `Failed to authenticate. API Error: 401` 意味着凭证被发送并被拒绝，网关日志说明了在哪里：命名 `api.anthropic.com` 或您的提供商端点的 `401` 意味着网关到达了上游但其提供商凭证被拒绝，因此开发者密钥有效，网关持有的提供商凭证错误或是占位符
 
 错误或无法到达的基础 URL 会产生不同的症状：Claude Code [以退避方式重试连接](https://code.claude.com/docs/zh-CN/errors.md#automatic-retries)，在报告错误之前可能会坐着没有输出几分钟。如果命令似乎挂起，请检查网关日志而不是等待；没有到达的请求意味着 `ANTHROPIC_BASE_URL` 不指向网关。
@@ -247,10 +247,10 @@ claude -p "Reply with one word: connected"
 
 您应该看到 `data:` 行逐步到达。整个响应在暂停后一次到达意味着网关正在缓冲，这会停滞 Claude Code；`404` 意味着模型名称未路由。每个模型名称重复。
 
-然后启动 `claude` 并发送消息。此步骤的每个症状都有一个原因：
+然后启动 `claude`，发送消息，并对照您看到的情况：
 
-* 登录提示意味着凭证缺口。运行 `/status` 并打开**状态**选项卡：当 `Setting sources` 行不包括托管设置时，分发没有到达机器；当它包括时，开发者凭证没有被交付，因此设置 `ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper`
-* `Failed to authenticate` 错误意味着网关拒绝请求；其日志说明了哪个凭证失败。网关自己记录的拒绝命名开发者密钥，而来自 `api.anthropic.com` 或您的提供商端点的 `401` 意味着网关持有的提供商凭证被拒绝
+* 登录屏幕，或 `Not logged in` 且网关日志中没有新内容，意味着凭据缺口。运行 `/status` 并打开 **Status** 选项卡：当 `Setting sources` 行不包括托管设置时，分发没有到达机器；当它包括时，开发者凭据没有被交付，因此设置 `ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper`
+* `Please run /login · API Error: 401`、`Not logged in` 或 `Invalid API key`，且网关日志中有 `401`：检查是谁返回了该 `401`。如果是网关返回的，请修复开发者密钥或其标头；如果它来自 `api.anthropic.com` 或您的提供商端点，请修复网关持有的提供商凭据
 * 当网关期望密钥在 `x-api-key` 标头中（设置为 `ANTHROPIC_API_KEY`）时，首次使用时出现针对该密钥的一次性批准提示是预期行为
 
 如果您的组织使用[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)，也在这里运行 `/fast`：可用性检查直接调用 `api.anthropic.com` 而不是遵循网关基础 URL，因此网关路由的会话可以报告快速模式不可用或禁用，即使推理有效。[在代理和 LLM 网关后面使用快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-behind-proxies-and-llm-gateways)将每条消息映射到恢复它的变量，与[配置的其余部分](#distribute-the-configuration)一起分发。

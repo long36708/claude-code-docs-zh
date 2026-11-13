@@ -75,8 +75,6 @@ Claude Code 包含 `/deep-research` 作为内置工作流：
 | :- | :- |
 | `/deep-research <question>` | 在多个角度上扇出网络搜索问题，获取并交叉检查它找到的来源，对每个声明投票，并返回一份引用的报告，其中未通过交叉检查的声明已被过滤掉。需要[WebSearch 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)可用 |
 
-`/deep-research` 仅在您调用它时运行。
-
 [您自己保存的工作流](#save-the-workflow-for-reuse)以相同方式成为命令，并在 `/` 自动完成中与捆绑的工作流一起出现。
 
 ### 观看运行

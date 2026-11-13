@@ -274,6 +274,8 @@ Claude 会回复一张**允许 Claude 在您设备上的文件夹中工作**卡�
 
 线程在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中运行，因此 Claude 在该文件夹中运行命令和编辑文件而不每次都询问你。如果自动模式在该计算机的 Claude Code 中不可用或已关闭，线程在没有它的情况下运行，它引发的任何权限提示都会在线程中等待你的答案，如[解除等待批准的线程](#unblock-a-thread-waiting-on-approval)所述。
 
+要以其他模式运行线程，请使用 [`--settings`](https://code.claude.com/docs/zh-CN/remote-control#start-a-remote-control-session) 启动 `claude remote-control`。然后，该文件中或该计算机设置中的 [`permissions.defaultMode`](https://code.claude.com/docs/zh-CN/permission-modes#start-in-a-different-mode) 可以选择其他模式。
+
 线程运行时，其标题中的笔记本电脑图标会显示您的计算机是否已连接。点击该图标可查看线程正在使用哪个文件夹，或关闭连接。当该计算机处于睡眠状态时，线程会暂停；如果桌面应用或 `claude remote-control` 退出，线程会停止。
 
 * **要让线程重新运行**：请参阅[与您的文件夹失去联系](#lost-contact-with-your-folder)

@@ -74,8 +74,10 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 | PostgreSQL 11 或更高版本 | 支持设备登录流和速率限制计数器。托管 PostgreSQL 服务均可使用，包括最小层级；请参阅[支持哪些数据库](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#postgres)。使用[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)时，它还保存应备份的持久支出、审计和身份表。建议通过 `?sslmode=require` 使用 TLS。PostgreSQL 11、12 和 13 要求网关服务器上的 Claude Code 为 v2.1.290 或更高版本。PostgreSQL 项目已不再维护这些版本，因此请尽可能使用更新的版本。 |
 | 模型上游 | Amazon Bedrock 凭据、Claude Platform on AWS 凭据、Google Cloud 凭据、Microsoft Foundry 资源或 Anthropic API 密钥。支持多个上游和故障转移。 |
 | HTTPS | 网关必须可从开发人员笔记本电脑和用于登录的任何浏览器通过 `https://` 访问；网关在同一侦听器上提供设备验证页面。通过 `listen.tls` 提供 TLS 证书，或在 TLS 终止入口后运行，两种情况下都要将 `listen.public_url` 设置为外部源。在 `/login` 处，Claude Code 仅在网关主机是环回时才接受纯 `http://` 源：`localhost`、`127.0.0.1` 或 `::1`。 |
-| 私有网络地址 | 在 `/login` 处，Claude Code 要求网关的主机名或 IP 地址仅解析为私有地址：RFC 1918、链路本地、CGNAT `100.64.0.0/10`、IPv6 ULA `fc00::/7` 或环回。对于您托管的网关，任何不在您所声明地址块内的公共地址都会被拒绝；请参阅部署指南中的[威胁模型](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#threat-model-summary)。如果开发人员机器通过公司代理路由 HTTPS，登录还要求代理主机解析为私有地址；如果不是，将网关主机添加到 `NO_PROXY`，以便 CLI 直接连接。如果您的内部网络使用您的组织拥有的公共 IPv4 空间编号，[声明这些块](#allow-a-gateway-on-public-address-space-you-own)，以便 `/login` 接受那里的网关。 |
+| 私有网络地址 | Claude Code 的 `/login` 要求网关的主机名或 IP 地址仅解析为私有地址：RFC 1918 和链路本地范围、CGNAT `100.64.0.0/10`、IPv6 ULA `fc00::/7` 以及环回。请参阅[威胁模型](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#threat-model-summary)。如果您的内部网络使用您的组织拥有的公共 IPv4 空间编号，[声明这些块](#allow-a-gateway-on-public-address-space-you-own)，以便 `/login` 接受那里的网关。 |
 | Linux 运行时 | 网关服务器仅在本机 Linux 二进制文件上运行。macOS 适用于本地开发。Windows 不支持作为服务器平台。 |
+
+当 `HTTPS_PROXY` 或 `HTTP_PROXY` 适用于网关主机时，登录还需要满足以下条件之一：代理的主机名解析为私有地址，或者开发人员机器上的 `NO_PROXY` 中包含网关主机。如果这些机器还设置了 `no_proxy`，也请将网关主机添加到其中，否则模型请求仍会通过代理。
 
 ### 步骤
 

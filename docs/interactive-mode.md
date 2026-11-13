@@ -36,7 +36,7 @@
 | `Esc` | 中断 Claude 或关闭对话框 | 停止当前响应或工具调用中途，以便您可以重定向。Claude 保留迄今为止所做的工作。如果您有[排队的消息](#queue-messages-while-claude-works)，Claude Code 会在下一步发送它们。当对话框打开时，`Esc` 会关闭对话框。当选中页脚项目时，例如提示下方的[子代理面板](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)中的一行，`Esc` 会[取消选择它](https://code.claude.com/docs/zh-CN/keybindings.md#footer-actions)而不是中断。在权限提示上，`Esc` 会拒绝该操作，与[**否**不带注释](https://code.claude.com/docs/zh-CN/permissions.md#add-a-comment-when-you-answer-a-permission-prompt)相同 |
 | `Esc` + `Esc` | 清除输入草稿或回退 | 当提示输入包含文本时，双 `Esc` 会清除它并将草稿保存到历史记录，以便 `Up` 可以调用它。当输入为空时，双 `Esc` 会打开[回退菜单](https://code.claude.com/docs/zh-CN/checkpointing.md)以从之前的某个点恢复或总结代码和对话 |
 | `Ctrl+Enter` 或 `Ctrl+X Ctrl+S` | 立即发送排队的消息 | 发送您的[排队的消息](#queue-messages-while-claude-works)和您的草稿与它们一起立即发出。[Claude Code 何时发送您排队的内容](#when-claude-code-sends-what-you-queued)涵盖了 Claude 正在处理的轮次会发生什么。在[shell 模式](#shell-mode-with-prefix)中，该键仅排队您的命令。在不报告扩展键的终端中，`Ctrl+Enter` 作为普通 `Enter` 到达；`Ctrl+X Ctrl+S` 在任何终端中都有效。需要 Claude Code v2.1.275 或更高版本 |
-| `Shift+Tab` 或在 Node 或 Bun 运行时不启用 VT 输入模式时在 Windows 上使用 `Alt+M` | 循环权限模式 | 循环通过 `default`（在模式指示器中标记为 Manual）、`acceptEdits`、`plan` 和（如果可用）`bypassPermissions` 然后 `auto`。从 `auto`，第一次按下切换到 `default`。请参阅[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。在文件权限提示上，相同的键会关闭打开的[注释字段](https://code.claude.com/docs/zh-CN/permissions.md#add-a-comment-when-you-answer-a-permission-prompt)。如果没有字段打开，它会选择允许该操作在会话其余部分的选项，当提示提供该选项时 |
+| `Shift+Tab` 或在 Node 或 Bun 运行时不启用 VT 输入模式时在 Windows 上使用 `Alt+M` | 循环权限模式 | 循环切换 `default`（在模式指示器中标记为 Manual）、`acceptEdits` 和 `plan`，然后在可用时切换到 `bypassPermissions` 和 `auto`。请参阅[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)。在文件权限提示上，相同的键会关闭打开的[注释字段](https://code.claude.com/docs/zh-CN/permissions.md#add-a-comment-when-you-answer-a-permission-prompt)。如果没有字段打开，当提示提供该选项时，它会选择在会话剩余时间内允许该操作的选项。在计划批准提示上，它会批准该计划 |
 | `Option+P`（macOS）或 `Alt+P`（Windows/Linux） | 切换模型 | 在不清除提示的情况下切换模型 |
 | `Option+T`（macOS）或 `Alt+T`（Windows/Linux） | 切换扩展思考 | 启用或禁用扩展思考模式。对 Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 模型无效，它们始终使用扩展思考。在 macOS 上无需配置 Option 为 Meta 即可工作 |
 | `Option+O`（macOS）或 `Alt+O`（Windows/Linux） | 切换快速模式 | 启用或禁用[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md) |
@@ -81,7 +81,7 @@
 | :- | :- | :- |
 | 快速转义 | `\` + `Enter` | 在所有终端中工作 |
 | Option 键 | `Option+Enter` | 在 macOS 上启用[Option 作为 Meta](https://code.claude.com/docs/zh-CN/terminal-config.md#enable-option-key-shortcuts-on-macos)后 |
-| Shift+Enter | `Shift+Enter` | 在 iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal 中原生支持。对于其他终端，请参阅[输入多行提示](https://code.claude.com/docs/zh-CN/terminal-config.md#enter-multiline-prompts) |
+| Shift+Enter | `Shift+Enter` | 在 iTerm2、WezTerm、Ghostty、Kitty、Warp、Windows Terminal 中原生支持。对于其他终端，请参阅[输入多行提示](https://code.claude.com/docs/zh-CN/terminal-config.md#enter-multiline-prompts) |
 | 控制序列 | `Ctrl+J` | 在任何终端中无需配置即可工作 |
 | 粘贴模式 | 直接粘贴 | 对于代码块、日志 |
 
@@ -136,8 +136,6 @@
 ## Vim 编辑器模式
 
 通过 `/config` → Editor mode 启用 vim 风格编辑。
-
-Claude Code 在你使用 `Ctrl+O` 切换[文字记录查看器](#transcript-viewer)或打开和关闭面板（如 `/config`）时保持你的 vim 模式和光标位置。如果你在 NORMAL 模式下离开提示符，当你返回时它仍然处于 NORMAL 模式，光标位置与你离开时相同。
 
 ### 模式切换
 
@@ -301,8 +299,6 @@ Claude Code 保留了你输入的提示词的历史记录，上箭头回调可�
 6. **取消搜索**：
    * 按 `Ctrl+C` 取消并恢复你的原始输入
    * 在空搜索上按 `Backspace` 取消
-
-接受匹配项或取消搜索立即生效，即使 Claude Code 仍在加载历史记录。
 
 如果您只记得之前某个提示词中粘贴过的一段较长内容（例如错误日志），要找到该提示词，请按 `Ctrl+R` 并输入该粘贴内容中的某个词。需要 Claude Code v2.1.314 或更高版本。
 
@@ -600,7 +596,7 @@ Claude Code 从三个地方读取 [`spellcheck`](https://code.claude.com/docs/zh
 
 ### Claude Code 加下划线的内容
 
-在您暂停输入后不久，Claude Code 会为字典不知道的单词加下划线。它会将您仍在输入的单词单独留下，直到您越过它，并且它永远不会更改您的文本。它也会跳过看起来像代码的文本：
+在您暂停输入后不久，Claude Code 会为字典不知道的单词加下划线。它会将您仍在输入的单词单独留下，直到您越过它。它也会跳过看起来像代码的文本：
 
 * 命令，例如 `/help`、`@` 提及、URL、文件路径和标志，例如 `--verbose`
 * 包含数字、下划线或第一个字母后的大写字母的单词，以及反引号中的文本

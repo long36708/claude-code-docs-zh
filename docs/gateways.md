@@ -63,7 +63,7 @@ Claude apps gateway 是 Anthropic 的自托管网关，包含在 `claude` 二进
 * **客户端遥测**：当会话登录到 Claude 应用网关时，Claude Code 会禁用其 Anthropic 绑定的客户端分析。要在登录前启动分析也保持关闭，请在每个设备上的 [客户端托管设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#client-side-managed-settings) 中提供 [`DISABLE_TELEMETRY`](https://code.claude.com/docs/zh-CN/managed-settings#turn-telemetry-off-for-your-organization)。
 * **其他网关上的客户端遥测**：Claude Code 是否发送可选的客户端遥测流取决于您的提供商，[遥测默认值表](https://code.claude.com/docs/zh-CN/data-usage.md#default-behaviors-by-api-provider) 涵盖每种情况。
 * **遥测目标**：Claude Code 发送网关会话遥测的位置取决于会话如何登录，[开发人员上强制执行的内容](https://code.claude.com/docs/zh-CN/claude-apps-gateway#whats-enforced-on-developers) 说明每种会话的导出去向。
-* **企业 HTTP 代理**：`HTTPS_PROXY` 位于 Claude Code 和它与之通信的每个服务器之间，包括网关。如果您的网络需要一个，[配置代理](https://code.claude.com/docs/zh-CN/network-config.md) 以及网关。对于您托管的 Claude 应用网关，[登录检查代理主机也在私有网络上](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)；如果不是，将网关主机添加到 `NO_PROXY`，以便 CLI 直接连接到它。
+* **企业 HTTP 代理**：Claude Code 通过 `HTTPS_PROXY` 中的代理发送其请求，包括发往网关的请求。如果您的网络需要代理，请[配置代理](https://code.claude.com/docs/zh-CN/network-config.md)。如果该代理适用于您托管的 Claude 应用网关，[登录](https://code.claude.com/docs/zh-CN/claude-apps-gateway#prerequisites)要求代理的主机名解析为私有地址，或者要求将网关主机添加到 `NO_PROXY` 中。
 
 ## Next steps
 

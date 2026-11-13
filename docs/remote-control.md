@@ -67,13 +67,14 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 > | `--capacity <N>` | 最大并发会话数。默认为 32。不能与 `--spawn=session` 一起使用。 |
 > | `--[no-]create-session-in-dir` | 服务器启动时在当前目录中预先创建一个会话，以便您可以立即开始输入。在 `worktree` 模式下，此会话保留在当前目录中，而按需创建的会话则获得独立的 worktree。默认开启。如果您传入 `--no-create-session-in-dir` 以不带任何会话启动，Claude Code 会在您停止服务器时归档服务器的会话，因此将没有可[恢复](#resume-sessions-after-stopping-the-server)的会话。 |
 > | `--permission-mode <mode>` | 为服务器的会话设置初始[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)，例如 `acceptEdits`。接受 `manual` 作为 `default` 的别名；无法识别的模式会使服务器在启动时停止并列出有效模式。 |
+> | `--settings <file>` | 将 JSON 设置文件应用于服务器的会话，其[优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)与 `claude --settings` 相同。请提供文件路径，而不是 JSON 字符串。需要 Claude Code v2.1.321 或更高版本。 |
 > | `--chrome` / `--no-chrome` | 在服务器创建的会话中打开或关闭 [Chrome 集成](https://code.claude.com/docs/zh-CN/chrome.md)，以便您在另一台设备上工作时 Claude 可以使用您机器上的 Chrome。如果不带任一标志，服务器预先创建的会话以及您自己从 claude.ai/code 或 Claude 应用启动的任何会话都会以关闭 Chrome 的状态开始，即使您已[默认启用 Chrome](https://code.claude.com/docs/zh-CN/chrome.md#enable-chrome-by-default)。服务器为您的某个[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)线程启动的会话则遵循该设置，但 `bypassPermissions` 模式除外。需要 Claude Code v2.1.273 或更高版本。 |
 > | `-d`, `--debug[=<filter>]` | 为服务器开启调试日志，可选择按类别过滤。只能以 `=` 形式传入过滤器，例如 `--debug=api,hooks`。需要 Claude Code v2.1.282 或更高版本。 |
 > | `--debug-file <path>` | 将调试日志写入指定文件。 |
 > | `--verbose` | 显示详细的连接和会话日志。 |
 > | `--sandbox`, `--no-sandbox` | 已在 v2.1.300 中移除。如果您传入任一标志，服务器会[报错退出](https://code.claude.com/docs/zh-CN/errors.md#sandbox-is-not-supported-by-claude-remote-control)，而不是启动。 |
 >
-> 如果您在 `remote-control` 之前传入全局 `claude` 标志，或者包装脚本添加了此类标志，Claude Code 不会将该标志传递给服务器创建的会话。只有在确知丢弃该标志不会改变这些会话的能力时，Claude Code 才会放行该标志，例如 `--verbose` 或 `--model`。对于任何其他标志，例如 `--settings`，Claude Code 会[拒绝启动](https://code.claude.com/docs/zh-CN/errors.md#not-carried-over-to-the-sessions-remote-control-starts)并指出需要移除的标志。
+> 如果您在 `remote-control` 之前传入全局 `claude` 标志，或者包装脚本添加了此类标志，Claude Code 不会将该标志传递给服务器创建的会话。对于某些标志，例如 `--verbose` 或 `--model`，服务器仍会启动。对于任何其他标志，服务器[不会启动](https://code.claude.com/docs/zh-CN/errors.md#not-carried-over-to-the-sessions-remote-control-starts)。要传入设置文件，请将 `--settings` 放在 `remote-control` 之后。
 >
 > 要对服务器启动的会话进行沙箱隔离，请在设置文件中开启[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md)。
 >

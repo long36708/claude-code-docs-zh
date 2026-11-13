@@ -122,6 +122,7 @@
 | `A request to MCP server "<name>" was sent without your stored credentials` | [身份验证](#couldnt-read-the-stored-credentials-for-mcp-server) |
 | `This server's URL is missing or not a valid URL, so sign-in can't start` | [身份验证](#mcp-server-url-is-missing-or-not-a-valid-url) |
 | `Issuer mismatch in authorization response (RFC 9207)` | [身份验证](#issuer-mismatch-in-authorization-response) |
+| `Stopped an OAuth request` | [身份验证](#stopped-an-oauth-request) |
 | `Refusing to send credentials to non-https token endpoint` / `<short-name> from the MCP SDK for <server-url>` | [身份验证](#refusing-to-send-credentials-to-non-https-token-endpoint) |
 | `Cloud gateway session expired — run /login to reconnect.` | [身份验证](#cloud-gateway-session-expired) |
 | `Cloud gateway <url> no longer accepts this session` | [身份验证](#cloud-gateway-session-expired) |
@@ -251,6 +252,8 @@
 | `Ultrareview did not start` | [命令行错误](#ultrareview-did-not-start) |
 | `Remote Control did not start: "<question>" got no answer` | [命令行错误](#remote-control-did-not-start-got-no-answer) |
 | `` `<flag>` before `remote-control` is not carried over to the sessions Remote Control starts `` | [命令行错误](#not-carried-over-to-the-sessions-remote-control-starts) |
+| `Remote Control did not start, because sessions would skip part or all of the --settings file` | [命令行错误](#remote-control-did-not-start-because-of-the-settings-file) |
+| `The settings file <file> has changed since Remote Control started, so this session did not start` | [命令行错误](#settings-file-changed-since-remote-control-started) |
 | `--sandbox is not supported by claude remote-control` / `--no-sandbox is not supported by claude remote-control` | [命令行错误](#sandbox-is-not-supported-by-claude-remote-control) |
 | `` `claude import` is not yet available in this build `` | [命令行错误](#claude-import-is-not-yet-available-in-this-build) |
 | `Could not read Claude Code config` | [命令行错误](#could-not-read-claude-code-config) |
@@ -825,7 +828,7 @@ Auto mode is unavailable — the server returned no safety verdict for the last 
 同一 Claude 回复中的后续调用可能会以此原因被拒绝：
 
 ```text theme={null}
-another call in this response was changed by a hook after auto mode reviewed it, or could not be confirmed unchanged
+another call in this response was changed after auto mode reviewed it, or could not be confirmed unchanged
 ```
 
 Claude 随后可以再次发出每个被拒绝的调用，以便服务器对其进行审查。如果打开了权限提示，请作出回应。除非 Claude 在回复中说明自动模式无法检查该调用，否则您无需执行其他任何操作。在这种情况下，请停止该更改或自行批准该调用，然后让 Claude 再次尝试该调用：
@@ -1822,6 +1825,19 @@ Issuer mismatch in authorization response (RFC 9207): expected "https://auth.exa
 
 在 v2.1.232 之前，Claude Code 仅在逐步推出时或您设置 `MCP_SDK_GENERATION=v2` 时才使用 v2 运行时。
 
+### Stopped an OAuth request
+
+此消息表示 Claude Code 停止了一个[针对 MCP 服务器的 OAuth 请求](https://code.claude.com/docs/zh-CN/mcp.md#authenticate-with-remote-mcp-servers)，因为某个 OAuth 端点对其进行了重定向。在该消息的两种形式中，第一个地址都是发送重定向的地址：
+
+```text theme={null}
+Stopped an OAuth request, which can hold secrets: https://auth.example.com redirected it to https://other.example.com. Ask the owner of https://auth.example.com to remove that redirect.
+Stopped an OAuth request: https://auth.example.com redirected it more than 5 times. Ask the owner of https://auth.example.com to fix those redirects.
+```
+
+**解决方法：**
+
+* 请第一个地址的运营者（例如 MCP 服务器的运营方）移除或修复该重定向。然后从 `/mcp` 再次尝试。
+
 ### 拒绝向非 https 令牌端点发送凭据
 
 在 [v2 运行时](https://code.claude.com/docs/zh-CN/mcp.md#mcp-client-runtimes)上，Claude Code 只会将 [MCP OAuth](https://code.claude.com/docs/zh-CN/mcp.md#authenticate-with-remote-mcp-servers) 令牌请求发送到通过 HTTPS 提供服务的令牌端点，或位于 `localhost`、`127.0.0.1` 或 `::1` 的令牌端点。此消息表示服务器的令牌端点两者都不是，因此 Claude Code 在发送请求前就停止了。这发生在浏览器登录之后，因此浏览器步骤会先成功，并且每当 Claude Code 刷新该服务器的令牌时都会再次发生。
@@ -2207,7 +2223,7 @@ SSL certificate error (UNABLE_TO_GET_ISSUER_CERT_LOCALLY). If you are behind a c
 
 ### 云端会话中不允许访问该主机
 
-来自云端会话或云端定时任务的出站 HTTP 请求被环境的网络策略阻止。
+在云端会话或云端定时任务中，`403` 或 DNS 错误（例如 `ENOTFOUND`）可能意味着所请求的主机不在[云环境的允许列表](https://code.claude.com/docs/zh-CN/cloud-environments.md#access-levels)中。要确认这一点，请将该主机与该列表进行核对。带有以下标头的 `403` 可以确认请求已被阻止，但并非每个被阻止请求的 `403` 都带有该标头：
 
 ```text theme={null}
 HTTP 403
@@ -2565,6 +2581,8 @@ Unable to resize image — its pixels could not be decoded (the file may be dama
 
 Claude Code 通常会自动调整大型图像的大小。这些错误意味着无法解码或调整图像大小以适应 API 限制。
 
+您看到的错误可能会指明不同的像素限制，例如在这些示例显示 `2000x2000px` 的位置显示 `2576x2576px`。
+
 **要做什么：**
 
 * 如果消息要求您转换图像，请将其转换为 PNG、JPEG、GIF 或 WebP，然后再次附加。Claude Code 可以从文件头为这些格式验证尺寸，而无需解码图像。
@@ -2873,7 +2891,7 @@ Model switch to Opus 4.6 was blocked by a PreModelSwitch hook: Opus 4.6 is retir
 * **hook 写入的原因**：PreModelSwitch hook 在[拒绝切换或要求确认](https://code.claude.com/docs/zh-CN/hooks.md#premodelswitch-decision-control)时提供了该原因。解决它要求的内容，或选择您的 hook 允许的模型。
 * **`PreModelSwitch hook <name> did not respond before its timeout`**：在其[超时](https://code.claude.com/docs/zh-CN/hooks.md#timeouts)之前不回答的 hook 阻止切换。修复挂起的命令或提高该 hook 的 `timeout`，然后再次切换。
 * **`confirmation required, and this session cannot ask`**：hook 回答 `ask` 而没有原因，控制请求无法显示确认提示。[`-p` 运行](https://code.claude.com/docs/zh-CN/headless)中的 `/model` 命令以原因后的 `(run /model interactively to confirm)` 报告相同条件。从交互式会话进行切换，或更改 hook 对此模型的决定。
-* **`so organization-managed PreModelSwitch hooks could not be checked`**：Claude Code 无法判断您的组织的[托管插件](https://code.claude.com/docs/zh-CN/settings-reference.md#enabledplugins)提供哪些 PreModelSwitch hook，例如因为托管插件加载失败。这些 hook 之一可能阻止切换，因此 Claude Code 拒绝而不是应用未检查的切换。原因的开头命名失败的内容。Claude Code 在每次切换尝试时重新检查，因此已清除的失败不再阻止；如果它继续失败，运行 `claude --debug` 并再次切换以捕获详细信息，然后修复插件或要求您的管理员修复它。
+* **`so organization-managed PreModelSwitch hooks could not be checked`**：v2.1.323 之前的 Claude Code 在无法判断您的[托管插件](https://code.claude.com/docs/zh-CN/settings-reference.md#enabledplugins)提供了哪些 PreModelSwitch hook 时会拒绝切换。此短语之前的文本指出了失败的内容。要停止拒绝，请更新 Claude Code。若还要让失败插件的 hook 运行起来，请修复该插件或联系管理员。有关详细信息，请在 shell 中启动 `claude --debug` 并切换模型，然后阅读[调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks)。
 * **`a PreModelSwitch hook failed before answering`** 或 **`PreModelSwitch hooks were cancelled (the control stream closed) before answering`**：hook 运行在没有判决的情况下结束，Claude Code 不将其视为批准。运行 `claude --debug` 以查看失败的内容，然后再次切换。
 
 在 v2.1.260 之前，托管插件拒绝读取 `plugin hooks could not be loaded, so PreModelSwitch hooks could not be checked; see the debug log`。Claude Code 重试了一次插件加载，然后在会话中拒绝了后来的切换，即使您的组织没有管理任何插件。在这些版本上重启会话以再次运行插件加载。
@@ -3499,7 +3517,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了非标志的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。如果要在本次运行中信任它，请将 PR 编号或基准分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。如果要在此次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3522,7 +3540,7 @@ Remote Control did not start: "Choose [1/2] (default: 1):" got no answer. You ca
 您在 `remote-control` 动词之前使用了一个全局 `claude` 标志来启动 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)，而该标志会限制或配置 Remote Control 启动的会话，例如 `--settings`、`--setting-sources`、`--permission-mode`、`--disallowed-tools` 或 `--mcp-config`。放在动词之前的标志永远不会传递到这些会话。Claude Code 会拒绝启动，并指出该标志：
 
 ```text theme={null}
-Error: `--settings` before `remote-control` is not carried over to the sessions Remote Control starts, so Remote Control refuses to start rather than drop it — remove it, and give Remote Control's own options after the verb (see `claude remote-control --help`).
+Error: `--settings` before `remote-control` is not carried over to the sessions Remote Control starts, so Remote Control refuses to start rather than drop it — remove it, and give Remote Control's own options after the verb (see `claude remote-control --help`). Pass settings with `claude remote-control --settings <file>`.
 ```
 
 对于丢弃后无害的全局标志，例如 `--verbose`、`--model`，或由包装器注入的 `--session-id` 或 `--plugin-dir`，Claude Code 不会拒绝：它会忽略这些标志，Remote Control 照常启动。
@@ -3535,6 +3553,31 @@ Error: `--settings` before `remote-control` is not carried over to the sessions 
 * 当被拒绝的标志是 `--permission-mode` 时，请运行 `claude remote-control --permission-mode <mode>` 来为 Remote Control 启动的会话设置权限模式
 
 在 v2.1.248 之前，当全局标志在前时，`claude remote-control` 不接受其自身的标志，命令会以 `unknown option` 错误失败。
+
+### 由于 `--settings` 文件，Remote Control 未启动
+
+您传给 [`claude remote-control --settings`](https://code.claude.com/docs/zh-CN/remote-control#start-a-remote-control-session) 的文件存在问题：
+
+```text theme={null}
+Error: Remote Control did not start, because sessions would skip part or all of the --settings file ./rc-settings.json: Invalid or malformed JSON
+```
+
+**解决方法：**
+
+* 修复消息中指出的问题，然后再次运行您的 `claude remote-control` 命令
+
+### The settings file has changed since Remote Control started
+
+在运行 `claude remote-control` 的终端中出现此消息，表示会话不会基于您传给 [`--settings`](https://code.claude.com/docs/zh-CN/remote-control#start-a-remote-control-session) 的文件的当前内容启动：
+
+```text theme={null}
+Session failed: Error: The settings file /path/to/settings.json has changed since Remote Control started, so this session did not start. Restart `claude remote-control` to use it as it is now.
+```
+
+**解决方法：**
+
+* 如果要使用该文件的当前内容，请停止 `claude remote-control` 并再次运行相同的命令。要恢复它之前提供服务的会话，请参阅[停止服务器后恢复会话](https://code.claude.com/docs/zh-CN/remote-control.md#resume-sessions-after-stopping-the-server)。
+* 如果要保留 Remote Control 启动时使用的设置，请将文件内容恢复原样；如果 `claude remote-control` 已退出，则再次运行该命令
 
 ### `--sandbox` or `--no-sandbox` is not supported by claude remote-control
 
@@ -3806,8 +3849,8 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在各权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求 bash，但机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，而机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
 
 **解决方法：**
 
@@ -3960,7 +4003,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 

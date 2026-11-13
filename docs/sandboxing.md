@@ -276,6 +276,8 @@ Claude Code 提供两种沙箱模式。在这两种模式下，沙箱都会强�
 
 这些路径在操作系统层面强制执行，因此在沙箱内运行的所有命令（包括其子进程）都会遵守这些限制。当某个工具需要对特定位置的写入权限时，推荐使用这种方法，而不是使用 `excludedCommands` 将该工具完全排除在沙箱之外。
 
+在 Linux 和 WSL2 上，针对尚不存在的路径的条目不会生效，因此请先创建该路径。
+
 当您在多个[设置作用域](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)中定义同一个文件系统数组时，Claude Code 会将它们合并，组合来自每个作用域的路径，而不是用一个作用域的数组替换另一个作用域的数组。当某个条目受到[防止开发者放宽策略](#keep-developers-from-widening-the-policy)中的锁定约束时，Claude Code 会将该条目排除在合并之外。
 
 如果您在 CLI 上使用 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference) 或在 Agent SDK 中使用 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features#control-filesystem-settings-with-settingsources) 排除了某个来源，Claude Code 在构建沙箱配置时会忽略该来源的 `sandbox.filesystem` 条目、`Edit` 权限规则以及 `Read` 拒绝规则。需要 Claude Code v2.1.246 或更高版本。
@@ -376,9 +378,9 @@ Claude Code 会将您的条目与每次 Bash 和 Monitor 调用进行比对。�
 
 由于关闭文件系统隔离会扩大沙箱命令的能力范围，Claude Code 仅接受来自以下设置来源的 `filesystem.disabled`：
 
-* 用户设置、托管设置和 `--settings` CLI 标志可以设置它。`.claude/settings.json` 和 `.claude/settings.local.json` 中的项目设置不能设置它，因此检出的项目无法关闭文件系统隔离。
-* 当托管设置配置了任何 `sandbox.filesystem` 内容，或列出了任何 `"mode": "deny"` 的 `sandbox.credentials.files` 条目时，只有托管设置可以设置该键。这可防止开发者在此类部署中关闭文件系统隔离；要为所有人关闭它，请在托管设置中设置 `"disabled": true`。
-* 当设置了 [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](https://code.claude.com/docs/zh-CN/env-vars) 时，Claude Code 会忽略来自所有来源（包括托管设置）的 `filesystem.disabled`，并保持文件系统隔离开启。
+* 用户设置、托管设置和 `--settings` CLI 标志可以设置它。`.claude/settings.json` 和 `.claude/settings.local.json` 中的项目设置不能设置它。
+* 当托管设置配置了任何 `sandbox.filesystem` 内容，或列出了任何 `"mode": "deny"` 的 `sandbox.credentials.files` 条目时，只有托管设置可以设置该键。要为所有人关闭文件系统隔离，请在托管设置中设置 `"disabled": true`。
+* 当设置了 [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](https://code.claude.com/docs/zh-CN/env-vars) 时，Claude Code 会忽略来自所有来源（包括托管设置）的 `filesystem.disabled`。
 
 [有效的](https://code.claude.com/docs/zh-CN/settings-reference.md#invalid-credential-entries-in-managed-settings) `mask` 条目不会锁定该键，即使 Claude Code 在启动时对其[回退为 `deny`](#mask-credential-files) 也是如此。请将无法掩码的路径（例如凭据目录）在托管设置中列为显式的 `deny` 条目，这样会锁定该键。
 

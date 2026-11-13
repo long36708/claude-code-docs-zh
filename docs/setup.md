@@ -40,7 +40,7 @@ Claude Code 在以下平台和配置上运行：
 >
 > **macOS、Linux、WSL：**
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.sh | bash
 > ```
 >
@@ -48,13 +48,13 @@ Claude Code 在以下平台和配置上运行：
 >
 > **Windows PowerShell：**
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > irm https://claude.ai/install.ps1 | iex
 > ```
 >
 > **Windows CMD：**
 >
-> ```batch theme={null}
+> ```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 > ```
 >
@@ -72,7 +72,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] Homebrew
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > brew install --cask claude-code
 > ```
 >
@@ -84,7 +84,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] WinGet
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > winget install Anthropic.ClaudeCode
 > ```
 >
@@ -141,30 +141,12 @@ Claude Code 在您的终端中打开一个交互式会话。
 
 ### Alpine Linux 和基于 musl 的发行版
 
-在 Alpine 和其他 musl/uClibc 基础发行版上安装 Claude Code 需要 `bash` 和 `curl` 用于安装命令，以及 `libgcc`、`libstdc++` 和 `ripgrep` 用于运行时。Alpine 默认不包含 `bash` 或 `curl`，因此在您安装它们之前，文档中的安装命令会失败并显示 `not found` 错误。使用您的发行版的包管理器安装这些包，然后设置 `USE_BUILTIN_RIPGREP=0`。
+在 Alpine 和其他基于 musl 的发行版上，[安装命令](#install-claude-code)需要 `bash` 和 `curl`，而 Claude Code 本身需要 `bash` 或 `zsh`。Alpine 默认不包含 `bash` 或 `curl`，因此在您安装它们之前，文档中的安装命令会失败并显示 `not found` 错误。
 
 此示例在 Alpine 上安装所需的包：
 
 ```bash theme={null}
-apk add bash curl libgcc libstdc++ ripgrep
-```
-
-在 Alpine 上，`ripgrep` 位于社区存储库中。如果 `apk` 报告该包缺失，请将社区存储库添加到 `/etc/apk/repositories`，使用您的 Alpine 版本：
-
-```bash theme={null}
-echo "https://dl-cdn.alpinelinux.org/alpine/v3.22/community" >> /etc/apk/repositories
-```
-
-运行 `apk update` 以刷新包索引，然后重试 `apk add` 命令。
-
-然后在您的 [`settings.json`](https://code.claude.com/docs/zh-CN/settings-reference#all-settings) 文件中将 `USE_BUILTIN_RIPGREP` 设置为 `0`：
-
-```json theme={null}
-{
-  "env": {
-    "USE_BUILTIN_RIPGREP": "0"
-  }
-}
+apk add bash curl
 ```
 
 ## 验证您的安装
@@ -443,7 +425,7 @@ Claude Code 发布已签名的 apt、dnf 和 apk 存储库。每个存储库提�
 > wget -O /etc/apk/keys/claude-code.rsa.pub \
 >   https://downloads.claude.ai/keys/claude-code.rsa.pub
 > echo "https://downloads.claude.ai/claude-code/apk/stable" >> /etc/apk/repositories
-> apk add claude-code
+> apk add bash claude-code
 > ```
 >
 > 要切换到 `latest` 渠道，删除 `stable` 存储库行并添加 `latest` 存储库：

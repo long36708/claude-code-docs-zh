@@ -127,8 +127,6 @@ Agent tool 在单独的上下文窗口中生成一个子代理。子代理自主
 
 Claude 使用 `AskUserQuestion` 在需要决策或澄清时向您提出多选题。通过选择一个选项来回答，或通过 `Other` 行或备注字段输入您自己的文本。
 
-当您通过输入自己的文本来回答时，Claude Code 会用中立的措辞转达答案，以便 Claude 遵循您写的内容，包括等待或先解释的请求。
-
 ### 问题自动继续超时
 
 问题保持打开状态，直到您回答。如果您想让一个未回答的问题最终关闭并让 Claude 在没有您的情况下继续，请在您的用户 `settings.json` 中或从 `/config` 中的 **Question auto-continue timeout** 行设置 [`askUserQuestionTimeout`](https://code.claude.com/docs/zh-CN/settings-reference#askuserquestiontimeout) 为 `60s`、`5m` 或 `10m`。
@@ -525,7 +523,7 @@ PowerShell 工具在预览期间有以下已知限制：
 
 ## Read 工具行为
 
-Read 工具接收文件路径并返回带有行号的文件内容。Claude 被指示始终传递绝对路径。
+Read 工具接收文件路径并返回带有行号的文件内容。
 
 读取空文件会返回一个通知，说明文件存在但内容为空，而 `offset` 超过最后一行会返回一个通知，给出文件的行数。
 

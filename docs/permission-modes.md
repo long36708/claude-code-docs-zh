@@ -304,7 +304,7 @@ claude --permission-mode acceptEdits
 claude --permission-mode plan
 ```
 
-再次按 `Shift+Tab` 可在不批准计划的情况下退出计划模式。
+在没有打开批准提示时，再次按 `Shift+Tab` 可退出计划模式。在批准提示中，请先按 `Esc`，因为在该提示中按 `Shift+Tab` 会批准计划。
 
 ### 审阅并批准计划
 

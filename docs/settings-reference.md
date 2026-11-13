@@ -1533,6 +1533,8 @@ app/
 }
 ```
 
+在 Linux 和 WSL2 上，针对尚不存在的路径的条目不会生效，因此请先创建该路径。
+
 Claude Code 会在会话加载的各设置作用域之间合并 `allowWrite` 条目以及来自您的 `Edit(...)` 允许权限规则的路径，当 [`permissions.blockReadsOutsideWorkingDirectories`](#sandboxed-commands-under-the-block) 启用时，会排除来自仓库设置的条目。[仓库锁定](https://code.claude.com/docs/zh-CN/sandboxing.md#repository-settings-under-an-admin-required-sandbox)也可能排除仓库的条目。`allowWrite` 条目无法解除[受保护路径](https://code.claude.com/docs/zh-CN/sandboxing.md#protected-paths)的保护。
 
 ### `sandbox.filesystem.denyWrite`

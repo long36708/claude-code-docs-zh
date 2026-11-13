@@ -147,23 +147,9 @@ Claude Code 从环境中读取 `CLAUDE_CODE_USE_FOUNDRY` 和其他 Microsoft Fou
 
 ## Azure RBAC 配置
 
-`Azure AI User` 和 `Cognitive Services User` 默认角色包括调用 Claude 模型所需的所有权限。
+如果您使用 Microsoft Entra ID 或其颁发的 bearer 令牌进行身份验证，请在您的 Foundry 资源上为您的身份分配 `Foundry User` 或 `Cognitive Services User` 角色。您可能仍会看到 `Foundry User` 以其旧名称 `Azure AI User` 显示。
 
-对于更严格的权限，请创建具有以下内容的自定义角色：
-
-```json theme={null}
-{
-  "permissions": [
-    {
-      "dataActions": [
-        "Microsoft.CognitiveServices/accounts/providers/*"
-      ]
-    }
-  ]
-}
-```
-
-有关详情，请参阅 [Microsoft Foundry RBAC 文档](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/rbac-azure-ai-foundry)。
+如果这些角色无法满足您的需求，请参阅 [Microsoft Foundry RBAC 文档](https://learn.microsoft.com/en-us/azure/foundry/concepts/rbac-foundry)了解自定义角色。
 
 ## 1M token 上下文窗口
 

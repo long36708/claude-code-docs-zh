@@ -581,7 +581,7 @@ ctrl+k ctrl+s   按 Ctrl+K，释放，然后按 Ctrl+S
 
 Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
 
-* `Chat`：`ctrl+x ctrl+k`、`ctrl+x ctrl+e`、`ctrl+x enter`、`ctrl+x ctrl+a`、`ctrl+x ctrl+s` 和 `ctrl+x tab`
+* `Chat`：`ctrl+x ctrl+k`、`ctrl+x ctrl+e`、`ctrl+x enter`、`ctrl+x ctrl+a`、`ctrl+x ctrl+s`、`ctrl+x tab`、`ctrl+x ctrl+=`、`ctrl+x ctrl+-`、`ctrl+x ctrl+_`、`ctrl+x =` 和 `ctrl+x -`
 * `Task`：`ctrl+x ctrl+b`
 * `DiffPanel`：`ctrl+x b`
 * `Pane`：`ctrl+x left`、`ctrl+x right`、`ctrl+x up`、`ctrl+x down` 和 `ctrl+x x`
@@ -631,6 +631,11 @@ Claude Code 在 `ctrl+x` 前缀上按上下文绑定以下默认和弦：
         "ctrl+x ctrl+a": null,
         "ctrl+x ctrl+s": null,
         "ctrl+x tab": null,
+        "ctrl+x ctrl+=": null,
+        "ctrl+x ctrl+-": null,
+        "ctrl+x ctrl+_": null,
+        "ctrl+x =": null,
+        "ctrl+x -": null,
         "ctrl+x": "chat:newline"
       }
     }
