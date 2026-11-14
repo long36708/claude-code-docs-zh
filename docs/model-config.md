@@ -45,6 +45,7 @@
 | :- | :- | :- | :- |
 | Anthropic API | Opus 5.5 | Sonnet 5.5 | Haiku 5.5 |
 | [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) | Opus 5.5 | Sonnet 4.6 | Haiku 4.5 |
+| [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed) | Opus 5.5 | Sonnet 5.5 | Haiku 4.5 |
 | Amazon Bedrock、Google Cloud 的 Agent Platform | Opus 5.5 | Sonnet 4.5 | Haiku 4.5 |
 | Microsoft Foundry | Opus 4.6 | Sonnet 4.5 | Haiku 4.5 |
 
@@ -481,7 +482,7 @@ Claude Enterprise 计划上的组织管理员可以为每个自定义角色按�
 `default` 的行为取决于您的账户类型：
 
 * **Pro、Max、Ultra、Team、Enterprise 和 Anthropic API**：默认为 Opus 5.5
-* **Claude Platform on AWS、Amazon Bedrock 和 Google Cloud's Agent Platform**：默认为 Opus 5.5
+* **Claude Platform on AWS、Claude Models on Google Cloud (Anthropic managed)、Amazon Bedrock 和 Google Cloud's Agent Platform**：默认为 Opus 5.5
 * **Microsoft Foundry**：默认为 Sonnet 4.5
 
 在 v2.1.280 之前，`default` 在 Pro 和 Team Standard 上解析为 Sonnet 5，在 Max、Ultra、Team Premium、Enterprise、Anthropic API、Claude Platform on AWS、Amazon Bedrock 和 Google Cloud's Agent Platform 上从 v2.1.219 开始解析为 Opus 5。在 v2.1.219 之前，`default` 在 Anthropic API、Max、Ultra、Team Premium 和 Enterprise 按量付费上从 v2.1.154 开始解析为 Opus 4.8，在 Claude Platform on AWS、Amazon Bedrock 和 Google Cloud's Agent Platform 上从 v2.1.207 开始解析为 Opus 4.8。在 v2.1.207 之前，`default` 在 Claude Platform on AWS 上解析为 Opus 4.7，在 Amazon Bedrock 和 Google Cloud's Agent Platform 上解析为 Sonnet 4.5。
@@ -527,7 +528,7 @@ claude --fallback-model sonnet,haiku
 
 ```json theme={null}
 {
-  "fallbackModel": ["claude-sonnet-5", "claude-haiku-4-5"]
+  "fallbackModel": ["claude-sonnet-5", "claude-haiku-5-5"]
 }
 ```
 
@@ -535,10 +536,13 @@ claude --fallback-model sonnet,haiku
 
 Claude Code 在启动时不确认链，`/status` 也不显示它。切换发生时显示的通知是回退已配置的第一个可见迹象。
 
-当请求失败转移时，Claude Code 会按顺序尝试每个条目，直到一个接受它。无法到达的条目，例如在设置中固定的已停用模型，会以相同方式失败转移到下一个。Claude Code 在该遍历开始前删除两种条目：
+#### Claude Code 尝试哪些条目
+
+当请求失败转移时，Claude Code 会按顺序尝试每个条目，直到一个接受它。同样无法到达的条目，例如在设置中固定的已停用模型，会以相同方式失败转移到下一个。Claude Code 在以下情况下会略过某个条目：
 
 * **超出允许列表**：当 Claude Code 读取链时，会删除 [`availableModels`](#restrict-model-selection) 不允许的任何条目。
 * **压缩期间上下文窗口较小**：链也涵盖[压缩](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)，但 Claude Code 不会回退到上下文窗口小于主模型的模型，因为在那里进行摘要会首先切断部分对话。如果每个备用模型都较小，压缩会显示原始错误，您可以重试。
+* **自动模式不支持**：在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中，以及分类器审查命令时的计划模式中，Claude Code 会跳过自动模式不支持的模型。如果您使用其中任一模式，请包含一个受支持的模型。
 
 Claude Code 也将链应用于[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)。当子代理的请求失败转移时，Claude Code 会按顺序尝试您配置的备用模型，子代理继续在接受请求的模型上运行。您的会话模型保持不变。在 v2.1.247 之前，链涵盖的失败会结束子代理。
 

@@ -188,7 +188,7 @@
 | [`sandbox.enableWeakerNestedSandbox`](#sandbox-enableweakernestedsandbox) | 在非特权容器内运行 Linux [沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md) | 沙箱设置 | 任意文件 |
 | [`sandbox.enableWeakerNetworkIsolation`](#sandbox-enableweakernetworkisolation) | 允许 `gh`、`gcloud` 和 `terraform` 在 macOS 上的[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md#go-based-clis-fail-tls-verification-on-macos)中于 MITM 代理之后验证 TLS | 沙箱设置 | 任意文件 |
 | [`sandbox.excludedCommands`](#sandbox-excludedcommands) | 指定 Claude Code 可以在[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)之外运行的命令 | 沙箱设置 | 任意文件 |
-| [`sandbox.failIfUnavailable`](#sandbox-failifunavailable) | 当[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)无法启动时拒绝启动，而不是在无沙箱的情况下运行 | 沙箱设置 | 任意文件 |
+| [`sandbox.failIfUnavailable`](#sandbox-failifunavailable) | 当[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)无法启动时拒绝启动，而不是在无沙箱的情况下运行；在 Anthropic 托管的环境中除外 | 沙箱设置 | 任意文件 |
 | [`sandbox.filesystem`](#sandbox-filesystem) | 控制[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md#filesystem-isolation)中的命令可以读取和写入哪些路径 | 沙箱设置 | 任意文件 |
 | [`sandbox.filesystem.allowManagedReadPathsOnly`](#sandbox-filesystem-allowmanagedreadpathsonly) | 阻止开发者重新开放[您的组织已屏蔽的读取路径](https://code.claude.com/docs/zh-CN/sandboxing.md#keep-developers-from-widening-the-policy) | 沙箱设置 | 托管 |
 | [`sandbox.filesystem.allowRead`](#sandbox-filesystem-allowread) | 在 [`denyRead`](#sandbox-filesystem-denyread) 屏蔽的区域内重新开放读取 | 沙箱设置 | 任意文件 |
@@ -289,7 +289,7 @@
 }
 ```
 
-在 advisor [不可用](https://code.claude.com/docs/zh-CN/advisor.md#requirements)的提供商上（例如 Amazon Bedrock），此键不起作用。在 Claude Platform on AWS 上，此键需要 Claude Code v2.1.300 或更高版本。`"fable"` 需要 [Fable 访问权限](https://code.claude.com/docs/zh-CN/advisor.md#choose-an-advisor-model)。
+在 advisor [不可用](https://code.claude.com/docs/zh-CN/advisor.md#requirements)的提供商上（例如 Amazon Bedrock），此键不起作用。在 Claude Platform on AWS 或 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/feature-availability.md#availability-by-model-provider) 上，此键需要 Claude Code v2.1.300 或更高版本。`"fable"` 需要 [Fable 访问权限](https://code.claude.com/docs/zh-CN/advisor.md#choose-an-advisor-model)。
 
 ### `alwaysThinkingEnabled`
 
@@ -435,11 +435,11 @@
 * **默认值**：未设置，因此失败的请求不会在其他模型上重试
 * **单会话覆盖**：`--fallback-model` 在单个会话中优先于此键
 
-此示例在主模型失败时先尝试 Sonnet 5，然后尝试 Haiku 4.5：
+此示例在主模型失败时先尝试 Sonnet 5，然后尝试 Haiku 5.5：
 
 ```json settings.json theme={null}
 {
-  "fallbackModel": ["claude-sonnet-5", "claude-haiku-4-5"]
+  "fallbackModel": ["claude-sonnet-5", "claude-haiku-5-5"]
 }
 ```
 
@@ -1336,8 +1336,8 @@ no approval surface in this session; permission request denied automatically
 
 * **作用域**：[`Any file`](#scopes)，[对项目设置和本地设置有限制](https://code.claude.com/docs/zh-CN/sandboxing.md#repository-settings-under-an-admin-required-sandbox)
 * **类型**：布尔值
-  * `true`：当 `sandbox.enabled` 为 `true` 但沙箱无法启动时，Claude Code 在启动时报错退出。如果沙箱通过了该检查但随后初始化失败，会话将继续运行，而 Claude Code 会[拒绝每个沙箱命令](https://code.claude.com/docs/zh-CN/sandboxing.md#commands-refused-with-sandbox-is-required)
-  * `false`：当沙箱无法启动时，Claude Code 在沙箱外运行命令
+  * `true`：当 `sandbox.enabled` 为 `true` 但沙箱无法启动时，Claude Code 在启动时报错退出。如果沙箱通过了该检查但随后初始化失败，会话会继续运行。此后 Claude Code 会[拒绝每条沙箱命令](https://code.claude.com/docs/zh-CN/sandboxing.md#commands-refused-with-sandbox-is-required)。Anthropic 托管环境中的会话仍可启动，但会显示警告，并且不会强制执行您的 `sandbox.filesystem` 或 `sandbox.network` 规则
+  * `false`：沙箱无法启动时，Claude Code 在沙箱外运行命令
 * **默认值**：`false`
 
 以下配置为托管计算机启用沙箱，并将 `failIfUnavailable` 设置为 `true`：
@@ -2455,7 +2455,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 #### `env` 值如何与您的 shell 交互
 
 * 此处的值会覆盖您在 shell 中导出的同名变量；当多个设置文件设置了同一变量时，以[优先级最高](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)的为准。[Claude Code 在 `env` 中忽略的变量](#variables-claude-code-ignores-in-env)列出了例外情况。
-* 当 Claude Desktop 应用或[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)运行器启动会话时，它所构建的启动环境优先：对于启动环境已设置的变量，Claude Code 会忽略任何设置文件中的 `env` 值。[调试日志](https://code.claude.com/docs/zh-CN/debug-your-config.md)会列出每个被忽略的变量。
+* 当 Claude Desktop 应用或[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)运行器启动会话时，改为以它所构建的启动环境优先。对于该环境已设置的变量，Claude Code 会忽略设置文件中的 `env` 值。[调试日志](https://code.claude.com/docs/zh-CN/debug-your-config.md)可以显示被忽略的变量名称。
 * 要取消 shell 中的导出，请将该变量设置为 `""`。在选择提供商时，Claude Code 将空值视为未设置，而子进程会继承该空值。
 * 在此处设置的 `NO_COLOR` 和 `FORCE_COLOR` 仅作用于子进程。要更改 Claude Code 自身的界面颜色，请在启动 `claude` 之前在 shell 中设置它们。
 * 此处的值以明文形式保存在设置文件中，并会传递给 Claude Code 启动的每个子进程。对于会轮换的 OTLP bearer 令牌，请使用 [`otelHeadersHelper`](#otelheadershelper)；对于 API 凭据，请使用 [`apiKeyHelper`](#apikeyhelper)。
@@ -5193,6 +5193,7 @@ Desktop 无法读取为主机列表的值（例如 `true` 或对象）在您更�
   * `"vertex"`：[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)，前身为 Vertex AI
   * `"foundry"`：[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)
   * `"anthropicAws"`：[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)
+  * `"anthropicGoogleCloud"`：[Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed)
   * `"mantle"`：Amazon Bedrock [Mantle 端点](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#use-the-mantle-endpoint)。[同时运行 Mantle 和 Invoke API](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#run-mantle-alongside-the-invoke-api) 的会话会使用这两个提供商，因此需要同时列出 `"bedrock"` 和 `"mantle"`
   * `"customEndpoint"`：发送到其他主机的 Anthropic API 或云提供商 API，例如由 `ANTHROPIC_BASE_URL` 或提供商端点变量（如 `ANTHROPIC_BEDROCK_BASE_URL`）指定的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)。Claude Code 仅接受托管 [`env`](#env) 块所固定的确切值
   * `"gateway"`：[Cloud gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 登录

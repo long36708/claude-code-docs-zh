@@ -240,7 +240,7 @@
 * [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 和 [`allowManagedMcpServersOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedmcpserversonly) 使托管权限和 MCP 允许列表成为唯一适用的列表
 * `allowedMcpServers` 通过 URL 固定 MCP 服务器
 * `strictKnownMarketplaces` 允许一个插件市场
-* `sandbox` 使用固定的网络允许列表对命令进行沙箱处理，无需无沙箱重试。其 `failIfUnavailable` 键会[在沙箱无法运行的环境中阻止 Claude Code 启动](https://code.claude.com/docs/zh-CN/sandboxing.md#enforce-sandboxing-with-managed-settings)
+* `sandbox` 使用固定的网络允许列表对命令进行沙箱处理，无需无沙箱重试。其 `failIfUnavailable` 键会[在沙箱无法运行的环境中阻止 Claude Code 启动](https://code.claude.com/docs/zh-CN/sandboxing.md#enforce-sandboxing-with-managed-settings)，但在 Anthropic 托管的环境中除外
 * `requiredMinimumVersion` 设置最低 Claude Code 版本
 * `cleanupPeriodDays` 将会话记录和其他本地数据的保留期缩短为七天
 * `companyAnnouncements` 在启动时显示消息

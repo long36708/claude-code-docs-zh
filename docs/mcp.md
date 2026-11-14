@@ -504,7 +504,7 @@ MCP 任务是由 MCP 服务器使用 [MCP tasks 扩展](https://modelcontextprot
 
 #### 停止 MCP 任务或获取其结果
 
-若要停止正在运行的任务，请在 [`/tasks`](https://code.claude.com/docs/zh-CN/commands#all-commands) 中选择它并按 `x`，或者让 Claude 来停止。Claude Code 会停止跟踪该任务并请求服务器取消它，但服务器仍可能完成它。请先从 `/mcp` 重新连接已断开的服务器，否则取消请求不会发出，Claude Code 会遗忘该任务且无法再次跟踪它。按 `Esc` 不会停止后台任务。
+要停止正在运行的任务，请在 [`/tasks`](https://code.claude.com/docs/zh-CN/commands#all-commands) 中选中它并按 `x`，或者让 Claude 来停止。Claude Code 会停止跟踪该任务并请求服务器取消它，但服务器仍可能完成它。请先从 `/mcp` 重新连接已断开的服务器，以便取消请求能够发出。Claude Code 无法再次跟踪已停止的任务。按 `Esc` 不会停止后台任务。
 
 任务结束时，会话记录中会出现如下一行：
 

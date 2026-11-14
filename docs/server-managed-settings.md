@@ -237,7 +237,9 @@ Claude Code 在启动时从 Anthropic 的服务器获取设置，并在活动会
 * 在[端点托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#choose-a-delivery-mechanism)自行列出或启用插件的机器上，仅由缓存列表启用的插件在获取确认负载之前被视为[用户的](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)插件，而不是您组织的插件
 * Claude Code 在后台获取最新设置
 * 如果会话的提供商不在缓存的 [`allowedProviders`](https://code.claude.com/docs/zh-CN/settings-reference#allowedproviders) 列表中，Claude Code 可能会等待该获取完成并再次检查，然后才决定是否拒绝。如果获取失败，会话将被拒绝
-* 缓存的设置在网络故障期间保持有效。如果启动时的获取失败，Claude Code 会在交互式会话和 Code 标签页中警告缓存的策略正在生效
+* 请按照缓存的设置在上次成功获取后 24 小时过期来进行规划
+* 如果启动时的获取在缓存的设置过期之前失败，Claude Code 会在交互式会话和 Code 标签页中警告缓存的策略正在生效
+* 如果启动时的获取在缓存的设置过期之后失败，会话将在没有服务器托管设置的情况下启动，并且警告会说明没有远程策略生效。要让 Claude Code 改为退出，请设置 [`forceRemoteSettingsRefresh`](#enforce-fail-closed-startup)
 * 在获取成功之前，启动时暂缓的值保持暂缓
 
 Claude Code 会暂缓缓存的 `env` 块中的若干类变量，直到服务器为该会话确认负载。这可以防止缓存的代理、证书颁发机构、端点或凭据值对确认负载的设置获取进行重定向、拦截或重新身份验证。这项加固仅适用于从服务器获取的设置缓存：通过 MDM 或 `managed-settings.json` 部署的[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)不受影响。被暂缓的类别包括：
@@ -285,7 +287,7 @@ Claude Code 会将大多数设置更新应用到正在运行的会话中，无�
 
 ### 强制失败即关闭的启动
 
-默认情况下，如果启动时远程设置获取失败，CLI 会使用上一次成功获取时缓存的设置继续运行。Claude Code [暂缓的值](#fetch-and-caching-behavior)在获取成功之前保持暂缓。在从未获取过这些设置的机器上，CLI 会在没有服务器托管设置的情况下继续运行，并仍然应用设备上的任何[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)。[Anthropic 也可能改为要求必须获取这些设置](#fetch-and-caching-behavior)。
+默认情况下，如果启动时远程设置获取失败，CLI 会使用上一次成功获取时缓存的设置继续运行，除非这些设置已[过期](#fetch-and-caching-behavior)。Claude Code [暂缓的值](#fetch-and-caching-behavior)在获取成功之前保持暂缓。在缓存的设置已过期或不存在时，CLI 会在没有服务器托管设置的情况下继续运行，并仍然应用设备上的任何[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)。[Anthropic 也可能改为要求必须获取这些设置](#fetch-and-caching-behavior)。
 
 要阻止客户端在使用缓存的或缺失的服务器托管设置时启动，请在您的托管设置中设置 `forceRemoteSettingsRefresh: true`。
 
@@ -425,11 +427,11 @@ Claude Code 同样根据下发的值来决定 [`API_FORCE_IDLE_TIMEOUT`](https:/
 
 | 场景 | 行为 |
 | :- | :- |
-| 用户编辑缓存的设置文件 | 篡改的文件在启动时应用，但 Claude Code 在服务器确认有效负载前暂扣的[值](#fetch-and-caching-behavior)除外。下次服务器获取会恢复正确的设置，但[仅在下次启动时应用的键](#fetch-and-caching-behavior)除外，例如 `model` 或添加到 `env` 块的变量，这些会保持有效直到重新启动 |
+| 用户编辑缓存的设置文件 | 篡改的文件可能在启动时应用，但 [Claude Code 在服务器确认负载前暂扣的值](#fetch-and-caching-behavior)除外。下次服务器获取会恢复正确的设置。对于[仅在下次启动时应用的键](#fetch-and-caching-behavior)（例如 `model` 或添加到 `env` 块的变量），篡改的值会一直保持有效，直到重新启动 |
 | 用户删除缓存的设置文件 | 发生[首次启动行为](#fetch-and-caching-behavior) |
 | 用户运行修改的 Claude Code 二进制文件 | 能够运行修改的客户端的用户可以绕过任何客户端控制 |
 | 用户运行较旧的 Claude Code 版本 | 早于服务器管理设置的版本不会获取或应用它们 |
-| API 不可用 | 如果可用，则应用缓存的设置。没有缓存的情况下，Claude Code 在下次成功获取前不强制执行任何服务器管理的设置。[获取和缓存行为](#fetch-and-caching-behavior)列出了例外情况，包括 Anthropic 要求这些设置的情况。使用 `forceRemoteSettingsRefresh: true` 时，CLI 退出而不是继续，但[`claude auth` 子命令](#enforce-fail-closed-startup)除外。通过[Claude 应用网关](#platform-availability)登录的客户端在启动时退出而没有该设置，具有相同的 `claude auth` 豁免 |
+| API 不可用 | 如果缓存的设置可用且未[过期](#fetch-and-caching-behavior)，则应用缓存的设置。没有缓存的情况下，Claude Code 在下次成功获取前不强制执行任何服务器管理的设置。[获取和缓存行为](#fetch-and-caching-behavior)列出了例外情况，包括 Anthropic 要求这些设置的情况。使用 `forceRemoteSettingsRefresh: true` 时，CLI 退出而不是继续，但[`claude auth` 子命令](#enforce-fail-closed-startup)除外。通过[Claude 应用网关](#platform-availability)登录的客户端即使没有该设置也会在启动时退出，同样豁免 `claude auth` |
 | 用户使用不同的组织进行身份验证 | 不为托管组织外的账户传递设置，包括使用 [Console API 密钥](#platform-availability)进行身份验证的会话 |
 | 用户配置[第三方模型提供商](#platform-availability) | 服务器管理的设置被绕过。这包括设置 `CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_MANTLE`、`CLAUDE_CODE_USE_VERTEX`、`CLAUDE_CODE_USE_FOUNDRY`、`CLAUDE_CODE_USE_ANTHROPIC_AWS` 或非默认的 `ANTHROPIC_BASE_URL` |
 | 网络流量被拦截或重定向 | 禁用的 TLS 验证或拦截的流量可以改变客户端接收的设置 |

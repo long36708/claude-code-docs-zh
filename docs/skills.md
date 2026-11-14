@@ -14,7 +14,10 @@ Skills 扩展了 Claude 能做的事情。创建一个 `SKILL.md` 文件，其�
 >
 > 对于内置命令如 `/help` 和 `/compact`，以及捆绑的 skills 如 `/debug` 和 `/code-review`，请参阅[命令参考](https://code.claude.com/docs/zh-CN/commands.md)。
 >
-> **自定义命令已合并到 skills 中。** `.claude/commands/deploy.md` 中的文件和 `.claude/skills/deploy/SKILL.md` 中的 skill 都会创建 `/deploy` 并以相同的方式工作。你现有的 `.claude/commands/` 文件继续工作。Skills 添加了可选功能：支持文件的目录、用于[控制你或 Claude 是否调用它们](#control-who-invokes-a-skill)的 frontmatter，以及 Claude 在相关时自动加载它们的能力。
+> **自定义命令已合并到 skill 中。** 您现有的 `.claude/commands/` 文件会继续工作。Claude 无需您输入命令即可调用它们。您可以编辑命令以阻止 Claude 自行调用它，或者将需要多个文件的命令转换为 skill：
+>
+> * **阻止 Claude 自行调用命令**：在命令文件的 [frontmatter](#frontmatter-reference) 中添加 [`disable-model-invocation: true`](#control-who-invokes-a-skill)
+> * **添加脚本等[支持文件](#add-supporting-files)**：将命令转换为 skill。例如，将 `.claude/commands/deploy.md` 移动到 `.claude/skills/deploy/SKILL.md`。[文件夹名称会成为命令](#how-a-skill-gets-its-command-name)，因此您仍然输入 `/deploy`。
 
 Claude Code skills 遵循 [Agent Skills](https://agentskills.io) 开放标准，该标准适用于多个 AI 工具。Claude Code 使用额外功能扩展了该标准，如[调用控制](#control-who-invokes-a-skill)、[子代理执行](#run-skills-in-a-subagent)和[动态上下文注入](#inject-dynamic-context)。请参阅[在 Claude Code 外使用 skill frontmatter](#using-skill-frontmatter-outside-claude-code)，了解哪些 frontmatter 字段是标准的一部分，哪些是 Claude Code 扩展。
 
@@ -312,7 +315,7 @@ Claude Code 对同步 skill 的正文的处理取决于会话运行的位置：
 
 * 在云会话中，正文保持本地 skill 具有的行为，因为会话在隔离容器中运行。
 * 在您桌面上的 Cowork 会话中，正文保持本地 skill 具有的行为，除了 Claude Code 将每个 `!` 命令行替换为 [`disableSkillShellExecution` 占位符](#inject-dynamic-context)，就像它对您在那里提供的每个 skill 所做的那样。
-* 在您机器上的任何其他会话中，Claude Code 不运行 [`!` 命令](#inject-dynamic-context)，不附加 `@` 引用命名的文件（就像它对本地 skill 所做的那样），不替换 `${CLAUDE_PROJECT_DIR}` 和 `${CLAUDE_SESSION_ID}` 占位符，因此 `@` 引用和两个占位符都作为文字文本到达 Claude。`!` 命令行也作为文字文本到达 Claude，或当 `disableSkillShellExecution` 打开时作为该占位符。此处理需要 Claude Code v2.1.228 或更高版本。
+* 在终端或 VS Code 会话中，Claude Code 不运行 [`!` 命令](#inject-dynamic-context)，不附加 `@` 引用所指的文件，也不替换 `${CLAUDE_PROJECT_DIR}` 和 `${CLAUDE_SESSION_ID}` 占位符。`@` 引用和这两个占位符都作为文字文本到达 Claude。`!` 命令行也作为文字文本到达 Claude，或在该设置打开时作为 `disableSkillShellExecution` 占位符到达。此处理需要 Claude Code v2.1.228 或更高版本。
 
 ### 在会话期间编辑 skill
 
@@ -580,15 +583,15 @@ Deploy $ARGUMENTS to production:
 4. Verify the deployment succeeded
 ```
 
-如果 Claude 仍然尝试调用，Claude Code 会阻止该调用，并指示它不要以其他方式重现部署步骤，因此 Claude 通常会建议您自行运行 `/deploy`。
+如果您的消息中没有以[单独的词且不附带任何标点](#where-you-write-the-skills-name)的形式包含 `/deploy`，而 Claude 尝试调用该 skill，Claude Code 会阻止该调用。此时 Claude 通常会建议您自行运行 `/deploy`。
 
 以下是这两个字段对调用和上下文加载的影响：
 
 | Frontmatter | 您可以调用 | Claude 可以调用 | 何时加载到上下文中 |
 | :- | :- | :- | :- |
-| （默认） | 是 | 是 | 描述始终在上下文中，调用时加载完整 skill |
+| （默认） | 是 | 是 | 描述位于上下文中，调用时加载完整的 skill |
 | `disable-model-invocation: true` | 是 | 不能自行调用 | 描述不在上下文中，调用时加载完整 skill |
-| `user-invocable: false` | 否 | 是 | 描述始终在上下文中，调用时加载完整 skill |
+| `user-invocable: false` | 否 | 是 | 描述位于上下文中，调用时加载完整 skill |
 
 > [!NOTE]
 >
@@ -619,7 +622,7 @@ Deploy $ARGUMENTS to production:
 
 `allowed-tools` 字段会在调用该 skill 的轮次中为列出的工具授予权限，因此 Claude 可以使用这些工具而无需提示您批准。即使 skill 内容[保留在上下文中](#skill-content-lifecycle)，该授予也会在您发送下一条消息时清除；再次调用该 skill 会在该轮次中重新应用授予。它不会限制哪些工具可用：所有工具仍然可以调用，未列出的工具仍受您的[权限设置](https://code.claude.com/docs/zh-CN/permissions.md)约束。要为整个会话而非单个轮次预先批准工具，请改为在这些权限设置中添加允许规则。
 
-工作区信任不会限制此字段。即使在您从未信任过的文件夹中进行 `-p` 运行，Claude Code 也会应用项目 skill 的 `allowed-tools`。skill 可以为自身授予广泛的工具访问权限，因此在仓库中运行 Claude Code 之前，请检查提交到该仓库的 skill 的 `allowed-tools`。要在整个组织范围内对仓库 skill 禁用该字段，请参阅[仅适用托管权限规则时](#when-only-managed-permission-rules-apply)。
+即使在您从未信任过的文件夹中进行 `-p` 运行，Claude Code 也会应用项目 skill 的 `allowed-tools`。skill 可以为自身授予广泛的工具访问权限，因此在仓库中运行 Claude Code 之前，请检查提交到该仓库的 skill 的 `allowed-tools`。要在整个组织范围内对仓库 skill 禁用该字段，请参阅[仅适用托管权限规则时](#when-only-managed-permission-rules-apply)。
 
 每当您调用此 skill 时，它都允许 Claude 运行 git 命令而无需逐次批准：
 
@@ -707,7 +710,7 @@ Claude Code 会展开第一个 skill 以及其后叠加的最多五个 skill。�
 
 ### 注入动态上下文
 
-`` !`<command>` `` 语法在技能内容发送给 Claude 之前运行 shell 命令。命令输出替换占位符，因此 Claude 接收实际数据，而不是命令本身。当技能从你的 claude.ai 账户[同步](#how-claude-code-handles-the-body-of-a-synced-skill)时，Claude Code 不会在你的机器上运行这些命令。这个限制需要 Claude Code v2.1.228 或更高版本。
+`` !`<command>` `` 语法在 skill 内容发送给 Claude 之前运行 shell 命令。命令输出会替换占位符，因此 Claude 接收到的是实际数据，而不是命令本身。对于从您的 claude.ai 账户同步的 skill，请参阅 [Claude Code 如何处理同步 skill 的主体](#how-claude-code-handles-the-body-of-a-synced-skill)。
 
 这个技能通过使用 GitHub CLI 获取实时 PR 数据来总结拉取请求。`` !`gh pr diff` `` 和其他命令首先运行，它们的输出被插入到提示中：
 
@@ -745,7 +748,7 @@ git status --short
 
 要为来自用户、项目、插件或[附加目录](#skills-from-additional-directories)源的技能和自定义命令禁用此行为，请在[设置](https://code.claude.com/docs/zh-CN/settings.md)中设置 `"disableSkillShellExecution": true`。每个命令都被替换为 `[shell command execution disabled by policy]` 而不是被运行。捆绑和托管技能不受影响。此设置在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中最有用，用户无法覆盖它。
 
-当命令出现在从你的 claude.ai 账户[同步](#how-synced-skills-behave)的技能中时，Claude Code 永远不会在你的机器上运行这些命令，无论此设置如何。这个限制需要 Claude Code v2.1.228 或更高版本。[Claude Code 如何处理同步技能的主体](#how-claude-code-handles-the-body-of-a-synced-skill)说明了在每种会话中 Claude 接收什么来代替命令。
+在终端或 VS Code 会话中，无论此设置如何，Claude Code 都不会运行[从您的 claude.ai 账户同步](#how-synced-skills-behave)的 skill 中的这些命令。此限制需要 Claude Code v2.1.228 或更高版本。
 
 > [!TIP]
 >
@@ -876,10 +879,10 @@ Research $ARGUMENTS thoroughly:
 Skill
 ```
 
-**使用[权限规则](https://code.claude.com/docs/zh-CN/permissions.md)允许或拒绝特定技能**：
+**使用[权限规则](https://code.claude.com/docs/zh-CN/permissions.md)允许或拒绝特定 skill**。添加允许规则时，Claude 并不会仅限于这些规则中指定的 skill。
 
 ```text theme={null}
-# Allow only specific skills
+# Allow rules: skip the prompt
 Skill(commit)
 Skill(review-pr *)
 

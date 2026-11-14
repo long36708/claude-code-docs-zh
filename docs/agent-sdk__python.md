@@ -895,7 +895,7 @@ class ClaudeAgentOptions:
 | `add_dirs` | `list[str \| Path]` | `[]` | Claude 可以访问的其他目录。SDK 将每个条目作为 `--add-dir` 传递给 Claude Code，因此使用 `project` 设置源时，Claude Code 也会[加载目录的 skill、命令和子代理](https://code.claude.com/docs/zh-CN/permissions.md#additional-directories-grant-file-access-not-configuration) |
 | `env` | `dict[str, str]` | `{}` | 合并到继承的进程环境之上的环境变量。见 [环境变量](https://code.claude.com/docs/zh-CN/env-vars.md) 了解底层 CLI 读取的变量，以及 [处理缓慢或停滞的 API 响应](#handle-slow-or-stalled-api-responses) 了解超时相关变量。设置 `CLAUDE_AGENT_SDK_CLIENT_APP` 以在 User-Agent 标头中标识您的应用 |
 | `extra_args` | `dict[str, str \| None]` | `{}` | 直接传递给 CLI 的其他 CLI 参数 |
-| `max_buffer_size` | `int \| None` | `None` | 缓冲 CLI stdout 时的最大字节数 |
+| `max_buffer_size` | `int \| None` | `None` | SDK 从 CLI 接受的单条消息的最大长度，以字符为单位。`None` 使用 1,048,576。更长的消息会引发 [`CLIJSONDecodeError`](#clijsondecodeerror) |
 | `debug_stderr` | `Any` | `sys.stderr` | *已弃用* - SDK 忽略此值。使用 `stderr` 回调获取 CLI stderr 输出 |
 | `stderr` | `Callable[[str], None] \| None` | `None` | CLI 中 stderr 输出的回调函数 |
 | `can_use_tool` | [`CanUseTool`](#canusetool) ` \| None` | `None` | 工具权限回调，仅在[权限流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)落到提示时调用。对于由 `allowed_tools`、允许规则或 `permission_mode` 自动批准的调用不会调用。允许规则不会预批准[任何模式都不自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)。见 [`CanUseTool`](#canusetool) 了解详情 |
@@ -2083,7 +2083,7 @@ class ResultError(ProcessError):
 
 ### `CLIJSONDecodeError`
 
-当 JSON 解析失败时引发。
+当 JSON 解析失败，或来自 CLI 的单条消息长度超过 `max_buffer_size` 时引发。要提高该限制并继续已中断的工作，请参阅[大型工具调用和结果](https://code.claude.com/docs/zh-CN/agent-sdk/troubleshooting.md#large-tool-calls-and-results)。
 
 ```python theme={null}
 class CLIJSONDecodeError(ClaudeSDKError):

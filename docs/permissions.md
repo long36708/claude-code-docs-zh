@@ -86,6 +86,8 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 
 为了防止 `bypassPermissions` 或 `auto` 模式被使用，在任何[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中将 `permissions.disableBypassPermissionsMode` 或 `permissions.disableAutoMode` 设置为 `"disable"`。这些在[托管设置](#managed-settings)中最有用，因为它们无法被覆盖。
 
+要拒绝那些会等待权限提示的调用，使无人值守的会话能够继续工作，请在您的用户设置或托管设置中将 [`permissions.denyInsteadOfPrompting`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-denyinsteadofprompting) 设置为 `true`。`dontAsk` 本身是一种独立的权限模式，而此设置项可与您当前所处的权限模式配合使用。
+
 ## 权限规则语法
 
 权限规则遵循格式 `Tool` 或 `Tool(specifier)`。括号内的说明符是字面意思，因此包含括号的命令或路径不需要转义。
@@ -807,7 +809,7 @@ Claude Code 运行 git 来区分两者，并且仅在您信任该文件夹后才
 
 | 仓库提供的内容 | 您仅信任了父文件夹 | `claude -p` 或 SDK，文件夹从未被信任 |
 | :- | :- | :- |
-| 设置文件中的 [Hooks](https://code.claude.com/docs/zh-CN/hooks.md)、[`env`](https://code.claude.com/docs/zh-CN/settings-reference#env) 块和辅助命令（如 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper)），以及项目 skill 的 [hook](https://code.claude.com/docs/zh-CN/hooks.md#hooks-in-skills-and-agents) 和 [`allowed-tools`](https://code.claude.com/docs/zh-CN/skills#pre-approve-tools-for-a-skill) | 已使用 | 已使用。工作区信任在任何会话中都不会限制 skill 的 `allowed-tools` |
+| 设置文件中的 [Hooks](https://code.claude.com/docs/zh-CN/hooks.md)、[`env`](https://code.claude.com/docs/zh-CN/settings-reference#env) 块和辅助命令（如 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper)），以及项目 skill 的 [hook](https://code.claude.com/docs/zh-CN/hooks.md#hooks-in-skills-and-agents) 和 [`allowed-tools`](https://code.claude.com/docs/zh-CN/skills#pre-approve-tools-for-a-skill) | 已使用 | 已使用 |
 | `.claude/settings.json` 中的 `permissions.allow` 规则和 `additionalDirectories` | 在您接受信任对话框之前不使用，对话框再次出现列出它们 | 不使用。Claude Code 向 stderr 打印 [`this workspace has not been trusted`](https://code.claude.com/docs/zh-CN/errors#workspace-has-not-been-trusted) 警告 |
 | 项目[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#hooks-in-subagent-frontmatter)中的 frontmatter hook、项目 [`@skills-dir` 插件](https://code.claude.com/docs/zh-CN/plugins/loading#plugins-shared-through-a-repository) 和来自仓库或 `--add-dir` 目录的 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#extraknownmarketplaces) 条目 | 不使用，不提供对话框 | 不使用 |
 | 来自仓库或 `--add-dir` 目录的子代理 frontmatter 中的内联 [`mcpServers`](https://code.claude.com/docs/zh-CN/sub-agents#scope-mcp-servers-to-a-subagent) | 不使用，不提供对话框 | 不使用 |

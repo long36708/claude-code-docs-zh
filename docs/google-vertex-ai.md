@@ -11,6 +11,10 @@
 View plans
 Contact sales
 
+> [!NOTE]
+>
+> 本页介绍通过您的 Google Cloud 项目使用 Claude 的两种方式之一：Google Cloud 的 Agent Platform（原 Vertex AI），由 Google 管理。如果您使用的是 Claude Models on Google Cloud（由 Anthropic 管理），请改为按照[其 Claude Code 设置页面](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed)进行操作。要了解您使用的是哪一种，请参阅[您使用的是哪种产品？](https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/overview#which-offering-are-you-using)
+
 ## 前置条件
 
 在使用 Google Cloud 的 Agent Platform（原 Vertex AI）配置 Claude Code 之前，请确保您拥有：

@@ -93,7 +93,7 @@ bare 模式还会限制会话运行期间发生的事情：
 
 #### 为子代理的长时间命令提供更多时间
 
-当子代理的长时间命令在超时时 [转入后台](https://code.claude.com/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background) 后，它会继续运行，但 `claude -p` 运行可能会在该命令完成之前以代码 0 退出。
+当子代理的长时间命令在超时时 [转入后台](https://code.claude.com/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background) 后，`claude -p` 运行可能会在该命令完成之前以代码 0 退出。
 
 要将默认超时时间提高到超过该命令的运行时间，请设置 [`BASH_DEFAULT_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars)，例如使用 `BASH_DEFAULT_TIMEOUT_MS=300000 claude -p "<prompt>"` 将其设为五分钟。对于运行时间超过 10 分钟的后台子代理命令，还需提高 [10 分钟上限](#background-tasks-at-exit)。
 
@@ -339,9 +339,13 @@ claude -p "Apply the lint fixes" --permission-mode acceptEdits
 
 ### 在无人值守运行中关闭权限提示
 
-当没有人可用来回答权限提示时，传递 `--permission-prompts none`，例如在计划的作业中。当您的运行有权限主机时，该标志最重要：具有 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input) 的 Agent SDK 应用，或您使用 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 传递的 MCP 工具。没有该标志，您的运行会等待该主机回答每个权限请求。
+当没有人可用来回答权限提示时，传递 `--permission-prompts none`，例如在计划的作业中。当您的运行有权限主机时，该标志最重要：具有 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input) 的 Agent SDK 应用，或您使用 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 传递的 MCP 工具。没有该标志或 [`permissions.denyInsteadOfPrompting`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-denyinsteadofprompting) 设置时，您的运行会等待该主机回答每个权限请求。
 
 使用该标志，您的运行不会查询主机或等待它。任何会提示的内容都被拒绝，除非 `PermissionRequest` hook 允许它，Claude 被告知没有人可以批准请求且不要重试它，运行继续。在没有主机的 `-p` 运行中，这些请求无论如何都被拒绝，该标志也告诉 Claude 不要重试它们。权限规则、[`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 和您设置的权限模式仍然首先决定每个调用；Claude Code 仅拒绝其他任何机制都无法解决的请求。
+
+> [!NOTE]
+>
+> `--permission-prompts none` 标志仅对一次运行有效。要在之后的运行中也拒绝会等待权限提示的调用，请在您的用户设置或托管设置中将 [`permissions.denyInsteadOfPrompting`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-denyinsteadofprompting) 设置为 `true`。
 
 此示例在 [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 中运行无人值守任务。分类器照常审查每个操作，Claude Code 拒绝任何会回退到提示的内容：
 

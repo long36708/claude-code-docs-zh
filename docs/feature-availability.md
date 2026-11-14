@@ -4,7 +4,7 @@
 
 # 功能可用性
 
-> 比较 Claude Code 功能在 Anthropic 订阅计划、Anthropic Console、Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 和 Microsoft Foundry 中的可用性。
+> 比较哪些 Claude Code 功能可在各个 Anthropic 订阅套餐、Anthropic Console 以及 Amazon Bedrock 和 Google Cloud 等云提供商上使用。
 
 Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方式完全相同。有关每个提供商的设置说明，请参阅[企业部署概述](https://code.claude.com/docs/zh-CN/third-party-integrations.md)。要直接跳到您的提供商上缺少的功能，请参阅[按提供商汇总](#summary-by-provider)选项卡。
 
@@ -18,7 +18,8 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 * **Anthropic Console**：您使用 Anthropic API 密钥进行身份验证，或者[在没有 API 密钥的情况下登录 Console 账户](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)
 * **Amazon Bedrock**：您从 Amazon Bedrock 模型目录中使用 Claude 模型并设置 `CLAUDE_CODE_USE_BEDROCK`。[Mantle 端点](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#use-the-mantle-endpoint)（`CLAUDE_CODE_USE_MANTLE`）由此列涵盖
 * **Claude Platform on AWS**：您通过 AWS Marketplace 购买了 Claude，但调用 Anthropic API，并设置 `CLAUDE_CODE_USE_ANTHROPIC_AWS`
-* **Google Cloud's Agent Platform**：由 Google 运营；您设置 `CLAUDE_CODE_USE_VERTEX`
+* **Google Cloud (Anthropic managed)**：您使用 Claude Models on Google Cloud (Anthropic managed)。您通过您的 Google Cloud 项目访问由 Anthropic 运营的 Claude API。要区分这两种 Google Cloud 产品，请参阅[您使用的是哪种产品？](https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/overview#which-offering-are-you-using)
+* **Google Cloud (Google managed)**：由 Google 运营，属于 Google Cloud's Agent Platform（前身为 Vertex AI）；您设置 `CLAUDE_CODE_USE_VERTEX` 并使用 Claude Models on Google Cloud (Google managed)
 * **Microsoft Foundry**：由 Anthropic 运营；您设置 `CLAUDE_CODE_USE_FOUNDRY`
 
 ### 每个提供商都可用的功能
@@ -34,10 +35,10 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 
 这些有提供商特定的差异：
 
-* **MCP 服务器**：[来自 claude.ai 的连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)仅在您的 claude.ai 订阅是活跃身份验证方法时加载。[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#configure-tool-search)在 Microsoft Foundry [部署在 Azure 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)时不受支持。在 Google Cloud's Agent Platform 上，早于 Claude Opus 4.5、Claude Sonnet 4.5 和 Claude Haiku 4.5 的模型不支持工具搜索
+* **MCP 服务器**：[来自 claude.ai 的连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)仅在您的 claude.ai 订阅是活跃身份验证方法时加载。[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#configure-tool-search)在 Microsoft Foundry [部署在 Azure 上](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)时不受支持。在 Google Cloud (Google managed) 上，早于 Claude Opus 4.5、Claude Sonnet 4.5 和 Claude Haiku 4.5 的模型不支持工具搜索
 * **子代理**：当父对话运行 Fable 时，如果使用 Claude 订阅、Anthropic Console 账户，或通过 `ANTHROPIC_BASE_URL` 访问的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)，内置的 [Explore 子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#built-in-subagents)将在 Opus 上运行。在其他提供商（包括 Claude Platform on AWS）上，它将在 Fable 上运行
 * **[Commands](https://code.claude.com/docs/zh-CN/commands.md#all-commands)**：
-  * `/design-sync` 和 `/import` 及其 `claude import` 子命令形式在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 和 Claude Platform on AWS 上不可用，以及通过 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway#availability-and-limitations)
+  * `/design-sync` 和 `/import` 及其 `claude import` 子命令形式在云提供商上以及通过 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway#availability-and-limitations) 时不可用
   * `/voice` 需要 claude.ai 账户
   * `/list-agents` 及其别名 `/peers` 仅在[启用了跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#availability)的会话中可用
 
@@ -71,7 +72,8 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <th>Anthropic Console</th>
       <th>Amazon Bedrock</th>
       <th>Claude Platform on AWS</th>
-      <th>Google Cloud's Agent Platform</th>
+      <th>Google Cloud (Anthropic managed)</th>
+      <th>Google Cloud (Google managed)</th>
       <th>Microsoft Foundry</th>
     </tr>
   </thead>
@@ -83,6 +85,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✓</td>
       <td>✗</td>
       <td>✓</td>
+      <td>✓</td>
       <td>参见注释 <sup>[1](#fn1)</sup></td>
       <td>✓</td>
     </tr>
@@ -91,6 +94,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>[Fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)</td>
       <td>✓（[所有者启用](https://code.claude.com/docs/zh-CN/fast-mode.md#enable-fast-mode-for-your-organization) Team 和 Enterprise）</td>
       <td>✓（Opus 5 和 4.8 需要预配置）</td>
+      <td>✗</td>
       <td>✗</td>
       <td>✗</td>
       <td>✓（[Fable 5.2，有条件](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-on-agent-platform)）</td>
@@ -103,6 +107,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✓</td>
       <td>参见注释 <sup>[2](#fn2)</sup></td>
       <td>✓</td>
+      <td>✓</td>
       <td>参见注释 <sup>[2](#fn2)</sup></td>
       <td>参见注释 <sup>[2](#fn2)</sup></td>
     </tr>
@@ -112,6 +117,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✓</td>
       <td>✓</td>
       <td>✗</td>
+      <td>✓（Claude Code v2.1.300 或更高版本）</td>
       <td>✓（Claude Code v2.1.300 或更高版本）</td>
       <td>✗</td>
       <td>✗</td>
@@ -125,11 +131,13 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✗</td>
       <td>✗</td>
       <td>✗</td>
+      <td>✗</td>
     </tr>
 
     <tr>
       <td>[Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)</td>
       <td>✓ <sup>[5](#fn5)</sup></td>
+      <td>✓（同一台机器）<sup>[5](#fn5)</sup></td>
       <td>✓（同一台机器）<sup>[5](#fn5)</sup></td>
       <td>✓（同一台机器）<sup>[5](#fn5)</sup></td>
       <td>✓（同一台机器）<sup>[5](#fn5)</sup></td>
@@ -145,6 +153,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✗</td>
       <td>✗</td>
       <td>✗</td>
+      <td>✗</td>
     </tr>
 
     <tr>
@@ -153,12 +162,14 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✓</td>
       <td>✓</td>
       <td>✗</td>
+      <td>✗</td>
       <td>✓</td>
       <td>✓</td>
     </tr>
 
     <tr>
       <td>[GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)</td>
+      <td>✓</td>
       <td>✓</td>
       <td>✓</td>
       <td>✓</td>
@@ -181,7 +192,8 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <th>Anthropic Console</th>
       <th>Amazon Bedrock</th>
       <th>Claude Platform on AWS</th>
-      <th>Google Cloud's Agent Platform</th>
+      <th>Google Cloud (Anthropic managed)</th>
+      <th>Google Cloud (Google managed)</th>
       <th>Microsoft Foundry</th>
     </tr>
   </thead>
@@ -191,6 +203,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>[Analytics dashboard and API](https://code.claude.com/docs/zh-CN/analytics.md)</td>
       <td>✓（仪表板：Team 和 Enterprise；API：Enterprise）</td>
       <td>✓ <sup>[4](#fn4)</sup></td>
+      <td>✗</td>
       <td>✗</td>
       <td>✗</td>
       <td>✗</td>
@@ -205,6 +218,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✗</td>
       <td>✗</td>
       <td>✗</td>
+      <td>✗</td>
     </tr>
 
     <tr>
@@ -213,13 +227,14 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>✓（合格的账户）</td>
       <td>参见注释 <sup>[3](#fn3)</sup></td>
       <td>✓（合格的账户）</td>
+      <td>✓（可申请）</td>
       <td>参见注释 <sup>[3](#fn3)</sup></td>
       <td>参见注释 <sup>[3](#fn3)</sup></td>
     </tr>
   </tbody>
 </table>
 
-<sup>1</sup> 在 Google Cloud's Agent Platform 上，web search 适用于 Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型。\
+<sup>1</sup> 在 Google Cloud (Google managed) 上，web search 适用于 Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型。\
 
 <sup>2</sup> 在这些提供商上，自动模式仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型。请参阅 [Auto mode 配置](https://code.claude.com/docs/zh-CN/auto-mode-config.md)。有关会话在这些提供商上启动时所处的权限模式，请参阅[会话启动时的模式](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)。\
 
@@ -227,7 +242,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 <sup>4</sup> 仅限仪表板和 API。[贡献指标](https://code.claude.com/docs/zh-CN/analytics.md#enable-contribution-metrics)需要 claude.ai Team 或 Enterprise 组织。\
 
-<sup>5</sup> 在 macOS 和 Linux 上需要 Claude Code v2.1.224 或更高版本，包括 WSL 2 内的 Linux。在原生 Windows 上，需要 Claude Code v2.1.234 或更高版本。使用 API 密钥身份验证时，消息传递仅限同一台机器。在 Amazon Bedrock、Claude Platform on AWS、Google Cloud's Agent Platform 和 Microsoft Foundry 上，消息传递仅限同一台机器，需要 Claude Code v2.1.248 或更高版本。Claude 只能从连接到 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 的会话中找到您的[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)和其他机器上的会话。要连接，您需要 claude.ai 登录和其他 [Remote Control 要求](https://code.claude.com/docs/zh-CN/remote-control.md#requirements)。请参阅[在其他机器上发送消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-sessions-on-other-machines)。
+<sup>5</sup> 在 macOS 和 Linux 上需要 Claude Code v2.1.224 或更高版本，包括 WSL 2 内的 Linux。在原生 Windows 上，需要 Claude Code v2.1.234 或更高版本。使用 API 密钥身份验证时，消息传递仅限同一台机器。在 Amazon Bedrock、Claude Platform on AWS、Google Cloud (Anthropic managed)、Google Cloud (Google managed) 和 Microsoft Foundry 上，消息传递仅限同一台机器，需要 Claude Code v2.1.248 或更高版本。Claude 只能从连接到 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 的会话中找到您的[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)和其他机器上的会话。要连接，您需要 claude.ai 登录和其他 [Remote Control 要求](https://code.claude.com/docs/zh-CN/remote-control.md#requirements)。请参阅[在其他机器上发送消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-sessions-on-other-machines)。
 
 > [!NOTE]
 >
@@ -237,7 +252,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 ### 按提供商汇总
 
-每个选项卡列出了该提供商上不可用或部分支持的内容，以及存在替代方案的地方。未列出的所有内容的工作方式与 Claude 订阅上相同，除了上面注明的[提供商特定的差异](#features-available-on-every-provider)。在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 和 Claude Platform on AWS 上，错误报告和遥测到 Anthropic 默认处于关闭状态。请参阅[按 API 提供商的默认行为](https://code.claude.com/docs/zh-CN/data-usage.md#default-behaviors-by-api-provider)了解哪些流量仍然到达 Anthropic 以及如何选择退出。
+每个选项卡列出了该提供商上不可用或部分支持的内容，以及存在替代方案的地方。另请参阅[提供商特定的差异](#features-available-on-every-provider)。在 Amazon Bedrock、Google Cloud (Google managed)、Microsoft Foundry 和 Claude Platform on AWS 上，错误报告和遥测到 Anthropic 默认处于关闭状态。请参阅[按 API 提供商的默认行为](https://code.claude.com/docs/zh-CN/data-usage.md#default-behaviors-by-api-provider)了解哪些流量仍然到达 Anthropic 以及如何选择退出。
 
 > [tab] Amazon Bedrock
 >
@@ -264,7 +279,22 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 >
 > **替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。对于云会话，使用 [GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。
 
-> [tab] Google Cloud's Agent Platform
+> [tab] Google Cloud (Anthropic managed)
+>
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)、[Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+>
+> **此处可用但 Google Cloud (Google managed) 上不可用：** Claude Code v2.1.300 或更高版本中的 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md)。
+>
+> **部分支持：**
+>
+> * [Cross-session messaging](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)：仅在此机器上的您的会话之间 <sup>[5](#fn5)</sup>
+> * [Zero Data Retention](https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/anthropic-managed#data-retention)：可申请。请联系您的 Anthropic 客户代表
+>
+> **替代方案：** 对于调度，使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 而不是 `/schedule`。
+
+> [tab] Google Cloud (Google managed)
+>
+> 如果您设置 `CLAUDE_CODE_USE_VERTEX` 以将 Claude Code 与 Google Cloud's Agent Platform 配合使用，那么您使用的就是此提供商。
 >
 > **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 >
@@ -304,7 +334,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 ## 按订阅计划的可用性
 
-如果您通过 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 Anthropic Console API 密钥进行身份验证，本部分不适用于您。当您使用 claude.ai 账户登录时，您的计划决定了以下哪些功能可用。
+如果您通过云服务提供商或 Anthropic Console API 密钥进行身份验证，本部分不适用于您。当您使用 claude.ai 账户登录时，您的套餐决定了以下哪些功能可用。
 
 在已应用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)的 Enterprise 组织中，此表中的部分功能会被关闭。
 

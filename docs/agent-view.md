@@ -481,7 +481,7 @@ fork 之后，两个对话彼此独立：副本所做的任何事情都不会自
 
 当您将会话转入后台时，每种进行中的后台工作要么继承到后台会话，要么仅在 Claude 于那里重新启动它时才继续，要么停止：
 
-* **继承**：正在运行的后台 shell 命令、已转入后台的子代理、您使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 创建的定时任务，以及 Claude 对 [Artifact 评论的自动回复](https://code.claude.com/docs/zh-CN/artifacts.md#let-claude-reply-to-comments-on-its-own) 会在后台会话中继续运行。子代理会与其启动的所有内容一起移动，因此只有当所有这些工作也都能移动时它才会被继承。
+* **继承**：正在运行的后台 shell 命令、已转入后台的子代理，以及您使用 [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) 创建的定时任务会在后台会话中继续运行。子代理会与其启动的所有内容一起移动，因此只有当所有这些工作也都能移动时它才会被继承。
 * **仅在 Claude 重新启动时继续**：正在运行的 [动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)。如果您查看后台会话时该工作流尚未继续，请 [让 Claude 重新启动它](#dynamic-workflows-when-you-background)。
 * **停止**：无法移到后台会话的工作，例如正在运行的 [monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)。当有任何此类工作正在运行时，Claude Code 会显示 `Background this session?` 对话框，以便您在它停止工作前确认。拥有 monitor 的已转入后台的子代理会随 monitor 一起停止。
 
@@ -901,11 +901,11 @@ Background sessions still running will stop in about a minute. Run 'claude agent
 
 ### 后台处理显示 `Background this session?` 对话框
 
-当您按 `←` 来后台处理某个会话时，如果出现 `Background this session?` 对话框，说明该会话有正在进行的后台工作，这些工作会被停止、被中断或在无人值守的情况下继续运行：
+当您按 `←` 来后台处理某个会话时，如果出现 `Background this session?` 对话框，说明该会话有正在进行的后台工作，这些工作会被停止或被中断：
 
 * **无法移动的工作**：该会话有无法移动到后台会话的工作，例如正在运行的[监视器](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)。对话框列出 Claude Code 会停止的后台工作，并另外计算会转移的任务数。
 * **具有运行子代理的工作流**：[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)仍然有子代理在运行。如果您仍然进行后台处理，这些子代理会停止，对话框会说明有多少个。当 Claude [在后台会话中重新启动该工作流](#dynamic-workflows-when-you-background)时，它们会从头开始。
-* **自动 Artifact 回复**：Claude [自动回复 Artifact 上的评论](https://code.claude.com/docs/zh-CN/artifacts.md#let-claude-reply-to-comments-on-its-own)。这些回复在后台会话中继续，对话框会说明这一点。
+* **自动 Artifact 回复**：Claude [自动回复 Artifact 上的评论](https://code.claude.com/docs/zh-CN/artifacts.md#let-claude-reply-to-comments-on-its-own)。如果您仍然进行后台处理，这些回复会停止。
 
 运行 `/tasks` 来查看正在运行的所有内容，然后确认后台处理或选择 `Stay` 来让工作先完成。请参阅[后台处理时转移的内容](#what-carries-over-when-you-background)，了解哪些类型的工作会转移，哪些 Claude Code 会停止。
 

@@ -370,7 +370,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 * **服务器模式下崩溃的会话**：如果由 `claude remote-control` 提供服务的会话崩溃，请从已连接的设备向其发送一条消息。Claude Code 会重新为其提供服务。您无需重启服务器。需要 Claude Code v2.1.238 或更高版本。
 * **已连接会话上的 HTTP 403 拒绝**：交互式会话连接后，如果您的机器与 Anthropic 服务器之间的某个环节以 HTTP 403 响应（例如在 VPN 或网络变更之后可能发生），Claude Code 会持续重试最多三分钟。如果拒绝持续时间更长，Claude Code 将断开连接，并在原因中指明拒绝的来源：网络边缘，或您自身网络上的代理、VPN 或防火墙。
 * **长时间网络中断**：如果您的机器处于唤醒状态但无法访问网络，后续操作取决于所用模式：
-  * **服务器模式**：Claude Code 大约 10 分钟后放弃，`claude remote-control` 进程退出。再次运行 `claude remote-control` 以启动新会话。
+  * **服务器模式**：Claude Code 大约 10 分钟后放弃，`claude remote-control` 进程退出。要重启服务器，请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。
   * **交互式会话**：继续在本地工作。Claude Code 会在中断期间持续重试，并在网络恢复时自动重新连接。
 * **无法下载的附件**：如果您从手机或浏览器附加的文件无法下载到您的机器，Claude 仍会收到您的消息以及已下载的文件。Claude Code 会在消息中添加一条说明（例如 `[1 of 3 attachments did not arrive]`）来代替缺失的文件。
 * **在线状态心跳失败**：如果交互式会话因 `could not reach the Remote Control server for about 30 minutes` 而断开连接，请运行 `/remote-control` 重新连接。

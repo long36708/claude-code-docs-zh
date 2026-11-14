@@ -524,6 +524,17 @@ console.log(`Cleanup period: ${effective.cleanupPeriodDays} days`);
 console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 ```
 
+### `matchDeniedModels()`
+
+报告 `models` 中哪些模型会被 [`deniedModels`](https://code.claude.com/docs/zh-CN/settings-reference#deniedmodels) 列表阻止。`denied` 为每个模型保存一个布尔值，当某个条目阻止该模型时为 `true`。`warnings` 会标记被忽略的输入，以及实际阻止范围比表面看起来更多或更少的条目。`false` 并不意味着该模型被允许，因为 Claude Code 还会检查别名和模型覆盖。此函数处于 alpha 阶段，需要 Agent SDK v0.3.323 或更高版本。
+
+```typescript theme={null}
+function matchDeniedModels(
+  models: readonly string[],
+  deniedModels: readonly string[] | undefined
+): Promise<{ denied: boolean[]; warnings: string[] }>;
+```
+
 ## 类型
 
 ### `Options`
@@ -1724,6 +1735,7 @@ type SDKAssistantMessage = {
   user_message_uuid?: string;
   user_message_uuids?: string[];
   resume_reason?: string;
+  supersedes?: UUID[];
 };
 ```
 
@@ -1737,6 +1749,8 @@ type SDKAssistantMessage = {
 * `'cloud_credential_error'`：Claude Code 无法在其运行的机器上获取可用的 AWS 或 Google Cloud 凭据，因此没有请求到达云提供商。通常原因是云登录已过期或从未在该机器上完成，但暂时无法访问的凭据服务会报告相同的值。请参阅[无法加载 AWS 或 Google Cloud 凭据](https://code.claude.com/docs/zh-CN/errors.md#could-not-load-aws-or-google-cloud-credentials)。需要 TypeScript Agent SDK v0.3.267 或更高版本，其中包含 Claude Code v2.1.267
 
 当中断或中止在流完成前截断助手消息时，`aborted` 为 `true`：消息没有 `stop_reason`，内容可能在单词中间结束。该字段在正常完成的消息上不存在。它需要 Agent SDK v0.3.214 或更高版本。
+
+`supersedes` 列出此消息所替换的先前消息的 UUID。当此消息到达时，请从显示中移除那些消息。
 
 `agent_id` 标识产生该消息的子代理，在主线程消息上不存在。其值等于该子代理的 [`task_started`](#sdktaskstartedmessage) 及其他任务事件上的 `task_id`，并且在子代理被[恢复](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md#resume-subagents)时保持不变。对于来自[嵌套子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents)的消息，它指向该嵌套子代理，而不是生成它的子代理。该字段需要 Agent SDK v0.3.292 或更高版本。
 
@@ -5718,6 +5732,8 @@ type SDKToolProgressMessage = {
 ```
 
 当工具调用在主对话中运行时，Claude Code 每 30 秒发出一条带有 `heartbeat: true` 的 `tool_progress` 消息。每个心跳都携带工具名称和已用秒数，因此您可以区分长时间运行的调用和停滞的会话。Claude Code 不会为子代理内部的工具调用发出心跳。`heartbeat` 字段需要 Agent SDK v0.3.214 或更高版本。在 v2.1.257 之前，Claude Code 也不会为前台的 Agent 工具调用发出心跳。
+
+在 Agent SDK v0.3.323 或更高版本中，`tool_use_id` 以 `hook-` 开头的心跳来自长时间运行的 hook，而不是工具调用。其 `tool_name` 为 hook 事件名称，例如 `PreToolUse`。
 
 在 Agent 工具的非心跳 `tool_progress` 消息上，`subagent_type` 指明正在运行的子代理类型，例如 `general-purpose`。当该子代理因 API 错误（例如速率限制或过载）而等待退避时，会出现 `subagent_retry`，每次重试尝试对应一条消息。这两个字段都需要 Agent SDK v0.3.214 或更高版本。
 

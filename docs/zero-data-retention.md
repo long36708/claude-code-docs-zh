@@ -48,6 +48,7 @@ ZDR 不适用于以下内容，即使对于启用了 ZDR 的组织也是如此�
 | claude.ai 上的聊天 | 通过 Claude for Enterprise 网络界面的聊天对话不受 ZDR 保护。 |
 | Cowork | Cowork 会话不受 ZDR 保护。 |
 | Artifact | 聊天对话和 Cowork 会话中的 Artifact 不受 ZDR 保护；除非您的组织为其设置了保留期限，否则它们会一直保留直至被删除。启用 ZDR 时，Claude Code 中不提供 Artifact。 |
+| Claude in Chrome | [Claude in Chrome](https://support.claude.com/en/articles/13065128-claude-in-chrome-admin-controls) 浏览器扩展不受 ZDR 保护。启用 ZDR 时，它[在 Claude Code 中不可用](https://code.claude.com/docs/zh-CN/chrome.md#chrome-availability-with-hipaa-or-zero-data-retention)，但在您的组织允许的情况下，成员仍可在 Claude Code 之外使用它。 |
 | Claude Code 分析 | 不存储提示或模型响应，但收集生产力元数据，如账户电子邮件和使用统计。对于 ZDR 组织，贡献指标不可用；[分析仪表板](https://code.claude.com/docs/zh-CN/analytics.md)仅显示使用指标。 |
 | 用户和席位管理 | 管理数据，如账户电子邮件和席位分配，根据标准政策保留。 |
 | 第三方集成 | 由第三方工具、MCP servers 或其他外部集成处理的数据不受 ZDR 保护。请独立审查这些服务的数据处理实践。 |

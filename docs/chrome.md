@@ -41,13 +41,17 @@ Claude 为浏览器任务打开新标签页，并共享您浏览器的登录状�
 * [Claude Code](https://code.claude.com/docs/zh-CN/quickstart.md#step-1-install-claude-code)
 * 直接 Anthropic 计划（Pro、Max、Ultra、Team 或 Enterprise）
 
-在已启用 HIPAA 的 Enterprise 组织中，Claude in Chrome 默认处于关闭状态，[Owner](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control) 可以在 [**Organization settings > Claude in Chrome**](https://claude.ai/admin-settings/browser-extension) 中将其启用。您与 Anthropic 签订的商业伙伴协议（BAA）不涵盖通过 Claude in Chrome 发送到第三方网站的数据。有关合格服务（Eligible Services）的列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
-
 Chrome 集成还需要使用 `/login` 登录。如果您使用 API 密钥或来自 [`claude setup-token`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 的长期令牌进行身份验证，即使您传递 `--chrome`，Claude Code 也会保持 Chrome 集成处于关闭状态。浏览器扩展程序无法使用这些凭据进行身份验证。
 
 > [!NOTE]
 >
 > Chrome 集成不可通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 等第三方提供商获得。如果您仅通过第三方提供商访问 Claude，则需要单独的 claude.ai 账户来使用此功能。
+
+### 启用 HIPAA 或零数据保留时的 Chrome 可用性
+
+在已启用 HIPAA 的 Enterprise 组织中，Claude in Chrome 默认处于关闭状态，[Owner](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control) 可以在 [**Organization settings > Claude in Chrome**](https://claude.ai/admin-settings/browser-extension) 中将其启用。您与 Anthropic 签订的商业伙伴协议（BAA）不涵盖通过 Claude in Chrome 发送到第三方网站的数据。有关合格服务（Eligible Services）的列表，请参阅[实施指南](https://trust.anthropic.com/resources?s=l1wrssd9hsbi4gak0tp5a6\&name=%5Banthropic%5D-hipaa-ready-offering-implementation-guide)。
+
+如果您的组织为 Claude Code 启用了[零数据保留（ZDR）](https://code.claude.com/docs/zh-CN/zero-data-retention.md)，则 Claude in Chrome 在 Claude Code 中不可用。即使 Owner 已在 **Organization settings > Claude in Chrome** 中将其启用，或者您传递了 `--chrome`，它也会保持关闭状态。`/chrome` 会报告 `Claude in Chrome is disabled by your organization's policy`。在您的组织允许的情况下，您仍然可以在 Claude Code 之外使用该扩展程序。
 
 ## 在 CLI 中开始使用
 

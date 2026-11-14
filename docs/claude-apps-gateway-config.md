@@ -1349,7 +1349,7 @@ managed:
 
 ##### 在 Code 选项卡中应用 `code` 设置
 
-当以下所有条件都满足时，策略在其 [`code`](#choose-cli-or-code) 键下保存的 Claude Code 设置会在 Claude Desktop 的 Code 选项卡中生效：
+除[某些提供商和模型变量](https://code.claude.com/docs/zh-CN/desktop.md#managed-settings)外，当以下条件全部满足时，策略在其 [`code`](#choose-cli-or-code) 键下包含的 Claude Code 设置会在 Claude Desktop 的 Code 标签页中生效：
 
 * 策略还带有 `desktop` 键，空的 `desktop: {}` 也算
 * Claude Desktop 为 2.9939.2 或更高版本

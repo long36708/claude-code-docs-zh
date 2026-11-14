@@ -97,7 +97,7 @@ Jamf、Iru、Intune 和组策略的入门模板在[MDM 示例存储库](https://
 
 密钥在任何地方都是相同的，但每个机制以不同的位置和形状存储它们：
 
-* **服务器托管**：Anthropic 的服务器或您的网关持有策略。Claude Code 保留一个本地缓存，在启动时应用它，并在每次成功获取时[替换](https://code.claude.com/docs/zh-CN/server-managed-settings.md#security-considerations)。
+* **服务器托管**：Anthropic 的服务器或您的网关持有策略。Claude Code 保留一个本地缓存，该缓存[可以在启动时应用](https://code.claude.com/docs/zh-CN/server-managed-settings.md#fetch-and-caching-behavior)，并[在每次成功获取时被替换](https://code.claude.com/docs/zh-CN/server-managed-settings.md#security-considerations)。
 * **macOS 配置文件**：`com.anthropic.claudecode` 托管首选项域。使用与 `managed-settings.json` 相同的顶级密钥，嵌套设置为字典，列表为 plist 数组。
 * **Windows HKLM 注册表**：JSON 作为 `HKLM\SOFTWARE\Policies\ClaudeCode` 下名为 `Settings` 的 `REG_SZ` 或 `REG_EXPAND_SZ` 值。
 * **基于文件**：`managed-settings.json`、可选的 `managed-settings.d/` 目录和 `managed-mcp.json` 在系统目录中：macOS 上的 `/Library/Application Support/ClaudeCode/`、Linux 和 WSL 上的 `/etc/claude-code/`，以及 Windows 上的 `C:\Program Files\ClaudeCode\`。Claude Code 不读取旧版 Windows 路径 `C:\ProgramData\ClaudeCode\managed-settings.json`。

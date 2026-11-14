@@ -4,9 +4,9 @@
 
 # Agent SDK 故障排除
 
-> 当 Claude Code CLI 无法启动、CLI 进程退出或成功结果到达但没有结构化输出时，修复 Agent SDK 错误。
+> 修复 Agent SDK 错误：Claude Code CLI 无法启动或退出、工具消息过大，或结果到达时没有结构化输出。
 
-本页面涵盖 CLI 启动、CLI 进程退出和结构化输出中的 Agent SDK 错误。本页面上的条目按您看到的错误进行分类。每个条目说明了原因和解决方法。
+本页面涵盖 CLI 启动、CLI 进程退出、大型工具调用和结果以及结构化输出中的 Agent SDK 错误。本页面上的条目按您看到的错误进行分类。每个条目说明了原因和解决方法。
 
 与特定功能相关的症状，例如 hook 未触发或 skill 未被使用，在该功能的页面上有故障排除部分。该表列出了涵盖每个症状的部分或页面：
 
@@ -14,13 +14,13 @@
 | :- | :- |
 | 找不到 Skills、skill 未被使用、`Invalid skill name` 错误 | [Skills 故障排除](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md#troubleshooting) |
 | MCP 服务器显示 `failed` 状态、工具未被调用、SDK MCP 服务器中缺少某个工具、连接超时、工具输出超过允许的最大 token 数 | [MCP 故障排除](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#troubleshooting) |
-| Plugin 未加载、plugin skills 未出现 | [Plugins 故障排除](https://code.claude.com/docs/zh-CN/agent-sdk/plugins.md#troubleshooting) |
-| Claude 未委派给子代理、基于文件系统的代理未加载 | [Subagents 故障排除](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md#troubleshooting) |
-| Checkpointing 选项未被识别、没有 UUID 的用户消息、`No file checkpoint found`、`File rewinding is not enabled`、`ProcessTransport is not ready for writing` | [文件 checkpointing 故障排除](https://code.claude.com/docs/zh-CN/agent-sdk/file-checkpointing.md#troubleshooting) |
-| Hook 未触发、matcher 未按预期过滤、hook 超时、工具被意外阻止、修改的输入未应用、Python 中不可用的会话 hooks、子代理权限提示倍增、与子代理的递归 hook 循环、`systemMessage` 未出现在输出中 | [修复常见问题](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md#fix-common-issues)（在 hooks 页面上） |
-| 在您的机器上工作的代理在已部署的服务或容器中失败 | [故障排除部署失败](https://code.claude.com/docs/zh-CN/agent-sdk/hosting.md#troubleshoot-deployment-failures) |
+| 插件未加载、插件 skill 未出现 | [插件故障排除](https://code.claude.com/docs/zh-CN/agent-sdk/plugins.md#troubleshooting) |
+| Claude 未委派给子代理、基于文件系统的 Agent 未加载 | [子代理故障排除](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md#troubleshooting) |
+| 检查点功能选项未被识别、没有 UUID 的用户消息、`No file checkpoint found`、`File rewinding is not enabled`、`ProcessTransport is not ready for writing` | [文件检查点功能故障排除](https://code.claude.com/docs/zh-CN/agent-sdk/file-checkpointing.md#troubleshooting) |
+| Hook 未触发、匹配器未按预期过滤、hook 超时、工具被意外阻止、修改的输入未应用、Python 中不可用的会话 hook、子代理权限提示倍增、与子代理的递归 hook 循环、`systemMessage` 未出现在输出中 | [修复常见问题](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md#fix-common-issues)（在 Hooks 页面上） |
+| 在您的机器上正常工作的 Agent 在已部署的服务或容器中失败 | [故障排除部署失败](https://code.claude.com/docs/zh-CN/agent-sdk/hosting.md#troubleshoot-deployment-failures) |
 | `Not logged in`、`Invalid API key`、`API Error`、`429`、`There's an issue with the selected model` | [错误参考](https://code.claude.com/docs/zh-CN/errors.md#find-your-error) |
-| `CLINotFoundError`、`CLIConnectionError`、`ProcessError`、`Claude Code process exited with code N`、`Claude Code returned an error result`、`structured_output` 为 `None` | 本页面上的 [CLI 启动](#cli-startup)、[CLI 进程退出](#cli-process-exit) 和 [结构化输出](#structured-outputs) |
+| `CLINotFoundError`、`CLIConnectionError`、`ProcessError`、`Claude Code process exited with code N`、`Claude Code returned an error result`、`CLIJSONDecodeError`、`structured_output` 为 `None` | 本页面上的 [CLI 启动](#cli-startup)、[CLI 进程退出](#cli-process-exit)、[大型工具调用和结果](#large-tool-calls-and-results) 和 [结构化输出](#structured-outputs) |
 
 ## CLI 启动
 
@@ -135,6 +135,34 @@ Claude Code returned an error result: <the CLI's own error report>
 ```
 
 冒号后的文本是 CLI 对出错原因的报告，所以从那里开始而不是从退出本身开始。Python 将其作为 [`ResultError`](https://code.claude.com/docs/zh-CN/agent-sdk/python#resulterror) 引发，其 `data` 属性携带完整的错误结果。TypeScript 拒绝消息循环并显示携带相同消息形状的普通 `Error`。
+
+## 大型工具调用和结果
+
+### CLIJSONDecodeError: JSON message exceeded maximum buffer size
+
+当来自 Claude Code 的某条消息长度超过 [`max_buffer_size`](https://code.claude.com/docs/zh-CN/agent-sdk/python#claudeagentoptions) 选项（默认为 1,048,576 个字符）时，Python SDK 会引发此错误。错误信息中将其称为字节：
+
+```text theme={null}
+Failed to decode JSON: JSON message exceeded maximum buffer size of 1048576 bytes...
+```
+
+例如，PDF、屏幕截图和文本文件都可能产生达到该限制的消息：
+
+* **PDF 和屏幕截图**：当 Claude 使用 Read 工具读取约 393 KB 或更大的完整 PDF 时，工具结果可能达到该限制，因为其中包含该文件的 base64 内容两次。包含屏幕截图的工具结果（无论来自 Read 还是 MCP 工具）同样包含 base64 内容两次。
+* **文本文件**：对于远小于 1 MB 的文件，Edit 和 Write 工具产生的消息也可能达到该限制，具体取决于文件中有多少内容发生变更。
+
+要消除此错误，请在 `ClaudeAgentOptions` 中设置更大的限制：
+
+```python theme={null}
+options = ClaudeAgentOptions(max_buffer_size=64 * 1024 * 1024)
+```
+
+该值足以容纳一张屏幕截图，也足以容纳对完整 PDF 的 Read 操作（最高可达 Read 的 20 MB 限制）。如果错误再次出现，例如在对非常大的文件执行 Edit 时，请设置更高的值。
+
+工具已做出的任何更改都会保留，而消息过长的那次工具调用也可能已经做出了更改。要继续已中断的工作：
+
+1. 如果您保持着一个打开的 `ClaudeSDKClient`，请调用 `disconnect()`。发生此错误后，客户端不会再接收任何消息，但 Claude Code 会继续运行，并且仍可能做出更改。
+2. 使用更大的限制和 [`continue_conversation=True`](https://code.claude.com/docs/zh-CN/agent-sdk/sessions#continue-resume-and-fork) 启动新的 `query()` 或 `ClaudeSDKClient`，这会选取工作目录中最近的会话。要选取特定会话，请将 `resume` 设置为初始化 [`SystemMessage`](https://code.claude.com/docs/zh-CN/agent-sdk/python#systemmessage) 中的 `data["session_id"]`。
 
 ## 结构化输出
 

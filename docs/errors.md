@@ -344,6 +344,8 @@
 | `Plugin "<plugin>" was not uninstalled: installed_plugins.json` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#installed-plugins-json-holds-a-record-this-version-cannot-read) |
 | `Plugin directory does not exist: <path>` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-directory-does-not-exist) |
 | `Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)` | [Plugin 错误](#skipping-connection-recent-failure-cached) |
+| `is not added on this machine, so your organization's marketplace policy keeps its plugins off` | [添加市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace) |
+| `A mod's http.fetch hook stopped this request` | [启用或关闭 mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off) |
 | `Error: No such tool available: <tool name>` | [工具错误](#no-such-tool-available) |
 | `MCP server "<name>" connection closed before the tool call was answered` | [工具错误](#connection-closed-before-the-tool-call-was-answered) |
 | `MCP server "<name>" is disabled — re-enable it via /mcp to use its tools` | [工具错误](#mcp-server-is-disabled) |
@@ -1922,6 +1924,7 @@ Google Cloud credentials expired or invalid · refresh your Google Cloud credent
 **解决方法：**
 
 * 如果提示说明凭据由此环境管理，则凭据归启动 Claude Code 的应用所有，此处的其他步骤不适用：请重试，或联系您的管理员
+* 如果您设置了 `CLAUDE_CODE_USE_ANTHROPIC_GOOGLE_CLOUD`，请改为按照 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed#google-cloud-credentials-expired-or-invalid) 中的步骤操作
 * 如果您使用应用默认凭据进行身份验证，请运行消息中指出的 [`gcpAuthRefresh`](https://code.claude.com/docs/zh-CN/google-vertex-ai#advanced-credential-configuration) 命令或 `gcloud auth application-default login` 并完成登录，然后重试
 * 如果您在设置了 `CLAUDE_CODE_SKIP_VERTEX_AUTH` 的情况下通过 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)路由，请刷新 `ANTHROPIC_AUTH_TOKEN` 或 `ANTHROPIC_CUSTOM_HEADERS` 中的网关令牌，然后重试
 * 如果您使用服务账号密钥文件进行身份验证，请确认 `GOOGLE_APPLICATION_CREDENTIALS` 指向有效的密钥。请参阅[配置 GCP 凭据](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#3-configure-gcp-credentials)
@@ -1942,6 +1945,7 @@ Google Cloud authentication failed · refresh your Google Cloud credentials (app
 **解决方法：**
 
 * 如果提示表明凭据由当前环境管理，则凭据归启动 Claude Code 的应用所有，此处的其他步骤不适用：请重试，或联系您的管理员
+* 如果您设置了 `CLAUDE_CODE_USE_ANTHROPIC_GOOGLE_CLOUD`，请改为按照 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed#google-cloud-authentication-failed) 中的步骤操作
 * 确认 [IAM 配置](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#iam-configuration)中的角色已授予您用于身份验证的身份
 * 确认您的项目已启用该模型。请参阅[申请模型访问权限](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#2-request-model-access)
 

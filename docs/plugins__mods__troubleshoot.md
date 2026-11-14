@@ -15,8 +15,8 @@
 当模块未加载、hook 被跳过或另一个 mod 拒绝您的 mod 时，Claude Code 会写入一行，其中命名您的 mod。您读取该行的位置取决于会话：
 
 * **热重新加载插件目录的会话**：会话记录中的一行暗色文本。这是您使用 `--plugin-dir` 启动的交互式会话，或者是针对 Claude 编写的 mod [启用了热重新加载](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod)的会话。
-* **任何其他交互式会话，例如运行您从市场安装的 mod 的会话**：[调试日志](#read-the-debug-log) 仅。要获取一个，请使用 `claude --debug` 启动会话。
-* **带有 `--plugin-dir` 的 `claude -p` 运行**：stderr，采用默认文本输出格式。另一个 mod 的拒绝仅进入调试日志。
+* **任何其他交互式会话，例如运行您从市场安装的 mod 的会话**：[调试日志](#read-the-debug-log)。要获取一个，请使用 `claude --debug` 启动会话。
+* **带有 `--plugin-dir` 的 `claude -p` 运行**：stderr，采用默认文本输出格式。另一个 mod 的拒绝会进入调试日志。
 
 ## 检查 mod 是否可以加载
 
@@ -68,13 +68,13 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 ### 来自内置保护的消息
 
-在[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)加载的地方，它可以拒绝 mod 或其答案之一。每条消息都会指明您的组织管理员为更改该规则而设置的选项。
+在[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)加载的地方，它可以拒绝 mod 或其答案之一。部分消息会指明您的组织管理员为更改该规则而设置的选项。
 
 | 消息包含 | 这意味着什么 | 它出现在哪里 |
 | :- | :- | :- |
 | `mods are limited to your organization's by policy (allowManagedModsOnly)` | 您的组织仅允许 [其自己的 mod](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)，因此您的 mod 被拒绝 | 调试日志，以及 [热重新加载插件目录的会话](#find-out-why-a-mod-does-nothing) 中的会话记录 |
-| `tried to lift a deny rule in your settings` | 您的 mod 的 [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#tools) hook 批准了 `deny` 规则拒绝的调用。该调用保持被拒绝。 | 成绩单和调试日志，会话中每个 mod 一次。在 `claude -p` 运行中，仅调试日志。 |
-| `the deny rules in your settings could not be checked for this call, so it is refused` | 保护在检查 mod 批准的调用时失败，因此它拒绝了该调用 | Claude 为被拒绝的调用读取的原因 |
+| `tried to lift a deny rule in your settings` | 您的 mod 的 [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#tools) hook 批准了 `deny` 规则拒绝的调用。该调用保持被拒绝。 | 会话记录和调试日志，会话中每个 mod 一次。在 `claude -p` 运行中，仅调试日志。 |
+| `the rules and hooks in your settings could not be checked for this call, so it is refused` | 守卫在检查 mod 批准的调用时失败，因此它拒绝了该调用 | Claude 为被拒绝的调用读取的原因 |
 
 ### `validate` 通过且不列出 `hooks` 行
 
@@ -137,8 +137,6 @@ Claude 在交互式会话中编写了 mod，但没有任何内容加载，而且
 
 ## hook 被跳过或 mod 被卸载
 
-mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它。
-
 ### `hook skipped`
 
 该行命名 mod 和事件，然后说 `hook skipped:` 和一个原因，如 `first-mod: tool.call hook skipped: threw Error: boom`。hook 抛出了异常、运行超过了其[时间限制](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)，或返回了错误形状的结果。该行对每个事件和失败类型出现一次，直到 mod 重新加载。
@@ -177,6 +175,15 @@ mod 已加载，然后 Claude Code 跳过了其中一个 hooks 或卸载了它�
 
 Claude 看不到此行，因此在请求 Claude 修复时，请将其粘贴到您的下一条消息中。
 
+### `reload failed`
+
+将该行与以下内容对照，以确定您的 mod 的最后一个可用版本是否仍处于加载状态：
+
+* `reload failed, the previous version stays loaded: <reason>`：您的 mod 继续运行其最后一个可用版本。如果下次 Claude Code 重新加载所有插件时（例如运行 `/reload-plugins` 时）您的更改仍无法加载，则最后一个可用版本会被卸载。
+* `reload failed: <reason>`：在 Claude Code 提示符下运行 `/plugin`，如果 [`mods active` 行](https://code.claude.com/docs/zh-CN/plugins/mods/overview#see-which-mods-a-session-loaded)截断了名称，请加宽终端。如果该行列出了该 mod，则其最后一个可用版本仍处于加载状态。如果没有列出，或者没有这样的行，则没有任何版本处于加载状态。
+
+修复原因所指出的问题并保存您的更改。出现 `reloaded` 行即表示已加载。
+
 ### `$.agent.register refused: the hooks module that made the call is no longer loaded`
 
 该行以您的 mod 名称开头，如 `first-mod: $.agent.register refused: the hooks module that made the call is no longer loaded (it was reloaded or removed)`，且该 Agent 未被注册。您的 mod 在该调用之前被重新加载或卸载。重新加载会加载 hook 模块的新副本，而此调用来自仍在旧副本中运行的代码，例如尚未返回的 hook。
@@ -205,7 +212,7 @@ mod 已加载，其 hooks 运行，它接触的工具调用被拒绝。
 
 ### 关于您的设置中的拒绝规则的消息
 
-`tried to lift a deny rule in your settings` 和 `the deny rules in your settings could not be checked for this call, so it is refused` 都来自内置保护。
+`tried to lift a deny rule in your settings` 和 `the rules and hooks in your settings could not be checked for this call, so it is refused` 都来自内置守卫。
 
 在 [来自内置保护的消息](#messages-from-the-built-in-guard) 中查找它们。
 
@@ -418,8 +425,6 @@ hooks module first-mod@inline loaded (worker, environment 2, tier user); events:
 ```
 
 要在日志中写入您自己的行，请调用 [`$.ui.log`](https://code.claude.com/docs/zh-CN/plugins/mods/api#show-something-without-starting-a-turn)，带有第二个参数，如 `$.ui.log('message', { to: 'debug' })`。没有第二个参数，`$.ui.log` 会在会话记录中添加一条暗行。
-
-当您编辑使用 `--plugin-dir` 加载的 mod 时，会话记录为每次重新加载显示一行，命名 mod 并列出其 hook。如果保存破坏了模块，该行会显示 `reload failed, the previous version stays loaded:` 及原因，最后一个可用版本会继续运行，直到 Claude Code 下次重新加载插件，例如当您运行 `/reload-plugins` 时。
 
 ## 后续步骤
 
