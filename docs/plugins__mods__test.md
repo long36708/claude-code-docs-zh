@@ -115,8 +115,6 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 
 ### 遵循测试工具包的规则
 
-测试工具包有一些自己的规则，违反其中一个会产生新测试作者首先遇到的错误：
-
 * **在测试对 `$` 的第一次调用之前注册每个 stub。** 在那之后调用 `on` 会抛出一个错误，例如 `on("ui.render") after the test first called $`。
 
 * **[`session.start`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#session) 不会自己运行。** 每个测试都以您的模块新加载开始，其 hooks 都没有被调用，因此模块级变量保持其初始值。如果 hook 依赖于 `session.start` 设置的内容，请先触发它：
@@ -132,14 +130,14 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 
   第二个 stub 回答 `session.start` hook（例如 [tutorial](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 中的那个）进行的 `$.command.register` 调用。没有它，该调用会以 `no implementation for command.register` 拒绝，工具包会跳过您的 hook，因此 hook 中调用后的任何内容都不会运行。测试在那一点不会失败。仅当稍后的检查失败时，跳过的 hook 才会在 `the engine reported:` 下列出。
 
-* **返回 `next(e)` 的 hook 需要一个 stub 来回答。** 例如，当您的 [`ui.render`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface) hook 返回 `next(e)` 时，为了在 Claude 空闲时不绘制任何内容，[mounting it](#test-a-drawing) 会失败并显示 `no implementation for ui.render`。注册一个返回元素作为纯数据的 stub：
+* **注册一个 `ui.render` stub 来选择 `next(e)` 返回的内容。** 当您的 [`ui.render`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface) hook 返回 `next(e)` 时（例如为了在 Claude 空闲时不绘制任何内容），即使没有 stub，[mount](#test-a-drawing) 也会成功。要让 `next(e)` 返回您选定的元素，请注册一个以纯数据形式返回该元素的 stub：
 
   ```typescript theme={null}
   // Stands for what Claude Code would draw at the site
   on('ui.render', () => ({ type: 'Text', props: {}, children: ['drawn by Claude Code'] }))
   ```
 
-  注册 stub 后，mount 成功，`ui.find({ type: 'Text' })` 在您的 hook 返回 `next(e)` 时返回该元素。
+  在该位置[可以绘制该元素](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#change-what-claude-code-already-draws)的情况下，`ui.find({ type: 'Text' })` 会在您的 hook 返回 `next(e)` 时返回该元素。在 v2.1.323 或更高版本中，对于 band，请将您的 mod 名称作为第二个参数传给 `on`，例如 `{ plugin: 'my-mod' }`。如果不传，该 stub 不会回答您的 `next(e)`。在 v2.1.321 之前，除非您注册该 stub，否则 mount 会失败并显示 `no implementation for ui.render`。
 
 * **`turn.step` 的 stub 是一个异步生成器**，测试读取流到其末尾以获得结果：
 
@@ -192,7 +190,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 | `$.session.id`、`$.agent.list` | `() => ({ value: 'abc123' })`、`() => ({ value: [] })` |
 | `session.send` | `() => ({ isDelivered: true })`。`e.to` 即使您的 mod 传递 `{ sessionId }`，也作为字符串到达。 |
 | `session.receive` | `($, e) => ({ text: e.text })`。使用 `$.session.receive({ origin: { kind: 'peer-send-message' }, text })` 触发它。 |
-| `ui.render` | `() => ({ type: 'Text', props: {}, children: ['...'] })` |
+| `ui.render` | `() => ({ type: 'Text', props: {}, children: ['...'] })`。对于 band，请参阅[遵循测试工具包的规则](#follow-the-test-kit’s-rules)中的匹配器。 |
 
 ### 使用 `expect` 检查结果
 
@@ -316,6 +314,7 @@ test('the second tab counts presses and saves the count', async ($, on) => {
 | `press({ key: 'more' })` | 按下具有该 key 的 `Button` |
 | `input({ key: 'new-note', text: 'buy milk' })` | 将文本输入到具有该 key 的 `Input` 中并按 Enter。添加 `kind: 'change'` 以输入而不提交。对于带有 `rows` 的字段，文本中可以包含 `\n`。 |
 | `select({ key: 'size', value: 'large' })` | 在具有该 key 的 `Select` 中选择具有该值的选项 |
+| `keepsBeneath()` | 在没有 `ui.render` stub 的测试中，当绘图包含 `next(e)` 返回的内容时，它解析为 `true`；当您的 hook 将其省略时，解析为 `false`。在注册了 stub 的测试中，请使用 `find` 查找该 stub 绘制的内容。需要 Claude Code v2.1.321 或更高版本。 |
 | `find({ key: 'more' })` 或 `find({ type: 'Text', text: 'Count: 2' })` | 返回第一个匹配的元素作为 `{ type, props, children }`，或 `undefined`。`text` 可以是字符串或正则表达式。 |
 | `unmount()` | 移除绘图 |
 

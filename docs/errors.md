@@ -154,6 +154,7 @@
 | `403` with `GitHub GraphQL is not available from Claude Code sessions` in a cloud session | [GitHub proxy](https://code.claude.com/docs/zh-CN/cloud-environments.md#github-proxy) |
 | `The cloud environments service returned an empty response` / `The cloud environments service returned a response in an unexpected format` | [网络](#the-cloud-environments-service-returned-an-empty-or-unexpected-response) |
 | `Failed to fetch session from Sessions API: Failed to fetch session logs` | [网络](#failed-to-fetch-session-from-sessions-api) |
+| `Couldn't load the history of cloud session` | [网络](#couldnt-load-the-history-of-cloud-session) |
 | `Couldn't reconnect to your Remote Control session` | [网络](#couldnt-reconnect-to-your-remote-control-session) |
 | `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.` | [网络](#sessions-ended-while-this-machine-was-offline) |
 | `Couldn't share the transcript.` | [网络](#couldnt-share-the-transcript) |
@@ -181,6 +182,7 @@
 | `PDF too large` / `PDF is password protected` / `pdftoppm is not installed` | [请求错误](#pdf-errors) |
 | `Extra inputs are not permitted` | [请求错误](#extra-inputs-are-not-permitted) |
 | `API Error: 400 ... tools.N.custom.input_schema: JSON schema is invalid` / `Property keys should match pattern` | [请求错误](#tool-input-schema-is-invalid) |
+| `/mcp` 中服务器旁显示的 `N tools left out` / `Claude wasn't given N tools because the Anthropic API would reject their input schemas` | [输入 schema 无效的工具](https://code.claude.com/docs/zh-CN/mcp.md#tools-with-invalid-input-schemas) |
 | `Tool "mcp__<server>__<tool>" is not sent to Claude: its name has <N> characters and the API accepts at most 128` | [请求错误](#mcp-tool-name-over-128-characters) |
 | `tools.N.custom.name: String should have at most 128 characters` | [请求错误](#mcp-tool-name-over-128-characters) |
 | `tool_use.name: String should have at most 200 characters` | [请求错误](#tool-use-name-over-200-characters) |
@@ -271,6 +273,7 @@
 | `No available ports for OAuth redirect` | [命令行错误](#no-available-ports-for-oauth-redirect) |
 | `Shell command failed for pattern "..."`, from `/security-review` or any skill that injects dynamic context | [命令行错误](#security-review-fails-without-origin-head) |
 | `Shell command permission check failed for pattern "..."`, from a skill that injects dynamic context | [命令行错误](#security-review-fails-without-origin-head) |
+| ``Couldn't run `<command>` for <name>. A file named HEAD or .git in this folder or one above it may not be yours``，来自注入动态上下文的 skill | [注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands) |
 | ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`` | [命令行错误](#security-review-fails-without-origin-head) |
 | `No shell command in <name> was run, because the <tool> tool does not accept one of them` | [命令行错误](#no-shell-command-was-run) |
 | `Input must be provided either through stdin or as a prompt argument when using --print` | [命令行错误](#input-must-be-provided-when-using-print) |
@@ -428,6 +431,8 @@
 | `Workspace not trusted.` when starting or restarting a background session | [后台会话错误](#workspace-not-trusted-when-dispatching-a-background-session) |
 | `Claude Code is being updated by npm on this machine (still not runnable after 2 min, ...)` | [后台会话错误](#eacces-when-starting-a-background-session) |
 | `Claude Code process exited with code N` | [包装器和 IDE 错误](#claude-code-process-exited-with-code-n) |
+| `Subprocess initialization did not complete within 60000ms` | [包装器和 IDE 错误](#subprocess-initialization-did-not-complete-within-60000ms) |
+| `Claude Code did not finish starting` | [包装器和 IDE 错误](#subprocess-initialization-did-not-complete-within-60000ms) |
 | `The connection to Claude Code ended before this message completed` | [包装器和 IDE 错误](#the-connection-to-claude-code-ended-before-this-message-completed) |
 | `Could not locate the Claude CLI on PATH` | [包装器和 IDE 错误](#could-not-locate-the-claude-cli-on-path) |
 | `The Claude Code program for this computer, the <build> build, could not be found` | [包装器和 IDE 错误](#the-claude-code-program-for-this-computer-could-not-be-found) |
@@ -563,7 +568,7 @@ Claude Code 不重试这些故障：
 | `CLAUDE_CODE_RETRY_WATCHDOG_MAX_USAGE_LIMIT_WAIT_MS` | 无上限 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 后，单个请求等待您套餐的[用量限制](#youve-hit-your-session-limit)（例如会话限制或每周限制）重置的最长时间（毫秒）。当重置时间晚于此上限时，请求会立即失败，除非使用额度仍有余量或 API 无法检查使用额度。在这些情况下，请求会被重试，如果在成功之前超过该上限，则请求失败。需要 Claude Code v2.1.301 或更高版本。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG_USAGE_LIMIT_RECHECK_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 后，当请求等待[用量限制](#youve-hit-your-session-limit)重置时，检查该限制是否已提前解除的最短间隔（毫秒）。当检查发现限制已解除时，请求会立即发出。请提供 `60000` 到 `10800000` 之间的纯数字。未设置或超出该范围时，不进行检查。关于 Claude Code 何时跳过这些检查，请参阅[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md)。需要 Claude Code v2.1.305 或更高版本。 |
 | [`CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 500 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的起始延迟（毫秒）。当 API 容量已满时，可将其提高（最高 32000），以便在更长的时间窗口内分散重试。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.292 或更高版本。 |
-| [`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 32000 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的上限（毫秒）。当 API 容量已满时，可将其提高（最高 64000），使后续重试之间的间隔持续拉大。当 `CLAUDE_CODE_RETRY_WATCHDOG` 设置为 `1`，或被拒绝的请求是在[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#handle-rate-limits)下发送时，此变量无效。需要 Claude Code v2.1.296 或更高版本。 |
+| [`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 32000 | 当 API 以 `529` 过载错误拒绝请求时，该请求各次重试之间退避的上限（毫秒）。当 API 容量已满时，可将其提高（最高 300000），使后续重试之间的间隔持续拉大。高于 64000 的值需要 v2.1.323 或更高版本。在与 `CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS` 相同的情况下，此变量无效。需要 Claude Code v2.1.296 或更高版本。 |
 | [`API_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 600000 | 每次请求尝试接收其响应头的时限（毫秒）。它不限制流式响应在此之后持续的时长。为慢速网络或代理提高它。关于它如何限制首字节截止时间，请参阅 [No response from API](#no-response-from-api)。 |
 | [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 超时的[非流式请求](#streaming-response-ended-before-any-complete-data-was-received)的重新发送次数限制。达到该限制时，请求失败。生成时间超过超时时间的 Claude 响应在每次重新发送时都会再次超时，因此请设置较低的数值（例如 `0`）以更快地失败。关于每次尝试的超时时间，请参阅[非流式尝试的等待时长](#how-long-a-non-streaming-attempt-waits)。需要 Claude Code v2.1.285 或更高版本。 |
 | [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 流式请求的第一个响应字节的截止时间（毫秒）。需要 Claude Code v2.1.242 或更高版本。对于当此未设置时 Claude Code 如何选择截止时间，请参阅 [No response from API](#no-response-from-api)。 |
@@ -981,7 +986,9 @@ API Error: Request rejected (429) · this may be a temporary capacity issue. If 
 
 ### You've hit your monthly spend limit
 
-您的套餐包含的用量无法覆盖此请求，而本应为其付款的 [usage credits](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) 已达到支出限制。这发生在您的套餐的用量窗口之一用完时，或当请求是仅由使用额度支付的请求时，例如对 [bills to usage credits](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits) 的模型的请求。消息会指明是谁的限制阻止了您。`·` 后的文本说明如何增加该限制，并因您的套餐和您是否管理计费而异：
+您的套餐包含的用量无法覆盖此请求，而本应为其付款的 [usage credits](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) 已达到支出限制。当您的套餐的用量窗口之一用完时，或当请求仅由使用额度支付时，您的套餐就无法覆盖该请求。一个例子是对 [bills to usage credits](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits) 的模型的请求。
+
+`·` 之前的文字指明阻止您的限制，例如您组织的月度支出限制，其后的文本说明如何增加该限制。在云端会话中或在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 下，该文本不提供 URL，而关于您自己的 `monthly spend limit` 的消息不会说明如何提高它。其他会话会显示类似以下形式的消息：
 
 ```text theme={null}
 You've hit your monthly spend limit · raise it at https://claude.ai/settings/usage?from=cc_cli_limit_message
@@ -2306,6 +2313,18 @@ Failed to fetch session from Sessions API: Failed to fetch session logs
 
 在 v2.1.296 之前，Claude Code 不会重试失败的读取，并且在读取失败后可能会以空对话打开该会话并报告成功，而不是输出此消息。
 
+### Couldn't load the history of cloud session
+
+此消息表示 Claude Code 找到了[您要求拉取到终端中的云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#from-cloud-to-terminal)，但对其对话历史的请求返回了未找到的结果：
+
+```text theme={null}
+Couldn't load the history of cloud session session_01HJKLMNOPQRSTUVWXYZ. Check it at https://claude.ai/code/session_01HJKLMNOPQRSTUVWXYZ?from=cli
+```
+
+**解决方法：**
+
+* 打开消息中的链接，在浏览器中检查该会话。如果该会话能在浏览器中打开，而相同的 Teleport 再次以这种方式失败，请[报告问题](#report-an-error)。
+
 ### Couldn't reconnect to your Remote Control session
 
 ```text theme={null}
@@ -3517,7 +3536,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。如果要在此次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用此标志。若要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3849,8 +3868,8 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它运行。[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)介绍了在每种权限模式下哪些结果会导致中止，以及如何使用 `allowed-tools` 预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，而机器上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它。请参阅[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)，了解在每种权限模式下哪些结果会导致中止，以及 `allowed-tools` 何时会预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但计算机上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
 
 **解决方法：**
 
@@ -4003,7 +4022,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前从 origin 获取了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前已从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
 
 **解决方法：**
 
@@ -5523,10 +5542,10 @@ This conversation is already open in another running Claude session — use that
 您打开了一个在后台服务关闭期间结束的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，而此后[会话记录清理](https://code.claude.com/docs/zh-CN/settings-reference.md#cleanupperioddays)已删除了其保存的对话，例如在机器关机数周之后。打开此类行通常会[恢复其已保存的对话](https://code.claude.com/docs/zh-CN/agent-view.md#sessions-show-as-failed-after-shutdown)。由于没有任何可恢复的内容，Claude Code 会拒绝，而不是在未经询问的情况下重新运行该会话的原始提示词：
 
 ```text theme={null}
-This session's saved conversation is no longer on disk (it ended while the background service was off, and old transcripts are cleaned up), so there is nothing to resume. `claude rm 7c5dcf5d` deletes the row; `claude respawn 7c5dcf5d` runs its original prompt again instead.
+This session's saved conversation is no longer on disk (it ended while the background service was off, and old transcripts are cleaned up), so there is nothing to resume. `claude rm 7c5dcf5d` removes the row; `claude respawn 7c5dcf5d` runs its original prompt again instead.
 ```
 
-`claude attach <id>` 会打印这段文本。在 agent view 中，页脚较短，并以 `ctrl+x deletes the row` 结尾。
+`claude attach <id>` 会打印这段文本。在 agent view 中，页脚较短，并以 `ctrl+x removes the row` 结尾。
 
 **解决方法：**
 
@@ -5545,7 +5564,7 @@ kept 7c5dcf5d — its worktree is still at “/home/you/project/.claude/worktree
   push them and run 'claude rm 7c5dcf5d' again, or discard the worktree and its commits: claude rm 7c5dcf5d --discard-unpushed a1b2c3d000000000000000000000000000000000@0123456789abcdef0123456789abcdef
 ```
 
-当 Claude Code 无法汇总这些提交时，详情行会改为显示 `The worktree has unpushed commits`。在 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 中，该会话的行会显示 `not deleted` 以及相同的原因。
+当 Claude Code 无法汇总这些提交时，详情行会改为显示 `The worktree has unpushed commits`。在 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 中，该会话的行会显示 `not removed` 以及相同的原因。
 
 远程上的提交不会阻止删除。您的 `origin` 远程默认分支的本地副本上的提交也不会阻止删除，前提是该分支已在您的主检出（即仓库目录本身，而非某个 worktree）中检出。
 
@@ -5821,6 +5840,30 @@ Workspace not trusted. Run `claude` in /path/to/project once and accept the trus
 ## 包装器和 IDE 错误
 
 这些错误来自启动 Claude Code 的程序，例如 IDE 扩展或 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 应用程序，而不是来自 Claude Code 本身。
+
+### Subprocess initialization did not complete within 60000ms
+
+此错误表示由 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)或 Agent SDK 应用程序启动的 Claude Code 进程未能及时报告其已就绪。扩展或应用程序随后将其停止。在 VS Code 对话中，该错误以 `Claude Code did not finish starting` 开头，例如：
+
+```text theme={null}
+Claude Code did not finish starting: it did not answer in time. The output logs ("View output logs") show how far it got. Slow plugins, MCP servers, hooks, disks or network can each cause this.
+```
+
+在扩展的输出日志中、其登录界面上以及 Agent SDK 应用程序中，该错误的措辞有所不同。它以 `Subprocess initialization did not complete within` 和时间限制开头，然后给出 Claude Code 报告的内容，例如：
+
+```text theme={null}
+Subprocess initialization did not complete within 60000ms. Claude Code did not answer the initialize request and reported no SessionStart or Setup hook running. Slow plugins, MCP servers, hooks that Claude Code does not report, disks or network can each cause this.
+```
+
+**应该怎么做：**
+
+* 要在 VS Code 中重试，请发送一条消息。如果错误是在您登录时出现的，请改为再次选择登录方式。
+* 要查看 Claude Code 进行到了哪一步，请点击对话错误下方的 **View output logs**，或从命令面板运行 **Claude Code: Show Logs**。[报告问题](https://github.com/anthropics/claude-code/issues)时，请附上 `Subprocess initialization` 行前后的条目。
+* 要检查您的网络，请参阅[网络配置](https://code.claude.com/docs/zh-CN/network-config.md)。如果消息提示您检查登录或身份验证，请参阅[登录和身份验证](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#login-and-authentication)。
+* 如果消息指出 [SessionStart](https://code.claude.com/docs/zh-CN/hooks.md#sessionstart) 或 [Setup](https://code.claude.com/docs/zh-CN/hooks.md#setup) hook 尚未完成，请[检查您的 hook 运行了多长时间](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks)。在 VS Code 中，Claude Code 报告这些 hook 正在运行的前 10 分钟不计入 60 秒限制。请让运行缓慢的 hook 更快完成、降低非异步 hook 的 [`timeout`](https://code.claude.com/docs/zh-CN/hooks#common-fields)，或[移除该 hook](https://code.claude.com/docs/zh-CN/hooks.md#disable-or-remove-hooks)。
+* 如果您的 Agent SDK 应用程序调用了 [`startup()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#startup)，请将 `initializeTimeoutMs` 设置得足以覆盖整个启动过程，或者不设置它，这样最多 10 分钟的已报告 hook 时间不会计入。
+
+在 VS Code 扩展 v2.1.304 和 TypeScript Agent SDK v0.3.304 之前，所有 hook 时间都计入限制。使用默认限制时，消息包含 `Subprocess initialization did not complete within 60000ms — check authentication and network connectivity`。如果您看到该措辞，请更新扩展或 SDK。
 
 ### Claude Code 进程以代码 N 退出
 

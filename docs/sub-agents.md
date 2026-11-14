@@ -36,9 +36,9 @@ Explore 和 Plan 启动时不加载您的 CLAUDE.md 文件和 git 状态快照�
 >
 > 一个快速的、只读的代理，针对搜索和分析代码库进行了优化。
 >
-> * **Model**: 主对话的模型。当主对话运行 Fable 时，Explore 的模型取决于您的连接方式：
+> * **Model**: [父对话](#which-model-a-nested-subagent-runs-on)的模型。当父对话运行 Fable 时，Explore 会根据您的连接方式在 Opus 上运行或保持使用 Fable。
 >   * 使用 Claude 订阅、Anthropic Console 账户，或通过 `ANTHROPIC_BASE_URL` 访问的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)时，Explore 在 [`opus` 别名](https://code.claude.com/docs/zh-CN/model-config#model-aliases)解析到的 Opus 模型上运行。
->   * 在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、[AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 或 [Claude apps 网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)上，Explore 保持使用主对话的模型。
+>   * 在 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry、[AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 或 [Claude apps 网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)上，Explore 保持使用 Fable。
 > * **Tools**: 只读工具；拒绝访问 Write 和 Edit
 > * **Purpose**: 文件发现、代码搜索、代码库探索
 >
@@ -52,7 +52,7 @@ Explore 和 Plan 启动时不加载您的 CLAUDE.md 文件和 git 状态快照�
 >
 > 一个研究代理，在 [plan mode](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) 期间使用，以在呈现计划之前收集上下文。
 >
-> * **Model**: 从主对话继承，除非您设置 `CLAUDE_CODE_SUBAGENT_MODEL` 并[强制将其应用于每个 subagent](#run-every-subagent-on-one-model)
+> * **Model**: 从[父对话](#which-model-a-nested-subagent-runs-on)继承，除非您设置 `CLAUDE_CODE_SUBAGENT_MODEL` 并[强制将其应用于每个子代理](#run-every-subagent-on-one-model)
 > * **Tools**: 只读工具；拒绝访问 Write 和 Edit
 > * **Purpose**: 用于规划的代码库研究
 >
@@ -62,8 +62,8 @@ Explore 和 Plan 启动时不加载您的 CLAUDE.md 文件和 git 状态快照�
 >
 > 一个能够处理复杂、多步骤任务的代理，需要探索和操作。
 >
-> * **Model**: 如果您设置了 [`CLAUDE_CODE_SUBAGENT_MODEL`](#choose-a-model) 模型且没有其他方式分配模型，则使用该模型，否则使用主对话的模型；[选择模型](#choose-a-model) 说明了完整的顺序，[在一个模型上运行每个 subagent](#run-every-subagent-on-one-model) 展示了如何使变量覆盖这些来源
-> * **Tools**: 所有[可用于 subagents 的工具](#available-tools)
+> * **Model**: 默认使用父对话的模型，遵循[模型顺序](#choose-a-model)
+> * **Tools**: 所有[可用于子代理的工具](#available-tools)
 > * **Purpose**: 复杂研究、多步骤操作、代码修改
 >
 > 当任务需要探索和修改、复杂推理来解释结果或多个依赖步骤时，Claude 会委托给 general-purpose。
@@ -346,51 +346,42 @@ experimental:
 
 ### 选择模型
 
-`model` 字段控制子代理使用哪个模型：
+默认情况下，您定义的子代理与启动它的对话在同一模型上运行。若要自行选择其模型，请将其定义中的 [`model`](#supported-frontmatter-fields) 字段设置为以下值之一：
 
-* **模型别名**：使用可用别名之一：`sonnet`、`opus`、`haiku` 或 `fable`
-* **完整模型 ID**：使用完整模型 ID，例如 `claude-opus-5-5` 或 `claude-sonnet-5`。接受与 `--model` 标志相同的值
-* **inherit**：使用与主对话相同的模型
+* **模型别名**：`sonnet`、`opus`、`haiku` 或 `fable`
+* **完整模型 ID**：[`--model`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 标志接受的值，例如 `claude-opus-5-5` 或 `claude-sonnet-5`
+* **`inherit`**：主对话的模型；对于[嵌套子代理](#which-model-a-nested-subagent-runs-on)，则为生成它的子代理的模型
 
-当 Claude 调用子代理时，它还可以为该次调用传入 `model` 参数。在 Agent 工具调用中，该参数接受模型别名：`sonnet`、`opus`、`haiku` 或 `fable`。Claude 无法在该调用中传入完整模型 ID 或 `inherit`。Claude Code 按以下顺序确定子代理的模型：
+当有多个来源设置了模型时，Claude Code 按以下顺序使用第一个：
 
-1. 单次调用的 `model` 参数
-2. 子代理定义中的 `model` frontmatter，其中 `inherit` 选择主对话的模型
-3. [`CLAUDE_CODE_SUBAGENT_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables) 环境变量（当您将其设置为模型别名或模型 ID 时）
-4. 主对话的模型
+1. 单次调用的 `model` 参数，Claude 可以在启动子代理时传入该参数。在 Agent 工具调用中，该参数接受模型别名，而不接受完整模型 ID 或 `inherit`。
+2. 子代理定义中的 `model` 字段，包括 `inherit`
+3. [`CLAUDE_CODE_SUBAGENT_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables) 环境变量
+4. 主对话的模型；对于嵌套子代理，则为生成它的子代理的模型
 
-如果已安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 在其 [`agent.spawn`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#subagents) hook 中设置了模型，Claude Code 会使用该模型来代替单次调用的参数。
-
-在两种情况下，单次调用参数或 frontmatter 中的系列别名（如 `opus`）会解析为主对话的模型，而不是[该别名指向的版本](https://code.claude.com/docs/zh-CN/model-config.md#model-aliases)：
-
-* **主对话的模型属于该系列**：子代理在主对话的确切模型上运行，包括任何 `[1m]` 后缀，因此它获得与主对话相同的[扩展上下文](https://code.claude.com/docs/zh-CN/model-config.md#extended-context)窗口。
-* **在 [Anthropic API 以外的提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上，Claude Code 无法判断主对话的模型系列**：这可能发生在 Amazon Bedrock 上使用 Claude Code 尚未解析到后端模型的[应用推理配置文件 ARN](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#iam-configuration) 时。这种情况仅涵盖 `opus` 别名，并且在您设置了 [`ANTHROPIC_DEFAULT_OPUS_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables) 时不适用，因为此时 `opus` 会解析为您设置的模型。
-
-`CLAUDE_CODE_SUBAGENT_MODEL` 中的别名始终解析为该别名指向的版本，即使它指向主对话的系列。将该变量设置为 `inherit` 等同于不设置它。
+如果 Claude 传入了别名，子代理在[被恢复或收到后续消息](#resume-subagents)时会保留该别名。如果已安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 在其 [`agent.spawn`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#subagents) hook 中设置了模型，Claude Code 会使用该模型来代替单次调用的参数。
 
 仅设置 `CLAUDE_CODE_SUBAGENT_MODEL` 不会改变内置 Explore 和 Plan 子代理所运行的模型。若要更改，请参阅[让所有子代理在同一模型上运行](#run-every-subagent-on-one-model)。
 
-在 v2.1.251 之前，`CLAUDE_CODE_SUBAGENT_MODEL` 在此顺序中排在首位，会覆盖单次调用参数和 frontmatter，包括 `model: inherit`。
+#### 嵌套子代理在哪个模型上运行
 
-Claude Code 会根据您组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表检查单次调用参数、frontmatter 和环境变量的值。对于被阻止的值，它会替换为另一个模型：
+默认情况下，您定义的[嵌套子代理](#let-subagents-spawn-their-own-subagents)在其父级（即生成它的子代理）的模型上运行。若要让嵌套子代理在其他模型上运行，请将其 `model` 字段设置为该模型。
 
-* 当被阻止的值是系列别名（如 `opus`）时，Claude Code 会在允许列表允许的该系列最新版本上运行子代理，遵循与 `/model` 相同的[替换规则和提供商范围](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)。在 v2.1.222 之前，对于被阻止的系列别名，Claude Code 同样会在继承的模型上运行子代理。
-* 对于任何其他被阻止的值、在该替换不起作用的提供商上，或者当允许列表不允许该系列的任何版本时，Claude Code 会改为在继承的模型上运行子代理。如果您设置了 `CLAUDE_CODE_SUBAGENT_MODEL`，Claude Code 会按照同样的规则首先尝试该模型。
+例如，假设您的主对话在 Opus 上运行，并在 Haiku 上启动了一个审查子代理。默认情况下，当该审查子代理生成以下子代理时，它们会在 Haiku 而不是 Opus 上运行：
 
-在交互式会话中，对于上述任一种替换，Claude Code 都会显示一条警告，列出请求的模型和子代理实际运行的模型。
+* 设置了 `model: inherit` 或没有 `model` 字段的子代理
+* 内置的 Explore、Plan 和 general-purpose 子代理
+* [分叉](#fork-the-current-conversation)
+
+在计划模式下，如果您将会话的模型设置为 [`opusplan`](https://code.claude.com/docs/zh-CN/model-config#opusplan-model-setting)，这些子代理会在 Opus 上运行；如果您将其设置为 `haiku`，则在 Sonnet 上运行。
+
+#### 检查子代理的模型
 
 若要查看子代理正在哪个模型上运行，请运行 [`/tasks`](https://code.claude.com/docs/zh-CN/commands)。Claude Code 会在子代理所在行显示模型名称，并附上为该子代理设置的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)（如果有）。需要 Claude Code v2.1.242 或更高版本。
 
-当子代理被[恢复或收到后续消息](#resume-subagents)时，单次调用的 `model` 参数同样适用，因此子代理会保持在该模型上。
-
-从 v2.1.198 开始，子代理还会继承主对话的[扩展思考](https://code.claude.com/docs/zh-CN/model-config.md#extended-thinking)配置：如果您的会话中启用了思考，子代理也会启用；如果关闭，它也保持关闭。没有针对单个子代理的思考设置。在 v2.1.198 之前，无论主对话的设置如何，子代理都在禁用扩展思考的情况下运行。
-
 #### 让所有子代理在同一模型上运行
 
-`CLAUDE_CODE_SUBAGENT_MODEL` 是一个默认值，因此子代理的定义或 Claude 传入的模型仍优先于它。若要将同一模型应用于每个子代理、[队友](https://code.claude.com/docs/zh-CN/agent-teams.md#specify-teammates-and-models)和[工作流 Agent](https://code.claude.com/docs/zh-CN/workflows.md)，还需将 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` 设置为 `1`。需要 Claude Code v2.1.257 或更高版本。
-
-* 如果同时设置了这两个变量，子代理会在 `CLAUDE_CODE_SUBAGENT_MODEL` 中的模型上运行。
-* 如果只设置了 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`，子代理会在主对话的模型上运行，但内置 Explore 子代理除外，它在[内置子代理下为其列出的模型](#built-in-subagents)上运行。
+若要将同一模型应用于每个子代理、[队友](https://code.claude.com/docs/zh-CN/agent-teams.md#specify-teammates-and-models)和[工作流 Agent](https://code.claude.com/docs/zh-CN/workflows.md)，请将 `CLAUDE_CODE_SUBAGENT_MODEL` 设置为该模型，并将 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` 设置为 `1`。需要 Claude Code v2.1.257 或更高版本。
 
 例如，若要让所有子代理都在 Haiku 上运行，请在[设置文件](https://code.claude.com/docs/zh-CN/settings.md)的 `env` 块中同时设置这两个变量：
 
@@ -405,10 +396,33 @@ Claude Code 会根据您组织的 [`availableModels`](https://code.claude.com/do
 
 若要检查设置是否生效，请在子代理运行时运行 [`/tasks`](https://code.claude.com/docs/zh-CN/commands)。子代理所在行会显示它所运行的模型。
 
-当 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` [启用](https://code.claude.com/docs/zh-CN/env-vars.md)时，Claude Code 会忽略子代理定义中的 `model` 字段，并且 Claude 在启动子代理时无法传入模型。以下子代理仍在主对话的模型上运行：
+当 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` [启用](https://code.claude.com/docs/zh-CN/env-vars.md)时，Claude Code 会忽略子代理定义中的 `model` 字段，并且 Claude 在启动子代理时无法传入模型。以下子代理仍在其父对话的模型上运行：
 
 * [分叉](#fork-the-current-conversation)
 * 设置了 `model: inherit` 的[在子代理中运行的 skill](https://code.claude.com/docs/zh-CN/skills.md#run-skills-in-a-subagent)
+
+如果只设置了 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`，子代理会在主对话的模型上运行，但内置 Explore 子代理除外，它在[内置子代理下为其列出的模型](#built-in-subagents)上运行。
+
+#### 模型别名选择哪个版本
+
+默认情况下，使用模型别名的子代理会在[该别名指向的版本](https://code.claude.com/docs/zh-CN/model-config.md#model-aliases)上运行。当 `model` 字段或单次调用参数中使用系列别名（如 `opus`）时，在以下两种情况下，子代理会在其父对话的模型上运行：
+
+* **同一系列**：例如，如果您的主对话在 `claude-opus-4-7` 上运行，设置了 `model: opus` 的子代理也会在该版本上运行。若要运行其他版本，请在 `model` 字段中设置完整模型 ID。
+* **未知系列**：Claude Code 无法判断父模型的系列，例如使用它[无法查询](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#iam-configuration)的 Amazon Bedrock ARN 时。这种情况仅适用于 [Anthropic API 以外的提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上的 `opus` 别名。若要选择 Opus 版本，请设置 [`ANTHROPIC_DEFAULT_OPUS_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables)。
+
+#### 当允许列表阻止子代理模型时
+
+如果您组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表阻止了为子代理设置的模型，子代理会在以下适用的第一项上运行：
+
+1. 对于被阻止的系列别名，在[支持此替换的提供商](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)上，使用该系列中允许的最新版本
+2. `CLAUDE_CODE_SUBAGENT_MODEL` 中的模型（如果您设置了），遵循同样的规则
+3. 主对话的模型；对于嵌套子代理，则为生成它的子代理的模型
+
+对于交互式会话中的顶层子代理，会显示一条警告，列出请求的模型及其替代模型。若要运行特定模型，请将被阻止的值更改为允许列表允许的值。
+
+### 子代理中的扩展思考
+
+子代理继承主对话的[扩展思考](https://code.claude.com/docs/zh-CN/model-config.md#extended-thinking)配置。没有针对单个子代理的思考设置。
 
 ### 选择 effort 级别
 
@@ -426,7 +440,9 @@ Claude Code 会根据您组织的 [`availableModels`](https://code.claude.com/do
 
 #### 可用工具
 
-子代理继承主对话中可用的[内置工具](https://code.claude.com/docs/zh-CN/tools-reference.md)和 MCP 工具，并经过两个过滤器的缩减：第一个过滤器从每个子代理中移除少量工具，第二个过滤器为在[后台](#run-subagents-in-foreground-or-background)运行的子代理（默认情况）缩减内置工具集。在 macOS、Linux 和 WSL 上，当主对话没有 Glob 和 Grep 工具时，子代理也可以获得这些工具，如 [Glob 工具行为](https://code.claude.com/docs/zh-CN/tools-reference.md#glob-tool-behavior)中所述。[分叉](#fork-the-current-conversation)会跳过这两个过滤器，获得与主对话完全相同的工具池。第一个过滤器会移除以下工具，即使它们列在 `tools` 字段中：
+子代理继承主对话中可用的[内置工具](https://code.claude.com/docs/zh-CN/tools-reference.md)和 MCP 工具，并经过两个过滤器的缩减。第一个过滤器从每个子代理中移除少量工具。第二个过滤器为在[后台](#run-subagents-in-foreground-or-background)运行的子代理（默认情况）缩减内置工具集。
+
+在 macOS、Linux 和 WSL 上，当主对话没有 Glob 和 Grep 工具时，子代理也可以获得这些工具，如 [Glob 工具行为](https://code.claude.com/docs/zh-CN/tools-reference.md#glob-tool-behavior)中所述。[分叉](#fork-the-current-conversation)会跳过这两个过滤器，获得与其父对话完全相同的工具池。第一个过滤器会移除以下工具，即使它们列在 `tools` 字段中：
 
 * `Agent`，当子代理达到[深度限制](#let-subagents-spawn-their-own-subagents)时；在[分叉](#fork-the-current-conversation)中，该工具仍会列出，但会返回错误而不是生成子代理
 * `AskUserQuestion`
@@ -1077,7 +1093,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 
 使用此值时，您的子代理可以委托给它们自己的第二层子代理，而第二层无法再进一步委托。设置为 `1` 可关闭嵌套。
 
-嵌套子代理的配置方式与顶层子代理相同，并从相同的[作用域](#choose-the-subagent-scope)中解析。要在嵌套开启时阻止某个子代理生成子代理（例如应保持只读的审查者），请从其 [`tools`](#available-tools) 列表中省略 `Agent`，或将其添加到 `disallowedTools`。
+在与顶层子代理相同的[作用域](#choose-the-subagent-scope)中定义嵌套子代理。默认情况下，您定义的嵌套子代理会在[发起启动的子代理的模型](#which-model-a-nested-subagent-runs-on)上运行。要在嵌套开启时阻止某个子代理生成子代理（例如应保持只读的审查者），请从其 [`tools`](#available-tools) 列表中省略 `Agent`，或将其添加到 `disallowedTools`。
 
 在终端中，Claude Code 会在输入框下方的子代理面板中以树形显示嵌套子代理，并为面板中仍有后代的每一行标注 `(+N)`，表示其后代数量。打开某一行即可查看该子代理的同级和直接子级，以及返回 `main` 的路径。
 
@@ -1221,7 +1237,10 @@ autoCompactWindow: 200000
 >
 > 当[Agent 视图被关闭](https://code.claude.com/docs/zh-CN/agent-view.md#turn-off-agent-view)时，`/subtask` 不可用，`/fork` 改为启动分叉子代理；否则 `/fork` 将整个会话复制到新的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#from-inside-a-session)中。
 
-分叉是一个 subagent，它继承到目前为止的整个对话，而不是从头开始。这消除了 subagents 通常提供的输入隔离：分叉看到与主会话相同的系统提示、工具、模型和消息历史，因此您可以将其交给一个辅助任务而无需重新解释情况。分叉自己的工具调用仍然保持在您的对话之外，只有其最终结果返回，因此您的主 context window 保持干净。当任何其他 subagent 需要太多背景才能有用时，或当您想从相同的起点并行尝试多种方法时，使用分叉。
+分叉是一个子代理，它继承到目前为止的整个对话，而不是从头开始。当任何其他子代理需要太多背景才能有用时，或当您想从相同的起点并行尝试多种方法时，使用分叉。
+
+* **输入**：分叉看到与其父对话相同的系统提示词、工具、[模型](#which-model-a-nested-subagent-runs-on)和消息历史
+* **输出**：分叉自己的工具调用保持在其父对话之外，只有其最终结果返回
 
 分叉模式启用时（默认即为启用），Claude 可以自行启动分叉。要停止分叉，请参阅[关闭分叉模式](#turn-fork-mode-on-or-off)。
 
@@ -1257,14 +1276,12 @@ autoCompactWindow: 200000
 
 ### 分叉与其他 subagents 的区别
 
-分叉继承主会话在生成时拥有的一切。任何其他 subagent 从其定义开始。
-
 | | 分叉 | 非分叉 subagent |
 | :- | :- | :- |
 | 上下文 | 完整的对话历史 | 新鲜上下文，带有您传递的提示 |
-| 系统提示和工具 | 与主会话相同 | 来自 subagent 的[定义文件](#write-subagent-files)，[为后台运行过滤](#available-tools) |
-| 模型 | 与主会话相同 | 来自 subagent 的 `model` 字段 |
-| Prompt cache | 与主会话共享 | 单独的缓存 |
+| 系统提示词和工具 | 与父对话相同 | 来自子代理的[定义文件](#write-subagent-files)，[为后台运行过滤](#available-tools) |
+| 模型 | 与[父对话](#which-model-a-nested-subagent-runs-on)相同 | 遵循[子代理模型顺序](#choose-a-model) |
+| 提示缓存 | 与父对话共享 | 单独的缓存 |
 
 因为分叉的系统提示词和工具定义与父级相同，其第一个请求重用父级的[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md#subagents-and-the-cache)。由于这种重用，对于需要相同上下文的任务，分叉的成本低于新的子代理。
 

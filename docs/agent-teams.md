@@ -102,17 +102,39 @@ Agent team 支持两种显示模式：
 >
 > `tmux` 在某些操作系统上存在已知限制，传统上在 macOS 上效果最佳。建议在 iTerm2 中使用 `tmux -CC` 作为进入 `tmux` 的方式。
 
-默认值为 `"in-process"`。设置为 `"auto"` 时，如果您已在 tmux 会话中运行，或者您的终端是已安装 `it2` CLI 的 iTerm2，则启用分屏窗格，否则回退到进程内模式。`"tmux"` 设置会启用分屏窗格模式，并根据您的终端自动检测使用 tmux 还是 iTerm2。
+在 agent team 已[启用](#enable-agent-teams)的情况下，按照以下步骤为每个队友分配独立的窗格：
 
-设置为 `"iterm2"` 可显式使用 iTerm2 原生分屏窗格。此模式需要 [`it2` CLI](https://github.com/mkusaka/it2)，如果缺少 `it2`，会显示错误并附带安装命令。当您的终端是 iTerm2 且 tmux 可作为回退选项时，在 `"auto"` 或 `"tmux"` 下会出现设置提示，询问是安装 `it2` 还是切换到 tmux。
+**1. 安装 tmux 或设置 iTerm2**
 
-要覆盖默认值，请在 `~/.claude/settings.json` 中设置 [`teammateMode`](https://code.claude.com/docs/zh-CN/settings-reference#teammatemode)：
+分屏窗格模式需要 [tmux](https://github.com/tmux/tmux/wiki)，或者安装了 [`it2` CLI](https://github.com/mkusaka/it2) 的 iTerm2。请设置您将在其中运行 Claude Code 的那一个：
+
+* **tmux**：通过系统的包管理器安装。有关特定平台的说明，请参阅 [tmux wiki](https://github.com/tmux/tmux/wiki/Installing)。
+* **iTerm2**：安装 [`it2` CLI](https://github.com/mkusaka/it2)，然后在 **iTerm2 > Settings > General > Magic > Enable Python API** 中启用 Python API。
+
+**2. 启用分屏窗格**
+
+在您更改 [`teammateMode`](https://code.claude.com/docs/zh-CN/settings-reference#teammatemode) 设置之前，队友都以进程内方式运行。
+
+在 `~/.claude/settings.json` 中将其设置为 `"auto"`：
 
 ```json theme={null}
 {
   "teammateMode": "auto"
 }
 ```
+
+设置为 `"auto"` 时，如果您在 tmux 或 iTerm2 中运行 Claude Code，队友会在分屏窗格中打开；在其他终端中则以进程内方式运行。
+
+**3. 启动 Claude Code 并生成队友**
+
+在 tmux 或 iTerm2 中运行 `claude`，然后让 Claude 生成队友。
+
+如果 iTerm2 中出现 `it2` 的设置提示，请选择 **Install it2 now**，以便在您的 iTerm2 窗口中打开窗格。
+
+如果您在 tmux 和 iTerm2 之外运行 Claude Code，或者窗格没有在您的 iTerm2 窗口中打开，请再次更改 `teammateMode`：
+
+* **在 tmux 和 iTerm2 之外**：在已安装 tmux 的情况下，将 `teammateMode` 设置为 `"tmux"`。窗格会在单独的 tmux 会话中打开。要查看它们，请从 Claude Code 提示符处的 `View teammates` 行复制命令，并在第二个终端中运行该命令。
+* **窗格未在您的 iTerm2 窗口中打开**：将 `teammateMode` 设置为 `"iterm2"` 以使用 iTerm2 自身的窗格。这样，只有当您在已设置 `it2` 的 iTerm2 中运行 Claude Code 时，队友才会启动。
 
 要为单个会话设置模式，请将其作为标志传入：
 
@@ -121,11 +143,6 @@ claude --teammate-mode auto
 ```
 
 `--teammate-mode` 标志是实验性的，不会出现在 `claude --help` 中。
-
-分屏窗格模式需要 [tmux](https://github.com/tmux/tmux/wiki)，或者安装了 [`it2` CLI](https://github.com/mkusaka/it2) 的 iTerm2。手动安装方法：
-
-* **tmux**：通过系统的包管理器安装。有关特定平台的说明，请参阅 [tmux wiki](https://github.com/tmux/tmux/wiki/Installing)。
-* **iTerm2**：安装 [`it2` CLI](https://github.com/mkusaka/it2)，然后在 **iTerm2 → Settings → General → Magic → Enable Python API** 中启用 Python API。
 
 ### 指定队友和模型
 
@@ -497,7 +514,7 @@ Agent teams 是实验性的。需要注意的当前限制：
 * **没有来自 in-process 队友的后台子代理**：in-process 队友自己的子代理在前台运行，因为队友的后台工作无法超越负责人的进程。Claude Code 在队友生成定义设置 `background: true` 的子代理时返回错误。队友的 `run_in_background: true` 请求也会失败，要么返回错误，要么在前台静默运行。从主对话启动的子代理遵循[后台默认值](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)。
 * **负责人是固定的**：主会话在其生命周期内是其团队的负责人。你无法将队友提升为负责人或转移领导权。
 * **生成时无法为每个队友设置权限模式**：队友以 [权限](#permissions) 下描述的权限模式启动。
-* **分割窗格需要 tmux 或 iTerm2**：默认 in-process 模式在任何终端中工作。VS Code 的集成终端、Windows Terminal 或 Ghostty 不支持分割窗格模式。
+* **分割窗格需要 tmux 或 iTerm2**：默认 in-process 模式在任何终端中工作。
 
 ## 后续步骤
 

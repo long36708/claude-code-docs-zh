@@ -454,7 +454,7 @@ Claude Code 为每个工作流 Agent 选择模型的顺序与[为子代理选择
 * 如果您通常会为日常工作切换到较小的模型，请在大型运行之前检查 `/model`
 * 在描述任务时，让 Claude 为不需要最强模型的阶段使用较小的模型
 
-当您组织的 [`availableModels` 允许列表](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection)阻止了脚本为某个 Agent 请求的模型时，该 Agent 会改用替代模型运行，遵循与[子代理相同的替代规则](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)。
+当您组织的 [`availableModels` 允许列表](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection)阻止了脚本为某个 Agent 请求的模型时，该 Agent 会改用替代模型运行，遵循与[子代理相同的替代规则](https://code.claude.com/docs/zh-CN/sub-agents.md#when-an-allowlist-blocks-a-subagent-model)。
 
 ### 设置规模指导
 

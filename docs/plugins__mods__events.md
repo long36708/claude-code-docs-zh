@@ -91,6 +91,16 @@ on('tool.call', { tool: /^mcp__github__/ }, hook)
 
 为每个 matcher 注册一次事件。如果你为 `session.start` 调用 `on` 两次而没有 matcher，模块将无法加载，错误为 `on("session.start") is registered twice without a matcher`。将你的 mod 在会话启动时执行的所有操作放在一个 hook 中。
 
+#### hook 其他 mod 的绘制内容和控件
+
+要 hook 另一个 mod 的控件、窗格或提示词上方的行，请传递带有 `plugin` 的匹配器。使用不带市场的 mod 名称，如 `{ plugin: 'other-mod' }`，或使用 `{ plugin: '*' }` 表示所有 mod。如果没有 `plugin`，`ui.press`、`ui.input`、`ui.select` 或 `ui.focus` 上的 hook 不会为其他 mod 的控件运行，`ui.render` hook 也会跳过它们的窗格以及它们在提示词上方的行。
+
+没有匹配器的通配符 hook，例如 `on('*', hook)` 或 `on('ui.*', hook)`，仍会为每个 mod 运行。带有匹配器的通配符同样需要 `plugin`。
+
+> [!NOTE]
+>
+> `{ plugin: '*' }` 需要 Claude Code v2.1.323 或更高版本。在 v2.1.323 之前，没有 `plugin` 的 hook 会为每个 mod 运行，而带有 `{ plugin: '*' }` 的 hook 不会运行。要在两个版本上都匹配每个 mod，请在 `ui.press`、`ui.input` 和 `ui.select` 上使用 `{ plugin: /./ }`。对于 `ui.focus` 和 `ui.render`，请使用 `on('ui.*', hook)` 并在 `next.event` 中检查事件名称，如 `if (next.event !== 'ui.focus') return next(e)`。
+
 ## 对 Claude 正在执行的操作设置 hook
 
 处理这些事件，可以在工具调用、提示词、轮次或设置读取发生时查看或更改它们。有关每个事件以及 hook 可以返回的内容，请参阅[事件参考](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#events)。

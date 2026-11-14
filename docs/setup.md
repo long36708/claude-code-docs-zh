@@ -40,7 +40,7 @@ Claude Code 在以下平台和配置上运行：
 >
 > **macOS、Linux、WSL：**
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.sh | bash
 > ```
 >
@@ -48,13 +48,13 @@ Claude Code 在以下平台和配置上运行：
 >
 > **Windows PowerShell：**
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > irm https://claude.ai/install.ps1 | iex
 > ```
 >
 > **Windows CMD：**
 >
-> ```batch theme={null}
+> ```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 > ```
 >
@@ -72,7 +72,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] Homebrew
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > brew install --cask claude-code
 > ```
 >
@@ -84,7 +84,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] WinGet
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > winget install Anthropic.ClaudeCode
 > ```
 >
@@ -220,6 +220,8 @@ Claude Code 在启动时和运行时定期检查更新。更新在后台下载�
 }
 ```
 
+使用此设置时，即使 stable 版本比您当前的版本更旧，原生安装也会更新到该 stable 版本。为避免降级，请同时[固定最低版本](#pin-a-minimum-version)。
+
 新发布的模型可能需要比 stable 渠道所提供版本更新的 Claude Code 版本。要立即运行该模型，请切换到 latest 渠道。
 
 对于企业部署，您可以使用[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)在整个组织中强制执行一致的发布渠道。
@@ -230,20 +232,27 @@ Homebrew 安装通过 cask 名称而不是此设置来选择渠道：`claude-cod
 
 ### 固定最低版本
 
-`minimumVersion` 设置建立了一个下限。后台自动更新和 `claude update` 拒绝安装低于此值的任何版本，因此如果您已经在较新的 `"latest"` 构建上，切换到 `"stable"` 渠道不会降级您。
+要将原生安装切换到 `"stable"` [发布渠道](#configure-release-channel)而不降级，请将 [`minimumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#minimumversion) 设置为您正在运行的版本。后台自动更新和 `claude update` 会拒绝安装低于该最低版本的任何版本。
 
-通过 `/config` 从 `"latest"` 切换到 `"stable"` 会提示您选择保留当前版本或允许降级。选择保留会将 `minimumVersion` 设置为该版本。切换回 `"latest"` 会清除它。
+您可以在 `/config` 中设置最低版本，让 Claude Code 自动填入您的当前版本；也可以在设置文件中自行输入版本号：
 
-将其添加到您的 [settings.json 文件](https://code.claude.com/docs/zh-CN/settings.md)以显式固定下限：
+* **在 `/config` 中**：将**自动更新渠道**切换为 stable，然后选择**保留当前版本**。如果您在 `/config` 中切换回 latest，Claude Code 会清除该最低版本。
+* **在您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中**：在您的 shell 中运行 `claude --version`，并将 `minimumVersion` 设置为输出开头的版本号。在同一次编辑中，将 `autoUpdatesChannel` 设置为 `"stable"`。
+
+以下 `~/.claude/settings.json` 会将版本为 2.1.323 的安装切换到 stable：
 
 ```json theme={null}
 {
   "autoUpdatesChannel": "stable",
-  "minimumVersion": "2.1.100"
+  "minimumVersion": "2.1.323"
 }
 ```
 
-在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中，这会强制执行用户和项目设置无法覆盖的组织范围最低版本。
+该安装会保持在 2.1.323，直到 stable 渠道提供更新的版本。
+
+#### 为您的组织设置版本限制
+
+在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中，`minimumVersion` 会强制执行用户和项目设置无法覆盖的组织范围最低版本。
 
 `minimumVersion` 固定仅约束更新。要使 Claude Code 拒绝在版本范围外启动，请改为使用托管设置 `requiredMinimumVersion` 和 `requiredMaximumVersion`。更新也会遵守 `requiredMaximumVersion` 上限。请参阅 [`requiredMinimumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#requiredminimumversion) 和 [`requiredMaximumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#requiredmaximumversion)。
 
@@ -445,10 +454,10 @@ Claude Code 发布已签名的 apt、dnf 和 apk 存储库。每个存储库提�
 >
 > 如果在您的 shell 中 `npm --version` 打印的版本以 `12` 开头，请改为按照[修复 npm 12 安装](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#fix-an-npm-12-install)进行操作。不要使用 `sudo` 安装。Claude Code 在自我更新时运行 npm 不使用 `sudo`，因此需要 `sudo` 的安装无法自动更新。
 
-您也可以将 Claude Code 安装为全局 npm 包。npm 包需要 [Node.js 22 或更高版本](https://nodejs.org/en/download)。在较旧的 Node.js 版本上，npm 在安装期间打印 `EBADENGINE` 警告而不是失败；安装完成，`claude` 仍然运行，因为该包下载了在运行时不使用您的 Node.js 的原生二进制文件。
+您也可以将 Claude Code 安装为全局 npm 包。npm 包需要 [Node.js 22 或更高版本](https://nodejs.org/en/download)。在较旧的 Node.js 版本上，npm 默认会打印 `EBADENGINE` 警告并完成安装，而不是失败。已安装的 `claude` 仍然可以运行，因为该包下载的原生二进制文件在运行时不使用您的 Node.js。
 
 ```bash theme={null}
-npm install -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code@latest
 ```
 
 npm 包安装与独立安装程序相同的原生二进制文件。npm 通过每个平台的可选依赖项（如 `@anthropic-ai/claude-code-darwin-arm64`）拉取二进制文件，并通过 postinstall 步骤将其链接到位。已安装的 `claude` 二进制文件本身不调用 Node。

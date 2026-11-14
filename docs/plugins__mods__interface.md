@@ -177,7 +177,7 @@ export function register(on) {
 
 ## 选择绘制位置
 
-`ui.render` hook 会为每个渲染站点运行，除非您将其限定到想要绘制的那个站点。要选择渲染站点，请将一个过滤器（称为[匹配器](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#filter-which-events-a-hook-handles)）作为第二个参数传递给 `on`。`{ component: 'Pane' }` 仅为窗格运行该 hook。在 hook 中，`e.component` 指明站点名称，`e.surface` 说明哪个应用在绘制，`e.props` 保存站点自己的数据。对于窗格，`e.requestId` 是您打开它时使用的 `id`。
+要选择 `ui.render` hook 在哪个渲染位置绘制，请将一个过滤器（称为[匹配器](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#filter-which-events-a-hook-handles)）作为第二个参数传递给 `on`。`{ component: 'Pane' }` 仅为窗格运行该 hook。在 hook 中，`e.component` 指明位置名称，`e.surface` 说明哪个应用在绘制，`e.props` 保存该位置自己的数据。对于窗格，`e.requestId` 是您打开它时使用的 `id`。
 
 窗格和条带在 mod 填充之前都是空的。选择一个选项卡，查看每个站点是什么以及如何在其中绘制：
 
@@ -191,11 +191,11 @@ export function register(on) {
 
 > [tab] Band above the prompt
 >
-> 条带是紧贴输入框上方的一条区域。它始终存在，并由所有 mod 共享。
+> 条带是紧贴输入框上方的一条区域。在其中绘制的每个 mod 都拥有自己的一行，这些行按照 [mod 的运行顺序](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)从顶部开始堆叠。
 >
-> 您的 hook 返回一棵树以在条带中显示内容，或返回 `next(e)` 以不显示任何内容。一棵树会替换[在您之后](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)运行的 mod 在那里绘制的内容。要保留它们的内容，请将 `await next(e)` 的结果放在您树中某个 [`Box`](#build-a-tree-from-elements) 的子项中。
+> 要绘制您的 mod 的那一行，请过滤 `{ component: 'AbovePrompt' }` 并返回一棵[树](#build-a-tree-from-elements)。要不绘制任何内容，请返回 `next(e)`。
 >
-> 要在条带中绘制，请过滤 `{ component: 'AbovePrompt' }`。
+> 在 v2.1.323 之前，所有 mod 在条带中共享同一个绘制内容，您的树会替换在您之后运行的 mod 所绘制的内容。要同时支持这些版本，请将 `await next(e)` 的结果放在一个[保持有效的 `Box`](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#another-mods-band-shows-and-yours-doesnt) 的子项中。在 v2.1.323 或更高版本中，该子项不会绘制其他 mod 的行。
 
 mod 还可以[在会话记录中放置自己的一行](#place-a-row-in-the-transcript)。
 
@@ -281,13 +281,13 @@ on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
 
 当 Claude 工作时，加载指示器像以前一样显示动画，而 `under the spinner` 出现在其下方。
 
-权限提示不是渲染站点，因此 mod 无法更改它显示的内容。问题对话框 `AskUserQuestion` 是渲染站点，因此 mod 可以更改它。为该对话框返回的树必须恰好包含一次该引用，并将您的元素放在它的上方。否则，Claude Code 会绘制它自己的对话框。
+权限提示不是渲染位置，因此 mod 无法更改它显示的内容。问题对话框 `AskUserQuestion` 是渲染位置，因此当 Claude 提问时，mod 可以更改该对话框。为该对话框返回的树必须恰好包含一次该引用，并将您的元素放在它的上方。否则，Claude Code 会绘制它自己的对话框。
 
 ### 在正确的时间打开窗格
 
 窗格仅在您的 mod 打开它时出现。您如何以及何时打开它，决定了它是否获得键盘焦点、它请求多少空间，以及它在狭窄的终端中是否显示。
 
-要打开窗格，请使用您选择的 `id` 调用 [`$.ui.open`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods)。`id` 是窗格的名称：您的 `ui.render` hook 会检查它，关闭窗格时您也要再次传递它。
+要打开窗格，请使用您选择的 `id` 调用 [`$.ui.open`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods)。`id` 是窗格的名称：您的 `ui.render` hook 会检查它，关闭窗格时您也要再次传递它。如果另一个 mod 已打开使用该 `id` 的窗格，则该调用会被拒绝。
 
 ```javascript theme={null}
 await $.ui.open({ id: 'hello-tabs', title: 'Hello tabs', focus: true })
@@ -399,24 +399,24 @@ export function register(on) {
 
 > [!NOTE]
 >
-> `$.theme.set` 和 `$.theme.clear` 取代了 `$.ui.backdrop`，后者已在 Claude Code v2.1.319 中移除。请将 `$.ui.backdrop({ id: 'your-backdrop' })` 改为 `$.theme.set({ backdrop: { id: 'your-backdrop' } })`，将 `$.ui.backdrop(undefined)` 改为 `$.theme.clear()`，后者会移除任何 mod 设置的背景。
+> `$.theme.set` 和 `$.theme.clear` 取代了 `$.ui.backdrop`，后者已在 Claude Code v2.1.319 中移除。请将 `$.ui.backdrop({ id: 'your-backdrop' })` 改为类似本节示例中的 `$.theme.set` 调用，将 `$.ui.backdrop(undefined)` 改为 `$.theme.clear()`，后者会移除任何 mod 设置的背景。
 
 要在 Desktop 应用或移动应用中于对话后方放置背景，请使用 `backdrop` 调用 [`$.theme.set`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods)，然后在 [`Backdrop`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#render-sites) 渲染位置绘制该背景。要移除背景，请调用 `$.theme.clear()`。终端不绘制背景。`$.theme.set` 和 `$.theme.clear` 需要 Claude Code v2.1.319 或更高版本。
 
-此 mod 在会话开始时设置背景、绘制该背景，并添加一个用于移除背景的 `/plain` 命令：
+此示例需要 Claude Code v2.1.323 或更高版本，因此请先[检查您的版本](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off)。此 mod 在会话开始时设置背景、绘制该背景，并添加一个用于移除背景的 `/plain` 命令：
 
 ```javascript theme={null}
 export function register(on) {
   // Neither a reload of this mod nor --resume keeps the backdrop, so set it here
   on('session.start', async ($, e, next) => {
-    await $.theme.set({ backdrop: { id: 'night-sky', colorScheme: 'dark' } })
+    await $.theme.set({ backdrop: { scene: 'night-sky' }, overrideColorScheme: 'dark' })
     await $.command.register({ name: 'plain', description: 'Take the backdrop off' })
     return next(e)
   })
 
   on('ui.render', { component: 'Backdrop' }, async ($, e, next) => {
-    // This hook runs for every mod's backdrop, and another mod can use the same id
-    if (e.props.plugin !== $.plugin.name || e.props.id !== 'night-sky') return next(e)
+    // This hook runs for every mod's backdrop, and another mod can use the same scene
+    if (e.props.plugin !== $.plugin.name || e.props.scene !== 'night-sky') return next(e)
     const { Box, Text } = $.ui.resolve(e)
     return Box({ backgroundColor: 'blue', children: [Text({ children: ['Night sky'] })] })
   })
@@ -428,13 +428,106 @@ export function register(on) {
 }
 ```
 
+> [!NOTE]
+>
+> 在 v2.1.323 之前，请在 `$.theme.set` 调用和 `e.props` 中用 `id` 代替 `scene`，并将 `overrideColorScheme` 移入 `backdrop` 中，改为 `colorScheme`。
+
 要试用此示例，请将这段代码放入一个 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md) 中，并在 Desktop 应用或移动应用中启动一个会话。要移除背景，请在 Claude Code 提示符处运行 `/plain`。会话记录会在 mod 名称后显示 `the theme is cleared`，例如对于名为 `night-sky` 的 mod，显示为 `night-sky: the theme is cleared`。
 
 请了解 `backdrop` 接受哪些内容、调用结果会告诉您什么，以及其他 mod 可以更改什么：
 
-* **`backdrop` 字段**：`id` 是您选择的[名称](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)，为必填项，其他字段均为可选。`colorScheme` 为 `'light'` 或 `'dark'`，用于说明您绘制的内容是浅色还是深色。有关 `glass`，请参阅[适用于您所用版本的类型](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)。
+* **`backdrop` 字段**：`scene` 是您为由您的 hook 绘制的背景选择的[名称](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)。有关其他字段以及 `overrideColorScheme`，请参阅[适用于您所用版本的类型](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)。
 * **背景是否被绘制**：当连接到该会话的 Desktop 或移动应用表示它会绘制背景时，`$.theme.set` 以 `isDrawn: true` 解析。否则 `isDrawn` 为 `false`，`reason` 说明原因。
-* **每个会话一个背景**：无论背景是由哪个 mod 设置的，`$.theme.set` 调用都会替换会话的背景，`$.theme.clear()` 都会移除该背景。请仅在用户要求时调用 `$.theme.clear()`。
+* **每个会话一个主题**：无论背景和[颜色](#change-the-colors-of-the-desktop-app)是由哪个 mod 设置的，调用 `$.theme.set` 的 mod 都会替换会话的背景和颜色，调用 `$.theme.clear()` 的 mod 都会移除它们。请仅在用户要求时调用 `$.theme.clear()`。
+
+### 更改 Desktop 应用的颜色
+
+要使用 mod 更改 Desktop 应用 Code 选项卡的颜色，请[让 Claude 编写一个](#ask-claude-for-a-colors-mod)或[自己编写一个](#write-a-colors-mod-yourself)。这两种方式都需要 Code 选项卡中的 Claude Code 为 v2.1.324 或更高版本，因此请先[在那里检查版本](https://code.claude.com/docs/zh-CN/desktop.md#claude-code-version-in-the-code-tab)。终端中的 Claude Code 会保留其自己的颜色。
+
+#### 让 Claude 编写颜色 mod
+
+**1. 描述颜色**
+
+在 Code 选项卡中启动一个本地会话，并告诉 Claude 您想要哪些颜色。例如，输入 `make a mod that makes the app cream in light mode and dark brown in dark mode`。Claude 会编写该 mod 的文件。
+
+**2. 批准 mod**
+
+回答 Claude Code 就该 mod 的文件和热重载提出的问题。有关每个回答的作用，请参阅[让 Claude 编写 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod)。
+
+**3. 检查颜色**
+
+mod 加载后，Code 选项卡会改变颜色。要调整某种颜色，请告诉 Claude 要更改什么。如果没有任何变化，请参阅[修复缺失的 mod 颜色](#fix-missing-mod-colors-in-the-desktop-app)。
+
+#### 自己编写颜色 mod
+
+`makeColors` 是一个根据几个十六进制颜色构建主题的函数。以下步骤会创建一个使用它、名为 `paper` 的 mod。
+
+**1. 让 Claude 复制 makeColors**
+
+在 Code 选项卡中启动一个本地会话，然后输入 `copy make-colors.js and make-colors.d.ts from your plugin-authoring skill into ~/.claude/skills/paper/hooks/`。检查这两个文件是否都在该目录中。
+
+**2. 保存清单和 hooks.json**
+
+根据[自己编写 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself)，将 `.claude-plugin/plugin.json` 和 `hooks/hooks.json` 保存到 `~/.claude/skills/paper/` 中，并在这两个文件中将 `first-mod` 改为 `paper`。[位于 `~/.claude/skills/` 下](https://code.claude.com/docs/zh-CN/plugins/create#scaffold-a-plugin-that-loads-every-session)的 mod 会在您启动会话时加载。
+
+**3. 编写代码**
+
+将此文件保存为 `~/.claude/skills/paper/hooks/register.js`。会话开始时，该代码会调用 `$.theme.set`，为浅色模式和深色模式设置颜色：
+
+```javascript theme={null}
+import { makeColors } from './make-colors.js'
+
+const { theme } = makeColors({
+  label: 'Paper',
+  // surface-0 is the background, text-primary is the main text, and text-muted is the faint text
+  light: {
+    gray: { anchors: { 'surface-0': '#efe6d3', 'text-primary': '#2a241d', 'text-muted': '#6a5f50' } },
+  },
+  dark: {
+    gray: { anchors: { 'surface-0': '#1f1a15', 'text-primary': '#f0e7d7', 'text-muted': '#aca08d' } },
+  },
+})
+
+export function register(on) {
+  on('session.start', async ($, e, next) => {
+    await $.theme.set({ colors: theme })
+    return next(e)
+  })
+}
+```
+
+要使用您自己的颜色，请将这些十六进制值替换为其他六位十六进制颜色。
+
+**4. 检查颜色**
+
+在 Code 选项卡中启动一个新的本地会话。使用示例中的值时，背景在浅色模式下为奶油色，在深色模式下为深棕色。如果没有任何变化，请参阅[修复缺失的 mod 颜色](#fix-missing-mod-colors-in-the-desktop-app)。
+
+### 修复 Desktop 应用中缺失的 mod 颜色
+
+如果您在 [Claude Desktop v5.11492.5 或更早版本](https://code.claude.com/docs/zh-CN/desktop.md#check-your-version)中使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)而不是 Claude 账户，Code 选项卡会保留其自己的颜色，因此请跳过这些检查。否则，如果 mod 的颜色没有出现在 Code 选项卡中，或者颜色消失了，请检查以下原因：
+
+* **版本过旧**：[更新 Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md#claude-code-version-in-the-code-tab)，重启它，然后在 Code 选项卡中启动一个新的本地会话。如果该 mod 是由 Claude 编写的，请在那里再次请求。
+* **mod 未加载**：如果该 mod 是由 Claude 编写的，请在[让 Claude 编写 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod) 中了解它何时加载。如果是您自己编写的，请将您的文件及其路径与[自己编写颜色 mod](#write-a-colors-mod-yourself) 进行比较。
+* **主题被拒绝**：请让 Claude 运行该 mod 的 [`makeColors`](#write-a-colors-mod-yourself) 调用。如果该调用抛出错误，或者其 `problems` 列表中有以 `Desktop won't paint this theme` 开头的条目，请让 Claude 修复该主题。如果该 mod 是您安装的，请将 Claude 发现的问题发送给其作者。
+* **另一个 `$.theme` 调用**：当会话中的任何 mod 调用 `$.theme.set` 或 `$.theme.clear()` 时，之前调用设置的颜色和[背景](#put-a-backdrop-behind-the-conversation)都会消失。在您自己的 mod 中，请在同一个 `$.theme.set` 调用中传递 `colors` 和 `backdrop`。一次只使用一个设置主题的 mod。
+
+### 从 Desktop 应用中移除 mod 颜色
+
+要从 Code 选项卡中移除 mod 的颜色，请先关闭该 mod。仍处于启用状态的 mod 可能会再次设置其颜色。
+
+**1. 关闭 mod**
+
+* **mod 由 Claude 编写**：将其目录移出 Claude 编写它时所在会话的 [mod 文件夹](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod)。
+* **您将 mod 放在 `~/.claude/skills/` 下**：将其目录（例如 `~/.claude/skills/paper/`）移到 `~/.claude/skills/` 之外的位置。
+* **您安装了该 mod**：在 Desktop 应用中，从 **Manage plugins** [停用或卸载其插件](https://code.claude.com/docs/zh-CN/desktop.md#install-plugins)。如果您看不到 **Manage plugins**，并且您已安装 [CLI](https://code.claude.com/docs/zh-CN/quickstart.md)，则可以[从 shell 停用或卸载市场插件](https://code.claude.com/docs/zh-CN/plugins/install.md#manage-plugins-from-your-shell)。
+
+**2. 启动新会话**
+
+在 Code 选项卡中启动一个新的本地会话。
+
+**3. 移除仍保留的颜色**
+
+如果颜色仍然存在，请从 Code 选项卡打开 **Settings**，并在其中搜索 `code appearance`。打开搜索结果，然后选择 **Remove colors**。
 
 ## 从元素构建树
 
@@ -510,7 +603,7 @@ export function register(on) {
 >
 > 将 `rows` 设为 2 或更大，即可获得[可容纳多行的字段](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#input)。
 
-[界面图库](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md)提供了大多数元素的示例和屏幕截图。此表列出了每个元素：
+[界面图库](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md)提供了大多数元素的示例和屏幕截图。此表列出了主要元素：
 
 | 元素 | 它绘制什么 | 位置 |
 | :- | :- | :- |
@@ -606,7 +699,7 @@ on('ui.render', { component: 'Pane' }, async ($, e, next) => {
 测试和其他 mod 通过键来识别控件：
 
 * **测试**：[测试](https://code.claude.com/docs/zh-CN/plugins/mods/test.md#test-a-drawing)通过键按下控件或向其输入。
-* **其他 mod**：Claude Code 在运行控件的回调之前，会触发 [`ui.press`、`ui.input` 或 `ui.select`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface)，并在 `e.element` 中带上控件的键。另一个 mod 针对该事件的 hook 能看到用户输入到您的 `Input` 中的内容，可以更改该文本或阻止您的回调运行。mod API 没有为该 mod 提供按下您的按钮的方法。
+* **其他 mod**：Claude Code 在运行控件的回调之前，会触发 [`ui.press`、`ui.input` 或 `ui.select`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface)，并在 `e.element` 中带上控件的键。另一个 mod 的 hook 也可以[针对该事件运行](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#hook-other-mods-drawings-and-controls)。该 hook 能看到用户输入到您的 `Input` 中的内容，可以更改该文本或阻止您的回调运行。mod API 没有为该 mod 提供按下您的按钮的方法。
 
 如果消息显示 `needs a key` 或 `is drawn twice`，请[根据该消息查找原因](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#needs-a-key)。
 
@@ -673,7 +766,7 @@ mod 无法将 Tab 或方向键绑定到其他任何功能，因此游戏使用 `
 
 相同的按键，或在全屏渲染中点击该行，可以再次展开条带。在此之前，任何方式都无法按下其中的按钮：快捷键、在空输入框中键入的数字以及按钮 [`action`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#elements) 的快捷键均无效。如果用户折叠条带时条带拥有键盘焦点，焦点会返回到输入框，并且在条带折叠期间，Ctrl+X 然后按 Tab 会跳过条带。
 
-条带会保持折叠状态直到用户展开它，即使在 `/clear` 之后也是如此，并会在下次启动 Claude Code 时重新展开。您的 mod 无法展开它，也无法得知它已折叠：`ui.render` hook 会继续运行，`e.props` 中也没有任何内容表明这一点。请不要让条带成为您的 mod 显示需要用户回应的内容的唯一位置。
+条带会保持折叠状态直到用户展开它，即使在 `/clear` 之后也是如此，并会在下次启动 Claude Code 时重新展开。您的 mod 无法展开它。请不要让条带成为您的 mod 显示需要用户回应的内容的唯一位置。若要仅在条带折叠期间在其他位置显示这些内容，请在您的 `ui.render` hook 中读取 `e.props.isCollapsed`，该 hook 会继续运行。`isCollapsed` 需要 Claude Code v2.1.321 或更高版本。
 
 ### 获取输入的文本并为每个项目绘制一行
 

@@ -283,7 +283,7 @@ Hook 配置有三个级别：
 
 ### Sandboxing
 
-Bash 工具的操作系统级文件系统和网络隔离。命令在您预先定义的边界内运行，因此 Claude 可以在其中自由工作，无需每个命令的批准提示。沙箱隔离是与 [permission rules](#permission-rule) 分开的一层。
+Bash 工具的操作系统级文件系统和网络隔离。命令在您预先定义的边界内运行。沙箱隔离是与 [permission rules](#permission-rule) 分开的一层。
 
 了解更多：[Sandboxing](https://code.claude.com/docs/zh-CN/sandboxing.md)
 

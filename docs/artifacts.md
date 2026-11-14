@@ -432,9 +432,9 @@ Team 和 Enterprise 计划的所有者可以在 [claude.ai 管理设置](https:/
 
 要设置 Artifact 在被自动删除之前的保留时长，请前往 [**Organization settings > Data and privacy**](https://claude.ai/admin-settings/data-privacy-controls)。您可以分别为仍仅对作者私有的 Artifact 和已被共享的 Artifact 设置不同的保留期限。
 
-### 查看审计日志
+### 使用 Compliance API 审计 Artifact 活动
 
-发布、共享和删除 Artifact 的操作都会以 `claude_artifact_*` 事件类型出现在组织的审计日志中，这与在 claude.ai 对话中创建的 Artifact 所使用的事件类型系列相同。
+在 Enterprise 计划中，查询 Compliance API 的 [Activity Feed](https://platform.claude.com/docs/en/manage-claude/compliance-activity-feed)，即可查看谁发布、共享或删除了 Artifact。要查找可用于筛选的活动类型，请在 [Activity Feed 参考](https://platform.claude.com/docs/en/api/compliance/activities/list)中展开 `activity_types`，并查找名称中包含 `artifact` 的类型。
 
 ### 将查看器域名加入允许列表
 

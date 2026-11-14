@@ -995,7 +995,7 @@ claude() {
 
 如果您在 WSL 内使用 `npm install -g` 安装了 Claude Code，这些问题适用。如果您使用了[本机安装程序](https://code.claude.com/docs/zh-CN/setup.md)，请跳过本部分。在 npm 12 上，请按照[修复 npm 12 安装](#fix-an-npm-12-install)中的说明进行安装。
 
-**OS 或平台检测问题。** 如果 npm 在安装期间报告平台不匹配，WSL 可能正在选择 Windows `npm`。首先运行 `npm config set os linux`，然后使用 `npm install -g @anthropic-ai/claude-code --force` 安装。不要使用 `sudo`。
+**OS 或平台检测问题。** 如果 npm 在安装期间报告平台不匹配，请首先运行 `npm config set os linux`，然后使用 `npm install -g @anthropic-ai/claude-code@latest --force` 安装。不要使用 `sudo`。
 
 **运行 `claude` 时 `exec: node: not found`。** 您的 WSL 环境可能使用 Node.js 的 Windows 安装。使用 `which npm` 和 `which node` 确认：以 `/mnt/c/` 开头的路径是 Windows 二进制文件，而 Linux 路径以 `/usr/` 开头。要修复此问题，请通过您的 Linux 发行版的包管理器或通过 [`nvm`](https://github.com/nvm-sh/nvm) 安装 Node。
 
@@ -1082,7 +1082,7 @@ Or reinstall without --ignore-scripts / --omit=optional.
   3. 重新安装：
 
      ```bash theme={null}
-     npm install -g @anthropic-ai/claude-code
+     npm install -g @anthropic-ai/claude-code@latest
      ```
 
      如果此命令或第 1 步因 `EACCES` 失败，请切换到本机安装程序，而不是使用 `sudo` 重新运行。Claude Code 在自我更新时不使用 `sudo` 运行 npm，因此自动更新也会以同样的方式失败。
@@ -1093,7 +1093,7 @@ Or reinstall without --ignore-scripts / --omit=optional.
 
 ### npm `ENOTEMPTY` 更新或重新安装期间的错误
 
-当您在现有安装上运行 `npm install -g @anthropic-ai/claude-code` 时，npm 在移动旧包目录时可能会失败：
+当您在现有安装上运行 `npm install -g @anthropic-ai/claude-code@latest` 时，npm 在移动旧包目录时可能会失败：
 
 ```text theme={null}
 npm error code ENOTEMPTY
@@ -1127,7 +1127,7 @@ npm error ENOTEMPTY: directory not empty, rename '...'
 然后重新安装。在 npm 12 上，请按照[修复 npm 12 安装](#fix-an-npm-12-install)操作。否则，请运行：
 
 ```bash theme={null}
-npm install -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code@latest
 ```
 
 使用 `claude --version` 确认，它打印版本号，例如 `2.1.211 (Claude Code)`。

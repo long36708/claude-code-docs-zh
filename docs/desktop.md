@@ -2127,10 +2127,11 @@ IT 团队可以通过 macOS 上的 MDM、Windows 上的组策略或 Linux 上的
 
 要阻止这种情况，还需在 Claude Desktop 策略中（Windows 上位于 `HKLM` 中）部署 `forceLoginOrgUUID`，并填入您的 claude.ai 组织 ID。除非策略本身[选择了 Claude API](https://claude.com/docs/third-party/claude-desktop/claude-api#choose-an-authentication-approach)，否则 Claude Desktop 会在应用下次启动时停止使用个人自己的 API 密钥或 Console 帐户。
 
-部署之前，请检查以下两种情况：
+部署之前，请检查以下三种情况：
 
 * **Claude Console 组织**：不要仅凭 Claude Console 组织的 ID 单独部署 `forceLoginOrgUUID`，否则会将您组织中的人员锁定在 Claude Desktop 之外。请改为参阅[哪些设备提供 Claude API 帐户登录](https://claude.com/docs/third-party/claude-desktop/claude-api#which-devices-offer-the-claude-api-account-sign-in)。
 * **Enterprise Admin Console**：如果它为您的计算机提供 Claude Desktop 配置，请先将这些计算机更新到 Claude Desktop v2.37337.0 或更高版本，因为一旦设置了此键，早期版本会忽略该配置。请参阅[使设备保持使用其托管配置文件](https://claude.com/docs/third-party/claude-desktop/admin-console#keep-a-device-on-its-managed-profile)。
+* **第三方提供商**：如果用户在应用中设置了自己的[第三方推理配置](https://claude.com/docs/third-party/claude-desktop/in-app-configuration)，则在您部署此键后，Claude Desktop 会从下次启动起忽略该配置。要让用户继续使用 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 LLM 网关，请在同一 Claude Desktop 策略中向其计算机[部署配置](https://claude.com/docs/third-party/claude-desktop/configuration)。
 
 ### 网络访问要求
 
@@ -2260,10 +2261,6 @@ Desktop 和 CLI 读取相同的配置文件，因此您的设置会沿用：
 #### 来自 Claude Desktop 聊天应用的 MCP 服务器
 
 Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到本地 Code 选项卡会话中，与来自 `~/.claude.json` 和 `.mcp.json` 的服务器一起使用。在 `claude_desktop_config.json` 中定义的服务器在 Desktop 聊天使用入口和本地 Code 选项卡会话中都可用。
-
-如果您在 `claude_desktop_config.json` 和 `~/.claude.json` 或 `.mcp.json` 中定义相同的服务器名称，本地会话中的 Code 选项卡只连接一次并使用 `claude_desktop_config.json` 中的定义。
-
-该应用还将来自 `~/.claude.json` 的 stdio 服务器重新传递到本地会话中的嵌入式 CLI。当 `~/.claude.json` 的顶层（用户作用域）和 `.mcp.json` 定义相同的 stdio 服务器名称时，Code 选项卡使用 `~/.claude.json` 中的定义，这与 CLI 的[作用域层次结构](https://code.claude.com/docs/zh-CN/mcp.md#scope-hierarchy-and-precedence)不同。
 
 > [!NOTE]
 >

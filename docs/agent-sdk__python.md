@@ -875,7 +875,7 @@ class ClaudeAgentOptions:
 | `allowed_tools` | `list[str]` | `[]` | 无需提示即可自动批准的工具，但从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)进行的读取除外。这不会限制 Claude 仅使用这些工具。如果您在此处列出[任务跟踪工具](https://code.claude.com/docs/zh-CN/agent-sdk/todo-tracking.md#model-availability)之一，Claude Code 也会为该会话启用它们。其他未列出的工具会交由 `permission_mode` 和 `can_use_tool` 处理。使用 `disallowed_tools` 阻止工具。见 [权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#allow-and-deny-rules) |
 | `system_prompt` | `str \| SystemPromptPreset \| SystemPromptCustom \| SystemPromptFile \| None` | `None` | 系统提示词配置。传递字符串以使用自定义提示词，`{"type": "preset", "preset": "claude_code"}` 以使用 Claude Code 的系统提示词（带可选 `"append"`），`{"type": "custom", "prompt": "..."}` 以使用也可以设置 `"snapshot"` 的自定义提示词，或 `{"type": "file", "path": "..."}` 从磁盘加载大型提示词。见 [`SystemPromptPreset`](#systempromptpreset)、[`SystemPromptCustom`](#systempromptcustom) 和 [`SystemPromptFile`](#systempromptfile) |
 | `mcp_servers` | `dict[str, McpServerConfig] \| str \| Path` | `{}` | MCP 服务器配置或配置文件路径 |
-| `strict_mcp_config` | `bool` | `False` | 当为 `True` 时，仅使用在 `mcp_servers` 中传递的服务器，忽略项目 `.mcp.json`、用户设置、插件提供的 MCP 服务器和 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)。映射到 CLI `--strict-mcp-config` 标志 |
+| `strict_mcp_config` | `bool` | `False` | 当为 `True` 时，使用在 `mcp_servers` 中传入的服务器，并忽略项目 `.mcp.json`、用户设置、插件提供的 MCP 服务器以及 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)。对应 CLI 的 `--strict-mcp-config` 标志 |
 | `permission_mode` | `PermissionMode \| None` | `None` | 工具使用的权限模式 |
 | `continue_conversation` | `bool` | `False` | 继续最近的对话 |
 | `resume` | `str \| None` | `None` | 要恢复的会话 ID |

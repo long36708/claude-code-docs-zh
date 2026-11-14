@@ -340,6 +340,8 @@ const _ = {
 | `Read`、`Edit`、`Glob` | 分析和修改代码 |
 | `Read`、`Edit`、`Bash`、`Glob`、`Grep` | 完全自动化 |
 
+要将 Agent 的内置工具限制为其中一组，请将该组作为 `tools` 传入。如果您改为在 `allowedTools` 中列出一组工具，则是[预先批准这些工具](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools.md#configure-allowed-tools)，Agent 仍可调用其他工具，但须遵循您的权限模式。
+
 **权限模式**控制你想要多少人工监督。SDK 按照固定的顺序评估活跃模式以及你的允许和拒绝规则，详见[权限如何被评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。有关完整的模式列表、它们的行为以及何时使用每种模式，请参阅[代理循环工作原理中的权限模式](https://code.claude.com/docs/zh-CN/agent-sdk/agent-loop.md#permission-mode)。
 
 ## 后续步骤

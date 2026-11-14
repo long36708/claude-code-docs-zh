@@ -505,7 +505,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 | `url` | 是 | 发送 POST 请求的 URL |
 | `headers` | 否 | 其他 HTTP 标头作为键值对。值支持使用 `$VAR_NAME` 或 `${VAR_NAME}` 语法的环境变量插值。仅解析 `allowedEnvVars` 中列出的变量 |
 | `allowedEnvVars` | 否 | 可能被插值到标头值中的环境变量名称列表。对未列出变量的引用被替换为空字符串。任何环境变量插值都需要 |
-| `onFailure` | 否 | hook 失败时对该操作的处理方式：`"continue"`（默认值）或 `"block"`。请参阅 [在 hook 失败时阻止操作](#block-the-action-when-a-hook-fails)。需要 Claude Code v2.1.295 或更高版本 |
+| `onFailure` | 否 | hook 失败时触发该 hook 的操作是否继续进行：`"continue"` 或 `"block"`。有关 `"block"` 以及不设置该字段时的行为，请参阅 [在 hook 失败时阻止操作](#block-the-action-when-a-hook-fails)。需要 Claude Code v2.1.295 或更高版本 |
 
 Claude Code 将 hook 的 [JSON 输入](#hook-input-and-output) 作为 POST 请求体发送，`Content-Type: application/json`。响应体使用与命令 hooks 相同的 [JSON 输出格式](#json-output)。
 
@@ -901,6 +901,10 @@ Failed with non-blocking status code: /bin/sh: /path/to/hook.sh: No such file or
 
 在 `PreToolUse` 上，超时的 `command`、`http` 或 `mcp_tool` hook 不阻止工具调用，但[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails) 除外。调用通过正常[权限流程](https://code.claude.com/docs/zh-CN/permissions.md)继续，因此不要指望停滞的 hook 充当关卡。要在 `command` 或 `http` hook 超时时阻止调用，请设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)。超过其超时时间的 [Agent SDK 回调 hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks.md) 会[阻止工具调用](#pretooluse)。
 
+> [!NOTE]
+>
+> 如果您使用 Code Mode，`PreToolUse` 上的超时处理方式有所不同。请参阅[被 hook 拒绝的工具调用](https://code.claude.com/docs/zh-CN/code-mode.md#tool-call-refused-by-a-hook)。
+
 #### 启动后台进程的 hook
 
 hook 可以启动一个长时间运行的程序（例如开发服务器），并在会话继续期间让其保持运行。在 hook 的脚本或 [shell 形式](#exec-form-and-shell-form)命令中：
@@ -980,6 +984,10 @@ Error: Cannot find module '/path/to/project/.claude/hooks/check-command.js'
 
 * **`Stop`、`SubagentStop`、`TaskCompleted` 和 `TeammateIdle` hook**：这些事件上的退出码 2 会让 Claude 回去继续工作，而 Claude 无法修复无法运行的 hook
 * **后台命令 hook**：设置了 [`async` 或 `asyncRewake`](#run-hooks-in-the-background) 的命令 hook
+
+> [!NOTE]
+>
+> 如果您使用 Code Mode，`PreToolUse` 上的失败处理方式有所不同。请参阅[被 hook 拒绝的工具调用](https://code.claude.com/docs/zh-CN/code-mode.md#tool-call-refused-by-a-hook)。
 
 #### 未安装 Git Bash 的 Windows 上失败的 hook
 
@@ -1512,6 +1520,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 * [会话作用域的定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)触发，包括 `/loop` 迭代
 * [后台子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)向启动它的会话回报时
 * [另一个会话向](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)您的主对话发送消息时
+* 在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#code-output-withheld-by-a-hook) 会话中，当代码可以在后台运行时，Claude 代码的输出（适用于 `command`、`http` 和 `mcp_tool` hook）
 
 对于 `command`、`http` 和 `mcp_tool` 类型，`UserPromptSubmit` hook 的默认超时时间为 30 秒，短于这些类型在大多数其他事件上 600 秒的默认值。由于此 hook 在每个提示词之前运行，并在完成之前阻塞模型处理，卡住的 hook 会使会话停滞。如果您的 hook 需要更多时间，请在 hook 条目中设置 `timeout` 字段。
 
@@ -1560,12 +1569,12 @@ hook 可能恰好在您中断的同一时刻阻止该提示词。此时提示词
 | 字段 | 说明 |
 | :- | :- |
 | `decision` | `"block"` 会在提示词传达给 Claude 之前将其拦下。省略则允许提示词继续 |
-| `reason` | 当 `decision` 为 `"block"` 时显示给用户。不会添加到上下文中 |
+| `reason` | 当 `decision` 为 `"block"` 时向用户显示。不会添加到上下文中，除非 hook 阻止的是 [Code Mode 输出](https://code.claude.com/docs/zh-CN/code-mode.md#code-output-withheld-by-a-hook) |
 | `additionalContext` | 与所提交的提示词一起添加到 Claude 上下文中的字符串。请参阅[为 Claude 添加上下文](#add-context-for-claude) |
 | `sessionTitle` | 设置会话标题。用于根据提示词内容自动命名会话 |
 | `suppressOriginalPrompt` | 如果在 hook 阻止提示词时为 `true`，则在阻止消息中省略提示词文本。请参阅[被阻止的提示词会留下什么](#what-a-blocked-prompt-leaves-behind) |
 
-通过以退出码 2 退出来阻止的 hook，其处理方式与 `reason` 相同：阻止消息会向用户显示 stderr 文本，且不会添加到上下文中。
+如果您的 hook 通过以退出码 2 退出来阻止，其 stderr 文本的处理方式与 `reason` 相同。
 
 ```json theme={null}
 {

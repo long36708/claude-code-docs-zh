@@ -208,7 +208,22 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 
 ### mods API 调用
 
-每个 [mods API 方法](#mods-api-methods)也是一个事件，以其命名空间和方法命名，如 `fs.read`、`model.complete` 或 `ui.open`。其上的 hook 会拦截在它之后运行的 mod 发出的调用，并可以返回 `next(e)`、`{ deny: reason }` 或 `{ value }`。
+每个 [mods API 方法](#mods-api-methods)也是一个事件，以其命名空间和方法命名，如 `fs.read`、`model.complete` 或 `ui.open`。其上的 hook 可以返回 `next(e)`、`{ deny: reason }` 或 `{ value }`。
+
+其中一些事件也会针对 Claude Code 自身的操作触发，因此在拒绝某个事件之前，请先检查 `next.origin.plugin` 是否为 `engine`。
+
+#### Claude Code 自身 `http.fetch` 请求上的字段
+
+在 `http.fetch` hook 中，值为 `{ plugin: 'engine', tier: 'core' }` 的 [`next.origin`](#the-hook-function) 标记的是 Claude Code 自身的请求（例如模型请求），而不是 mod 的 `$.http.fetch` 调用。在加载了[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)的情况下，您的 hook 不会收到这些事件，除非您的 mod [被视为您组织的 mod](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)。
+
+在这些事件中，`e.init` 以及 `next(e)` 解析得到的 `value` 可以包含以下字段等：
+
+| 字段 | 含义 |
+| :- | :- |
+| `e.init.compress` | 当 Claude Code 在您的 hook 之后压缩请求体时设置。`e.init.body` 包含未压缩的请求体。要以未压缩形式发送请求体，请调用 `next({ ...e, init: { ...e.init, compress: undefined } })`。 |
+| `value.isStreaming` | 设为 `true`，因为 Claude Code 会自行读取响应体，所以 `value.text` 为空。请改为读取 `value.status` 和 `value.headers`。要使用您自己的 `text` 应答，请返回不带 `isStreaming` 的 `value`。 |
+
+这些事件和字段需要 Claude Code v2.1.321 或更高版本。
 
 ## mods API 方法
 
@@ -220,7 +235,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`$.ui`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、[`place`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#place-a-row-in-the-transcript)、`focus`、`scroll`、`toast`、`notify`、`status`、`log`、`notice`、`ask`、`copy`、`selection`、`blit`、`view`。`view` 需要 Claude Code v2.1.300 或更高版本，`place` 需要 v2.1.314 或更高版本。 |
 | [`$.theme`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `set`、`clear`：设置一个由 Desktop 或移动应用绘制的背景，以及移除该背景。需要 Claude Code v2.1.319 或更高版本。 |
 | [`$.command`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-command) | `register`、`run`、`list` |
-| [`$.tool`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-tool) | `register`、`call`、`check`、`list` |
+| [`$.tool`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-tool) | `register`、`call`、`check`、`list`。当某次 `call` 需要人工批准时（例如 hook 或您的组织以 `ask` 回应的调用），它会解析为 `{ deny: "<tool> wasn't run: this call needs a person's approval, and a mod's own call can't ask for it." }`，其中 `<tool>` 是该工具的名称。 |
 | `$.agent` | `register`、`spawn`、`list`。`list()` 返回此会话的子代理和队友，每项都带有 `status`，其值为 `pending`、`running`、`waiting`、`idle`、`completed`、`failed` 或 `killed` 之一，其中 `idle` 和 `waiting` 需要 Claude Code v2.1.289 或更高版本。 |
 | [`$.model`](https://code.claude.com/docs/zh-CN/plugins/mods/api#call-a-model) | `complete`、`fork`、`classify` |
 | [`$.prompt`](https://code.claude.com/docs/zh-CN/plugins/mods/api#start-a-turn-from-a-background-job) | `submit`、`read`、`fill`、`suggest`、`compose`。Claude 读取来自 `submit({ text })` 的文本时，前面会有一句指明您的 mod 为发送者的话。`submit({ text, asUser: true })` 将文本作为用户自己的话发送，不带那句话。 |
@@ -248,9 +263,10 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | 位置 | `e.props` | `e.requestId` | 渲染于 |
 | :- | :- | :- | :- |
 | [`Pane`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `title`、`isFocused`、`bodyColumns`、`placement`、`scroll`、`view` | 窗格的 `id` | 终端、Desktop、VS Code |
-| [`AbovePrompt`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `hasSurvey`、`isWorking`、`maxRows`、`bodyColumns`、`scroll`、`view` | 单一实例 | 终端、Desktop |
+| [`AbovePrompt`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `hasSurvey`、[`isCollapsed`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#when-the-user-collapses-the-band)、`isWorking`、`maxRows`、`bodyColumns`、`scroll`、`view` | 单一实例 | 终端、Desktop |
+| `AbovePromptList`，即由 `AbovePrompt` 行组成的堆栈 | `rows`，一个列表，其中每个 mod 的行对应一个 `{ plugin, tree }`，外加 `AbovePrompt` 的 prop | 单一实例 | 终端、Desktop。需要 Claude Code v2.1.323 或更高版本。 |
 | [`Placed`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#place-a-row-in-the-transcript) | `id`、`plugin`、`onScreen` | `$.ui.place` 返回的 `requestId` | 终端 |
-| [`Backdrop`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `id`、`plugin`、`glass`、`colorScheme` | `backdrop` | `desktop` 和 `mobile` 使用入口。当 Desktop 或移动应用请求绘制背景时，您的 hook 会运行。 |
+| [`Backdrop`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `scene`、`plugin`、`glass`、`overrideColorScheme`。在 v2.1.323 之前，`scene` 为 `id`，`overrideColorScheme` 为 `colorScheme`。 | `backdrop` | `desktop` 和 `mobile` 使用入口。当 Desktop 或移动应用请求绘制背景时，您的 hook 会运行。 |
 | `UserMessage` | `text`、`origin`、`isExpanded`，以及视来源而定的 `task` 或 `from` | 所绘制行的 id | 终端、Desktop、VS Code |
 | `AssistantMessage` | 回复的文本 | 所绘制行的 id | 终端、Desktop、VS Code |
 | `ToolUse`, `ToolResult`, `ToolGroup` | 工具的名称、输入和结果 | 工具调用 id | 终端、Desktop、VS Code |
@@ -297,7 +313,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 * **`action`**：指定 Claude Code 自身的某个[快捷键操作](https://code.claude.com/docs/zh-CN/keybindings.md)，当用户为该操作设置的绑定是组合键或带修饰键的按键时，该绑定会按下此按钮
 * **横栏上的数字 hotkey**：当用户在空的输入框中只输入某个数字并停顿时，横栏中设置了该数字 `hotkey` 的按钮也会触发
 * **折叠的横栏**：当横栏处于[折叠](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#when-the-user-collapses-the-band)状态时，`action` 绑定和 hotkey 都不会按下其中的按钮
-* **两个按钮使用同一 hotkey**：当同一次绘制中的两个按钮指定相同的 `hotkey` 时，由后一个按钮获得它
+* **两个按钮使用同一 hotkey**：当您在同一次绘制中的两个按钮指定相同的 `hotkey` 时，由后一个按钮获得它。关于另一个 mod 的按钮使用同一按键的情况，请参阅[Hotkey 不起作用](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#hotkeys-do-nothing)。
 * **`variant`**：`primary` 或 `secondary`，其他任何值都会抛出错误。在终端中，`primary` 按钮会以强调色绘制，除非它设置了 `plain`。
 * **`role`**：`dismiss` 将按钮标记为关闭按钮，其他任何值都会抛出错误。请在您的 `onPress` 中执行关闭操作。在包含文本和一行按钮的横栏中，Desktop 应用可以将该行的第一个 `dismiss` 按钮绘制为其自身的关闭控件。终端会像未设置 `role` 时一样绘制该按钮。
 
@@ -401,6 +417,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | 单个树的嵌套深度 | 根元素以下 32 层 |
 | 单个树中的元素和文本子项 | 20,000 |
 | 单个树中的 `Raster` 单元格，即每个 `Raster` 的 `columns` 乘以其 `rows` | 262,144 |
+| 输入框上方堆叠的行 | 元素、`Raster` 单元格和 `Image` 字节数在这些行之间累加，并按单个树的限制计算 |
 | 单个树中所有 `Image` 的 PNG 或 RGBA 字节数 | 2 MiB |
 | `$.store` | JSON 总计 4 MiB |
 | `$.session.messages()` | 最新的 4,096 个条目 |
@@ -412,7 +429,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | 传递给 `next` 的已更改事件的嵌套深度，[异步生成器 hook](#events)（例如 `turn.step` 上的 hook）除外 | 28,000 层。超过此深度，`next` 会拒绝，消息以 `nesting deeper than 28000 levels is not supported` 结尾。需要 Claude Code v2.1.299 或更高版本。 |
 | hook 返回值的嵌套深度，`ui.render`、`ui.resolve` 和异步生成器 hook 除外 | 28,000 层。超过此深度，该 hook 的结果会被拒绝，[报告此问题的通知](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中包含 `nesting deeper than 28000 levels is not supported`。需要 Claude Code v2.1.299 或更高版本。 |
 | 在 hook 模块的单个文件中相互嵌套的作用域（如函数、代码块和循环） | 2,000 |
-| 命令、工具、子代理类型和窗格名称，以及已放置行或背景的 `id` | 字母、数字、`_` 和 `-`，最多 64 个字符 |
+| 命令、工具、子代理类型和窗格名称，已放置行的 `id`，以及背景的 `scene` | 字母、数字、`_` 和 `-`，最多 64 个字符 |
 | 单个 `claude plugin test` 测试 | 5 秒，除非该测试设置了 `timeoutMs` |
 
 ## 设置和环境变量
@@ -422,7 +439,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | 名称 | 位置 | 作用 |
 | :- | :- | :- |
 | `CLAUDE_CODE_PLUGIN_DIRS` | 环境变量，或 `~/.claude/settings.json` 中的 `env` | 要像 `--plugin-dir` 那样加载的插件目录，用于无法传递标志的应用。以 `:` 分隔的绝对路径，在 Windows 上以 `;` 分隔。 |
-| `CLAUDE_CODE_PLUGIN_DIR_WATCH` | 环境变量 | `1` 使长时间运行的非交互式会话在保存时重新加载 `--plugin-dir` mod |
+| `CLAUDE_CODE_PLUGIN_DIR_WATCH` | 环境变量 | mod 是否在保存时重新加载。有关默认值和可用值，请参阅[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md) |
 | `prependPlugins`, `appendPlugins` | 托管设置。仅在没有托管设置或 [`managed-mcp.json`](https://code.claude.com/docs/zh-CN/managed-mcp#deploy-managed-mcp-json) 文件的机器上、且会话的凭据不是 Team 或 Enterprise `/login` 时，才可在用户设置中使用。 | 插件 id 列表，例如 `acme-guard@acme-tools`。`prependPlugins` 中的 mod 在用户安装的每个 mod 之前运行，`appendPlugins` 中的 mod 在之后运行，均按列出的顺序。请参阅 [mod 运行顺序](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)。 |
 | `allowManagedModsOnly` | 托管设置，作为[内置守卫的选项](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#set-options-on-the-built-in-guard) | 只有[算作您组织的](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods) mod 以及 Claude Code 内置的 mod 会运行其 hook。用户的设置 hook 会继续运行。 |
 | `allowModsToOverrideDenyRules` | 托管设置，作为[内置守卫的选项](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#set-options-on-the-built-in-guard) | 允许用户安装的 mod 批准工具调用，越过大多数[默认保持有效的结果](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)，包括 `deny` 规则 |

@@ -189,8 +189,8 @@ CLI 将消息排队到会话中并退出，无需等待回复。使用它来引�
 
 ```
 Sent to cloud session.
-Session ID: session_01DiUkqY2kzbUbDmW1w96rfi
-View: https://claude.ai/code/session_01DiUkqY2kzbUbDmW1w96rfi?from=cli&m=0
+Session ID: session_01HJKLMNOPQRSTUVWXYZ
+View: https://claude.ai/code/session_01HJKLMNOPQRSTUVWXYZ?from=cli&m=0
 ```
 
 传递 `--output-format json` 以获得机器可读的结果：成功时为 `{ok, session_id, url}`，或发送失败时为 `{ok: false, session_id, error}`，例如当会话缺失或已存档时。配置错误（例如不支持的提供商或禁用的组织策略）打印到 stderr，不带 JSON。`--output-format stream-json` 不支持 `--cloud <session-id>`。

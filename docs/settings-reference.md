@@ -884,7 +884,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 }
 ```
 
-请参阅[将所有 shell 命令交由分类器处理](https://code.claude.com/docs/zh-CN/auto-mode-config.md#route-all-shell-commands-through-the-classifier)。
+此键在 Code Mode 会话中的工作方式有所不同。请参阅[将所有 shell 命令交由分类器处理](https://code.claude.com/docs/zh-CN/auto-mode-config.md#route-all-shell-commands-through-the-classifier)。
 
 ### `disableAutoMode`
 
@@ -1355,21 +1355,21 @@ no approval surface in this session; permission request denied automatically
 
 ### `sandbox.autoAllowBashIfSandboxed`
 
-让 Claude Code 在没有权限提示的情况下运行沙箱化的 Bash 命令。无法在沙箱中运行的命令仍会走常规权限流程，`deny` 规则和限定内容的 `ask` 规则（例如 `Bash(git push *)`）仍然适用；单独的 `Bash` ask 规则对沙箱化命令会被跳过。将其设置为 `false` 可让沙箱化命令也走常规权限流程，`/sandbox` 的 **Mode** 选项卡将此称为常规权限模式。
+让 Claude Code 无需权限提示即可运行沙箱化的 Bash 命令。无法在沙箱中运行的命令仍会经过常规权限流程。`deny` 规则以及限定内容的 `ask` 规则（例如 `Bash(git push *)`）仍然适用，但对于沙箱化命令，会跳过单纯的 `Bash` ask 规则。如需在托管设置中将其设为 `true`，请将其添加到您[排名最高的托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)的 `sandbox` 块中。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：布尔值
   * `true`：Claude Code 在没有权限提示的情况下运行沙箱化的 Bash 命令，[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#auto-allow-mode)中描述的情况除外；`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` 会关闭自动允许
   * `false`：沙箱化命令走常规权限流程，由您的允许规则和权限模式决定。`/sandbox` 的 **Mode** 选项卡将此称为常规权限模式
-* **默认值**：`true`
+* **默认值**：`false`。在 v2.1.324 之前，默认值为 `true`
 
-以下配置保持沙箱启用，并让沙箱化命令走常规权限流程：
+如需保持沙箱启用并在无权限提示的情况下运行沙箱化命令，请在 `sandbox` 块中同时设置这两个键：
 
 ```json settings.json theme={null}
 {
   "sandbox": {
     "enabled": true,
-    "autoAllowBashIfSandboxed": false
+    "autoAllowBashIfSandboxed": true
   }
 }
 ```
@@ -1653,7 +1653,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 }
 ```
 
-关闭该层后，Claude Code 不会强制执行 `denyRead` 或 `credentials.files` 的 `deny` 条目，而 `credentials.envVars` 条目和已应用的 `mask` 条目仍然有效。[`autoAllowBashIfSandboxed`](#sandbox-autoallowbashifsandboxed) 仍默认为 `true`，因此请将其设置为 `false` 以继续显示提示。有关可以设置它的完整来源列表以及关闭隔离后的变化，请参阅[禁用文件系统隔离](https://code.claude.com/docs/zh-CN/sandboxing.md#disable-filesystem-isolation)。
+关闭该层后，Claude Code 不会强制执行 `denyRead` 或 `credentials.files` 的 `deny` 条目，而 `credentials.envVars` 条目和已应用的 `mask` 条目仍然有效。有关可以设置它的完整来源列表以及关闭隔离后的变化，请参阅[禁用文件系统隔离](https://code.claude.com/docs/zh-CN/sandboxing.md#disable-filesystem-isolation)。
 
 ### `sandbox.ignoreViolations`
 
@@ -2454,7 +2454,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
 
 #### `env` 值如何与您的 shell 交互
 
-* 此处的值会覆盖您在 shell 中导出的同名变量；当多个设置文件设置了同一变量时，以[优先级最高](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)的为准。[Claude Code 在 `env` 中忽略的变量](#variables-claude-code-ignores-in-env)列出了项目设置和本地设置的例外情况。
+* 此处的值会覆盖您在 shell 中导出的同名变量；当多个设置文件设置了同一变量时，以[优先级最高](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)的为准。[Claude Code 在 `env` 中忽略的变量](#variables-claude-code-ignores-in-env)列出了例外情况。
 * 当 Claude Desktop 应用或[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)运行器启动会话时，它所构建的启动环境优先：对于启动环境已设置的变量，Claude Code 会忽略任何设置文件中的 `env` 值。[调试日志](https://code.claude.com/docs/zh-CN/debug-your-config.md)会列出每个被忽略的变量。
 * 要取消 shell 中的导出，请将该变量设置为 `""`。在选择提供商时，Claude Code 将空值视为未设置，而子进程会继承该空值。
 * 在此处设置的 `NO_COLOR` 和 `FORCE_COLOR` 仅作用于子进程。要更改 Claude Code 自身的界面颜色，请在启动 `claude` 之前在 shell 中设置它们。
@@ -2495,6 +2495,7 @@ Claude Code 仅对沙箱化命令强制执行此设置；`WebFetch` 等进程内
   * [`CLAUDE_CODE_DISABLE_FILE_MENTIONS`](https://code.claude.com/docs/zh-CN/env-vars#variables)，用于阻止 Claude Code 展开对文件和目录的 `@` 提及。
 
   在 v2.1.251 之前，项目设置和本地设置还可以设置此列表中选择 Claude Code 文件写入位置或导出会话内容的变量，但 `HOME` 和 `XDG_CONFIG_HOME` 除外。在 v2.1.290 之前，它们还可以设置对话框计时器变量和 `CLAUDE_CODE_DISABLE_ATTACHMENTS`。
+* 您可以在 shell、用户设置或 `--settings` 文件中通过 [`CLAUDE_CODE_EXPERIMENTAL_CODE_MODE`](https://code.claude.com/docs/zh-CN/env-vars#variables) 开启 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)，但不能在托管设置、项目设置或本地设置中开启。如果前三者中的任何一个或托管设置中将其设为 `0`，则无论您在其他位置如何设置，Code Mode 都保持关闭。当托管设置中包含 `1` 时，请在用户设置中设置您自己的 `1`，因为 shell 中的 `1` 会被忽略
 * 由 Claude Code 托管环境所拥有的身份变量（例如 `CLAUDE_CODE_REMOTE` 和 `CLAUDE_CODE_ACCOUNT_UUID`）在所有文件中都会被忽略。
 * [`CLAUDE_CODE_MESSAGING_SOCKET` 和 `CLAUDE_CODE_MESSAGING_TOKEN`](https://code.claude.com/docs/zh-CN/env-vars#variables) 由 Claude Code 自行导出，在所有文件中都会被忽略。忽略 socket 变量需要 Claude Code v2.1.224 或更高版本，忽略 token 变量需要 v2.1.228 或更高版本。
 * [`CLAUDE_CODE_PROJECT_DIR_NAME`](https://code.claude.com/docs/zh-CN/sessions#name-the-project-directory-yourself) 仅由 Claude Code 从启动环境中读取，在所有文件中都会被忽略；需要 v2.1.234 或更高版本。
@@ -4869,7 +4870,7 @@ Claude Code 首先读取托管设置，然后读取 `--settings` 标志，再读
 
 ### `agentPushNotifEnabled`
 
-允许 Claude 在认为值得发送时向您的手机发送推送通知，例如在长时间任务完成时。在本地会话中，Claude 可以在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 已连接时发送通知。在 `/config` 中显示为 **Push when Claude decides**。在该处更改时，Claude Code 还会将该值保存到您的账户。
+允许 Claude 在认为值得发送时向您的手机发送推送通知，例如在长时间任务完成时。在本地会话中，Claude 可以在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 已连接时发送通知。在 `/config` 中显示为 **Push when Claude decides**。
 
 * **作用域**：[`Any file`](#scopes)。Claude Code 也会读取旧版本遗留在 `~/.claude.json` 中的值。
 * **类型**：Boolean
@@ -4883,9 +4884,9 @@ Claude Code 首先读取托管设置，然后读取 `--settings` 标志，再读
 }
 ```
 
-如果您在 [`claude remote-control`](https://code.claude.com/docs/zh-CN/remote-control#start-a-remote-control-session) 服务器下运行会话，这些会话将遵循保存在您账户中的值，而不是此设置项。要更改该值，请在终端的 Claude Code 会话中运行 `/config`，并打开或关闭 **Push when Claude decides**。如果开关已显示您想要的值，请先更改再改回，以便 Claude Code 将该值保存到您的账户。
+仅凭此设置项您不会收到通知。要进行设置，请按照[移动推送通知](https://code.claude.com/docs/zh-CN/remote-control.md#mobile-push-notifications)中的步骤操作。
 
-请参阅 [移动推送通知](https://code.claude.com/docs/zh-CN/remote-control.md#mobile-push-notifications)。
+如果您在 [`claude remote-control`](https://code.claude.com/docs/zh-CN/remote-control#start-a-remote-control-session) 服务器下运行会话，这些会话将遵循保存在您账户中的值，而不是此设置项。要更改该值，请在终端的 Claude Code 会话中运行 `/config`，并打开或关闭 **Push when Claude decides**。如果开关已显示您想要的值，请先更改再改回，以便 Claude Code 将该值保存到您的账户。
 
 ### `awaySummaryEnabled`
 
@@ -5042,7 +5043,7 @@ Claude Desktop 会向 Code 会话提供从您的桌面配置派生的策略，�
 }
 ```
 
-请参阅 [移动推送通知](https://code.claude.com/docs/zh-CN/remote-control.md#mobile-push-notifications)。
+仅凭此设置项您不会收到通知。要进行设置，请按照[移动推送通知](https://code.claude.com/docs/zh-CN/remote-control.md#mobile-push-notifications)中的步骤操作。
 
 ### `preferredNotifChannel`
 
@@ -5420,18 +5421,18 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 ### `minimumVersion`
 
-阻止后台自动更新和 `claude update` 安装低于此版本的任何版本，这样切换到 `"stable"` 渠道时不会使您从较新的 `"latest"` 构建版本降级。当您在 `/config` 中切换渠道并选择保留当前版本时，Claude Code 会自动为您写入此键；当您切换回 `"latest"` 时则会清除它。
+阻止后台自动更新和 `claude update` 安装低于您所设置版本的任何版本。当您在 `/config` 中切换渠道并选择保留当前版本时，Claude Code 会自动为您写入此键。当您在 `/config` 中切换回 `"latest"` 时，Claude Code 会清除此键。
 
-* **作用域**：[`Any file`](#scopes)。在托管设置中设置此项，可固定一个用户设置和项目设置无法调低的组织级最低版本。
-* **类型**：字符串，即版本号，例如 `"2.1.100"`；无效的版本值将被忽略
+* **作用域**：[`Any file`](#scopes)。在托管设置中设置此键，可固定一个用户设置和项目设置无法覆盖的组织级最低版本。
+* **类型**：字符串，即版本号，例如 `"2.1.323"`；无效的版本值将被忽略
 * **默认值**：未设置，因此更新可以安装该渠道提供的任何版本
 
-以下示例遵循 stable 渠道，并拒绝安装低于 2.1.100 的任何版本：
+以下示例遵循 stable 渠道，并拒绝安装低于 2.1.323 的任何版本：
 
 ```json settings.json theme={null}
 {
   "autoUpdatesChannel": "stable",
-  "minimumVersion": "2.1.100"
+  "minimumVersion": "2.1.323"
 }
 ```
 

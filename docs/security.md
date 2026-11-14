@@ -25,7 +25,7 @@
 
 为了降低代理系统中的风险：
 
-* **沙箱化 bash 工具**：使用文件系统和网络隔离的 [Sandbox](https://code.claude.com/docs/zh-CN/sandboxing.md) bash 命令，减少权限提示同时保持安全性。使用 `/sandbox` 配置以定义 Claude Code 可以自主工作的边界
+* **沙箱化 Bash 工具**：通过文件系统和网络隔离对 Bash 命令进行[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)处理。使用 `/sandbox` 进行配置
 * **工作目录边界**：在 Manual mode 中，Claude Code 的文件工具在读取或写入启动它的文件夹及其子文件夹之外的内容之前会先询问您。该边界是一个权限提示，因此您批准的 Bash 命令仍然可以写入您的用户账户有权写入的任何位置
   * 要在没有提示的情况下读取某个文件夹，请将其添加为[额外目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)
   * 要在操作系统层面限制 Bash 命令，请启用[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md#filesystem-isolation)
@@ -62,7 +62,7 @@
 * **信任验证**：在交互式会话中，当您在尚未信任的文件夹中启动 Claude Code 时，它会显示工作区信任对话框。项目 `.mcp.json` 中的服务器有其单独的批准提示，[项目作用域](https://code.claude.com/docs/zh-CN/mcp.md#project-scope) 列出了跳过该提示的会话
   * 注意：`-p` 会话不会显示上述任何一种提示。[信任文件夹之前会运行什么](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 列出了仓库中的文件在此情况下可以运行的内容
   * 注意：当您直接在主目录中启动 Claude Code 时，信任接受仅在当前会话期间保持，不会写入磁盘，因此提示在每次启动时都会重新出现。没有设置可以持久化它。请从项目子目录启动 Claude Code，其中信任接受按目录保存
-* **命令注入检测**：在手动模式下，Claude Code 在运行无法完全分析的 Bash 命令之前会先询问。针对命令一部分的允许规则（如 `Bash(git *)`）不会跳过该提示。[沙箱隔离的命令](https://code.claude.com/docs/zh-CN/permissions.md#how-permissions-interact-with-sandboxing)可以在没有该提示的情况下运行
+* **命令注入检测**：在手动模式下，Claude Code 在运行无法完全分析的 Bash 命令之前会先询问。针对命令一部分的允许规则（如 `Bash(git *)`）不会跳过该提示。处于[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#auto-allow-mode)下的[沙箱隔离的命令](https://code.claude.com/docs/zh-CN/permissions.md#how-permissions-interact-with-sandboxing)可以在没有该提示的情况下运行
 * **故障关闭匹配**：在手动模式下，不匹配的命令默认需要批准
 * **安全凭据存储**：API 密钥和令牌在可用时存储在 macOS Keychain 中。在 Linux 上，它们存储在模式为 `0600` 的文件中；在 Windows 上，它们存储在继承您用户配置文件目录访问控制的文件中。请参阅 [Credential Management](https://code.claude.com/docs/zh-CN/authentication.md#credential-management)
 

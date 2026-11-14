@@ -252,7 +252,13 @@ Claude Code 仅在启动时读取 Workload Identity Federation 变量以及 `ANT
 
 缓存的 `env` 块中的其他所有键都在启动时生效。一旦服务器确认负载，并且在需要[安全批准](#security-approval-dialogs)时您已批准，被暂缓的变量将在会话的剩余时间内生效。
 
-如果您的组织需要通过代理访问 `api.anthropic.com`，暂缓只影响服务器提供的 `env` 块本身：通过 MDM 或 `managed-settings.json` 在[端点托管](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)的 `env` 块中设置的代理、在 shell 环境中设置的代理，或在[用户设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中设置的代理，都会作用于设置获取。端点托管来源需要 Claude Code v2.1.223 或更高版本：缓存的服务器托管代理值在获取确认之前被暂缓，因此端点托管的值会按键填补并作用于获取本身。在 v2.1.223 之前，请使用 shell 环境或用户设置，使代理与缓存的服务器负载同时生效。首次启动时没有缓存，因此初始获取仍需要端点托管来源、shell 环境或用户设置。
+如果获取需要通过代理，请在以下位置之一设置 `HTTPS_PROXY`：
+
+* 通过 MDM 或 `managed-settings.json` 设置的[端点托管](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms) `env` 块。此来源需要 Claude Code v2.1.223 或更高版本。在 v2.1.223 之前，请使用 shell 环境或用户设置，使代理[与缓存的服务器负载同时生效](#per-key-exceptions-across-managed-sources)。
+* shell 环境
+* [用户设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)
+
+即使 `ALL_PROXY` 已经指定了该代理，也请设置 `HTTPS_PROXY`。
 
 Claude Code 会将大多数设置更新应用到正在运行的会话中，无需重启。某些更新仅在下次启动时生效，包括 OpenTelemetry 导出器配置、`model` 键，以及从 `env` 块中移除变量。
 

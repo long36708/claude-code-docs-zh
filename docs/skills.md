@@ -22,7 +22,7 @@ Claude Code skills 遵循 [Agent Skills](https://agentskills.io) 开放标准，
 
 Claude Code 包含一组捆绑技能，例如 `/doctor`、`/code-review`、`/batch`、`/debug`、`/loop` 和 `/claude-api`。捆绑技能是基于提示的：它们为 Claude 提供详细的指令，让它使用其工具来协调工作。大多数内置命令则直接执行固定逻辑。
 
-输入 `/` 后跟 skill 名称即可调用随附 skill。Claude 在相关时会自动调用某些随附 skill；其他 skill（包括 [`/verify`](#run-and-verify-your-app)）仅在您调用它们时运行。
+输入 `/` 后跟 skill 名称即可调用随附 skill。Claude 在相关时会自动调用某些随附 skill。
 
 大多数捆绑技能在每个会话中都可用。少数技能取决于特定功能：例如，`/workflow-authoring` 仅在[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)启用时可用。
 
@@ -320,7 +320,9 @@ Claude Code 监视 skill 目录的文件更改，除了在 [bare mode](https://c
 
 如果您创建了会话启动时不存在的顶级 skills 目录，请运行 [`/reload-skills`](https://code.claude.com/docs/zh-CN/commands#all-commands) 以获取您放在那里的 skills。Claude Code 还没有监视该目录，因此在稍后每次更改后再次运行 `/reload-skills`。
 
-实时更改检测仅涵盖 `SKILL.md` 文本。对于也是 [插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#plugins-shared-through-a-repository) 的 skill 文件夹，对 `hooks/`、`.mcp.json`、`agents/` 和 `output-styles/` 的更改需要 `/reload-plugins` 才能生效。
+> [!NOTE]
+>
+> 实时更改检测涵盖 `SKILL.md` 文本。对于也是 [插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#plugins-shared-through-a-repository) 的 skill 文件夹，对 `.mcp.json`、`agents/` 和 `output-styles/` 的更改需要 `/reload-plugins` 才能生效。对 `hooks/` 的更改也需要它，但 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 的模块文件在 [自行重新加载](https://code.claude.com/docs/zh-CN/env-vars.md) 时除外。
 
 ### 删除 skill
 
@@ -787,7 +789,11 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
 
 注入命令在技能呈现时永远不会提示权限。Claude Code 首先根据你的[权限规则](https://code.claude.com/docs/zh-CN/permissions.md)检查每一个。命令与拒绝规则匹配的命令会中止调用，显示 `Shell command permission check failed for pattern "..."`。
 
-在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)之外，当命令的权限检查返回除允许之外的任何结果时，Claude Code 都会以相同的错误中止调用。这包括通常会询问您的规则。为避免未匹配的命令在此处导致中止，请使用 [`allowed-tools`](#pre-approve-tools-for-a-skill) 预先批准它。如果您的组织将权限规则限制为仅来自托管设置，请参阅[仅应用托管权限规则时](#when-only-managed-permission-rules-apply)。拒绝规则和询问规则仍然会覆盖 `allowed-tools`。请参阅[管理权限](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)。
+在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)之外，当命令的权限检查返回除允许之外的任何结果时，Claude Code 都会中止调用。为避免未匹配的命令导致中止，请使用 [`allowed-tools`](#pre-approve-tools-for-a-skill) 预先批准它，但须遵守以下限制：
+
+* **拒绝规则和询问规则**：与其中任一规则匹配的命令仍会导致中止。要查找该规则，请参阅[管理权限](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)。
+* **仅托管规则**：如果会话中的 `/status` 将该 skill 列在 `allowed-tools ignored this session` 下，请参阅[仅应用托管权限规则时](#when-only-managed-permission-rules-apply)。
+* **未经验证的 Git 文件夹**：如果某个 `HEAD` 或 `.git` 文件可能不属于您，对于包含 `git` 或 Claude Code 无法解析的 Bash 命令，Claude Code 会忽略 `allowed-tools`。如果您信任该文件夹（例如您自己的裸仓库的 worktree），请在会话中使用 [`/permissions`](https://code.claude.com/docs/zh-CN/permissions#manage-permissions) 允许该命令。
 
 在自动模式中，原本需要你批准的命令不会中止调用。技能加载时带有指令，告诉 Claude 首先运行该命令，然后 Claude 自己的调用通过[自动模式的常规检查](https://code.claude.com/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)。调用仍然会在[分叉技能](#run-skills-in-a-subagent)中中止，该技能设置 `agent`，以及在 Claude 没有[运行注入命令的 shell 工具](#how-injected-commands-run)的会话中。
 

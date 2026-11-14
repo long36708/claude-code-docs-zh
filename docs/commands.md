@@ -147,7 +147,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/stats` | `/usage` 的别名。在 Stats 选项卡上打开 |
 | `/status` | 在 Status 选项卡上打开设置界面，显示版本、模型、账户和连接状态。在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，`Session kind` 行会显示 `background job · attached` 或 `background job · unattended`（取决于是否附加了终端），在其他任何会话中显示 `interactive`。在 v2.1.221 之前，`/status` 不显示此行。在 Claude 回复时也可使用 |
 | `/statusline` | 配置 Claude Code 的[状态栏](https://code.claude.com/docs/zh-CN/statusline.md)。描述您想要的内容，或不带参数运行以根据您的 shell 提示符自动配置 |
-| `/stickers` | 订购 Claude Code 贴纸 |
+| `/stickers` | 查看 Claude Code 贴纸的可用情况 |
 | `/stop` | 停止您已附加到的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，或您以[窥视回复](https://code.claude.com/docs/zh-CN/agent-view.md#peek-and-reply)方式发送此命令的目标会话；会话记录和任何 worktree 都会保留。要分离而不停止，请使用 `/exit` 或按 `←` |
 | `/subtask <task>` | 生成一个[分叉子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)：一个继承完整对话的后台子代理，在您继续工作的同时处理该任务。完成后，其结果会返回到此对话。要改为将对话复制到单独的后台会话中，请使用 `/fork`。当[关闭 Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md#turn-off-agent-view)时，`/subtask` 不可用，`/fork` 会改为生成分叉子代理 |
 | `/tasks` | 查看和管理当前会话中的后台工作，包括已完成的子代理。也可作为 `/bashes` 使用 |
@@ -159,9 +159,9 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/ultraplan <prompt>` | 已移除。请改用[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)。以前会将规划任务发送到[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，以便在浏览器中审阅 |
 | `/ultrareview [PR or branch]` | 使用 [ultrareview](https://code.claude.com/docs/zh-CN/ultrareview.md) 在云端沙箱中运行深度多 Agent 代码审查。传递 PR 引用可审查该 Pull Request，或传递基准分支或提交以更改比较基准。首选调用方式是 `/code-review ultra`，`/ultrareview` 是其别名。Pro、Max 和 Ultra 包含 3 次免费运行，之后需要[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans) |
 | `/update-config [request]` | **[Skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。** 描述一项设置更改，例如允许某个命令、设置环境变量或添加 [hook](https://code.claude.com/docs/zh-CN/hooks.md)，Claude 会编辑相应的 [`settings.json`](https://code.claude.com/docs/zh-CN/settings) 文件。对于主题和模型等选项，请改用 `/config` |
-| `/upgrade` | 在浏览器中打开升级页面，以切换到更高的套餐级别。当浏览器无法打开时，该命令会显示登录提示，但不会输出 URL |
+| `/upgrade` | 在浏览器中打开升级页面，以切换到更高的套餐级别。当没有浏览器能够打开该页面时（例如通过 SSH），该命令会在其登录提示上方输出该页面的 URL。输出 URL 需要 Claude Code v2.1.323 或更高版本 |
 | `/usage` | 显示会话开销、套餐用量限制和活动统计信息。在 Pro、Max、Ultra、Team 或 Enterprise 套餐上，包括[计入套餐限制的内容明细](https://code.claude.com/docs/zh-CN/costs.md#plan-usage-breakdown)。在跟踪支出的 Claude apps gateway 之后使用时，显示[您通过该网关产生的支出](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md#usage-warnings-in-claude-code)。`/cost` 和 `/stats` 是其别名 |
-| `/usage-credits` | 在达到限制时配置使用额度，或向管理员申请使用额度。在浏览器中打开您的[使用额度计费设置](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)；但没有计费访问权限的 Team 和 Enterprise 成员会在对话框中确认该请求会通知其管理员后，改为从 CLI 向管理员发送使用额度请求。当无法打开浏览器访问计费页面时（例如通过 SSH），该命令会改为输出要访问的 URL；这需要 Claude Code v2.1.205 或更高版本，更早版本在这种情况下不显示任何内容。以前为 `/extra-usage` |
+| `/usage-credits` | 在达到限制时配置使用额度，或向管理员申请使用额度。在浏览器中打开您的[使用额度计费设置](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)。没有计费访问权限的 Team 和 Enterprise 成员则会改为从 CLI 向其管理员发送使用额度请求。在无法通过浏览器打开该页面的终端中（例如通过 SSH），该命令会输出 URL。输出 URL 需要 Claude Code v2.1.205 或更高版本。以前为 `/extra-usage` |
 | `/verify` | **[Skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。** 通过构建、运行您项目的应用并观察结果来确认代码更改是否按预期工作，而不是依赖测试或类型检查。请参阅[运行并验证您的应用](https://code.claude.com/docs/zh-CN/skills.md#run-and-verify-your-app) |
 | `/vim` | 已在 v2.1.92 中移除。要在 Vim 和 Normal 编辑模式之间切换，请使用 `/config` → Editor mode |
 | `/voice [hold\|tap\|off]` | 切换[语音听写](https://code.claude.com/docs/zh-CN/voice-dictation.md)，或以特定模式启用它。需要 Claude.ai 账户 |

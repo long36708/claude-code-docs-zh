@@ -61,8 +61,9 @@
   * 会话使用 Team 或 Enterprise 计划的 [`/login` 凭据](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence)运行
 
   使用 API 密钥的用户，或通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 的用户，仅在具有托管设置或 `managed-mcp.json` 的机器上获得内置守卫。使用长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话也不算作上述登录，即使机器上存储了 Team 或 Enterprise 登录信息。
-* **保护程序保护您管理的内容。** 用户的 mod 无法更改您的托管 hooks 接收或决定的内容、系统提示、您的托管 `CLAUDE.md` 和其他托管说明、任何 mod 读取的设置内容，或您的托管 MCP 服务器的工具和描述。
-* **在您管理的内容之外，用户的 mod 以该用户身份行事。** mod 保留该用户的权限：它仍然可以读写文件、启动进程和发出网络请求。它还可以重写工具调用和提示词、拒绝工具调用，以及在界面中绘制。
+* **守卫保护您管理的内容。** 用户的 mod 无法更改您的托管 hook 接收或决定的内容、系统提示词，或您的托管 `CLAUDE.md` 和其他托管说明。它也无法更改任何 mod 读取的设置内容，或您的托管 MCP 服务器连接后的工具和描述。
+* **在 v2.1.323 或更高版本上，用户的 mod 可以阻止托管 MCP 服务器连接。** 在该用户的会话中，`/mcp` 会将该服务器列为被该 mod 拦截。要防止这种情况，请[阻止用户安装的 mod 加载](#stop-user-installed-mods-from-loading)。
+* **在您管理的内容之外，用户的 mod 以该用户身份行事。** mod 保留该用户的权限：它仍然可以读写文件、启动进程和发出网络请求。它还可以重写工具调用和提示词、拒绝工具调用、添加或移除工具，以及在界面中绘制。
 * **权限规则和 `PreToolUse` hook 优先于用户的 mod。** 加载内置守卫后，默认情况下，用户的 mod 无法批准 `deny` 规则拒绝的调用或 `ask` 规则会提示的调用，无论哪个设置文件持有该规则。mod 也无法批准任何 `PreToolUse` hook 阻止的调用。
 
   权限规则和 `PreToolUse` hook 适用于 Claude 的工具调用，而不适用于 mod 的 [`$.fs` 和 `$.process` 调用](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)。即使 `Read(.env)` 被拒绝，mod 仍然可以使用 `$.fs.read` 读取该文件，或启动执行此操作的程序。要限制 mod 自身的 `$.fs` 和 `$.process` 调用，请[阻止该 mod 加载](#stop-user-installed-mods-from-loading)，或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中处理这些调用。
@@ -159,13 +160,16 @@ claude plugin validate ./some-mod
 输出中的 `hooks:` 和 `calls:` 行描述了 mod 的代码：
 
 ```text theme={null}
-  ❯ ./register.js hooks: session.start, tool.call, ui.render{component=Pane}
+  ❯ ./register.js hooks: session.start, tool.call, ui.render{component=Pane} (default matcher key: plugin)
   ❯ ./register.js calls: $.fs.read, $.http.fetch, $.store.set, $.ui.open
 ```
 
-`hooks:` 行列出了 mod 接收的事件。`calls:` 行列出了其代码调用的 mods API 方法。[mods API](https://code.claude.com/docs/zh-CN/plugins/mods/api.md)（在 mod 的代码中写作 `$`）是 mod 到达文件、进程和网络的方式。Claude Code 拒绝加载以此命令无法读取的方式使用 mods API 的 mod。
+* **`hooks:`**：mod 接收的事件。`default matcher key: plugin` 注释表示其前面的 hook [会跳过其他 mod 的控件和绘制内容](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#hook-other-mods-drawings-and-controls)。
+* **`calls:`**：其代码调用的 mods API 方法
 
-查看 `calls:` 行以获取这些：
+[mods API](https://code.claude.com/docs/zh-CN/plugins/mods/api.md)（在 mod 的代码中写作 `$`）是 mod 到达文件、进程和网络的方式。Claude Code 拒绝加载以此命令无法读取的方式使用 mods API 的 mod。
+
+不要批准未通过此命令的 mod，因为某些失败并不会阻止它加载。请在 Claude Code v2.1.323 或更高版本上运行此命令（在这些版本中，较长的列表会以相同标签延续到更多行），并阅读每一行 `hooks:` 和 `calls:`。在 `calls:` 行中，查找以下内容：
 
 | 调用 | 它的含义 |
 | :- | :- |
@@ -174,7 +178,7 @@ claude plugin validate ./some-mod
 | `$.http.fetch` | 发出网络请求 |
 | `$.env.get`, `$.settings.read` | 读取环境变量和设置，可以保存 API 密钥。输出中的 `env reads:` 行命名每个变量。 |
 | `$.env.set` | 为 Claude Code 以及它启动的每个命令和 MCP 服务器设置环境变量，可以改变这些程序运行的内容。`env writes:` 行命名每个变量。 |
-| `$.mcp.call` | 在连接的 MCP 服务器上调用工具，在会话的权限规则下 |
+| `$.mcp.call` | 在连接的 MCP 服务器上调用工具，不会出现权限提示。在拒绝规则或托管询问规则下，Claude Code 会拒绝该调用。对于标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的工具，或您的组织[设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的工具（在该设置适用于 Claude Code 的情况下），它也会拒绝调用。 |
 | `$.model.complete` | 使用用户的计划或 API 密钥进行模型调用 |
 | `$.prompt.submit` | 提交提示，可以将其作为用户自己的话语发送 |
 | `$.session.send` | 发送另一个会话、子代理或[队友](https://code.claude.com/docs/zh-CN/agent-teams.md)的 Claude 读取的消息 |
@@ -316,7 +320,7 @@ Claude Code 复制到其缓存中的插件计为用户的，即使托管的 `ena
 
 Claude Code 每次即将采取行动（例如运行工具）时都会触发一个事件，并依次将其传递给每个 mod。计为您的 mod [在用户 mod 之前运行](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)，即使您没有在任何地方列出它。要设置其位置，请在两个设置之一中列出其 id。id 是插件的名称、`@` 和市场的名称，例如 `acme-guard@acme-tools`。
 
-* **`prependPlugins`**：您的 mod 在任何用户 mod 之前看到每个事件，并在之后看到每个结果。它可以更改事件、拒绝事件或跳过用户 mod。
+* **`prependPlugins`**：您的 mod 在任何用户 mod 之前看到事件，并在它们之后看到事件的结果。它可以更改事件、拒绝事件或跳过用户 mod。在 v2.1.323 或更高版本上，请检查您的 hook 是否仍能[触及其他 mod 的控件和绘制内容](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#hook-other-mods-drawings-and-controls)。
 * **`appendPlugins`**：您的 mod 在每个用户 mod 之后运行，因此它只看到这些 mod 传递的事件，并以它们传递的形式看到
 
 此示例在 `/opt/acme/claude-plugins` 声明 `acme-tools` 市场，启用来自它的 `acme-guard`，并首先运行该 mod，内置守卫在其后：
@@ -358,6 +362,10 @@ Claude Code 每次即将采取行动（例如运行工具）时都会触发一�
 要阻止每个用户的 mod，您不需要自己的 mod。设置 [`allowManagedModsOnly`](#stop-user-installed-mods-from-loading) 即可。当您想允许某些用户的 mod 并拒绝其他的，或记录 mod 的行为时，请编写策略 mod。
 
 每次另一个 mod 即将加载时，您的 mod 会在名为 [`plugin.register`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#other-mods) 的事件中收到 `claude plugin validate` 打印的列表。`prependPlugins` 中的 mod 可以读取该列表并拒绝该 mod。它也可以[按名称处理任何 mods API 调用](https://code.claude.com/docs/zh-CN/plugins/mods/api.md#reach-files-processes-and-the-network)，以便针对每个其他 mod 记录或拒绝该调用。名称是去掉 `$.` 的方法，因此 `fs.write` 上的 hook 会看到每个 `$.fs.write` 调用。
+
+> [!NOTE]
+>
+> 在 v2.1.323 或更高版本上，`ui.focus` hook 需要更宽的匹配器才能接收其他 mod 的 `$.ui.focus` 调用。请参阅[对其他 mod 的绘制内容和控件设置 hook](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#hook-other-mods-drawings-and-controls)。
 
 此策略 mod 拒绝任何自身代码调用 `$.process.run` 或 `$.process.spawn` 的用户 mod。它还保留审计日志，将每个工具调用和 mod 写入的每个文件写入调试日志。因为它首先运行，日志记录的是请求的原始内容，在任何用户 mod 更改之前。将其保存为 `acme-guard/hooks/register.js`：
 
@@ -403,7 +411,9 @@ export function register(on) {
 * **`e.tier`**：mod 将运行的位置，为 `prepend`、`user`、`append` 或 `builtin` 之一。用户安装的每个 mod 都是 `user`。
 * **`e.uses.calls`**：mod 调用的 mods API 方法，每个写作 `namespace.method`，例如 `process.run`，不带 `claude plugin validate` 打印的 `$.`
 
-当用户安装调用 `$.process.run` 的 mod 时，该 mod 不会加载，其调试日志中有一行以 `refused by acme-guard:` 和您的原因结尾。在[热重新加载插件目录的会话](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中，拒绝信息也会出现在会话记录中。要在不拒绝整个 mod 的情况下阻止某个调用，请从该调用名称上的 hook 返回 `{ deny: 'your reason' }`。
+当用户安装调用 `$.process.run` 的 mod 时，该 mod 不会加载，其调试日志中有一行以 `refused by acme-guard:` 和您的原因结尾。在[热重新加载插件目录的会话](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中，拒绝信息也会出现在会话记录中。
+
+要在不拒绝整个 mod 的情况下阻止某个调用，请在[检查是谁发起了该调用](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#mods-api-calls)之后，从该调用名称上的 hook 返回 `{ deny: 'your reason' }`。
 
 要将审计行发送到调试日志以外的地方，请从相同的 hook 中调用 `$.http.fetch`。
 

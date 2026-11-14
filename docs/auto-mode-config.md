@@ -222,6 +222,10 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 
 每个都是散文描述的数组，读作自然语言规则。对于在分类器之前运行的基于工具模式的硬阻止，请使用 [`permissions.deny`](https://code.claude.com/docs/zh-CN/permissions)。
 
+> [!NOTE]
+>
+> 在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 会话中，分类器在审查 Claude 的代码时应用 `hard_deny` 和 `soft_deny`，而不是应用于代码发出的每个工具调用。`permissions.deny` 规则适用于每个调用。
+
 在分类器内，优先级分为四个层级：
 
 * `hard_deny` 规则无条件阻止。用户意图和 `allow` 例外不适用。
@@ -283,7 +287,7 @@ Claude Code 将来自 [managed settings](https://code.claude.com/docs/zh-CN/serv
 
 默认情况下，narrow Bash 和 PowerShell 允许规则（如 `Bash(npm test)`）在自动模式下保持有效。Claude Code 在分类器运行之前解析它们，除非命令携带[按命令允许的域](https://code.claude.com/docs/zh-CN/sandboxing.md#per-command-allowed-domains-in-auto-mode)。Claude Code 仅暂停授予任意代码执行权限的广泛规则，例如 `Bash(*)` 或通配符解释器，以及每个命名 [`Monitor`](https://code.claude.com/docs/zh-CN/tools-reference#monitor-tool) 的规则，因为 Monitor 命令通过 shell 运行。这意味着 narrow 规则仍然可以让分类器看不到的破坏性参数通过，例如规则前缀未预期的脚本路径或标志。
 
-将 `autoMode.classifyAllShell` 设置为 `true`，以在自动模式处于活动状态时暂停每个 Bash 和 PowerShell 允许规则，使分类器评估每个 shell 命令，无论您的允许列表如何，除了[关键路径移除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)。
+将 `autoMode.classifyAllShell` 设置为 `true`，以在自动模式处于活动状态时暂停每个 Bash 和 PowerShell 允许规则，使分类器评估每个 shell 命令，无论您的允许列表如何，除了[关键路径移除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)。在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 会话中，即使启用了此设置，分类器也会审查运行这些命令的代码。
 
 ```json theme={null}
 {

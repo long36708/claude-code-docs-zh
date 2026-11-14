@@ -146,7 +146,7 @@ Focus on:
 | `prompt` | `string` | 是 | 代理的系统提示，定义其角色和行为 |
 | `tools` | `string[]` | 否 | 允许的工具名称数组。如果省略，继承[子代理可用的每个工具](https://code.claude.com/docs/zh-CN/sub-agents.md#available-tools) |
 | `disallowedTools` | `string[]` | 否 | 要从代理工具集中移除的工具名称数组。也接受 MCP 服务器级别的模式：`mcp__server` 或 `mcp__server__*` 移除该服务器的每个工具，`mcp__*` 移除任何服务器的每个 MCP 工具 |
-| `model` | `string` | 否 | 此代理的模型覆盖。接受别名如 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'` 或完整模型 ID。`'inherit'` 使用主模型。省略时，Claude Code 选择[子代理模型顺序](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)中的模型 |
+| `model` | `string` | 否 | 此 Agent 的模型覆盖。接受别名如 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'` 或完整模型 ID。`'inherit'` 使用生成此 Agent 的那个 Agent 的模型。省略 `model` 时，Claude Code 选择[子代理模型顺序](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)中的模型 |
 | `skills` | `string[]` | 否 | 启动时预加载到 Agent 上下文中的 skill 名称列表。最多预加载列表中的[前 32 个不同名称](https://code.claude.com/docs/zh-CN/sub-agents.md#preload-skills-into-subagents)。未列出的 skill 仍可通过 Skill 工具调用 |
 | `memory` | `'user' \| 'project' \| 'local'` | 否 | 此代理的内存源 |
 | `mcpServers` | `(string \| object)[]` | 否 | 此代理可用的 MCP 服务器，按名称或内联配置 |

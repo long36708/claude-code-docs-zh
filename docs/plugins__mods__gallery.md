@@ -363,7 +363,7 @@ Svg({
 
 ### `Image` 和 `Client`
 
-另有两个元素在此没有示例。`Image` 在终端中绘制 PNG 或原始像素。`Client` 是由您的另一个文件负责绘制的区域，用于动画和指针输入。[元素参考](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#elements)列出了它们的 props。
+`Image` 和 `Client` 在此没有示例。`Image` 在终端中绘制 PNG 或原始像素。`Client` 是由您的另一个文件负责绘制的区域，用于动画和指针输入。[元素参考](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#elements)列出了它们的 prop。
 
 在以下终端中，`Image` 会绘制为图片：
 

@@ -296,6 +296,7 @@ Claude Code 将 `ANTHROPIC_BASE_URL` gateway 视为 Anthropic 格式端点，并
 * 顶层的 `output_config.effort` 字段。[自动重试和错误转发](#automatic-retry-and-error-forwarding)介绍了上游拒绝它的情况
 * 自适应推理的 `thinking` 字段，它没有 beta 请求头
 * 携带[对话中途系统消息](#feature-pass-through)的 `role: "system"` 条目
+* 自动模式[服务器端分类器审查](https://code.claude.com/docs/zh-CN/permission-modes.md#server-side-classifier-review)的 `anthropic-beta` 值和 `safeguards` 字段，适用于该审查保持开启的会话，例如 `/status` 将 **Auto mode server** 显示为 `Enabled` 时。若要关闭该审查，请在启动会话之前设置 `CLAUDE_CODE_AUTO_MODE_SERVER=0`。在终端中，`/status` 随后会将 **Auto mode server** 显示为 `Disabled`。
 * 订阅身份验证所需的 OAuth `anthropic-beta` 值
 * 开发者通过 [`ANTHROPIC_BETAS`](https://code.claude.com/docs/zh-CN/env-vars) 或 [`CLAUDE_CODE_EXTRA_BODY`](https://code.claude.com/docs/zh-CN/env-vars) 自行添加的请求头值和请求体字段
 

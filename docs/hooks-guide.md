@@ -242,7 +242,7 @@ hook 成功执行时，Claude Code 不会在对话中显示任何内容。要确
 
 ### 阻止编辑受保护的文件
 
-防止 Claude 修改敏感文件，例如 `.env`、`package-lock.json` 或 `.git/` 中的任何内容。Claude 会收到说明编辑被阻止原因的反馈，从而可以调整其做法。
+阻止 Claude 的 `Edit` 和 `Write` 工具修改敏感文件，例如 `.env`、`package-lock.json` 或 `.git/` 中的任何内容。Claude 会收到说明编辑被阻止原因的反馈，从而可以调整其做法。
 
 此示例使用一个由 hook 调用的独立脚本文件。该脚本将目标文件路径与受保护模式列表进行比对，并以退出码 2 退出以阻止编辑。
 
@@ -305,6 +305,10 @@ chmod +x .claude/hooks/protect-files.sh
 **4. 测试 hook**
 
 让 Claude 向您的 `.env` 文件添加一条注释。Claude Code 会在编辑执行前将其阻止，并将脚本的 `Blocked:` 消息作为反馈传递给 Claude。
+
+Claude 仍然可以通过 shell 命令更改受保护的文件。若要阻止其中部分命令，请在 `.claude/settings.json` 的 `permissions.deny` 下为每个路径添加一条 [`Edit` 拒绝规则](https://code.claude.com/docs/zh-CN/permissions#what-read-and-edit-rules-cover)，例如针对项目根目录下 `.env` 的 `Edit(/.env)`。
+
+即使有这些规则，Claude 仍可以通过其他方式更改 `.env`。若要限制命令可以写入哪些文件，请参阅[配置沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md#configure-sandboxing)。
 
 ### 上下文压缩后重新注入上下文
 
@@ -925,7 +929,7 @@ HTTP hooks 在你想要 web 服务器、云函数或外部服务处理 hook 逻�
 您的端点使用与命令 hook 相同的[输出格式](https://code.claude.com/docs/zh-CN/hooks.md#json-output)返回 JSON 响应体，Claude Code 还会检查响应状态：
 
 * **2xx 状态**：要阻止工具调用，请在响应体中返回相应的 `hookSpecificOutput` 字段。
-* **任何其他状态，或请求失败**：Claude Code 会报告[非阻塞错误](https://code.claude.com/docs/zh-CN/hooks.md#exit-code-output)并允许操作继续。要让失败的端点阻止该操作，请在 hook 上设置 [`onFailure: "block"`](https://code.claude.com/docs/zh-CN/hooks#block-the-action-when-a-hook-fails)。
+* **任何其他状态，或请求失败**：Claude Code 会报告[非阻塞错误](https://code.claude.com/docs/zh-CN/hooks.md#exit-code-output)并允许操作继续，除非该 hook 属于[失败时会阻止操作](https://code.claude.com/docs/zh-CN/hooks.md#block-the-action-when-a-hook-fails)的 hook。要让失败的端点阻止该操作，请在 hook 上设置 [`onFailure: "block"`](https://code.claude.com/docs/zh-CN/hooks#block-the-action-when-a-hook-fails)。
 
 标头值支持使用 `$VAR_NAME` 或 `${VAR_NAME}` 语法的环境变量插值。仅解析 `allowedEnvVars` 数组中列出的变量；所有其他 `$VAR` 引用保持为空。
 

@@ -129,6 +129,7 @@ Claude Code 会将凭据保存为仓库密钥：API 密钥命名为 `ANTHROPIC_A
 | Administration | 读取 |
 | Checks | 读写 |
 | Contents | 读写 |
+| Dependabot alerts | 读取 |
 | Discussions | 读写 |
 | Issues | 读写 |
 | Members | 读取 |

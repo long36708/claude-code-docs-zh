@@ -128,7 +128,7 @@
 | `--session-id` | 为对话使用特定的会话 ID（必须是有效的 UUID） | `claude --session-id "550e8400-e29b-41d4-a716-446655440000"` |
 | `--setting-sources` | 要加载的设置源的逗号分隔列表（`user`、`project`、`local`）。有关从此会话启动并继承该列表的会话，请参阅 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md#what-carries-over-when-you-background)和 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md#context-and-communication) | `claude --setting-sources user,project` |
 | `--settings` | 设置 JSON 文件的路径或内联 JSON 字符串。您在此处设置的值会在此会话中覆盖 `settings.json` 文件中的相同键。您省略的键保持其基于文件的值。文件必须是不超过 2 MiB 的常规文件。请参阅[设置优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence) | `claude --settings ./settings.json` |
-| `--strict-mcp-config` | 仅使用 `--mcp-config` 中的 MCP 服务器，忽略所有其他 MCP 配置。有关此标志在托管 MCP 文件下的行为，请参阅[使用 managed-mcp.json 的独占控制](https://code.claude.com/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json) | `claude --strict-mcp-config --mcp-config ./mcp.json` |
+| `--strict-mcp-config` | 跳过在 `.mcp.json`、`~/.claude.json` 或插件等位置配置的 MCP 服务器，并加载您通过 `--mcp-config` 传递的 MCP 服务器。有关此标志在托管 MCP 文件下的行为，请参阅[使用 managed-mcp.json 的独占控制](https://code.claude.com/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json) | `claude --strict-mcp-config --mcp-config ./mcp.json` |
 | `--system-prompt` | 用自定义文本替换整个系统提示词 | `claude --system-prompt "You are a Python expert"` |
 | `--system-prompt-file` | 从文件加载系统提示词，替换默认提示词 | `claude --system-prompt-file ./custom-prompt.txt` |
 | `--system-prompt-snapshot` | 传递 `off` 以在每个请求上重建系统提示词，而不是重用[在对话的第一个请求上记录的](#system-prompt-flags-in-resumed-conversations)提示词，例如在跨多次 `--continue` 运行迭代 `--append-system-prompt` 文本时。需要 Claude Code v2.1.257 或更高版本 | `claude --system-prompt-snapshot off` |

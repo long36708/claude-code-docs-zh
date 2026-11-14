@@ -202,6 +202,15 @@ Claude Code 还可以在其他编辑器和容器中运行：
   已有的思考块仍保持为空。在重新加载之后的回复中，点击某个块或按 `Ctrl+O` 即可将它们全部展开。
 * **多行输入**：按 `Shift+Enter` 可添加新行而不发送。这在问题对话框的"Other"自由文本输入中同样适用。
 
+### 使用或关闭建议的提示词
+
+Claude 回复后，面板可能会在空的输入框中以灰色斜体文本显示建议的下一条提示词。每条建议都会使用一个[简短的后台请求](https://code.claude.com/docs/zh-CN/interactive-mode.md#prompt-suggestions)，该请求会计入您套餐的用量限制或 API 费用。
+
+* **使用建议**：按 `Tab` 将其转为可编辑文本，然后发送。在接受建议之前按 `Enter` 不会发送该建议。
+* **编写您自己的提示词**：开始输入，建议即会隐藏。
+
+要关闭建议，请在 `~/.claude/settings.json` 中将 [`promptSuggestionEnabled`](https://code.claude.com/docs/zh-CN/settings-reference#promptsuggestionenabled) 设置为 `false`。之后在新对话中将不再显示建议；对于已打开的对话，则在您从命令面板运行 **Developer: Reload Window** 之后不再显示。如果您将 [`CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `true`，请在设置它的位置将其改为 `false`，否则您仍会看到建议。
+
 ### 引用文件和文件夹
 
 使用 @ 提及为 Claude 提供有关特定文件或文件夹的上下文。当您输入 `@` 后跟文件或文件夹名称时，Claude 会读取该内容，并可以回答相关问题或对其进行更改。Claude Code 支持模糊匹配，因此您可以输入部分名称来查找所需内容：
@@ -936,6 +945,7 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 | `SSL certificate verification failed` 或 `Self-signed certificate detected` | [SSL 证书错误](https://code.claude.com/docs/zh-CN/errors.md#ssl-certificate-errors) |
 | `Dictation error: WebSocket error:` 后跟证书错误（例如 `unable to get local issuer certificate`），或 Web 标签页上出现 `Remote server is not connected` | [在执行 TLS 检查的代理后方，听写或 Web 标签页失败](#dictation-or-the-web-tab-fails-behind-a-tls-inspecting-proxy) |
 | `Claude Code process exited with code 1` 或其他代码 | [Claude Code process exited with code N](https://code.claude.com/docs/zh-CN/errors.md#claude-code-process-exited-with-code-n) |
+| `Claude Code did not finish starting` 或 `Subprocess initialization did not complete within 60000ms` | [Subprocess initialization did not complete within 60000ms](https://code.claude.com/docs/zh-CN/errors.md#subprocess-initialization-did-not-complete-within-60000ms) |
 | `Could not locate the Claude CLI on PATH` | [Could not locate the Claude CLI on PATH](https://code.claude.com/docs/zh-CN/errors.md#could-not-locate-the-claude-cli-on-path) |
 | `The connection to Claude Code ended before this message completed` | [The connection to Claude Code ended before this message completed](https://code.claude.com/docs/zh-CN/errors.md#the-connection-to-claude-code-ended-before-this-message-completed) |
 | `The Claude Code program for this computer, the <build> build, could not be found` | [The Claude Code program for this computer could not be found](https://code.claude.com/docs/zh-CN/errors.md#the-claude-code-program-for-this-computer-could-not-be-found) |

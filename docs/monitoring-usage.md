@@ -110,7 +110,7 @@ Claude Code 不会删除您在托管设置中自己设置的每信号变量，�
 | `CLAUDE_CODE_ENABLE_TELEMETRY` | 启用遥测收集（必需） | `1` |
 | `OTEL_METRICS_EXPORTER` | 指标导出器类型，以逗号分隔。使用 `none` 禁用 | `console`、`otlp`、`prometheus`、`none` |
 | `OTEL_LOGS_EXPORTER` | 日志/事件导出器类型，以逗号分隔。使用 `none` 禁用 | `console`、`otlp`、`none` |
-| `OTEL_EXPORTER_OTLP_PROTOCOL` | OTLP 导出器的协议，适用于所有信号。Claude Code 没有默认协议，因此请为启用的每个 `otlp` 导出器设置此变量或按信号的协议变量 | `grpc`、`http/json`、`http/protobuf` |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | OTLP 导出器的协议，适用于所有信号。对于有效的 `http://` 或 `https://` 端点，默认为 `http/protobuf`。对于 gRPC 端点（例如 `http://localhost:4317`），请将其设置为 `grpc`。该默认值需要 Claude Code v2.1.323 或更高版本 | `grpc`、`http/json`、`http/protobuf` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | 所有信号的 OTLP 收集器端点 | `http://localhost:4317` |
 | `OTEL_EXPORTER_OTLP_METRICS_PROTOCOL` | 指标协议，覆盖常规设置 | `grpc`、`http/json`、`http/protobuf` |
 | `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` | OTLP 指标端点，覆盖常规设置 | `http://localhost:4318/v1/metrics` |
@@ -475,7 +475,7 @@ Claude Code 将这些值作为属性附加到每个指标数据点和事件记�
 
 * **您在运行 Desktop 的计算机上设置了它**：Desktop 不会将您在那里设置的值传递给 SSH 会话
 * **您在 `/etc/profile` 或其他只有登录 shell 才会读取的文件中导出了它**：从登录 shell 运行 `claude` 时名称会到达，但在 Desktop SSH 会话中不会。Desktop 不通过登录 shell 启动 Claude Code。请改为在远程机器上的[托管设置文件](https://code.claude.com/docs/zh-CN/desktop.md#managed-settings)中的 `env` 下设置该变量。
-* **某个值内部包含空格**：此时 Claude Code 不会将任何键复制到事件或数据点上，也不会报告错误。[从值中去掉空格](#multi-team-organization-support)。
+* **某个值内部包含空格**：此时 Claude Code 不会将任何键复制到事件或数据点上。要查看哪个值包含空格，请在远程机器上的会话中运行 `/status`。[从值中去掉空格](#multi-team-organization-support)。
 * **其他来源已经设置了该变量**：在桌面应用启动的会话中，启动环境中已设置的变量[优先于设置文件](https://code.claude.com/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)。[调试日志](https://code.claude.com/docs/zh-CN/debug-your-config.md)会列出每个被忽略的变量。当第三方 Desktop 部署在其提供的环境中[指定 OTLP 端点](#how-managed-settings-lock-the-otlp-destination)时，该环境会带有 Desktop 自己的 `OTEL_RESOURCE_ATTRIBUTES`。
 
 ### 示例配置

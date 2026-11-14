@@ -273,9 +273,9 @@ Claude Code 根据模型的设置位置处理任何其他被阻止的选择：
 * **`/model`**：Claude Code 以错误拒绝切换
 * **`--model` 标志、`ANTHROPIC_MODEL` 或 `model` 设置**：Claude Code 在启动时用警告替换该值，命名请求的和替换的模型，会话在默认模型上启动
 * **[`ANTHROPIC_DEFAULT_MODEL`](#set-a-default-model-for-new-sessions)**：Claude Code 忽略该变量
-* **子代理或队友覆盖**：Claude Code 在备用模型上运行子代理或队友，而不是使请求失败。有关子代理回退，请参阅[选择模型](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)，有关队友回退，请参阅[指定队友和模型](https://code.claude.com/docs/zh-CN/agent-teams.md#specify-teammates-and-models)。
+* **子代理或队友覆盖**：Claude Code 在备用模型上运行子代理或队友，而不是使请求失败。有关子代理回退，请参阅[当允许列表阻止子代理模型时](https://code.claude.com/docs/zh-CN/sub-agents.md#when-an-allowlist-blocks-a-subagent-model)，有关队友回退，请参阅[指定队友和模型](https://code.claude.com/docs/zh-CN/agent-teams.md#specify-teammates-and-models)。
 
-  在交互式会话中，当 Claude Code 通过此回退或上面的最新允许版本替换来替换子代理的模型时，它会警告您，命名请求的和替换的模型；它不报告队友的回退。
+  在交互式会话中，当 Claude Code 替换顶层子代理的模型时，它会警告您。它不报告队友的回退。
 
   在上面的最新允许版本替换操作的地方，被阻止的系列别名遵循它。在 v2.1.222 之前，别名在每个提供商上像任何其他被阻止的值一样回退
 * **skill 或命令覆盖**：Claude Code 忽略覆盖，包括被阻止的系列别名，skill 或命令在会话模型上运行。[在子代理中运行](https://code.claude.com/docs/zh-CN/skills.md#run-skills-in-a-subagent)的 skill 或命令遵循上面的子代理行为

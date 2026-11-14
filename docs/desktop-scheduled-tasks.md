@@ -182,11 +182,11 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 * **Review allowed permissions**：从 **Always allowed** 面板查看和撤销此任务的已保存工具批准
 * **Delete**：删除任务。该任务创建的会话会被[存档](https://code.claude.com/docs/zh-CN/desktop.md#organize-and-find-sessions)，而不是被删除。存放任务 `SKILL.md` 文件的文件夹会保留在磁盘上的 `~/.claude/scheduled-tasks/<task-name>/` 中；如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 变量，则保留在其下的 `scheduled-tasks/<task-name>/` 中。要删除该文件夹，请您自行删除。
 
-您也可以通过在任何 Desktop 会话中询问 Claude 来列出、创建、编辑和暂停任务。例如，"pause my dependency-audit task"或"show me my scheduled tasks"。要删除任务，请使用其详细信息页面上的 **Delete** 按钮。
+您还可以通过询问 Claude、让任务自行更新或在磁盘上编辑任务的提示词来管理任务：
 
-要让任务使用 `update_scheduled_task` MCP 工具更改其自己的调度或提示词，请单击 **Run now** 并每次批准该调用。
-
-要在磁盘上编辑任务的提示词，请打开 `~/.claude/scheduled-tasks/<task-name>/SKILL.md`（如果设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，则在其下）。该文件使用 YAML frontmatter 表示 `name` 和 `description`，提示词作为正文。更改在下一次运行时生效。Schedule、folder 和 enabled 状态不在此文件中：通过 Edit 表单更改它们或询问 Claude。
+* **询问 Claude**：在任何 Desktop 会话中询问 Claude 来列出、创建、编辑和暂停任务。例如，"pause my dependency-audit task"或"show me my scheduled tasks"。要删除任务，请使用其详细信息页面上的 **Delete** 按钮。
+* **让任务自行更新**：要让任务使用 `update_scheduled_task` MCP 工具更改其自己的调度或提示词，请单击 **Run now** 并每次批准该调用
+* **在磁盘上编辑提示词**：打开 `~/.claude/scheduled-tasks/<task-name>/SKILL.md`；如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 变量，则打开其下的 `scheduled-tasks/<task-name>/SKILL.md`。该文件使用 YAML frontmatter 表示 `name` 和 `description`，提示词作为正文。更改在下一次运行时生效。Schedule、folder 和 enabled 状态不在此文件中：请通过 Edit 表单更改它们或询问 Claude。
 
 ## 相关资源
 

@@ -50,7 +50,7 @@ Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypass
 | 您想要 | 起步方式 | 所需隔离 | 说明 |
 | :- | :- | :- | :- |
 | 亲自审查每个操作 | 手动模式：`claude --permission-mode default` | 无 | 敏感工作、不熟悉的代码 |
-| 在本地迭代，减少提示，且不使用分类器 | 手动模式加上处于[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes)的 Bash 沙箱：`claude --permission-mode default`，然后运行 `/sandbox` 并选择自动允许 | 内置 Bash 沙箱，适用于 macOS、Linux 和 WSL2 | 拒绝规则仍然适用，指定了命令的询问规则（例如 `Bash(git push *)`）仍会提示。[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#auto-allow-mode)介绍了其他可能触发提示的命令。若要改为通过设置文件启用沙箱，请将 [`sandbox.enabled`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-enabled) 设为 `true` |
+| 在本地迭代，减少提示，且不使用分类器 | 手动模式加上处于[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes)的 Bash 沙箱：`claude --permission-mode default`，然后运行 `/sandbox` 并选择自动允许 | 内置 Bash 沙箱，适用于 macOS、Linux 和 WSL2 | 拒绝规则仍然适用，指定了命令的询问规则（例如 `Bash(git push *)`）仍会提示。[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#auto-allow-mode)介绍了其他可能触发提示的命令。若要改为通过设置文件启用沙箱，请将 [`sandbox.enabled`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-enabled) 和 [`sandbox.autoAllowBashIfSandboxed`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) 设为 `true` |
 | 在进行任何更改之前先探索 | `claude --permission-mode plan` | 无 | 在您[批准计划](#review-and-approve-a-plan)之前，Claude Code 会阻止编辑 |
 | 在自动模式下免干预工作 | `claude --permission-mode auto`，即 v2.1.283 或更高版本的[内置起始权限模式](#which-mode-a-session-starts-in) | 无；沙箱或容器可提供纵深防御 | 需要[受支持的模型](#eliminate-prompts-with-auto-mode)，并且您的组织可以[关闭自动模式](#eliminate-prompts-with-auto-mode) |
 | 在 CI 中使用精确的允许列表运行 | `claude -p "run the test suite" --permission-mode dontAsk --allowedTools "Bash(npm test)" "Read"` | 除 CI 运行器所提供的隔离外无需其他隔离 | [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)会忽略来自设置文件的 `dontAsk` |
@@ -593,6 +593,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >    * 当 Claude 读取[他人制作的 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 时，适用该部分列出的批准情况
 >    * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)读取会提示您
 > 3. 其他所有操作都会交给分类器处理，按默认方式处理的[关键路径删除](#critical-paths)除外。在第 1 步中直接提示您的连接器工具和 `requiresUserInteraction` MCP 工具也永远不会到达分类器，因此组织要求的批准和同意步骤都不会被自动批准
+>    * 启用 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 时，Claude 的代码会在运行前交给分类器审查一次，而其中的工具调用不会。您仍可以使用 `deny` 规则阻止某个调用，或使用 `ask` 规则要求弹出提示，但 Claude 可以以[规则无法匹配的形式](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)运行 Bash 命令
 > 4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，原因会指明分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[查看拒绝记录](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)
 >
 > 您安装的处理 `tool.check` 的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 也可以批准操作。有关其批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。

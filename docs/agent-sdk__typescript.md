@@ -104,6 +104,13 @@ function startup(params?: {
 | `options` | [`Options`](#options) | 可选的配置对象。与 `query()` 的 `options` 参数相同 |
 | `initializeTimeoutMs` | `number` | 等待子进程初始化的最长时间（毫秒）。默认为 `60000`。如果初始化未能在此时间内完成，promise 将以超时错误被拒绝 |
 
+仅当未设置 `initializeTimeoutMs` 时，运行缓慢的 [SessionStart](https://code.claude.com/docs/zh-CN/hooks.md#sessionstart) 和 [Setup](https://code.claude.com/docs/zh-CN/hooks.md#setup) [命令 hook](https://code.claude.com/docs/zh-CN/hooks.md#command-hook-fields) 才会获得额外时间：
+
+* **如果您不设置该值：** 这些 hook 运行所花费的时间不计入 60 秒的默认值，总计最多 10 分钟，因此初始化最多可能需要 11 分钟。
+* **如果您设置了某个值（包括 `60000`）：** 该值即为上限，即使 hook 正在运行也是如此。
+
+额外时间需要 TypeScript Agent SDK v0.3.304 或更高版本。
+
 #### 返回值
 
 返回一个 `Promise<`[`WarmQuery`](#warmquery)`>`，在子进程启动并完成初始化握手后解析。
@@ -128,9 +135,9 @@ for await (const message of warm.query("What files are here?")) {
 
 ### `prewarm()`
 
-*Alpha。* 在您知道某个 Claude Code 进程将服务于哪个会话之前，先将其作为备用进程启动，以便稍后通过 [`claim()`](#spareprocess) 将其绑定到会话。适用于在用户选择文件夹之前就已启动的应用程序。需要 TypeScript Agent SDK v0.3.282 或更高版本。
+*Alpha。* 在您知道某个 Claude Code 进程将服务于哪个会话之前，先将其作为备用进程启动，以便稍后通过 [`claim()`](#spareprocess) 将其绑定到会话。需要 TypeScript Agent SDK v0.3.282 或更高版本。
 
-`prewarm()` 完成与 [`startup()`](#startup) 相同的初始化握手；如果您设置了 `options.cwd`，进程将在该目录中等待，否则将在您的 Claude Code 配置目录下的一个私有临时目录中等待。会话的工作目录、其 `SessionStart` hook、其 stdio MCP 服务器以及其 CLAUDE.md 和 git 上下文都要等到认领时才会确定。备用进程在等待期间大约占用 230 到 260 MB 内存。如果您的 [`spawnClaudeCodeProcess`](#options) 在另一台机器或容器中运行 Claude Code，请将 `options.cwd` 设置为该环境中存在的目录，供备用进程在其中等待。
+当您的应用程序在用户选择文件夹之前就已启动时，请使用 `prewarm()`。
 
 ```typescript theme={null}
 function prewarm(params?: {
@@ -139,7 +146,33 @@ function prewarm(params?: {
 }): Promise<SpareProcess>;
 ```
 
-`options` 和 `initializeTimeoutMs` 的含义与 `startup()` 中相同，只是 `options.cwd` 仅设置备用进程等待所在的目录。进程完成初始化握手后，promise 将解析为一个 [`SpareProcess`](#spareprocess)。如果 `options` 设置了 `resume`、`continue` 或 `forkSession`，`prewarm()` 会抛出错误，因为备用进程尚无会话。认领时无法设置的所有内容，例如 `mcpServers`、`hooks`、`canUseTool`、`settingSources`、`systemPrompt` 和 `plugins`，在备用进程的整个生命周期内都是固定的，因此请为每组不同的此类选项保留一个备用进程，并在这些选项发生变化时重新预热。
+#### 参数
+
+| 参数 | 类型 | 描述 |
+| :- | :- | :- |
+| `options` | [`Options`](#options) | 可选的配置对象，与 `startup()` 接受的类型相同 |
+| `initializeTimeoutMs` | `number` | 等待备用进程初始化的最长时间（毫秒）。默认为 `60000`。如果初始化未能在此时间内完成，promise 将以超时错误被拒绝 |
+
+`prewarm()` 会将 [Setup](https://code.claude.com/docs/zh-CN/hooks.md#setup) hook 所花费的时间计入 `initializeTimeoutMs`，即使您未设置该值也是如此。要为运行缓慢的 Setup hook 提供更多时间，请设置更长的值。
+
+#### 返回值
+
+返回一个 `Promise<`[`SpareProcess`](#spareprocess)`>`，在备用进程可供认领时解析。
+
+如果您在 `options` 中请求 `resume`、`continue` 或 `forkSession`，该 promise 将被拒绝，因为备用进程尚无会话。
+
+#### 备用进程的工作方式
+
+* **备用进程在何处等待：** 在您的 Claude Code 配置目录下的一个私有临时目录中；如果您在 `prewarm()` 中设置了 `options.cwd`，则在该目录中等待。
+* **如果您的 [`spawnClaudeCodeProcess`](#options) 在另一台机器或容器中运行 Claude Code：** 请向 `prewarm()` 传入在该环境中存在的 `options.cwd`，因为默认的临时目录是在您的机器上创建的。
+* **内存：** 每个备用进程在等待期间大约占用 230 到 260 MB 内存。
+* **在您调用 `claim()` 之前不会发生的操作：**
+  * 切换到您传给 `claim()` 的工作目录
+  * 运行 SessionStart hook
+  * 启动 stdio MCP 服务器
+  * 加载 CLAUDE.md 和 git 上下文
+* **认领时无法更改的内容：** `mcpServers`、`hooks`、`canUseTool`、`settingSources` 和 `plugins` 等选项会保留其在 `prewarm()` 中的值。[`SpareProcess`](#spareprocess) 列出了认领时可以设置的内容。
+* **如果不同会话需要为这些选项使用不同的值：** 请为每组值分别保留一个备用进程。
 
 #### 示例
 
@@ -556,7 +589,7 @@ console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 | `skills` | `string[] \| 'all'` | `undefined` | 会话可用的 skill。传递 `'all'` 以启用所有发现的 skill，或传递 skill 名称列表。仅传递精确名称。在 Agent SDK v0.3.221 或更高版本中，SDK 会在启动 Claude Code 进程之前以错误拒绝格式错误和通配符形式的名称。设置后，SDK 会自动将 Skill 工具添加到 `allowedTools`。如果您同时传递了 `tools`，请在该列表中包含 `'Skill'`。请参阅 [Skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md) |
 | `spawnClaudeCodeProcess` | `(options: SpawnOptions) => SpawnedProcess` | `undefined` | 用于生成 Claude Code 进程的自定义函数。用于在虚拟机、容器或远程环境中运行 Claude Code |
 | `stderr` | `(data: string) => void` | `undefined` | stderr 输出的回调 |
-| `strictMcpConfig` | `boolean` | `false` | 仅使用通过 `mcpServers` 传递的服务器，忽略项目 `.mcp.json`、用户设置、插件提供的 MCP 服务器以及 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai) |
+| `strictMcpConfig` | `boolean` | `false` | 使用 `mcpServers` 中传递的服务器，并忽略项目 `.mcp.json`、用户设置、插件提供的 MCP 服务器以及 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai) |
 | `systemPrompt` | `string \| string[] \| { type: 'custom'; prompt: string \| string[]; snapshot?: boolean } \| { type: 'preset'; preset: 'claude_code'; append?: string; excludeDynamicSections?: boolean; snapshot?: boolean }` | `undefined`（最简提示词） | 系统提示词配置。传递字符串以使用自定义提示词，或传递 `{ type: 'preset', preset: 'claude_code' }` 以使用 Claude Code 的系统提示词。传递字符串数组，并在静态部分与每请求部分之间放置导出的 `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` 常量，即可[缓存自定义提示词的静态部分](https://code.claude.com/docs/zh-CN/agent-sdk/modifying-system-prompts.md#cache-the-static-part-of-a-custom-prompt)。使用预设对象形式时，添加 `append` 以附加额外指令进行扩展，并设置 `excludeDynamicSections: true` 将每会话上下文移到第一条用户消息中，以[在不同机器间更好地复用提示缓存](https://code.claude.com/docs/zh-CN/agent-sdk/modifying-system-prompts.md#improve-prompt-caching-across-users-and-machines)。设置 `snapshot: false` 可在每次请求时重新构建提示词，而不是[复用会话在首次请求时记录的提示词](https://code.claude.com/docs/zh-CN/agent-sdk/modifying-system-prompts.md#change-the-prompt-of-an-existing-session)。要在自定义提示词上设置 `snapshot`，请使用 `{ type: 'custom', prompt }` 形式。`{ type: 'custom' }` 形式和 `snapshot` 字段需要 TypeScript Agent SDK v0.3.257 或更高版本 |
 | `taskBudget` | `{ total: number }` | `undefined` | *Alpha。* API 端的任务预算（以 token 计）。设置后，模型会被告知其剩余的 token 预算，以便控制工具使用节奏并在达到限制前收尾 |
 | `thinking` | [`ThinkingConfig`](#thinkingconfig) | 对支持的模型为 `{ type: 'adaptive' }` | 控制 Claude 的思考/推理行为。有关选项，请参阅 [`ThinkingConfig`](#thinkingconfig) |
@@ -1252,7 +1285,7 @@ type AgentDefinition = {
 | `tools` | 否 | 允许的工具名称数组。如果省略，则继承所有[子代理可用的工具](https://code.claude.com/docs/zh-CN/sub-agents.md#available-tools)。要将 Skills 预加载到 Agent 的上下文中，请使用 `skills` 字段，而不是在此处列出 `'Skill'` |
 | `disallowedTools` | 否 | 要为此 Agent 明确禁止的工具名称数组。也接受 MCP 服务器级别的模式：`mcp__server` 或 `mcp__server__*` 会移除该服务器的所有工具，`mcp__*` 会移除任何服务器的所有 MCP 工具 |
 | `prompt` | 是 | Agent 的系统提示词 |
-| `model` | 否 | 此 Agent 的模型覆盖。接受 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'` 等别名，或完整的模型 ID。`'inherit'` 使用主模型。省略时，Claude Code 会按照[子代理模型顺序](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)选择模型 |
+| `model` | 否 | 此 Agent 的模型覆盖。接受别名（例如 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'`）或完整的模型 ID。`'inherit'` 使用生成此 Agent 的 Agent 所用的模型。当您省略 `model` 时，Claude Code 会按照[子代理模型顺序](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)选择模型 |
 | `mcpServers` | 否 | 此 Agent 的 MCP 服务器规范 |
 | `skills` | 否 | 要预加载到 Agent 上下文中的 skill 名称数组 |
 | `initialPrompt` | 否 | 当此 Agent 作为主线程 Agent 运行时，作为第一轮用户输入自动提交 |

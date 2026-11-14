@@ -232,7 +232,8 @@ config/secrets.json
 
 使用默认的 `"fresh"` [基础](#choose-the-base-branch)，当以下所有条件都成立时，重新打开的 worktree 会重置为仓库的默认分支而不是在其原来的顶端继续：
 
-* 它没有未提交的更改或未跟踪的文件。
+* [沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md#filesystem-isolation)未在您的会话中限制文件写入，并且 worktree 和主检出的 `.claude` 设置文件均未启用沙箱。
+* worktree 没有未提交的更改或未跟踪的文件。
 * 它仍然在 Claude Code 为其创建的分支上。
 * 它没有自己的提交，或其拉取请求或合并请求已合并且其远程分支已删除。
 
@@ -240,10 +241,12 @@ Claude Code 仅从 git 状态检测合并的情况：worktree 推送到的远程
 
 在所有其他情况下，Claude Code 在其原来的顶端重新打开 worktree：
 
-* worktree 有任一条件不成立。
+* worktree 或会话有任一条件不成立。
 * Claude Code 无法验证 worktree 的状态。
 * `worktree.baseRef` 是 `"head"`。
 * 名称是拉取请求或合并请求引用。
+
+如果您在使用 `"fresh"` 基础的同时使用沙箱，请运行 `git fetch origin`，然后向 `--worktree` 传递一个新名称，以从最新的默认分支开始。
 
 ### 使用 hook 替换 worktree 创建
 

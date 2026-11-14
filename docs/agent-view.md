@@ -8,7 +8,7 @@
 
 Agent view 通过 `claude agents` 打开，是所有后台会话的一个屏幕：什么正在运行、什么需要你的输入、什么已完成。调度新会话，一目了然地查看它们的状态而不是滚动浏览记录，只在需要时才介入。每个后台会话都是一个完整的 Claude Code 对话，在没有终端连接的情况下继续运行，所以你可以随时打开它、回复并离开。
 
-![终端中的 Agent view。顶部的一行计算等待输入、正在工作和已完成的会话。四个会话分组在'需要输入'、'正在工作'和'已完成'下。每行显示会话的名称、其最新状态或问题以及时间。底部是用于描述新任务的输入和一行键盘提示。](https://mintcdn.com/claude-code/HDAmBwgbrZVk0pOt/images/agent-view-light.png?fit=max\&auto=format\&n=HDAmBwgbrZVk0pOt\&q=85\&s=d6905012bee31f3e6b3920b09c05dd02)
+![终端中的 Agent view。顶部的一行计算等待输入、正在工作和已完成的会话。四个会话分组在'需要输入'、'正在工作'和'已完成'下。每行显示会话的名称、其最新状态或问题以及时间。底部是用于描述新任务的输入和一行键盘提示。](https://mintcdn.com/claude-code/v_J840yKc6uuKDX_/images/agent-view-light.png?fit=max\&auto=format\&n=v_J840yKc6uuKDX_\&q=85\&s=bd95fda83ea66ca8b2e0e7b68f8cb29e)
 
 当你有多个独立任务 Claude 可以在不需要你观看每一步的情况下处理时，使用 agent view。调度一个 bug 修复、一个拉取请求审查和一个不稳定测试调查作为三行，在另一个窗口中继续工作，当一行显示它需要你或有结果时检查回来。
 
@@ -628,7 +628,7 @@ Claude 为会话创建的 worktree 会如何处理：
 
 * Agent 视图会移除它，包括未提交的更改，因此请先提交您想保留的内容。
 * 当它有未提交的更改时，`claude rm` 会保留它以及会话行。
-* Agent 视图和 `claude rm` 都不会移除另一个正在运行的会话正在使用或已锁定的 worktree，再次删除也不会改变这一点。Claude Code 会保留 worktree 和会话，并指明保留的目录及原因；在 Agent 视图中，该会话的行会显示 `not deleted`。请关闭另一个会话，然后再次删除。
+* Agent 视图和 `claude rm` 都不会移除另一个正在运行的会话正在使用或已锁定的 worktree，再次删除也不会改变这一点。Claude Code 会保留 worktree 和会话，并指明保留的目录及原因；在 Agent 视图中，该会话的行会显示 `not removed`。请关闭另一个会话，然后再次删除。
 * 当您删除的会话的 worktree 中有 Claude Code 无法确认已保存到其他位置的提交时，Claude Code 会保留 worktree 和会话，消息会指明 worktree 的分支以及有多少未推送的提交。消息还提供两种后续做法：推送这些提交，或再次删除以丢弃它们。
 
   远程上的提交不会阻止删除。您的 `origin` 远程默认分支的本地副本上的提交也不会阻止删除，前提是该分支检出在您的主检出中（即仓库目录本身，而不是 worktree）。
@@ -774,7 +774,7 @@ Agent 视图接受与 `claude` 相同的配置标志，用于加载设置、插�
 | [`--add-dir <path>`](https://code.claude.com/docs/zh-CN/permissions#additional-directories-grant-file-access-not-configuration) | 授予对附加目录的文件访问权限 |
 | [`--plugin-dir <path>`](https://code.claude.com/docs/zh-CN/plugins/create#load-a-directory-or-archive-for-one-session) | 从本地目录加载插件 |
 | [`--mcp-config <file-or-json>`](https://code.claude.com/docs/zh-CN/mcp) | 从配置文件或 JSON 字符串加载 MCP 服务器 |
-| `--strict-mcp-config` | 仅使用来自 `--mcp-config` 的 MCP 服务器，忽略其他 MCP 配置。请参阅 [使用 managed-mcp.json 进行独占控制](https://code.claude.com/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json) 了解该标志在托管 MCP 文件下的作用 |
+| `--strict-mcp-config` | 跳过在 `.mcp.json` 等位置配置的 MCP 服务器，并加载您通过 `--mcp-config` 传递的 MCP 服务器。请参阅 [使用 managed-mcp.json 进行独占控制](https://code.claude.com/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json) 了解该标志在托管 MCP 文件下的作用 |
 
 每个值需重复一次 `--add-dir`、`--plugin-dir` 或 `--mcp-config`。`claude agents` 不支持空格分隔的形式，例如 `--add-dir a b c`。
 
@@ -935,7 +935,9 @@ Claude 会看到此通知并自行回复，因此您无需提示它。如果阅�
 关闭或重新启动您的机器会停止运行的后台会话。等待您输入的会话在您返回时仍会显示在 `Needs input` 下。对于任何其他运行的会话，Agent 视图显示的内容取决于它上次取得进展的时间：
 
 * 在 48 小时内，会话显示为失败。附加或回复它，它会从其保存的对话重新启动。要继续被中断的工作，请向它发送一条回复，要求它继续。
-* 超过 48 小时，例如机器关闭数天后，会话显示为已停止，并显示 `ended while the background service was off`。在该行上按 `Enter`，页脚会显示 `Press enter again to resume this session (it ended while the background service was off), or ctrl+x to delete it.` 在同一行上再次按 `Enter` 来恢复其保存的对话。回复或 `claude attach <id>` 会在没有该页脚提示的情况下恢复它。
+* 超过 48 小时，例如机器关闭数天后，会话显示为已停止，并显示 `ended while the background service was off`。
+
+  在该行上按 `Enter`，页脚会显示 `Press enter again to resume this session (it ended while the background service was off), or ctrl+x to remove it.` 在同一行上再次按 `Enter` 来恢复其保存的对话。回复或 `claude attach <id>` 会在没有该页脚提示的情况下恢复它。
 
 当[会话记录清理](https://code.claude.com/docs/zh-CN/settings-reference.md#cleanupperioddays)删除了已停止会话的保存对话时，Claude Code 拒绝打开该行：消息说没有可恢复的内容。`claude rm <id>` 删除该行，除了上文[保留的情况](#what-deleting-a-session-removes)中描述的情况，`claude respawn <id>` 再次运行其原始提示词。请参阅[此会话的保存对话不再在磁盘上](https://code.claude.com/docs/zh-CN/errors.md#this-sessions-saved-conversation-is-no-longer-on-disk)。
 

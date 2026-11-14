@@ -30,7 +30,7 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 | 模式 | 功能 | 配置 |
 | :- | :- | :- |
 | **禁用 MCP** | 不加载任何服务器，除了[在独占控制下加载](#exclusive-control-with-managed-mcp-json)的少数几个 | 使用空服务器映射的 `managed-mcp.json` |
-| **固定部署** | 每个用户获得相同的服务器，无法添加其他服务器 | 包含你想要的服务器的 `managed-mcp.json` |
+| **固定部署** | 每个用户获得您列出的服务器，用户自己配置的服务器不会加载 | 包含您想要的服务器的 `managed-mcp.json` |
 | **提供的服务器** | 每个用户获得你列出的远程服务器，并保留他们自己的服务器 | 托管设置中的 `managedMcpServers` |
 | **批准的目录** | 发布批准的服务器列表；用户添加他们想要的服务器，其他任何内容都被阻止 | `allowedMcpServers` + `allowManagedMcpServersOnly: true` |
 | **仅插件服务器** | 用户无法通过 `~/.claude.json` 或 `.mcp.json` 添加服务器；[技能目录插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#skills-directory-plugins-blocked-by-managed-settings)不再作为插件加载，来自其他插件的服务器仍然加载 | [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization) 列表中包含 `mcp` |
@@ -49,6 +49,7 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 * 该文件定义的服务器
 * 你[通过 `managedMcpServers` 提供的服务器](#provide-servers-through-managed-settings)
 * 启动会话的应用程序注册的进程内服务器，例如 VS Code 扩展自己的服务器或[桌面应用程序提供的连接器](https://code.claude.com/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)
+* 当 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) [添加工具](https://code.claude.com/docs/zh-CN/plugins/mods/api.md#add-a-tool)时 Claude Code 创建的服务器。要阻止用户的 mod 添加的工具，请[阻止用户安装的 mod 加载](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#stop-user-installed-mods-from-loading)。
 * 内置的[Chrome 中的 Claude](https://code.claude.com/docs/zh-CN/chrome.md) 服务器，如果你[允许它与托管集合一起使用](#allow-claude-in-chrome-alongside-the-managed-set)
 
 用户无法添加、修改或使用任何其他 MCP 服务器，包括插件提供的服务器和通过 [`--mcp-config` CLI 标志](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)传递的服务器。该文件还会禁止 Claude Code 自身获取的 claude.ai 连接器，除非你[允许它们与托管集合一起使用](#allow-claude-ai-connectors-alongside-the-managed-set)。
@@ -137,7 +138,7 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 }
 ```
 
-`claude mcp add` 失败，显示上述企业策略错误。用户之前配置的服务器在下次启动会话时停止加载，没有警告说明策略是原因。你通过 `managedMcpServers` 提供的服务器以及你允许与托管集合一起使用的任何其他内容仍然在空映射下加载，因此保持这些键未设置以完全关闭 MCP。
+`claude mcp add` 失败，显示上述企业策略错误。用户之前配置的服务器在下次启动会话时停止加载，没有警告说明策略是原因。您通过 `managedMcpServers` 提供的服务器以及您允许与托管集合一起使用的任何其他内容在空映射下[仍然会加载](#exclusive-control-with-managed-mcp-json)，因此请保持这些键未设置。
 
 ### 允许 claude.ai 连接器与托管集合一起使用
 

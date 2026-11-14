@@ -743,7 +743,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 
 使用两者进行深度防御，因为即使提示注入绕过 Claude 的决策制定，沙箱限制仍然适用。来自沙箱设置和权限规则的路径和域被[合并到最终沙箱配置](https://code.claude.com/docs/zh-CN/sandboxing.md#permission-rules)中。
 
-当您启用沙箱并将 `autoAllowBashIfSandboxed` 保留为其默认值 `true` 时，沙箱化的 Bash 命令无需提示即可运行，即使您的权限包括裸 `Bash` ask 规则，或[等效的 `Bash(*)` 形式](#match-all-uses-of-a-tool)：沙箱边界替代了该整体工具提示。
+当您启用沙箱隔离并将 [`sandbox.autoAllowBashIfSandboxed`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) 设置为 `true` 时，沙箱化的 Bash 命令无需提示即可运行。即使存在裸 `Bash` ask 规则或[等效的 `Bash(*)` 形式](#match-all-uses-of-a-tool)，也是如此：沙箱边界替代了该整体工具提示。
 
 在[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)中，Claude Code 跳过此替代。没有 ask 规则时，[内置只读命令](#read-only-commands)仍然无需提示即可运行，任何其他 shell 命令在您仍在计划时通过常规权限流程；请参见[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)了解 Claude Code 如何在那里控制命令。使用裸 `Bash` ask 规则时，每个 Bash 命令都会提示，包括沙箱化的只读命令，与沙箱隔离之外相同。
 
@@ -784,7 +784,7 @@ Claude Code 根据您启动它的位置来保存和存储您接受的信任：
 * 在仓库外，Claude Code 根据您启动它的目录来保存信任，信任覆盖该目录的任何子目录，除了其中嵌套的 git 仓库（如克隆）。每个被覆盖的子目录随后都被视为一个您信任其父目录的文件夹。
 * 当您从主目录启动时，Claude Code 仅在当前会话期间保持信任，不会将其写入磁盘；请参阅[其他保护措施](https://code.claude.com/docs/zh-CN/security.md#additional-safeguards)说明。
 
-Claude Code 仅在交互式会话中显示信任对话框。`claude -p` 运行或 SDK 会话永远不会显示它，信任父文件夹不计入这些规则，因此[在您信任文件夹之前运行什么](#what-runs-before-you-trust-a-folder)说明了在这两种情况下 Claude Code 仍然使用哪些仓库内容。
+VS Code 扩展在启动会话之前会请求相同的信任，对话框标题为 `Trust this folder in Claude Code?`。Claude Code 在交互式终端会话中显示信任对话框，但在 `claude -p` 或 SDK 会话中不显示。信任父文件夹不计入这些规则。[在您信任文件夹之前运行什么](#what-runs-before-you-trust-a-folder)说明了在每种情况下 Claude Code 仍然使用哪些仓库内容。
 
 在启动或重启[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)之前，Claude Code 还会检查会话运行所在目录的工作区信任。如果您从您尚未信任的目录中的终端运行 `claude --bg`，信任对话框会首先出现，一旦您接受它，会话就会启动。在无法出现对话框的地方（如脚本中），命令会改为以[`Workspace not trusted`](https://code.claude.com/docs/zh-CN/errors#workspace-not-trusted-when-dispatching-a-background-session)错误退出。
 

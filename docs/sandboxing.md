@@ -6,7 +6,7 @@
 
 > 使用内置沙箱限制 Claude Code 的 shell 命令可以访问的文件和网络主机。启用沙箱、设置边界，并修复它导致的问题。
 
-Bash 沙箱是操作系统围绕 Claude 在您的计算机上运行的 shell 命令强制执行的边界。您可以设置这些命令可以访问哪些文件和网络域，这些限制适用于 Bash、PowerShell 和 Monitor 命令及其启动的进程。由于操作系统会在命令运行时应用这些限制，Claude Code 可以[运行沙箱化命令而无需询问您](#sandbox-modes)逐一批准。
+Bash 沙箱是操作系统围绕 Claude 在您的计算机上运行的 shell 命令强制执行的边界。您可以设置这些命令可以访问哪些文件和网络域，这些限制适用于 Bash、PowerShell 和 Monitor 命令及其启动的进程。沙箱化命令仍会经过常规的权限流程，除非您选择[自动允许模式](#sandbox-modes)，该模式可以在不询问您的情况下运行这些命令。
 
 沙箱仅涵盖 shell 命令。Claude 的文件工具、MCP 服务器和 hook [在沙箱之外运行](#what-runs-outside-the-sandbox)。
 
@@ -394,12 +394,9 @@ Claude Code 会将您的条目与每次 Bash 和 Monitor 调用进行比对。�
 | `credentials.envVars` `deny` 和 `mask` 条目 | 强制执行。环境变量清除独立于文件系统层 |
 | 以掩码方式应用的 [`credentials.files` `mask` 条目](#mask-credential-files) | 强制执行：掩码独立于文件系统层。[已回退为 `deny`](#mask-credential-files) 的条目与任何 `deny` 条目一样不强制执行 |
 
-另外还有两项变化：
+沙箱命令还会继承您 shell 的 `$TMPDIR`，而不是每用户临时目录，因为所有临时目录都可写，Claude Code 不再将命令重定向到每用户临时目录。
 
-* 沙箱命令会继承您 shell 的 `$TMPDIR`，而不是每用户临时目录，因为所有临时目录都可写，Claude Code 不再将命令重定向到每用户临时目录。
-
-  在 Linux 上，父 shell 中通常未设置该变量。Bash 工具指引会告诉 Claude 使用 `mktemp -d` 创建临时工作目录，而不是依赖 `$TMPDIR`。
-* [`autoAllowBashIfSandboxed`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) 默认仍为 `true`，因此沙箱命令会继续在无确认提示的情况下运行。将其设置为 `false` 可对沙箱命令进行确认提示。
+在 Linux 上，父 shell 中通常未设置该变量。Bash 工具指引会告诉 Claude 使用 `mktemp -d` 创建临时工作目录，而不是依赖 `$TMPDIR`。
 
 ### 保护凭据
 
@@ -1095,7 +1092,7 @@ git remote set-url origin https://git.example.com/example-org/example-repo.git
 }
 ```
 
-这会启用[自动允许模式](#sandbox-modes)。如需使用常规权限模式，还需将 [`sandbox.autoAllowBashIfSandboxed`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) 设置为 `false`。该更改会在 Claude 运行下一条 shell 命令时在您正在运行的会话中生效，随后 `/sandbox` 的 **Mode** 选项卡会标记当前生效的模式。
+这会启用[常规权限模式](#sandbox-modes)。如需使用自动允许模式，还需将 [`sandbox.autoAllowBashIfSandboxed`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) 设置为 `true`。该更改会在 Claude 运行下一条 shell 命令时在您正在运行的会话中生效，随后 `/sandbox` 的 **Mode** 选项卡会标记当前生效的模式。
 
 ## 限制
 

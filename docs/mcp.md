@@ -806,7 +806,7 @@ claude mcp add --transport http shared-server --scope project https://example.co
 
 * 将其添加到 [`disabledMcpjsonServers`](https://code.claude.com/docs/zh-CN/settings-reference#disabledmcpjsonservers)，这会在所有权限模式下阻止它。
 * 使用 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 SDK 的 `settingSources` 选项完全排除项目设置。
-* 使用 [`--strict-mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 启动会话。此时 Claude Code 仅使用您通过 `--mcp-config` 传入的 MCP 服务器。对于 Claude Code 未加载的 Project 作用域服务器跳过批准提示，需要 Claude Code v2.1.246 或更高版本；在 v2.1.246 之前，strict 会话仍会等待对这些服务器的批准，导致后台会话在启动时处于等待状态。有关在托管 MCP 文件下该标志的作用，请参阅[使用 managed-mcp.json 进行独占控制](https://code.claude.com/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json)。
+* 使用 [`--strict-mcp-config`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 启动会话。此时 Claude Code 会加载您通过 `--mcp-config` 传入的服务器，并跳过在 `.mcp.json` 等位置配置的服务器。对于 Claude Code 未加载的 Project 作用域服务器跳过批准提示，需要 Claude Code v2.1.246 或更高版本。有关在托管 MCP 文件下该标志的作用，请参阅[使用 managed-mcp.json 进行独占控制](https://code.claude.com/docs/zh-CN/managed-mcp.md#exclusive-control-with-managed-mcp-json)。
 
 [项目服务器批准与工作区信任](#project-server-approvals-and-workspace-trust)介绍了提交到仓库中的批准如何与工作区信任相互作用。
 
@@ -834,8 +834,6 @@ Claude Code 在三个作用域之间按名称匹配重复项。对于插件和�
 如果两种 URL 写法仅在以下方面不同，则视为同一端点：scheme 或 host 的字母大小写、scheme 的默认端口（例如 `https` 上的 `:443`），或末尾的斜杠。路径、查询字符串、userinfo 或非默认端口不同，则视为两个服务器。
 
 您的组织通过 [`managedMcpServers`](https://code.claude.com/docs/zh-CN/managed-mcp#provide-servers-through-managed-settings) 托管设置提供的服务器优先级高于上述所有来源，因此当上述某个服务器与之重复时，Claude Code 会连接组织的定义。需要 Claude Code v2.1.259 或更高版本。
-
-如果您在 [Desktop 应用的 Code 标签页](https://code.claude.com/docs/zh-CN/desktop.md#mcp-servers-from-the-claude-desktop-chat-app)中打开本地会话，而 `~/.claude.json` 顶层（User 作用域）和 `.mcp.json` 中存在同名的 stdio 服务器，Code 标签页会使用 `~/.claude.json` 中的定义。
 
 ### `.mcp.json` 中的环境变量扩展
 

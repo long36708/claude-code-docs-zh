@@ -117,7 +117,7 @@ docker run \
   --network none \
   --memory 2g \
   --cpus 2 \
-  --pids-limit 100 \
+  --pids-limit 600 \
   --user 1000:1000 \
   -v /path/to/code:/workspace:ro \
   -v /var/run/proxy.sock:/var/run/proxy.sock:ro \
@@ -135,7 +135,7 @@ docker run \
 | `--tmpfs /tmp:...` | 提供一个可写的临时目录，在容器停止时清除 |
 | `--network none` | 切断容器与外部网络的连接 |
 | `--memory 2g` | 将内存使用限制为 2GB 以防止资源耗尽 |
-| `--pids-limit 100` | 限制进程数以防止 fork 炸弹 |
+| `--pids-limit 600` | 限制进程和线程数以防止 fork 炸弹 |
 | `--user 1000:1000` | 以非 root 用户身份运行 |
 | `-v ...:/workspace:ro` | 以只读方式挂载代码，以便代理可以分析但不能修改。**避免挂载敏感的主机目录，如 `~/.ssh`、`~/.aws` 或 `~/.config`** |
 | `-v .../proxy.sock:...` | 挂载连接到在容器外运行的代理的 Unix 套接字（见下文） |
