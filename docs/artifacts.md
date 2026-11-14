@@ -368,7 +368,6 @@ Claude Docs 作为 claude.ai [连接器](https://code.claude.com/docs/zh-CN/mcp.
 | 外部请求 | 页面可以从 Google Fonts 加载字体，以及从[五个公共 CDN 主机](#allowlist-the-viewer-domain)加载脚本：cdnjs、unpkg、Tailwind 和 jQuery CDN，以及 jsDelivr 上的选定路径，例如 `/npm/`。CSP 阻止所有外部图像和所有其他外部脚本、样式表和字体，并让 `fetch`、XHR 和 WebSocket 调用仅到达页面自身的源和 Google Fonts 主机。因此，Claude 从这些 CDN 之一加载页面需要的任何库，内联所有其他 CSS 和 JavaScript，并将图像嵌入为数据 URI。[连接器调用](#pull-live-data-with-mcp-connectors)通过 claude.ai 进行，它自己进行网络调用。 |
 | 无后端 | 工件是一个静态页面。它无法自行对查看者进行身份验证。 |
 | 下载 | 页面无法自行启动下载。为了让查看者保存页面生成的文件，Claude 声明下载功能。请参阅[提供文件下载](#offer-a-file-download)。 |
-| 单页面 | 相对链接无法解析，因为页面旁边没有部署任何内容。对于多部分内容，Claude 使用页面内锚点而不是单独的文件。 |
 | 源文件类型 | 发布的文件必须是 `.html`、`.htm` 或 `.md`，并且必须解码为 UTF-8，或通过其字节顺序标记解码为小端 UTF-16。Markdown 文件呈现为样式化的文档页面，带有语法突出显示的代码。无法解码或包含替换字符 `U+FFFD` 的文件会被[拒绝并显示要修复的行和列](https://code.claude.com/docs/zh-CN/errors.md#the-source-file-is-not-valid-utf-8-text)。 |
 | 源文件位置 | 路径指向网络主机的文件会被拒绝，且不会被读取。有关哪些路径会被拒绝以及 Windows 上映射驱动器的例外情况，请参阅[未发布：该文件位于网络共享上](https://code.claude.com/docs/zh-CN/errors.md#not-published-that-file-is-on-a-network-share)。 |
 | 呈现大小 | 呈现的页面必须为 16 MiB 或更小。大型嵌入图像通常是发布因大小而失败的原因。 |

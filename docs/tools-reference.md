@@ -450,6 +450,10 @@ NotebookEdit 一次修改一个 Jupyter notebook 单元格，按其 `cell_id` �
 
 权限规则使用 `Edit(...)` 路径格式。像 `Edit(notebooks/**)` 这样的规则涵盖该目录中的 NotebookEdit 调用。
 
+### 替换单元格会清除文件中已保存的输出
+
+当 NotebookEdit 替换代码单元格时，其执行计数和已保存的输出会被清除。要恢复输出，请重新运行该单元格以及所有使用其定义的函数或变量的单元格。有关 VS Code 工作流，请参阅[使用 Jupyter notebooks](https://code.claude.com/docs/zh-CN/vs-code.md#work-with-jupyter-notebooks)。
+
 ## PowerShell 工具
 
 PowerShell 工具让 Claude 能够原生运行 PowerShell 命令。在 Windows 上，这意味着命令在 PowerShell 中运行，而不是通过 Git Bash 路由。该工具的可用性取决于您的平台：
@@ -696,7 +700,7 @@ WebSearch 权限规则不需要指定符。`allow` 或 `deny` 中的单独 `WebS
 
 > [!NOTE]
 >
-> WebSearch 在 Claude API、[AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、[Google Cloud 上的 Claude Models（由 Anthropic 管理）](https://code.claude.com/docs/zh-CN/feature-availability.md#availability-by-model-provider) 和 Microsoft Foundry 上可用。在 Google Cloud 的 Agent Platform 上，它适用于 Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型。Amazon Bedrock 不公开服务器端网络搜索工具。
+> WebSearch 在 Claude API、[AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、[Google Cloud 上的 Claude Models（由 Anthropic 管理）](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md) 和 Microsoft Foundry 上可用。在 Google Cloud 的 Agent Platform 上，它适用于 Opus 4、Sonnet 4、Haiku 4.5 及更高版本的模型。Amazon Bedrock 不公开服务器端网络搜索工具。
 
 ### 会话搜索限制
 

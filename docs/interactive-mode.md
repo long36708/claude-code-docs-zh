@@ -619,9 +619,12 @@ Claude Code 没有自己的单词列表：当您的检查器说一个单词拼�
 
 粘贴的文本可能包含 Unicode 字符，这些字符在终端中显示为空白，例如标签字符、双向控制字符和零宽空格，因此提示词可能包含您看不到的文本。为了防止复制的文本携带终端无法显示的指令，Claude Code 在您按 Enter 时会移除这些字符，然后再发送任何内容。它会清理提示词和提示词包含的任何折叠的[粘贴文本引用](https://code.claude.com/docs/zh-CN/terminal-config.md#paste-large-content)的内容。Claude Code 会保留波斯语和印度文字使用的连接符以及表情符号序列中的选择器。
 
-如果 Claude Code 移除了任何内容，该 Enter 将不发送任何内容。清理后的提示词会返回到输入框中，并显示类似 `Removed 3 invisible characters · review and press Enter to send` 的通知，再次按 Enter 会发送显示的文本。
+如果 Claude Code 移除了任何内容，它会发送清理后的提示词，或者将其放回输入框供您审查。要判断属于哪种情况，请查看通知：
 
-当您在命令行上传递提示词时，例如 `claude "fix the login bug"`，Claude Code 不会等待第二次 Enter。它会移除这些字符，显示通知，并发送清理后的提示词。如果清理后的提示词将以 `/` 开头，Claude Code 会改为将其放在输入框中供您审查和发送。
+* **`Removed 3 invisible characters from your prompt`**：如果输入框为空，则您的提示词已在移除这些字符后发送。如果提示词仍在输入框中，则表示尚未发送，请再次按 Enter。
+* **`Removed 3 invisible characters · review and press Enter to send`**：未发送任何内容。请阅读输入框中清理后的提示词，然后按 Enter 按显示的内容发送。
+
+当您在命令行上传递提示词时，例如 `claude "fix the login bug"`，Claude Code 会移除这些字符，显示通知，并发送清理后的提示词。如果清理后的提示词将以 `/` 开头，Claude Code 会改为将其放在输入框中供您审查和发送。
 
 ## 使用 /diff 查看更改
 

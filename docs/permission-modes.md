@@ -346,7 +346,7 @@ claude --permission-mode plan
 * **组织**：在 Team 和 Enterprise 上，自动模式默认可用。管理员可以通过在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中将 `permissions.disableAutoMode` 设置为 `"disable"` 来为组织关闭该功能。
 * **提供商和模型**：在以下提供商上默认可用，并支持以下模型：
 
-  * **Anthropic API、[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 和 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/feature-availability.md#availability-by-model-provider)**：Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本、Haiku 5.5，或 [Fable 模型](https://code.claude.com/docs/zh-CN/model-config.md#work-with-fable)
+  * **Anthropic API、[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 和 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md)**：Claude Opus 4.6 或更高版本、Sonnet 4.6 或更高版本、Haiku 5.5，或 [Fable 模型](https://code.claude.com/docs/zh-CN/model-config.md#work-with-fable)
   * **Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry 以及已登录的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话**：仅支持 Claude Sonnet 5 或更高版本、Opus 4.7 或更高版本、Haiku 5.5 以及 Fable 模型
 
   较旧的模型（包括 Sonnet 4.5、Opus 4.5、Haiku 4.5 和 claude-3 模型）在任何提供商上均不受支持。

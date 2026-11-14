@@ -304,6 +304,7 @@ Claude Code 还会从您粘贴到输入框中的文本以及您发送的任何�
 * 扩展根据 `claudeCode.initialPermissionMode` 或从之前对话沿用的选择来[选择初始权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)
 * 您配置了 `claudeCode.claudeProcessWrapper`
 * 某条[拒绝规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)移除了 [`ExitPlanMode`](https://code.claude.com/docs/zh-CN/tools-reference) 工具
+* [`permissions.denyInsteadOfPrompting`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-denyinsteadofprompting) 已打开
 
 #### 对话仍在其他位置打开
 
@@ -605,6 +606,20 @@ summarize the changes I've made to the auth module
 
 例如，当您[要求 Claude 在某个 worktree 中工作](https://code.claude.com/docs/zh-CN/worktrees.md#ask-claude-to-create-a-worktree)时，对话就会移入该 worktree。当您重新打开该对话，或面板[在窗口重新加载后重新打开它](#continue-conversations-after-a-reload)时，如果该 worktree 是由 Claude Code 在 `.claude/worktrees/` 下创建的且仍然存在，对话将在该 worktree 中恢复。在 Claude Code v2.1.300 之前，打开的会是一个空对话。如果您使用的是这些版本，请更新扩展。
 
+## 使用 Jupyter notebook
+
+Claude Code 使用 [NotebookEdit 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#notebookedit-tool-behavior)编辑 notebook。
+
+### 重新运行已编辑的单元格
+
+当 Claude 替换代码单元格时，它会重写文件中该单元格的源代码，并清除该单元格已保存的输出和执行计数。
+
+此编辑不需要重启内核：NotebookEdit 只写入文件，不会连接到您的内核。请重新运行该单元格，以及使用其所定义的函数或变量的任何单元格。
+
+### 在编辑前保存 notebook
+
+在请求编辑之前，请先保存 notebook；扩展的 [`autosave` 设置](#extension-settings)不会在 NotebookEdit 之前执行保存。
+
 ## 在后台运行工作
 
 将长时间运行的命令或子代理发送到后台，然后从输入框中查看其状态。
@@ -736,7 +751,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `initialPermissionMode` | - | 控制新对话的批准提示：`default`、`plan`、`acceptEdits` 或 `bypassPermissions`。`manual` 是 `default` 的别名，会选择模式指示器中标记为 **Manual** 的模式。未设置时，扩展会按照[切换权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)中所述选择起始权限模式。 |
 | `preferredLocation` | `panel` | Claude 的打开位置：`sidebar`（右侧）或 `panel`（新标签页） |
 | `lockEditorGroups` | `true` | [锁定 Claude 为其标签页启动的编辑器组](#choose-where-claude-lives)，这样在 Claude 标签页获得焦点时打开的文件会进入另一个编辑器组。关闭时，扩展永远不会锁定编辑器组。需要 Claude Code v2.1.274 或更高版本 |
-| `autosave` | `true` | 在 Claude 读取或写入文件之前自动保存文件 |
+| `autosave` | `true` | 在 Read、Edit 和 Write 工具运行之前自动保存文件 |
 | `attachOpenFile` | `true` | 将编辑器中打开的文件添加到您的消息中，并在输入框中显示。关闭时，仅在您选中文本时才随之添加该文件。需要 Claude Code v2.1.271 或更高版本 |
 | `attachSelection` | `true` | 将您在编辑器中选中的文本添加到您的消息中，并在输入框中显示。关闭时，您仍然可以[将选区作为 @-mention 添加](#automatic-context-from-your-selection-and-open-file)。需要 Claude Code v2.1.300 或更高版本 |
 | `useCtrlEnterToSend` | `false` | 使用 Ctrl/Cmd+Enter 而非 Enter 发送提示词 |

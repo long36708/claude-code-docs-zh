@@ -109,7 +109,9 @@ export ANTHROPIC_FOUNDRY_RESOURCE={resource}
 
 > [!WARNING]
 >
-> 为每个部署固定特定的模型版本。如果不固定版本，模型别名（如 `sonnet` 和 `opus`）会解析为 Claude Code 为 Microsoft Foundry 内置的默认值，这可能滞后于最新版本，并且可能在您的账户中尚不可用。Microsoft Foundry 没有启动模型检查，因此当默认值不可用时请求会失败。创建 Azure 部署时，请选择特定的模型版本而不是"自动更新到最新版本"。
+> 为每个部署固定特定的模型版本。如果不固定版本，模型别名（如 `sonnet` 和 `opus`）会解析为 Claude Code 为 Microsoft Foundry 内置的默认值。该默认值可能滞后于最新版本，并且可能在您的账户中尚不可用。
+>
+> 当您的资源没有该默认值对应的部署时，Claude Code 会切换到较旧的模型，或者请求失败。发生切换时会显示一条以 `Switched to <fallback> because <model> is not available` 开头的消息。创建 Azure 部署时，请选择特定的模型版本而不是"自动更新到最新版本"。
 
 设置模型变量以匹配您在第 1 步中创建的部署名称。
 
@@ -153,7 +155,11 @@ Claude Code 从环境中读取 `CLAUDE_CODE_USE_FOUNDRY` 和其他 Microsoft Fou
 
 ## 1M token 上下文窗口
 
-在 Microsoft Foundry 上，当 Claude Code 能够识别您的部署所服务的模型时，Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本默认使用 [1M token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)，无需添加 `[1m]` 后缀。Claude Code 从模型变量中的部署名称读取模型。请使用模型 ID 命名每个部署，例如 `claude-opus-4-8`，或者使用 [`modelOverrides`](https://code.claude.com/docs/zh-CN/model-config#override-model-ids-per-version) 将模型映射到您的部署名称。对于无法匹配到模型的部署名称，Claude Code 会假定使用 200K 窗口，除非您[声明其他窗口大小](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。
+在 Microsoft Foundry 上，Fable 模型、Sonnet 5 及更高版本以及 Opus 4.7 及更高版本默认使用 [1M token 上下文窗口](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)。只要 Claude Code 能够识别您的部署所服务的模型，就无需添加 `[1m]` 后缀。
+
+> [!NOTE]
+>
+> Claude Code 从模型变量中的部署名称读取模型。请使用模型 ID 命名每个部署，例如 `claude-opus-4-8`，或者使用 [`modelOverrides`](https://code.claude.com/docs/zh-CN/model-config#override-model-ids-per-version) 将模型映射到您的部署名称。
 
 以下 `settings.json` 条目告知 Claude Code，名为 `team-opus-prod` 的部署服务于 Opus 4.8：
 
@@ -166,6 +172,8 @@ Claude Code 从环境中读取 `CLAUDE_CODE_USE_FOUNDRY` 和其他 Microsoft Fou
 ```
 
 如需改为保持 200K 窗口，请设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](https://code.claude.com/docs/zh-CN/model-config#turn-off-1m-context)。
+
+如果 Claude Code 无法将部署名称匹配到模型，它默认会假定使用 1M 窗口，因此如果您部署的模型接受的窗口更小，请[设置实际窗口大小](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。
 
 当您在 `ANTHROPIC_DEFAULT_OPUS_MODEL` 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的部署名称后附加 `[1m]` 时，Opus 4.6 和 Sonnet 4.6 可使用 1M 窗口，如[为第三方部署固定模型](https://code.claude.com/docs/zh-CN/model-config.md#pin-models-for-third-party-deployments)中所述。在 v2.1.287 之前，Fable 模型以及 Opus 4.7 及更高版本在 Microsoft Foundry 上同样需要该后缀，否则默认使用 200K 窗口。
 

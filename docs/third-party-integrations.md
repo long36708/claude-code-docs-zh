@@ -133,7 +133,7 @@ Contact sales
 * [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，一个自托管网关，在 Amazon Bedrock、Claude Platform on AWS、Google Cloud's Agent Platform、Microsoft Foundry 或 Anthropic API 前面添加 IdP 登录
 * [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)
 * [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)
-* [Google Cloud 上的 Claude 模型（由 Anthropic 管理）](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed)
+* [Google Cloud 上的 Claude 模型（由 Anthropic 管理）](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md)
 * [Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)
 * [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)
 

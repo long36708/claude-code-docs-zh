@@ -289,7 +289,7 @@
 }
 ```
 
-在 advisor [不可用](https://code.claude.com/docs/zh-CN/advisor.md#requirements)的提供商上（例如 Amazon Bedrock），此键不起作用。在 Claude Platform on AWS 或 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/feature-availability.md#availability-by-model-provider) 上，此键需要 Claude Code v2.1.300 或更高版本。`"fable"` 需要 [Fable 访问权限](https://code.claude.com/docs/zh-CN/advisor.md#choose-an-advisor-model)。
+在 advisor [不可用](https://code.claude.com/docs/zh-CN/advisor.md#requirements)的提供商上（例如 Amazon Bedrock），此键不起作用。在 Claude Platform on AWS 或 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md) 上，此键需要 Claude Code v2.1.300 或更高版本。`"fable"` 需要 [Fable 访问权限](https://code.claude.com/docs/zh-CN/advisor.md#choose-an-advisor-model)。
 
 ### `alwaysThinkingEnabled`
 
@@ -884,7 +884,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 }
 ```
 
-此键在 Code Mode 会话中的工作方式有所不同。请参阅[将所有 shell 命令交由分类器处理](https://code.claude.com/docs/zh-CN/auto-mode-config.md#route-all-shell-commands-through-the-classifier)。
+此键在 Code Mode 会话中的工作方式有所不同。请参阅[暂停 shell 允许规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#route-all-shell-commands-through-the-classifier)。
 
 ### `disableAutoMode`
 
@@ -5193,7 +5193,7 @@ Desktop 无法读取为主机列表的值（例如 `true` 或对象）在您更�
   * `"vertex"`：[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)，前身为 Vertex AI
   * `"foundry"`：[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)
   * `"anthropicAws"`：[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)
-  * `"anthropicGoogleCloud"`：[Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed)
+  * `"anthropicGoogleCloud"`：[Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md)
   * `"mantle"`：Amazon Bedrock [Mantle 端点](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#use-the-mantle-endpoint)。[同时运行 Mantle 和 Invoke API](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#run-mantle-alongside-the-invoke-api) 的会话会使用这两个提供商，因此需要同时列出 `"bedrock"` 和 `"mantle"`
   * `"customEndpoint"`：发送到其他主机的 Anthropic API 或云提供商 API，例如由 `ANTHROPIC_BASE_URL` 或提供商端点变量（如 `ANTHROPIC_BEDROCK_BASE_URL`）指定的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)。Claude Code 仅接受托管 [`env`](#env) 块所固定的确切值
   * `"gateway"`：[Cloud gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 登录

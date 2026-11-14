@@ -268,7 +268,7 @@ claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
 
 保存文件后，在项目中启动新的 Claude Code 会话。Claude Code 在启动时读取 `.mcp.json`。
 
-Claude Code 第一次看到项目范围的服务器时，它会要求您批准它。提示存在是为了防止您克隆的存储库在未经您同意的情况下在您的机器上启动进程。批准提示，或如果您错过了，运行 `/mcp` 以稍后批准。
+Claude Code 第一次看到项目作用域的服务器时，它会要求您批准它。此确认提示的存在是为了防止您克隆的仓库在未经您同意的情况下在您的机器上启动进程。请批准该确认提示。如果您已将其关闭，请运行 `claude mcp reset-project-choices` 并重新启动 Claude Code，以再次看到该提示。
 
 批准后，运行 `/mcp` 并检查服务器是否显示为已连接。如果其中一个显示错误，请参阅[故障排除](#troubleshooting)。
 

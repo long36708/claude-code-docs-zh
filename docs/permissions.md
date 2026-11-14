@@ -50,7 +50,7 @@ Claude Code 根据您的回答方式以不同的方式传递注释：
 您可以使用 `/permissions` 查看和管理 Claude Code 的工具权限。此对话框列出所有权限规则和它们来自的 `settings.json` 文件。您可以在 Claude 工作时打开此对话框：当您添加或删除规则时，Claude Code 会从 Claude 在同一轮中的下一个工具调用开始应用更改。在 v2.1.234 之前，Claude Code 会将命令排队直到轮次完成。
 
 * **Allow** 规则让 Claude Code 使用指定的工具而无需手动批准。
-* **Ask** 规则在 Claude Code 尝试使用指定工具时提示确认。
+* **Ask** 规则在 Claude 尝试使用指定工具时提示确认。
 * **Deny** 规则防止 Claude Code 使用指定的工具。
 
 规则按顺序评估：deny、ask，然后 allow。该顺序中的第一个匹配项决定结果，规则特异性不会改变顺序。

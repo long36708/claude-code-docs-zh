@@ -28,13 +28,13 @@
 
 ## 常见边界
 
-自动模式允许推送到您正在处理的存储库的任何分支（包括默认分支），并默认创建拉取请求。标记为部署或发布目标的非默认分支（例如 `production`、`release` 或 `gh-pages`）不受该默认值的约束：分类器会根据其自身条件判断对该分支的推送，包括作为生产部署。推送的内容仍然会被检查，因此强制推送、提交中出现的密钥或在 CI 或部署管道运行时会将密钥发送到存储库外的更改仍然会被阻止。
+默认情况下，在自动模式中，Claude 可以推送到您正在处理的仓库（包括其默认分支），而无需提示。当您的任务要求时，它还可以在该仓库中创建 Pull Request。某些推送和 Pull Request [会被阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#what-the-classifier-blocks-by-default)，例如包含密钥的推送或向另一个仓库创建的 Pull Request。
 
 如果您想在 Claude 的推送和拉取请求命令之前进行人工检查点，请添加权限规则：下面的[配方](#add-a-human-checkpoint)为其他所有操作保持自动模式开启。
 
 ### 添加人工检查点
 
-最直接的机制是 [`permissions.ask`](https://code.claude.com/docs/zh-CN/permissions#permission-rule-syntax)。内容范围的 ask 规则（如下面的规则）在分类器之前进行评估，并且即使在自动模式下也始终强制权限提示，因为显式 ask 规则是您明确表示要对该操作进行提示的意图。在您的 [settings](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live) 中添加规则：
+最直接的机制是 [`permissions.ask`](https://code.claude.com/docs/zh-CN/permissions#permission-rule-syntax)。下面的 ask 规则在分类器之前进行评估，因此默认情况下您会看到权限提示。在您的[设置](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中添加规则：
 
 ```json theme={null}
 {
@@ -53,7 +53,7 @@
 
 | 边界 | 机制 | 自动模式中的行为 |
 | :- | :- | :- |
-| 在操作前提示 | `permissions.ask` | 始终为匹配内容范围规则（如上面的配方）的命令进行提示。分类器无法自动批准匹配的操作。 |
+| 在操作前提示 | `permissions.ask` | 默认情况下，对匹配内容范围规则（如上面的配方）的命令进行提示。分类器无法自动批准匹配的操作。 |
 | 永不运行操作 | `permissions.deny` | 在咨询分类器之前阻止。分类器和用户意图都无法覆盖它。 |
 | 此会话的一次性边界 | 在对话中说明，例如"在我审查之前不要推送" | 分类器阻止匹配的操作，但如果 [context compaction](https://code.claude.com/docs/zh-CN/costs.md#reduce-token-usage) 删除了说明该边界的消息，边界可能会丢失。使用 ask 或 deny 规则以获得持久保证。 |
 
@@ -95,11 +95,11 @@
   * **Secrets management**
   * **CI/CD deploy targets**
   * **Network posture**
-  * **Host containment**：默认为具有开放互联网的普通开发者机器或 CI 运行器。如果 Claude Code 在具有出站允许列表或不能接触的邻居的容器、VM 或 pod 中运行，请命名允许的主机、云元数据端点是否应该可达，以及任务使用的云项目、集群或注册表以及使用什么身份。在此条目命名该身份之前，分类器[阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#what-the-classifier-blocks-by-default)对主机自身凭证的请求。需要 Claude Code v2.1.257 或更高版本
-  * **Protected deployment namespaces / environments**：在您命名它们之前回退到 Sensitive remote targets 启发式
+  * **Host containment**：默认为具有开放互联网的普通开发者机器或 CI 运行器。如果 Claude Code 在具有出站允许列表或不能接触的邻居的容器、VM 或 pod 中运行，请命名允许的主机、云元数据端点是否应该可达，以及任务使用的云项目、集群或注册表以及使用什么身份。在此条目命名该身份之前，分类器[阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#what-the-classifier-blocks-by-default)对主机自身凭据的请求。需要 Claude Code v2.1.257 或更高版本
+  * **Protected deployment namespaces / environments**：在您命名它们之前回退到 Sensitive remote targets 的默认值
   * **Data retention / declassification**
 * **Trust slots**：命名分类器视为在您边界内的内容。这些 slots 是 Trusted repo、Source control、Trusted internal domains、Trusted cloud buckets、Key internal services 和 Internal package registry。repo 和 source-control 条目默认为工作仓库及其配置的远程。所有其他信任 slot 默认为 `None configured`，因此在您添加之前没有其他内容是受信的。仓库的可见性仅限制机密材料：私有仓库是机密材料的可接受目标，但将仓库设为私有永远不会授权将秘密、个人或受信数据放入其中，分类器将从工作仓库外部移植、重新指向或首次读取的内容视为不是该仓库自身的工作。
-* **Sensitivity slots**：命名保护规则视为高风险的内容。这些 slots 是 Sensitive data locations & audiences、Sensitive remote targets 和 Protected IaC scopes。每个默认为广泛的启发式，例如将任何名称中包含 `prod` 或 `production` 的主机或命名空间视为敏感远程目标，因此保护规则在您配置任何内容之前就处于活跃状态。在敏感 slot 中命名具体目标会使这些规则应用于命名的目标而不是启发式。
+* **Sensitivity slots**：命名保护规则视为高风险的内容。这些 slots 是 Sensitive data locations & audiences、Sensitive remote targets 和 Protected IaC scopes。默认情况下，当 `prod` 或 `production` 作为完整单词出现在主机或命名空间的名称中时，该主机或命名空间即被视为敏感远程目标。例如，`prod-db` 属于敏感远程目标，而 `webprod01` 不属于。
 
 要在默认值旁边添加您自己的条目，请在数组中包含字面字符串 `"$defaults"`。默认条目在该位置被拼接，因此您的自定义条目可以在它们之前或之后。
 
@@ -130,7 +130,7 @@
 * **Key internal services**：CI、工件注册表、内部包索引、事件工具
 * **Internal package registry**：安装应该通过的私有 npm、PyPI 或其他注册表，因此绕过它安装到公开注册表的安装会被阻止
 * **Sensitive data locations & audiences**：包含个人数据、机密业务数据、凭证、受管制数据或类似敏感材料的存储桶、数据库或路径，以及每个位置中的数据可能与之共享的受众，以便分类器保护这些位置而不是从内容猜测
-* **Sensitive remote targets**：计为生产的命名空间、主机或容器，因此远程 shell 和端口转发到它们需要您的明确批准
+* **Sensitive remote targets**：计为生产的命名空间、主机或容器
 * **Protected IaC scopes**：应用或销毁应始终需要您命名更改的基础设施资源
 * **Additional context**：受管制行业约束、多租户基础设施或影响分类器应视为风险的合规要求
 
@@ -279,15 +279,19 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 
 ## 从 `/permissions` 编辑规则
 
-要在不打开设置文件的情况下查看和编辑分类器规则和 `environment` 条目，请运行 [`/permissions`](https://code.claude.com/docs/zh-CN/permissions#manage-permissions) 并选择 **Auto mode** 选项卡。该选项卡需要 Claude Code v2.1.246 或更高版本，仅当 [auto mode 对您的会话可用](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 时才会显示。
+要在不打开设置文件的情况下查看和编辑分类器规则和 `environment` 条目，请在 CLI 中运行 [`/permissions`](https://code.claude.com/docs/zh-CN/permissions#manage-permissions) 并选择 **Auto mode** 选项卡。该选项卡需要 Claude Code v2.1.246 或更高版本，仅当 [自动模式对您的会话可用](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 时才会显示。
 
 Claude Code 将来自 [managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 或 `--settings` 标志的条目显示为只读，并将您在该选项卡上所做的每项更改保存到 `~/.claude/settings.json`。
 
-## 通过分类器路由所有 shell 命令
+> [!NOTE]
+>
+> 在桌面应用中，`/permissions` 没有 **Auto mode** 选项卡。在本地、WSL 或 SSH 会话中，请在运行该会话的机器或 WSL 发行版上编辑 `~/.claude/settings.json` 中的 [`autoMode` 块](#where-the-classifier-reads-configuration)。
+
+## 暂停 shell 允许规则
 
 默认情况下，narrow Bash 和 PowerShell 允许规则（如 `Bash(npm test)`）在自动模式下保持有效。Claude Code 在分类器运行之前解析它们，除非命令携带[按命令允许的域](https://code.claude.com/docs/zh-CN/sandboxing.md#per-command-allowed-domains-in-auto-mode)。Claude Code 仅暂停授予任意代码执行权限的广泛规则，例如 `Bash(*)` 或通配符解释器，以及每个命名 [`Monitor`](https://code.claude.com/docs/zh-CN/tools-reference#monitor-tool) 的规则，因为 Monitor 命令通过 shell 运行。这意味着 narrow 规则仍然可以让分类器看不到的破坏性参数通过，例如规则前缀未预期的脚本路径或标志。
 
-将 `autoMode.classifyAllShell` 设置为 `true`，以在自动模式处于活动状态时暂停每个 Bash 和 PowerShell 允许规则，使分类器评估每个 shell 命令，无论您的允许列表如何，除了[关键路径移除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)。在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 会话中，即使启用了此设置，分类器也会审查运行这些命令的代码。
+将 `autoMode.classifyAllShell` 设置为 `true`，以在自动模式处于活动状态时，以及在[分类器审查命令时的计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，暂停您的 Bash 和 PowerShell 允许规则。在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 会话中，即使启用了此设置，分类器也会审查运行这些命令的代码。
 
 ```json theme={null}
 {
@@ -297,9 +301,7 @@ Claude Code 将来自 [managed settings](https://code.claude.com/docs/zh-CN/serv
 }
 ```
 
-这用延迟换取覆盖范围：允许规则会立即批准的命令现在等待分类器决策，每个 shell 命令都计为一次分类器调用。
-
-该设置仅在自动模式处于活动状态时适用，您的允许规则在其他权限模式中表现正常。
+在自动模式和计划模式下，原本仅由允许规则批准的命令会耗时更长，因为每个命令都需要等待分类器决策。
 
 ## 检查默认值和有效配置
 
@@ -358,6 +360,10 @@ claude auto-mode reset
 该命令总结将删除的内容，并在写入前询问 `Reset auto mode configuration to defaults?`；传递 `--yes` 以跳过确认。Reset 仅更改 `~/.claude/settings.json`：来自[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)或 `--settings` 标志的 `autoMode` 规则仍然适用。
 
 ## 审查拒绝
+
+> [!NOTE]
+>
+> 在桌面应用中，`/permissions` 没有 **Recently blocked** 选项卡。要让 Claude 重试您确实打算执行的操作，请在下一条消息中[指明该操作及其具体细节](https://code.claude.com/docs/zh-CN/permission-modes.md#approvals-you-state-in-conversation)。
 
 要让 Claude 重试被阻止的操作，请使用 `/permissions` 中的 **Recently blocked** 选项卡：
 

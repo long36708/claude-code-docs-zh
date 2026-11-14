@@ -45,7 +45,7 @@
 | :- | :- | :- | :- |
 | Anthropic API | Opus 5.5 | Sonnet 5.5 | Haiku 5.5 |
 | [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) | Opus 5.5 | Sonnet 4.6 | Haiku 4.5 |
-| [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed) | Opus 5.5 | Sonnet 5.5 | Haiku 4.5 |
+| [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md) | Opus 5.5 | Sonnet 5.5 | Haiku 4.5 |
 | Amazon Bedrock、Google Cloud 的 Agent Platform | Opus 5.5 | Sonnet 4.5 | Haiku 4.5 |
 | Microsoft Foundry | Opus 4.6 | Sonnet 4.5 | Haiku 4.5 |
 
@@ -110,6 +110,7 @@
 提示等待期间您可以执行的操作取决于会话：
 
 * 在连接了 Remote Control 的会话或队友的会话中，在终端按任意键可取消截止时间，Claude Code 会等待您的回答。
+* 在连接了 Remote Control 的交互式终端会话中，您也可以在已连接的设备上回答，该回答在该会话期间持续有效。需要 Claude Code v2.1.323 或更高版本。
 * 在后台会话中，请在截止时间前回答。
 * 如果在有人在终端输入之前，您从远程客户端发送了新消息，Claude Code 会以相同的方式结束该轮次，您的新消息将开始下一轮。在有人在终端输入之后，Claude Code 会继续等待回答，并将您的新消息排在其后。
 
@@ -186,6 +187,10 @@ claude --model opus
 ```text theme={null}
 /model sonnet
 ```
+
+> [!NOTE]
+>
+> 默认情况下，您在 Anthropic API 上使用 Claude Opus 4 或 Opus 4.1 ID（例如 `claude-opus-4-1`）启动的会话会在 `opus` 解析到的模型上运行。
 
 示例设置文件：
 
@@ -310,7 +315,7 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
 
 | 交付机制 | CLI 和 IDE | 桌面本地会话 | Web、移动和云端会话 | Agent SDK 和非交互式 | Cowork |
 | :- | :- | :- | :- | :- | :- |
-| 来自管理控制台的[服务器管理设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md) | 强制执行 | 强制执行 | 强制执行，除了[Claude Tag](https://claude.com/docs/claude-tag/overview) 会话 | 强制执行 | 远程 Cowork 会话：服务器检查模型。在用户的机器上：未交付。 |
+| 来自管理控制台的[服务器管理设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md) | 强制执行 | 强制执行 | 强制执行，但不会交付给 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话，也不会交付给[使用 Amazon Bedrock 或 Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#what-differs-from-sessions-on-the-anthropic-api) 的自托管运行器上的会话 | 强制执行 | 远程 Cowork 会话：服务器检查模型。在用户的机器上：未交付。 |
 | [MDM 或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms) | 强制执行 | 强制执行 | 在 Anthropic 托管环境中未交付；在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中，根据[Claude Code 如何组合托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)从运行器镜像强制执行 | 强制执行 | 在部署的地方强制执行 |
 
 * [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)（包括您从桌面应用启动的会话）默认在 Anthropic 管理的 VM 上运行：部署到您的设备的设置不会到达它们，因此通过服务器管理设置交付允许列表。您的组织路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话在您自己的计算上运行，也读取运行器镜像中的托管设置文件。[Claude Code 如何组合托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明了该文件何时适用。云端会话中的中途模型切换在请求的模型被允许列表排除时被拒绝。当您的服务器管理设置中的 `availableModels` 列表非空时，服务器拒绝在 claude.ai/code 或从桌面应用以列表排除的模型启动云端会话的请求。
@@ -718,11 +723,19 @@ Opus 5.5 [默认为 `medium`](#adjust-effort-level)，比 Opus 5 的默认值 `h
 
 在您的提示词中的任何地方包含 `ultrathink` 以请求该轮次的更深推理，而不改变您的会话 effort 设置。Claude Code 识别关键字并添加上下文内指令。Claude Code 将其他短语如"think"、"think hard"和"think more"作为普通提示词文本传递，不将它们识别为关键字。
 
-在终端输入框中键入时，该词还可以将该轮次提升到 `xhigh` effort。当它可以这样做时，该词会以彩虹色显示。需要 Claude Code v2.1.311 或更高版本。如果您开始新轮次时该词没有以彩虹色显示，请尝试以下方法之一：
+要同时将该轮次提升到 `xhigh` effort，请在以下位置之一键入该词：
+
+* 终端输入框，当该词可以提升轮次时会以彩虹色显示。需要 Claude Code v2.1.311 或更高版本。
+* VS Code 的聊天框，该词在此处同样以彩虹色显示。需要 Claude Code v2.1.316 或更高版本。
+* 桌面应用 Code 标签页中的本地会话。需要 Claude Code v2.1.316 或更高版本。
+
+如果您开始新轮次时该词没有以彩虹色显示，请尝试以下方法之一：
 
 * 在不以 `/` 开头的提示词中重新键入该词，并确保它不在引号、括号、路径或命令等任何内容之内
 * 如果 `CLAUDE_CODE_EFFORT_LEVEL` 设置为低于 `xhigh` 的级别，请取消设置它。或者将您自己的 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) 提高到 `xhigh` 或更高，或请组织管理员提高您的[组织限制](#organization-effort-limits)
-* 在会话中运行 `/model` 切换到 Opus 5.5、Sonnet 5.5、Haiku 5.5、Fable 5.2 或 Fable 5.1 模型。在该词无法提升轮次的情况下（例如在 Amazon Bedrock 上），请改为[设置 effort 级别](#set-the-effort-level)
+* 在会话中运行 `/model` 切换到 Opus 5.5、Sonnet 5.5、Haiku 5.5、Fable 5.2 或 Fable 5.1 模型。在该词无法提升轮次的情况下（例如在 Amazon Bedrock、Google Cloud's Agent Platform 或 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 上），请改为[设置 effort 级别](#set-the-effort-level)
+
+要关闭该关键字（包括其上下文内指令），请在您的 shell 或[设置文件](https://code.claude.com/docs/zh-CN/env-vars.md#in-settings-files)中将 `CLAUDE_CODE_DISABLE_ULTRATHINK` 设置为 `1`。需要 Claude Code v2.1.316 或更高版本。
 
 #### 设置 effort 级别
 
@@ -909,14 +922,14 @@ Claude Code 无法检测网关或其后面的服务器强制的更低限制。�
 
 ### 为网关或自定义模型 ID 更正窗口
 
-以下任一警告都表示 Claude Code 无法识别您会话的模型 ID，因此无法得知该模型的上下文窗口，并假设其为 200K token：
+以下任一警告都表示 Claude Code 无法识别您会话的模型 ID，并假设其上下文窗口为警告中指出的大小：
 
 ```text theme={null}
-⚠ Model "my-gateway-opus" isn't recognized · context assumed to be 200k tokens · ...
-Claude Code doesn't recognize the model "my-gateway-opus", so it assumes a context window of 200k tokens. Update Claude Code, or see https://code.claude.com/docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id to set the window.
+⚠ Model "my-gateway-opus" isn't recognized · context assumed to be 1m tokens · ...
+Claude Code doesn't recognize the model "my-gateway-opus", so it assumes a context window of 1m tokens. Update Claude Code, or see https://code.claude.com/docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id to set the window.
 ```
 
-Claude Code 会在假设的 200K 处[自动压缩](#default-auto-compact-thresholds)对话，因此如果模型的实际上下文窗口为 200K，则无需更正。否则，请根据您的 ID 选择以下适用的方式，将实际窗口告知 Claude Code：
+Claude Code 会[自动压缩](#default-auto-compact-thresholds)对话以适应假设的窗口，因此如果警告中指出的正是模型的实际上下文窗口，则无需更正。否则，请将实际窗口告知 Claude Code：
 
 * **比您的 Claude Code 版本更新的模型**：在 shell 中运行 `claude update`。如果更新后 Claude Code 能识别该 ID，则无需再配置其他内容。
 * **您的网关或提供商为 Claude Code 已知模型使用的名称**：添加一个 [`modelOverrides`](#override-model-ids-per-version) 条目，将 Anthropic 模型 ID 映射到您的 ID，例如 `"claude-opus-4-8": "my-gateway-opus"`。您也可以改为在 [`modelPicker`](https://code.claude.com/docs/zh-CN/settings-reference#fields-for-modelpicker) 行中列出您的 ID，并将 `behavesAs` 设置为该模型。无论采用哪种方式，Claude Code 随后都会将该 ID 视为该模型。
@@ -995,7 +1008,10 @@ Claude Code 跳过对 `ANTHROPIC_CUSTOM_MODEL_OPTION` 中设置的模型 ID 的�
 
 当通过 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)、[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md) 或 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 部署 Claude Code 时，在向用户推出前固定模型版本。
 
-不固定模型，Claude Code 会使用模型别名（如 `fable`、`opus`、`sonnet` 和 `haiku`），这些别名会解析为每个提供商的内置默认模型 ID。该默认值可能滞后于最新的 Anthropic 版本，并且它指向的模型可能尚未在用户账户中启用。当默认值不可用时，Amazon Bedrock 和 Google Cloud's Agent Platform 用户会看到通知，会话会回退到该默认模型的早期版本，或当默认值是 Opus 模型且没有 Opus 版本可用时回退到默认 Sonnet 模型。Microsoft Foundry 用户则会看到错误，因为 Microsoft Foundry 没有等效的启动检查。
+不固定模型，Claude Code 会使用模型别名（如 `fable`、`opus`、`sonnet` 和 `haiku`），这些别名会解析为每个提供商的内置默认模型 ID。该默认值可能滞后于最新的 Anthropic 版本，并且它指向的模型可能尚未在用户账户中启用。当默认值不可用时：
+
+* **Amazon Bedrock 和 Google Cloud's Agent Platform**：经过[启动检查](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#startup-model-checks)后，用户会看到通知，会话会回退到该默认模型的早期版本。当默认值是 Opus 模型且没有可用的 Opus 版本时，会话会回退到默认 Sonnet 模型。
+* **Microsoft Foundry**：Claude Code 会切换到较旧的模型，或者请求失败。
 
 在 Amazon Bedrock 和 Google Cloud's Agent Platform 上，以特定 Sonnet 或 Opus 版本启动会话的用户（例如使用 `--model`、`ANTHROPIC_MODEL` 或 `model` 设置），会将该版本固定为会话的默认值，用于匹配的别名：启动检查会跳过它替换的内置默认值，并且不显示回退通知。在 v2.1.211 之前，即使会话模型被显式配置，检查也会运行并可能显示通知。
 
@@ -1013,7 +1029,10 @@ Claude Code 跳过对 `ANTHROPIC_CUSTOM_MODEL_OPTION` 中设置的模型 ID 的�
 
 对 `ANTHROPIC_DEFAULT_FABLE_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 和 `ANTHROPIC_DEFAULT_HAIKU_MODEL` 应用相同的模式。有关所有提供商的当前和旧版模型 ID，请参阅[模型概览](https://platform.claude.com/docs/en/about-claude/models/overview)。要将用户升级到新模型版本，请更新这些环境变量并重新部署。
 
-具有原生 1M 窗口的固定模型（如 Opus 4.8 或 Sonnet 5），当 Claude Code 能够将固定 ID 与该模型匹配时，无需任何后缀即可以 [1M 上下文窗口](#extended-context)运行。当 ID 包含该模型的 Anthropic API ID（例如 `us.anthropic.claude-opus-4-8` 包含 `claude-opus-4-8`），或 [`modelOverrides`](#override-model-ids-per-version) 条目将该模型映射到该 ID 时，即视为匹配。对于 Claude Code 无法与模型匹配的固定 ID，会话默认以 200K 窗口运行，除非该 ID 带有 `[1m]` 后缀。
+默认情况下，在以下情况中，Claude Code 会将固定 ID 视为具有 [1M 上下文窗口](#extended-context)，无需 `[1m]` 后缀：
+
+* **Claude Code 匹配到具有原生 1M 窗口的模型（如 Opus 4.8 或 Sonnet 5）的 ID**：当 ID 包含该模型的 Anthropic API ID（例如 `us.anthropic.claude-opus-4-8` 包含 `claude-opus-4-8`），或 [`modelOverrides`](#override-model-ids-per-version) 条目将该模型映射到该 ID 时，即视为匹配
+* **Claude Code 无法与模型匹配的 ID**：如果该 ID 背后的模型接受的上下文更少，请[设置实际窗口](#correct-the-window-for-a-gateway-or-custom-model-id)
 
 对于通过其 `[1m]` 变体达到 1M 的模型（如 Opus 4.6 或 Sonnet 4.6），请在 `ANTHROPIC_DEFAULT_OPUS_MODEL` 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的模型 ID 后附加 `[1m]` 以启用扩展上下文：
 

@@ -19,6 +19,7 @@
 | `claude --continue` | 重新打开当前目录中最近的会话 |
 | `claude --resume` | 打开[会话选择器](#use-the-session-picker) |
 | `claude --resume <name>` | 直接恢复命名的会话 |
+| `claude --resume <session-id>` | 恢复[具有该 ID 的会话](#resume-by-session-id-or-name) |
 | `claude --resume <transcript-path>` | 恢复存储在该绝对路径的 `.jsonl` [会话记录文件](#where-transcripts-are-stored)中的会话 |
 | `claude --from-pr <number>` | 打开会话选择器，筛选链接到该 Pull Request 的会话 |
 | `/resume` | 从活跃会话内切换到不同的会话 |
@@ -54,7 +55,21 @@
 * 会话范围的定时任务：[未过期的任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#limitations)会被恢复。后台 Bash 和监视任务不会。
 * 后台工作：随上一个进程结束的[后台子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)、后台 Bash 命令或[工作流](https://code.claude.com/docs/zh-CN/workflows.md)，会在恢复的会话记录中显示为未完成的注记。Claude Code 不会因这些注记启动轮次；Claude 会随您的下一个提示词读取它们。
 
-并非原始启动的每个配置标志都会被恢复。如果会话依赖于 `--mcp-config`、`--settings`、`--plugin-dir`、`--fallback-model` 或使用 `--add-dir` 添加的目录，请在恢复时再次传递它们；在会话中途使用 `/add-dir` 添加的目录也不会被恢复，尽管会话选择器仍然使用它们来定位会话。标准设置文件（如 `settings.json` 和 `settings.local.json`）会在启动时重新读取，因此存放在其中的配置不需要再次传递。关于 `--system-prompt` 和 `--append-system-prompt`，请参阅[恢复对话中的系统提示词标志](https://code.claude.com/docs/zh-CN/cli-reference.md#system-prompt-flags-in-resumed-conversations)。
+#### 恢复时需要再次传递的标志
+
+> [!NOTE]
+>
+> 当您在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#what-persists-across-restarts)运行期间重新打开它时，或在它停止后使用 `--bg` 通过完整会话 ID 恢复它时，请勿重复传递启动标志。在这两种情况下，会话都会保留其标志。
+
+对于任何其他 `claude --continue` 或 `claude --resume`，请再次传递诸如以下的[标志](https://code.claude.com/docs/zh-CN/cli-reference.md#cli-flags)，因为 Claude Code 不会恢复它们：
+
+* **MCP 服务器**：`--mcp-config`
+* **插件**：`--plugin-dir`
+* **目录**：`--add-dir`，如 `claude --continue --add-dir ../shared`。对于使用 `/add-dir` 添加的目录，也请使用 `--add-dir`。
+* **额外设置**：`--settings`
+* **备用模型**：`--fallback-model`
+
+关于 `--system-prompt` 和 `--append-system-prompt`，请参阅[恢复对话中的系统提示词标志](https://code.claude.com/docs/zh-CN/cli-reference.md#system-prompt-flags-in-resumed-conversations)。
 
 #### 恢复时的权限模式
 
@@ -66,7 +81,7 @@ Claude Code 以何种权限模式启动恢复的会话取决于您如何恢复�
 * 启动时的会话选择器：您从[会话选择器](#use-the-session-picker)中选择的会话，无论您是单独使用 `claude --resume`、使用 `claude --from-pr`，还是使用与多个会话匹配的名称打开它。Claude Code 以从同一命令行启动新会话时的权限模式启动该会话，但以计划模式结束的会话会以计划模式恢复。如果您传递 `--permission-mode`、`--dangerously-skip-permissions` 或 `--fork-session`，Claude Code 不会恢复计划模式。不会恢复其他存储的权限模式。
 * 会话内的 `/resume`，带或不带参数：您切换到的对话继续使用您当前会话所在的权限模式，但以计划模式结束的对话会以计划模式恢复，即使您使用 `--permission-mode` 或 `--dangerously-skip-permissions` 启动了 Claude Code。如果该对话在本次运行 Claude Code 期间已经打开过，例如您开始时的对话，或您通过 `/clear` 或 `/resume` 离开的对话，则它会改为继续使用您当前的权限模式。
 
-如果某条[拒绝规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)移除了 [`ExitPlanMode`](https://code.claude.com/docs/zh-CN/tools-reference) 工具，Claude 就无法呈现计划以供批准，因此 Claude Code 不会恢复计划模式。会话以从同一命令行启动新会话时的权限模式启动。使用 `/resume` 时，对话继续使用您当前的权限模式。
+如果某条[拒绝规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)移除了 [`ExitPlanMode`](https://code.claude.com/docs/zh-CN/tools-reference) 工具，或 [`permissions.denyInsteadOfPrompting`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-denyinsteadofprompting) 已开启，Claude 就无法呈现计划以供批准，因此 Claude Code 不会恢复计划模式。会话以从同一命令行启动新会话时的权限模式启动。使用 `/resume` 时，对话继续使用您当前的权限模式。
 
 在非交互式和 VS Code 路径上恢复计划模式需要 Claude Code v2.1.246 或更高版本。每一行列出会话结束时的权限模式、您通过终端、非交互式和 VS Code 中的哪条路径恢复它，以及 Claude Code 启动恢复会话时的权限模式。
 
@@ -74,7 +89,7 @@ Claude Code 以何种权限模式启动恢复的会话取决于您如何恢复�
 | :- | :- | :- |
 | `bypassPermissions` | 终端 | 新会话会启动的权限模式。要再次[绕过权限](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)，请在启动时使用其启动标志之一，或在[用户、`--settings` 或托管设置](https://code.claude.com/docs/zh-CN/settings-reference#permissions-defaultmode)中使用 `permissions.defaultMode: "bypassPermissions"` 启用它 |
 | `plan` | 终端 | 计划模式。使用 `--fork-session` 时，为新会话会启动的权限模式 |
-| `plan` | 终端，当拒绝规则移除了 `ExitPlanMode` 时 | 新会话会启动的权限模式 |
+| `plan` | 终端，当拒绝规则移除了 `ExitPlanMode` 或 `permissions.denyInsteadOfPrompting` 已开启时 | 新会话会启动的权限模式 |
 | `auto` | 终端 | `auto`，仅当您的帐户仍然满足[自动模式要求](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)时 |
 | Manual | 终端 | 当新会话会因[内置默认值](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)以自动模式启动时，为手动模式。当来自设置文件的 `defaultMode` [生效](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)时，Claude Code 改为以该模式启动恢复的会话 |
 | `plan` | 非交互式，在[下面的条件](#resume-in-plan-mode-with-p)下 | 计划模式 |
@@ -86,6 +101,7 @@ Claude Code 以何种权限模式启动恢复的会话取决于您如何恢复�
 `claude -p --resume` 或 `claude -p --continue` 运行仅在以下所有条件都成立时才以计划模式恢复：
 
 * 您传递 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)，且不传递 [`--permission-prompts none`](https://code.claude.com/docs/zh-CN/headless#turn-off-permission-prompts-in-unattended-runs)，以便 Claude Code 可以呈现计划以供批准
+* [`permissions.denyInsteadOfPrompting`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-denyinsteadofprompting) 未开启
 * 您不传递 `--permission-mode` 或 `--dangerously-skip-permissions`
 * 您不传递 `--fork-session`
 * 运行不是通过[频道](https://code.claude.com/docs/zh-CN/channels.md)启动的
@@ -159,6 +175,8 @@ Claude Code 将使用 [`claude -p`](https://code.claude.com/docs/zh-CN/headless)
 * 默认显示名称：您从未命名的交互式会话在启动时仍会获得默认显示名称。默认名称将工作目录的名称与两个字符的后缀组合在一起，例如 `my-app-3f`，并在运行会话的列表中标识会话，例如 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 和 `claude agents --json` 输出。默认名称不是恢复句柄。如果您将其传递给 `claude --resume` 或 `/resume`，Claude Code 不会找到该会话。
 * 生成的标题：如果您不命名会话，Claude Code 会为其生成会话标题。该标题是您第一个提示的简短摘要，由对小型/快速模型（通常是 Haiku 级别的模型）的后台请求编写。您直接从 shell 或脚本启动的 `claude -p` 运行不会获得一个。
 
+  如果您将 [`CLAUDE_CODE_DISABLE_TERMINAL_TITLE`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1`，终端和 Agent SDK 会话将不会获得此标题。
+
   接受计划会将生成的标题替换为基于计划的标题。您可以将任一标题传递给 `claude --resume` 或 `/resume`，Claude Code 会以与您设置的名称相同的方式解析它。
 
 ## 使用会话选择器
@@ -214,7 +232,7 @@ claude --continue --fork-session
 | 进行中的 [background subagents](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background) 和 [background Bash commands](https://code.claude.com/docs/zh-CN/interactive-mode.md#background-bash-commands) | 继续运行。它们的输出出现在您切换到的新分支中，而不是在原始会话中 |
 | [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 连接 | 保持连接。连接到会话的手机或浏览器跟随您进入分支，并在那里继续接收新消息 |
 
-如果您在两个终端中恢复同一会话而不分叉，来自两者的消息会交错到一个文本记录中。对于单个会话内基于 checkpoint 的回退，请参阅 [Checkpointing](https://code.claude.com/docs/zh-CN/checkpointing.md)。
+如果您同时在两个终端中或在两次 `claude -p` 运行中恢复同一会话，两者都会写入同一个会话记录。当您稍后恢复该会话时，其中一方的消息可能会缺失。要保留两个对话，请在每个 `claude` 命令中添加 `--fork-session`。对于单个会话内基于检查点的回退，请参阅[检查点功能](https://code.claude.com/docs/zh-CN/checkpointing.md)。
 
 ## 管理会话内的上下文
 

@@ -46,7 +46,8 @@
 | `Agent terminated early due to an API error` | [服务器错误](#agent-terminated-early-due-to-an-api-error) |
 | `You've hit your session limit` / `You've hit your weekly limit` / `You've hit your Opus limit` / `You've hit your Sonnet limit` | [使用限制](#youve-hit-your-session-limit) |
 | `Usage credits required for 1M context` | [使用限制](#usage-credits-required-for-1m-context) |
-| `the prompt to confirm went unanswered — nothing was sent` | [使用限制](#the-prompt-to-confirm-went-unanswered) |
+| `the prompt to confirm went unanswered · nothing was sent`，自 v2.1.324 起 | [用量限制](#the-prompt-to-confirm-went-unanswered) |
+| `Claude stopped here · send a message to be asked again` | [用量限制](#the-prompt-to-confirm-went-unanswered) |
 | `Server is temporarily limiting requests` | [使用限制](#server-is-temporarily-limiting-requests) |
 | `Request rejected (429)` | [使用限制](#request-rejected-429) |
 | `Credit balance is too low` | [使用限制](#credit-balance-is-too-low) |
@@ -84,6 +85,7 @@
 | `Remote Control stopped — the app running this session is now signed in to a different Claude account` | [身份验证](#remote-control-stopped-because-the-app-running-the-session-signed-out-or-switched-accounts) |
 | `Remote Control stopped — the app running this session is signed out of Claude` | [身份验证](#remote-control-stopped-because-the-app-running-the-session-signed-out-or-switched-accounts) |
 | `Couldn't verify your organization's policy for remote control` | [Troubleshoot Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#couldnt-verify-your-organizations-policy-for-remote-control) |
+| `Remote Control didn't finish connecting` | [启动 Remote Control 会话](https://code.claude.com/docs/zh-CN/remote-control.md#start-a-remote-control-session) |
 | `Remote Control is disabled by your organization's policy` | [Troubleshoot Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#remote-control-is-disabled-by-your-organizations-policy) |
 | `Remote Control was turned off by your organization's policy` | [Troubleshoot Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#remote-control-was-turned-off-by-your-organizations-policy) |
 | `Session failed: working folder not found:` | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#working-folder-not-found) |
@@ -142,11 +144,13 @@
 | `Unable to connect to API` | [网络](#unable-to-connect-to-api) |
 | `Connection refused —` / `Can't reach the API server —` / `No internet route —` / `Couldn't connect through your proxy` / `Connection dropped`，每个都带有括号中的错误代码 | [网络](#unable-to-connect-to-api) |
 | `Unable to connect to Anthropic services` during setup | [网络](#unable-to-connect-to-anthropic-services) |
+| `Unable to fetch your privacy settings at this time` | [claude.ai 上的隐私设置](https://claude.ai/settings/data-privacy-controls) |
 | `Socket is closed` | [网络](#socket-is-closed) |
 | `Waiting for API response · will retry in` | [自动重试](#automatic-retries)，或如果持续存在，则为[网络](#unable-to-connect-to-api) |
 | `API returned an empty or malformed response` | [网络](#api-returned-an-empty-or-malformed-response) |
 | `Streaming response ended before any complete data was received` | [网络](#streaming-response-ended-before-any-complete-data-was-received) |
 | `Bedrock streaming response has content-type "..."; expected "application/vnd.amazon.eventstream"` | [网络](#bedrock-streaming-response-has-an-unexpected-content-type) |
+| `Claude Code used only the certificates that it could read in full from the NODE_EXTRA_CA_CERTS file` / `Claude Code ignored all of the NODE_EXTRA_CA_CERTS file: it holds no certificate that Claude Code can read` | [自定义 CA 证书](https://code.claude.com/docs/zh-CN/network-config.md#custom-ca-certificates) |
 | `SSL certificate verification failed` | [网络](#ssl-certificate-errors) |
 | `SSL certificate error (...)` during login or startup | [网络](#ssl-certificate-errors) |
 | `unable to get local issuer certificate` | [网络](#ssl-certificate-errors) |
@@ -277,6 +281,7 @@
 | ``Couldn't run `<command>` for <name>. A file named HEAD or .git in this folder or one above it may not be yours``，来自注入动态上下文的 skill | [注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands) |
 | ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`` | [命令行错误](#security-review-fails-without-origin-head) |
 | `No shell command in <name> was run, because the <tool> tool does not accept one of them` | [命令行错误](#no-shell-command-was-run) |
+| `This skill, command or hook and the arguments filled into it add up to more than 4,000,000 characters` | [命令行错误](#skill-command-or-hook-over-the-4000000-character-limit) |
 | `Input must be provided either through stdin or as a prompt argument when using --print` | [命令行错误](#input-must-be-provided-when-using-print) |
 | `Claude Code can't read the keyboard here: stdin is not a terminal` | [命令行错误](#claude-code-cant-read-the-keyboard-here) |
 | `Error: Input contained only whitespace` | [命令行错误](#input-contained-only-whitespace) |
@@ -290,6 +295,7 @@
 | `Your connected GitHub account can't see <owner>/<repo>` | [命令行错误](#your-connected-github-account-cant-see-the-repository) |
 | `The GitHub App preflight failed transiently (network or service hiccup) — retry in a moment to start from GitHub instead` | [命令行错误](#the-github-app-preflight-failed-transiently) |
 | `Not uploading this working tree` with `the upload cannot follow that setting` | [命令行错误](#the-repository-upload-cant-follow-a-git-setting) |
+| `Not uploading this working tree` 并附带其他原因 / `Git will not work in this checkout because its folder, or the .git in it, belongs to another user` | [不通过 GitHub 发送本地仓库](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github) |
 | `GitHub isn't connected to your Claude account, so this repository can't be cloned in the cloud` | [命令行错误](#github-isnt-connected-to-your-claude-account) |
 | `Your GitHub organization has an IP allowlist that is blocking Claude` | [命令行错误](#a-github-organization-policy-is-blocking-claude) |
 | `Your GitHub organization requires single sign-on` | [命令行错误](#a-github-organization-policy-is-blocking-claude) |
@@ -313,6 +319,7 @@
 | `/recap only runs when you ask for it yourself in this session` | [命令行错误](#recap-only-runs-when-you-ask-for-it-yourself) |
 | `/feedback is disabled by your organization's policy`，或 `/bug` 或 `/share` 的相同消息 | [命令行错误](#feedback-is-disabled-by-your-organizations-policy) |
 | `` `plugin eval` is currently in early access `` / `` `plugin eval` is currently unavailable `` | [Plugin 错误](#plugin-eval-is-currently-in-early-access) |
+| `credential store on this machine holds a symbolic link inside it` | [授予工具](https://code.claude.com/docs/zh-CN/plugin-evals.md#grant-tools) |
 | `cannot be evaluated where sessions load it` | [使用 evals 测试插件](https://code.claude.com/docs/zh-CN/plugin-evals.md#cannot-be-evaluated-where-sessions-load-it) |
 | `Marketplace "<name>" is registered from an untrusted source` | [Plugin 错误](#marketplace-is-registered-from-an-untrusted-source) |
 | `Claude Code refuses the marketplace name "<name>"` | [Plugin 错误](#claude-code-refuses-the-marketplace-name) |
@@ -359,7 +366,7 @@
 | `cannot contain null bytes (\0)` | [工具错误](#path-cannot-contain-null-bytes) |
 | `Path contains null bytes` | [工具错误](#path-cannot-contain-null-bytes) |
 | `command contains the invisible character U+FEFF (byte order mark) or U+180E (Mongolian vowel separator), and was not run` | [工具错误](#command-contains-an-invisible-character) |
-| `This call was not run. The command was approved before Claude Code restarted` | [工具错误](#command-approved-before-a-restart-was-not-run) |
+| `This call was not run. Claude Code could not confirm that the shell is back in the directory`，自 v2.1.323 起 | [工具错误](#command-approved-before-a-restart-was-not-run) |
 | `File is too large to read as an image (the limit is 128MB)` | [工具错误](#file-is-too-large-to-read-as-an-image) |
 | `Cannot read this as an image: <path> is a pipe or a device` | [工具错误](#file-is-too-large-to-read-as-an-image) |
 | `subagent_type is required: the general-purpose agent is not available in this session` | [工具错误](#subagent-type-is-required) |
@@ -448,6 +455,7 @@
 | `Claude Code's fullscreen renderer didn't finish starting last time on this machine` / `Claude Code's fullscreen renderer has repeatedly failed to start on this machine` | [全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md#fullscreen-renderer-didnt-finish-starting) |
 | `Claude Code exited after an unrecoverable interface error (...)` | [配置警告](#exited-after-an-unrecoverable-interface-error) |
 | `Agent descriptions are over the 15.0k-token limit` | [配置警告](#agent-descriptions-are-over-the-15000-token-limit) |
+| `declares type "claudeai-proxy", which only claude.ai connectors use` | 从您的 MCP 配置中删除该条目。请参阅[使用来自 claude.ai 的 MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)。 |
 | `hook needs quotes around a path with a space` | [配置警告](#hook-needs-quotes-around-a-path-with-a-space) |
 | `Instruction file not loaded` | [配置警告](#instruction-file-not-loaded) |
 | `Not loaded: rename <path>, then restart — its name uses "<name>", a name reserved for the skills synced from your claude.ai account` | [配置警告](#a-skill-command-or-workflow-wasnt-loaded-because-its-name-is-reserved) |
@@ -489,8 +497,7 @@
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" reads as <N> tokens, so Claude Code treats it as the 100k minimum` | [`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值和警告](https://code.claude.com/docs/zh-CN/model-config#claude_code_auto_compact_window-values) |
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" is too large, so Claude Code treats it as the 1M maximum` | [`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值和警告](https://code.claude.com/docs/zh-CN/model-config#claude_code_auto_compact_window-values) |
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW="<value>" isn't a usable size, so Claude Code ignores it` | [`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值和警告](https://code.claude.com/docs/zh-CN/model-config#claude_code_auto_compact_window-values) |
-| `Model "<model>" isn't recognized · context assumed to be 200k tokens` | [更正网关或自定义模型 ID 的窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id) |
-| `Claude Code doesn't recognize the model "<model>", so it assumes a context window of 200k tokens` | [更正网关或自定义模型 ID 的窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id) |
+| `Model "<model>" isn't recognized · context assumed to be <N> tokens` / `Claude Code doesn't recognize the model "<model>", so it assumes a context window of <N> tokens` | [为网关或自定义模型 ID 更正窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id) |
 | `Model "<model>" isn't recognized · did you mean "<suggestion>"?` / `Claude Code doesn't recognize the model "<model>". Did you mean "<suggestion>"?` | [修正拼写错误的模型名称](https://code.claude.com/docs/zh-CN/model-config.md#fix-a-mistyped-model-name) |
 | `[claude-code:unrecognized_model]` | [配置警告](#unrecognized-model-id-on-a-request) |
 | `is ignored — managed settings set allowManagedReadPathsOnly` / `is ignored — managed settings set allowManagedDomainsOnly` | [配置警告](#sandbox-allow-entries-are-ignored-under-a-managed-lock) |
@@ -937,17 +944,17 @@ API Error: Usage credits required for 1M context · run /usage-credits to turn t
 当 [Fable usage-credits consent prompt](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits) 在无人回答的情况下关闭时，Claude Code 会以以下消息之一结束轮次：
 
 ```text theme={null}
-Fable limit reached · continuing on Fable 5.1 uses usage credits, and the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
-Fable 5.1 now uses usage credits · the prompt to confirm went unanswered — nothing was sent · answer it where this session is running, or /model to change
+Fable limit reached · continuing on Fable 5.1 uses usage credits, and the prompt to confirm went unanswered · nothing was sent · answer it where this session is running, or /model to change
+Fable 5.1 now uses usage credits · the prompt to confirm went unanswered · nothing was sent · answer it where this session is running, or /model to change
 ```
 
-消息命名会话的 Fable 模型，因此在 Fable 5.2 上它们读作 `continuing on Fable 5.2` 和 `Fable 5.2 now uses usage credits`。在 v2.1.257 之前，第一条消息以 `Fable 5 limit reached` 开头。
+消息命名会话的 Fable 模型，因此在 Fable 5.2 上它们读作 `continuing on Fable 5.2` 和 `Fable 5.2 now uses usage credits`。连接 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 时，每条消息可能改为以 `Claude stopped here · send a message to be asked again, or switch models` 结尾。在 v2.1.257 之前，第一条消息以 `Fable 5 limit reached` 开头。
 
 这发生在 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话、[background sessions](https://code.claude.com/docs/zh-CN/agent-view.md)、[agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友会话以及另一个应用程序通过 Agent SDK 托管的会话中。有关 Claude Code 何时关闭提示，请参阅 [Fable and usage credits](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits)。
 
 **要做什么：**
 
-* 在会话运行的地方，在终端或托管它的应用程序中，发送另一个提示词并在同意提示重新出现时回答它。对于后台会话，首先从 [agents view](https://code.claude.com/docs/zh-CN/agent-view.md) 附加到它。从 Remote Control 客户端重新发送会再次显示此消息，因为客户端无法显示提示。
+* 在会话运行的地方，在终端或托管它的应用程序中，发送另一个提示词并在同意提示重新出现时回答它。对于后台会话，首先从 [agents view](https://code.claude.com/docs/zh-CN/agent-view.md) 附加到它。如果消息显示 `Claude stopped here`，您也可以从已连接的设备回复，并在那里回答同意提示。
 * 运行 `/model` 切换到不计费使用额度的模型
 * 要给自己更多时间，请将 [`dialogExpiry`](https://code.claude.com/docs/zh-CN/settings-reference#dialogexpiry) 设置为更长的值或 `"never"`
 
@@ -1924,7 +1931,7 @@ Google Cloud credentials expired or invalid · refresh your Google Cloud credent
 **解决方法：**
 
 * 如果提示说明凭据由此环境管理，则凭据归启动 Claude Code 的应用所有，此处的其他步骤不适用：请重试，或联系您的管理员
-* 如果您设置了 `CLAUDE_CODE_USE_ANTHROPIC_GOOGLE_CLOUD`，请改为按照 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed#google-cloud-credentials-expired-or-invalid) 中的步骤操作
+* 如果您设置了 `CLAUDE_CODE_USE_ANTHROPIC_GOOGLE_CLOUD`，请改为按照 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md#google-cloud-credentials-expired-or-invalid) 中的步骤操作
 * 如果您使用应用默认凭据进行身份验证，请运行消息中指出的 [`gcpAuthRefresh`](https://code.claude.com/docs/zh-CN/google-vertex-ai#advanced-credential-configuration) 命令或 `gcloud auth application-default login` 并完成登录，然后重试
 * 如果您在设置了 `CLAUDE_CODE_SKIP_VERTEX_AUTH` 的情况下通过 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)路由，请刷新 `ANTHROPIC_AUTH_TOKEN` 或 `ANTHROPIC_CUSTOM_HEADERS` 中的网关令牌，然后重试
 * 如果您使用服务账号密钥文件进行身份验证，请确认 `GOOGLE_APPLICATION_CREDENTIALS` 指向有效的密钥。请参阅[配置 GCP 凭据](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#3-configure-gcp-credentials)
@@ -1945,7 +1952,7 @@ Google Cloud authentication failed · refresh your Google Cloud credentials (app
 **解决方法：**
 
 * 如果提示表明凭据由当前环境管理，则凭据归启动 Claude Code 的应用所有，此处的其他步骤不适用：请重试，或联系您的管理员
-* 如果您设置了 `CLAUDE_CODE_USE_ANTHROPIC_GOOGLE_CLOUD`，请改为按照 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed#google-cloud-authentication-failed) 中的步骤操作
+* 如果您设置了 `CLAUDE_CODE_USE_ANTHROPIC_GOOGLE_CLOUD`，请改为按照 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md#google-cloud-authentication-failed) 中的步骤操作
 * 确认 [IAM 配置](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#iam-configuration)中的角色已授予您用于身份验证的身份
 * 确认您的项目已启用该模型。请参阅[申请模型访问权限](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#2-request-model-access)
 
@@ -2505,8 +2512,8 @@ Prompt is too long · the request is ~<request tokens> tokens (limit <limit>) bu
 * 使用 `/mcp disable <name>` 禁用您未使用的 MCP 服务器，以从上下文中删除其工具定义
 * 修剪大型 `CLAUDE.md` 记忆文件，或将说明移到仅在相关时加载的[路径范围规则](https://code.claude.com/docs/zh-CN/memory.md#path-specific-rules)中
 * 自动压缩默认开启，通常可防止此错误。如果您在 `/config` 中或使用 [`DISABLE_AUTO_COMPACT`](https://code.claude.com/docs/zh-CN/env-vars) 关闭了它，请将其重新打开。如果您保持关闭，请在窗口填满之前自己运行 `/compact`。
-* 如果在可接受更多 token 的模型上，此错误在接近 200K token 时出现，原因之一是 Claude Code 无法识别该模型 ID。Claude Code 对此类 ID 假定 200K 的窗口，因此若要在超过该点后继续工作，请[为其提供模型的真实上下文窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。
-  * 如果您使用自定义的 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars)，且错误以 `Prompt is too long · automatic compaction failed` 开头，请[设置模型的上下文窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)，或[更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.299 或更高版本。在 v2.1.299 之前，Claude Code 会在接近假定的 200K 窗口时以该消息结束本轮，而不是发送请求。
+* 如果 Claude Code 警告无法识别您的模型 ID，该警告可能会说明它所假定的窗口大小。当模型的实际窗口与之不同时，请[向 Claude Code 提供实际窗口大小](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。
+  * 如果您使用自定义的 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars)，且错误以 `Prompt is too long · automatic compaction failed` 开头，请[设置模型的上下文窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)，或[更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.299 或更高版本。在 v2.1.299 之前，Claude Code 在接近假定的 200K 窗口时会以该消息结束轮次，而不是发送请求。
 * 如果错误在您于 Claude 压缩对话时将其停止后立即出现，您的对话并未改变，仍然大到需要压缩。请运行 `/compact` 并重新发送您的消息。要避免此错误再次出现，请[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code) 至 v2.1.304 或更高版本。在 v2.1.304 之前，在该时刻停止可能导致本轮以此错误结束。
 * 在 v2.1.305 上，当存在大量 MCP 工具并直接连接 Anthropic API 时，此错误可能会掩盖 API 返回的一个无关的 400 或 422 错误。请将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.306 或更高版本以查看原始错误。
 
@@ -3541,7 +3548,7 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 * **`Error: Workspace not trusted. <folder> is your home directory`**：由于主目录的信任从不保存，先在那里运行 `claude` 也无济于事。请改为在项目目录中运行 `claude ultrareview`（先在那里运行一次 `claude` 以接受信任对话框），或追加 `--trust-workspace`。
 * **`No answer in time.` 后跟 `Error: Workspace not trusted`**：`Trust <folder>? [y/N]` 问题在 5 分钟内未得到回答。再次运行 `claude ultrareview` 并回答该问题。
 * **`Ultrareview did not start: <folder> is not trusted`**：您在 `Trust <folder>? [y/N]` 问题处拒绝了，例如回答 `n` 或按 Enter。若要开始审查，请再次运行 `claude ultrareview` 并回答 `y`。
-* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟着的不是标志，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用此标志。若要在本次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
+* **``Ultrareview did not start: `--trust-workspace` takes no value``**：`--trust-workspace` 后面跟了标志以外的内容，例如 PR 编号或 `false`。如果您不信任该文件夹，请不要使用该标志。要在此次运行中信任它，请将 PR 编号或基础分支放在该标志之前：`claude ultrareview 1234 --trust-workspace`。
 
 在 v2.1.309 之前，`claude ultrareview` 不接受 `--trust-workspace`。
 
@@ -3873,8 +3880,8 @@ Use '--' to separate paths from revisions, like this:
 
 以下相关消息会在命令运行之前就出现：
 
-* `Shell command permission check failed for pattern "..."`：该命令的权限检查未允许它。请参阅[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)，了解在每种权限模式下哪些结果会导致中止，以及 `allowed-tools` 何时会预先批准命令
-* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求使用 bash，但计算机上没有 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
+* `Shell command permission check failed for pattern "..."`：命令的权限检查未允许该命令。请参阅[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)，了解在各权限模式下哪些结果会导致中止，以及 `allowed-tools` 何时会预先批准命令
+* ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found``：该 skill 的 frontmatter 要求在没有 bash 的机器上使用 bash。请安装 Git for Windows，或将 frontmatter 改为 `shell: powershell`。请参阅[注入命令的运行方式](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)
 
 **解决方法：**
 
@@ -3899,6 +3906,10 @@ build.sh --target�dist
 **解决方法：**
 
 * 在消息末尾引用的命令中找到每个 `�`。从 [skill 或命令文件](https://code.claude.com/docs/zh-CN/skills.md#where-skills-live)中，或从替换到该文件中的参数或[选项](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#user-configuration)中，移除它所代表的字符。
+
+### skill、命令或 hook 超过 4,000,000 字符限制
+
+包含 `more than 4,000,000 characters` 的消息表示某个 skill、命令或[提示词或 Agent hook](https://code.claude.com/docs/zh-CN/hooks.md#prompt-and-agent-hook-fields) 未运行。如果您将长文本作为参数粘贴，请将其保存到文件中，运行 `/clear`（因为该文本会保留在对话中），然后传入其路径。在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#tool-call-refused-by-a-hook) 之外，超过限制的 `PreToolUse` 提示词或 Agent hook 不会阻止调用。请使用[命令 hook](https://code.claude.com/docs/zh-CN/hooks.md#command-hook-fields)，它没有此限制。
 
 ### 使用 `--print` 时必须提供输入
 
@@ -4027,7 +4038,7 @@ Could not find merge-base with main. Pass the base branch explicitly (e.g. `/cod
 
 * **您没有传入基础分支**：Claude Code 与仓库的默认分支进行了比较，并建议您显式传入基础分支，如上例所示
 * **您传入的基础分支已存在于您的克隆中**：提示为 ``Make sure <branch> exists locally or on origin (try `git fetch origin <branch>`)``
-* **您传入的基础分支不在您的克隆中**：Claude Code 在比较之前已从 origin 获取了该分支。提示为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会失败并显示 `fatal: --unshallow on a complete repository does not make sense`。
+* **您传入的基础分支不在您的克隆中**：Claude Code 在比较前已从 origin 获取了该分支。提示内容为 ``<branch> was fetched from origin but shares no history with HEAD. If another branch is your real base, pass it explicitly (`/code-review ultra <branch>`)``；当 Claude Code 无法判断您的克隆是否为浅克隆时，它会改为建议 `git fetch --unshallow origin`。在 v2.1.221 之前，对于每个被获取的基础分支，提示都会建议 `git fetch --unshallow origin`，而在完整克隆上，该命令会以 `fatal: --unshallow on a complete repository does not make sense` 失败。
 
 **解决方法：**
 
@@ -4953,12 +4964,12 @@ Error: command contains the invisible character U+FEFF (byte order mark) or U+18
 * **对于 Claude 编写的命令**：您无需修复任何内容。该消息会告诉 Claude 如何重写该命令。
 * **对于 skill 或命令文件**：该消息跟在 `No shell command in <name> was run` 之后。请参阅[在何处找到该字符并将其移除](#no-shell-command-was-run)。
 
-### Claude Code 重启前批准的命令未运行
+### Claude Code 重启后已批准的命令未运行
 
 您批准的一条 shell 命令没有运行，Claude 会收到以下消息作为该命令的结果：
 
 ```text wrap theme={null}
-This call was not run. The command was approved before Claude Code restarted, and Claude Code could not confirm that the shell is back in the directory where it was approved. That directory may be gone or replaced, lie outside the directory where the session started, or be one that Claude Code needs approval to enter or is not allowed to examine. The shell's directory is <directory>. If the command still makes sense, cd to the directory it was meant for and make the call again; it may need approval again.
+This call was not run. Claude Code could not confirm that the shell is back in the directory where it was approved. That directory may be gone or replaced, lie outside the directory where the session started, or be one that Claude Code needs approval to enter or is not allowed to examine. The shell's directory is <directory>. If the command still makes sense, cd to the directory it was meant for and make the call again; it may need approval again.
 ```
 
 该消息的第三句也可能改为 `It does not keep track of that directory across a restart in a session that has been in a worktree.`
@@ -6195,7 +6206,7 @@ Claude Code 以这种方式拒绝的路径包括：
 该行的其余部分说明会话使用的策略：
 
 * **存在此前成功获取时缓存的设置**：Claude Code 使用该缓存策略运行会话（[被保留的环境变量](https://code.claude.com/docs/zh-CN/server-managed-settings.md#fetch-and-caching-behavior)除外），该行显示 `using cached policy`。
-* **无缓存**：Claude Code 在没有服务器托管设置的情况下运行会话，该行显示 `no remote policy applied`。
+* **没有可应用的缓存设置**：Claude Code 在没有服务器托管设置的情况下运行会话，该行显示 `no remote policy applied`。例如，此计算机尚未获取过设置，或上次获取设置已超过 [24 小时](https://code.claude.com/docs/zh-CN/server-managed-settings.md#fetch-and-caching-behavior)。
 
 在 Code 标签页中，当您发送消息时，该警告会以一行的形式出现在对话中；当获取状态发生变化时，会出现新的一行。以下三条相关消息也以相同方式出现：
 

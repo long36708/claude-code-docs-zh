@@ -18,7 +18,7 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 * **Anthropic Console**：您使用 Anthropic API 密钥进行身份验证，或者[在没有 API 密钥的情况下登录 Console 账户](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)
 * **Amazon Bedrock**：您从 Amazon Bedrock 模型目录中使用 Claude 模型并设置 `CLAUDE_CODE_USE_BEDROCK`。[Mantle 端点](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#use-the-mantle-endpoint)（`CLAUDE_CODE_USE_MANTLE`）由此列涵盖
 * **Claude Platform on AWS**：您通过 AWS Marketplace 购买了 Claude，但调用 Anthropic API，并设置 `CLAUDE_CODE_USE_ANTHROPIC_AWS`
-* **Google Cloud (Anthropic managed)**：您使用 Claude Models on Google Cloud (Anthropic managed)。您通过您的 Google Cloud 项目访问由 Anthropic 运营的 Claude API。要区分这两种 Google Cloud 产品，请参阅[您使用的是哪种产品？](https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/overview#which-offering-are-you-using)
+* **Google Cloud (Anthropic managed)**：您使用 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md) 并设置 `CLAUDE_CODE_USE_ANTHROPIC_GOOGLE_CLOUD`。您通过您的 Google Cloud 项目访问由 Anthropic 运营的 Claude API。要区分这两种 Google Cloud 产品，请参阅[您使用的是哪种产品？](https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/overview#which-offering-are-you-using)
 * **Google Cloud (Google managed)**：由 Google 运营，属于 Google Cloud's Agent Platform（前身为 Vertex AI）；您设置 `CLAUDE_CODE_USE_VERTEX` 并使用 Claude Models on Google Cloud (Google managed)
 * **Microsoft Foundry**：由 Anthropic 运营；您设置 `CLAUDE_CODE_USE_FOUNDRY`
 
@@ -375,5 +375,5 @@ Ultra 是 Max 20x 套餐的新名称，Max 是 Max 5x 的新名称。要查看�
 ## 相关资源
 
 * [企业部署概述](https://code.claude.com/docs/zh-CN/third-party-integrations.md)：比较提供商之间的身份验证、计费和地区
-* 提供商设置指南：[Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、[Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)、[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)
+* 提供商设置指南：[Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、[Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md)、[Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)、[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)
 * [平台和集成](https://code.claude.com/docs/zh-CN/platforms.md)：Claude Code 运行的地方，包括 CLI、Desktop、IDE 扩展、网络、移动和 CI/CD

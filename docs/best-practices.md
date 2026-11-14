@@ -10,7 +10,7 @@ Claude Code 的设计使得在大多数情况下，您在新会话中的第一�
 
 例如：
 
-* 为了让命令安全运行而无需您逐一批准，新的终端和 VS Code 会话以[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)启动，由分类器在任何有风险的操作运行之前进行审查。
+* 为了让命令运行而无需您逐一批准，新的终端和 VS Code 会话以[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)启动。
 * 为了在独立工作并行进行时保持主对话的专注，Claude 会将工作委派给子代理，并且只在必要时与您确认。
 * 为了让长会话持续进行而无需您管理，对话会在上下文窗口填满之前自动压缩。
 
@@ -595,7 +595,7 @@ config/dev-credentials.json
 
 您很少需要自己清理这些：
 
-* 当您退出一个未命名的 worktree 会话时，如果其中没有任何内容，Claude Code 会[删除该 worktree](https://code.claude.com/docs/zh-CN/worktrees.md#clean-up-worktrees)。对于已命名的会话或有更改的会话，它会询问如何处理。
+* 当您退出一个未命名的 worktree 会话时，如果其中没有任何内容，Claude Code 会[删除它使用 git 创建的 worktree](https://code.claude.com/docs/zh-CN/worktrees.md#clean-up-worktrees)。对于已命名的会话或有更改的会话，它会询问如何处理。
 * 子代理的 worktree 会在子代理无更改地完成时消失。
 * 确实被遗留下来的子代理和后台会话 worktree，一旦超过 `cleanupPeriodDays` 且不包含任何工作，就会被清理掉。
 

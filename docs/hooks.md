@@ -66,7 +66,7 @@ Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配�
 
 ### Hook 如何解析
 
-要了解事件、匹配器和处理程序如何组合在一起，请考虑这个 `PreToolUse` hook，它阻止破坏性 shell 命令。
+要了解事件、匹配器和处理程序如何组合在一起，请考虑这个阻止 `rm -rf` 命令的 `PreToolUse` hook。
 
 > [tab] macOS/Linux
 >
@@ -440,7 +440,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 | `Bash(rm *)` | `echo $(date)` | 否 | 没有子命令匹配 `rm *` |
 | `Bash(git push *)` | `echo $(date)` | 是 | 指定超过命令名称的模式在 `$()`、反引号或 `$VAR` 上无论如何都运行 hook |
 
-当 Claude Code 无法确定 Bash 输入运行哪些命令时，它无论如何都会运行您的 hook，无论模式如何。因为 `if` 过滤是尽力而为的，使用 [权限系统](https://code.claude.com/docs/zh-CN/permissions.md) 而不是 hook 来强制执行硬允许或拒绝。
+当 Claude Code 无法将 Bash 输入拆分为子命令时，无论模式如何，它都会运行您的 hook。因为 `if` 过滤是尽力而为的，使用 [权限系统](https://code.claude.com/docs/zh-CN/permissions.md) 而不是 hook 来强制执行硬允许或拒绝。
 
 #### 命令 hook 字段
 
@@ -691,7 +691,7 @@ hooks:
     - matcher: "Bash"
       hooks:
         - type: command
-          command: "./scripts/security-check.sh"
+          command: '"${CLAUDE_PROJECT_DIR}"/scripts/security-check.sh'
 ---
 ```
 
@@ -825,13 +825,13 @@ hook 打印到 stdout 的内容可能会改变结果。例如，当 `PreToolUse`
 
 退出 0 表示成功，是您打印 JSON 进行结构化控制时的预期退出码。当 hook 以 0 退出但打印了无法解析或未通过 [schema 验证](#json-output)的 JSON 时，操作会继续进行，除非该 hook 是[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)。该运行不是应用了您字段的成功，而是[非阻止错误](#exit-code-output)。
 
-要修正输出，请参考 `<hook name> hook error` 通知中带有的解析或验证消息。对于非[异步](#how-async-hooks-execute)的 hook，只有当您打印一个 JSON 对象（单行或多行均可）且周围除空白外没有其他内容时，您的 stdout 才算作 [JSON 输出](#json-output)。Claude Code 会将其他任何 stdout 视为纯文本或解析失败：
+如果 `<hook name> hook error` 通知中带有解析或验证消息，请据此修正您的输出。对于非[异步](#how-async-hooks-execute)的 hook，只有当您打印一个 JSON 对象（单行或多行均可）且其周围除空白字符外没有任何其他内容时，您的 stdout 才会被视为 [JSON 输出](#json-output)。Claude Code 会将任何其他 stdout 视为纯文本或解析失败：
 
 * **不以 `{` 开头的输出，或以 `{` 开头但不以 `}` 结尾的输出**：纯文本。根据此规则，JSON 数组和带引号的 JSON 字符串都是纯文本。
 * **两行或更多行，每行本身都可解析为 JSON，且第一行以 `{` 开头、最后一行以 `}` 结尾**：如果没有任何一行是设置了字段的 JSON 输出对象，则为纯文本。如果有一行是，则输出为解析失败，因此请只在 stdout 上打印该对象，不要打印其他内容。
 * **其他任何以 `{` 开头并以 `}` 结尾但不是有效 JSON 的内容**：解析失败。
 
-对于大多数事件，Claude Code 将 stdout 写入调试日志，不在会话记录中显示。在以下事件上，您的 stdout 会到达 Claude 或压缩摘要：
+在以下事件上，您的纯文本 stdout 会到达 Claude 或压缩摘要：
 
 * **`UserPromptSubmit`、`UserPromptExpansion`、`SessionStart` 和 `PostModelSwitch`**：Claude Code 添加纯文本 stdout 作为 Claude 可以看到并据此行动的上下文。它不会添加未能解析的 stdout。
 * **`PreCompact`**：您的 stdout 成为[压缩摘要的指令](#precompact-output)
@@ -873,7 +873,7 @@ PreToolUse:Bash hook error: [${CLAUDE_PROJECT_DIR}/.claude/hooks/no-rm.sh]: Bloc
 
 #### 其他退出码
 
-带有 `Failed with non-blocking status code:` 的 `<hook name> hook error` 通知表示 hook 的退出码不是 0 或 2，且其 stdout 为纯文本或为空。除非该 hook 是[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)，否则这属于[非阻止错误](#exit-code-output)，因此您的 hook 没有停止该操作。要捕获 hook 的完整 stderr，而不仅是通知中显示的第一行，请启用[调试日志](#debug-hooks)。
+带有 `Failed with non-blocking status code:` 的 `<hook name> hook error` 通知表示 hook 的退出码不是 0 或 2，且其 stdout 为纯文本或为空。该运行属于[非阻止错误](#exit-code-output)，因此您的 hook 没有停止该操作。如果通知截断了您的 stderr，请按照[调试 hook](#debug-hooks) 中的说明启用调试日志，然后重新运行该 hook。
 
 例如，当 `Bash` 上的 `PreToolUse` hook 向 stderr 打印 `something broke` 并以 1 退出时，`PreToolUse:Bash hook error` 通知带有以下行：
 
@@ -1097,9 +1097,9 @@ JSON 对象支持三种字段：
 
 | 字段 | 默认 | 描述 |
 | :- | :- | :- |
-| `continue` | `true` | 如果为 `false`，Claude 在 hook 运行后完全停止处理。优先于任何事件特定的决策字段 |
+| `continue` | `true` | 如果为 `false`，Claude 在 hook 运行后完全停止处理。它不会阻止 `PreToolUse` 工具调用，因此要阻止工具调用，还需返回 `permissionDecision: "deny"` |
 | `stopReason` | 无 | 当 `continue` 为 `false` 时向用户显示的消息。它保留在对话中，因此如果对话继续，Claude 会看到它 |
-| `suppressOutput` | `false` | 无效果：Claude Code 接受该字段但不据此采取行动。成功的 hook 的 stdout 从不在会话记录中显示，并记录在调试日志中 |
+| `suppressOutput` | `false` | 无效果 |
 | `systemMessage` | 无 | 向用户显示的警告消息。在 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 和 [`--output-format stream-json`](https://code.claude.com/docs/zh-CN/headless) 输出中，它可以作为 [`SDKInformationalMessage`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage) 到达 |
 | `terminalSequence` | 无 | Claude Code 代表您发出的终端转义序列，如桌面通知、窗口标题或响铃。限制为 OSC `0`/`1`/`2`/`9`/`99`/`777` 和 BEL。如果值包含允许列表之外的任何内容，该字段被忽略。请使用此字段而不是写入 `/dev/tty`，后者对 hook 不可用 |
 
@@ -1109,7 +1109,7 @@ JSON 对象支持三种字段：
 { "continue": false, "stopReason": "Build failed, fix errors before continuing" }
 ```
 
-对于 `PreToolUse` 和 `PostToolUse` hook，即使工具调用在 Claude 仍在流式输出回复时失败或完成，停止也同样适用。
+对于 `PreToolUse` 和 `PostToolUse` hook，即使工具调用在 Claude 仍在流式输出回复时失败或完成，停止也同样适用。当权限检查拒绝 `PreToolUse` 调用时，停止不适用。
 
 #### 发出终端通知
 
@@ -1220,7 +1220,7 @@ Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `
 * `PostToolUse`：`updatedToolOutput` 替换工具的结果。在 [Cowork](https://claude.com/docs/cowork/overview) 云端会话中，当工具为 `AskUserQuestion` 或 `ExitPlanMode` 时，Claude Code 会忽略 `updatedToolOutput`，Claude 读取的是原始回答或计划。请参阅 [PostToolUse 决策控制](#posttooluse-decision-control)
 * `UserPromptSubmit`：无法替换提示词；它仅在其旁边注入 `additionalContext`
 
-对于脱敏或转换用例，请在 `PreToolUse` 处拦截出站工具输入，在 `PostToolUse` 处拦截入站工具结果。
+对于脱敏或转换用例，请在 `PreToolUse` 处拦截出站工具输入，在 `PostToolUse` 处拦截成功调用的结果。`PostToolUseFailure` 无法改写结果，因此失败命令的输出会原样到达 Claude。
 
 以下是每种模式的实际示例：
 
@@ -3374,7 +3374,6 @@ Claude Code 会将 WorktreeCreate 返回的路径作为 hook 输入中的 `workt
 
 WorktreeRemove hook 的退出码决定结果。当 hook 以非零退出且之后 `worktree_path` 处的目录仍然存在时，删除失败：
 
-* worktree 保留在磁盘上，hook 的命令和 stderr 会写入[调试日志](#debug-hooks)。
 * 如果您正在删除后台会话，该会话也会保留。[Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)中的拒绝消息会报告 hook 的结束方式（例如 `exited 1`），引用其 stderr 的开头部分，并说明再次删除该会话是否仍会删除该目录。
 * 如果 `claude remote-control` 正在清理会话的 worktree，运行它的终端会显示 `worktree removal failed, kept: <path>`。
 

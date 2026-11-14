@@ -260,7 +260,7 @@ claude plugin init my-tool
 
 要检查 MCP 服务器，请在会话中运行 `/mcp` 以查看服务器的状态。当服务器健康时，`/mcp` 将其列为已连接。如果不是，请参阅[不启动的 MCP 服务器](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#invalid-mcp-server-config-for-and-mcp-servers-that-dont-start)。
 
-要检查 hook，触发它匹配的事件。例如，要求 Claude 编辑文件以触发 `PostToolUse` hook。然后阅读[调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks)，它显示哪些 hooks 匹配、它们的退出代码和它们的输出。
+要检查 hook，请按照[调试 hook](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks) 中的说明启用调试日志，并触发它匹配的事件。例如，要求 Claude 编辑文件以触发 `PostToolUse` hook。然后阅读调试日志。
 
 下一部分涵盖您在开发时最可能遇到的失败，[故障排除页面](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#build-a-plugin)对每一个都有完整的条目。
 

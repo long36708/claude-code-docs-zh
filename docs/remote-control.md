@@ -184,7 +184,7 @@ Remote Control 会话处于活动状态后，您可以通过以下几种方式�
 * **来自您其他会话的消息**：借助[跨会话消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)，同一连接会在您位于不同机器上的各个会话之间传递消息。
 * **您的更改的 diff**：当会话的目录位于 git 仓库中时，已连接设备的 diff 面板会显示您的更改。在领先于仓库默认分支的分支上，该面板会显示自该分支从默认分支分出以来的更改，包括您未提交的编辑。在默认分支本身或不领先于默认分支的分支上，该面板仅显示您未提交的更改。
 * **模型**：当您从已连接的设备选择[模型](https://code.claude.com/docs/zh-CN/model-config.md)时，Claude Code 会使用该模型运行会话。需要 Claude Code v2.1.238 或更高版本。从设备的模型控件中选择的模型仅适用于当前会话。当您从设备向交互式会话发送 `/model <name>` 时，Claude Code 还会设置新会话的默认模型。
-* **Effort 级别**：当您从已连接的设备使用 `/effort` 或设备的 effort 控件设置 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)时，Claude Code 会将其应用到您机器上的会话。如果您已使用 `CLAUDE_CODE_EFFORT_LEVEL` 固定了级别，会话将保持该级别，Claude Code 会拒绝从 effort 控件中选择的其他级别。从 effort 控件中选择级别需要您机器上的 Claude Code 为 v2.1.234 或更高版本。
+* **Effort 级别**：当您从已连接的设备使用 `/effort` 或设备的 effort 控件设置 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)时，Claude Code 会将其应用到您机器上的会话。如果您已使用 `CLAUDE_CODE_EFFORT_LEVEL` 固定了级别，会话将保持该级别。从 effort 控件中选择级别需要您机器上的 Claude Code 为 v2.1.234 或更高版本。
 * **连接失败后重新连接**：运行 `/remote-control` 即可重新连接。如果在此期间压缩重写了对话，或者您使用 `/resume` 切换了对话，Claude Code 会归档它一直在使用的服务器会话，而不是将其留在会话列表中。您仍然可以在 claude.ai/code 的[已归档会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#find-an-archived-session)中找到该会话。在设备仍处于连接状态时切换对话不会归档该会话。
 
 ### 从浏览器分叉会话
@@ -375,13 +375,13 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 * **无法下载的附件**：如果您从手机或浏览器附加的文件无法下载到您的机器，Claude 仍会收到您的消息以及已下载的文件。Claude Code 会在消息中添加一条说明（例如 `[1 of 3 attachments did not arrive]`）来代替缺失的文件。
 * **在线状态心跳失败**：如果交互式会话因 `could not reach the Remote Control server for about 30 minutes` 而断开连接，请运行 `/remote-control` 重新连接。
 * **转发的对话框会过期**：Claude Code 会保持权限提示和 `AskUserQuestion` 问题处于打开状态，直到您作答。当 Claude Code 将其他类型的对话框转发到远程会话时（例如安全拒绝后显示的模型选择提示），默认会等待五分钟，然后关闭该对话框并按对话框的无操作默认值继续。设置 [`dialogExpiry`](https://code.claude.com/docs/zh-CN/settings-reference#dialogexpiry) 可调整或禁用该期限。需要 Claude Code v2.1.224 或更高版本。
-* **Fable 使用额度同意提示不会被转发**：Claude Code 仅在会话运行的位置显示会话中途的 [Fable 使用额度同意提示](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits)，而不会在您的设备上显示。当会话在终端中运行，且在 Claude Code 关闭该提示之前无人在终端作答时，该轮次将结束而不发送请求；请参阅[确认提示未得到回应](https://code.claude.com/docs/zh-CN/errors.md#the-prompt-to-confirm-went-unanswered)。
+* **未作答的 Fable 使用额度提示会结束轮次**：如果在 [`dialogExpiry`](https://code.claude.com/docs/zh-CN/settings-reference#dialogexpiry) 期限之前无人回应 [Fable 使用额度同意提示](https://code.claude.com/docs/zh-CN/model-config.md#fable-and-usage-credits)，该轮次将结束且不会发送任何内容；请参阅[确认提示未得到回应](https://code.claude.com/docs/zh-CN/errors.md#the-prompt-to-confirm-went-unanswered)。在终端中的交互式会话里，该提示也可能出现在您已连接的设备上，您可以在那里作答。需要 Claude Code v2.1.323 或更高版本。
 * **部分命令仅限本地使用**：仅在终端界面中运行的命令（例如 `/plugin` 或 `/resume`）只能从本地 CLI 使用，无论是否传递参数。从移动端或 Web 端输入 `/claude-api` 时同样不可用。Claude 在那里仍可以[自行加载该 skill](https://code.claude.com/docs/zh-CN/skills.md#work-on-claude-api-projects)。以下命令可在移动端和 Web 端使用：
   * 文本输出命令：`/compact`、`/clear`、`/context`、`/usage`、`/exit`、`/usage-credits`、`/recap` 和 `/reload-plugins`。`/usage-credits` 会以文本形式回复，例如告知在何处管理使用额度。`/reload-plugins` 仅在会话运行于交互式终端中时有效；没有交互式终端的会话会拒绝执行该命令。
   * `/model`、`/effort`、`/fast`、`/color` 和 `/rename`：将值作为参数传递，例如 `/model sonnet` 或 `/effort high`。在移动端和 Web 端，`/model` 和 `/effort` 接受参数，以代替终端中的选择器或滑块。
   * `/mcp`：在移动应用中，返回服务器状态的文本摘要，而不是打开选择器。在 Web 端，单独使用 `/mcp` 会打开 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-servers-from-claude-ai)目录，而不是返回摘要。当会话运行于交互式终端中时，`reconnect`、`enable` 和 `disable` [子命令](https://code.claude.com/docs/zh-CN/commands.md#all-commands)在两端均可使用。不带服务器名称的 `/mcp reconnect` 会重试所有失败或需要身份验证的服务器。要在不使用选择器的情况下授权 claude.ai 连接器，请参阅[从 shell 重新授权连接器](#authorize-a-connector-again-from-your-shell)。
   * `/config`：在移动应用中，传递 `key=value` 可更改设置项，或不带参数运行以列出可设置的键。在 Web 端，`/config` 会改为打开 **Settings > Code** 或 **Settings > Claude Code**。
-  * 在 Team 和 Enterprise 版本中，从移动端或 Web 端运行 `/usage-credits` 不会[向您的管理员发送使用额度请求](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)。发送请求需要一个仅在交互式 CLI 中出现的确认，因此该命令会提示您改为在 CLI 中运行。
+  * 如果您是没有计费访问权限的 Team 或 Enterprise 成员，从移动端或 Web 端运行 `/usage-credits` 不会[向您的管理员发送使用额度请求](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)。发送请求需要一个仅在交互式 CLI 中出现的确认，因此该命令会提示您改为在 CLI 中运行。
   * `/autocompact`，自 v2.1.221 起：将窗口大小作为参数传递，例如 `/autocompact 500k`。不带参数时，它会以文本形式打印当前窗口大小，而不是打开该命令在终端会话中显示的对话框。
   * `/advisor`，自 v2.1.260 起：将模型作为参数传递，例如 `/advisor opus`，或传递 `off` 以关闭 advisor。两种形式都仅应用于当前会话，不会更改您保存的默认值。不带参数时，它会以文本形式打印当前的 advisor，而不是打开选择器。
   * `/output-style`，自 v2.1.269 起：将样式名称作为参数传递，例如 `/output-style concise`，或不带参数运行以列出样式。在移动端和 Web 端，您只能列出和选择[内置样式](https://code.claude.com/docs/zh-CN/output-styles.md#built-in-output-styles)。要使用[自定义样式](https://code.claude.com/docs/zh-CN/output-styles.md#create-a-custom-output-style)，请在会话本身中选择它。
@@ -508,17 +508,16 @@ Claude Code 无法获取您的组织策略，并且此计算机上没有保存�
 
 ### "Remote credentials fetch failed"
 
-Claude Code 无法从 Anthropic API 获取短期凭据来建立连接。使用 `--verbose` 重新运行以查看完整错误：
+Claude Code 无法从 Anthropic API 获取短期凭据来建立连接。要查看完整错误，请从 shell 启动一个带调试日志的会话，然后在日志中搜索 `code-session`：
 
 ```bash theme={null}
-claude remote-control --verbose
+claude --remote-control --debug-file claude-debug.log
 ```
 
 常见原因：
 
-* 未登录：运行 `claude` 并使用 `/login` 以您的 claude.ai 账户进行身份验证。Remote Control 不支持 API 密钥身份验证。
 * 网络或代理问题：防火墙或代理可能阻止了出站 HTTPS 请求。Remote Control 需要访问端口 443 上的 Anthropic API。
-* 会话创建失败：如果您还看到 `Session creation failed — see debug log`，失败发生在设置的早期。检查您的订阅是否有效。
+* 会话创建失败：如果您还看到 `Session creation failed — see debug log`，说明失败发生在设置的更早阶段。运行相同的搜索以找到该错误。
 
 ### "working folder not found"
 

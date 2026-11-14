@@ -182,7 +182,7 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 | `cost.total_api_duration_ms` | 等待 API 响应所花费的总时间，以毫秒为单位 |
 | `cost.total_lines_added`、`cost.total_lines_removed` | 更改的代码行数 |
 | `context_window.total_input_tokens`、`context_window.total_output_tokens` | 当前上下文窗口中的 token 数，来自最近一次 API 响应。输入包括缓存读取和写入 |
-| `context_window.context_window_size` | 最大上下文窗口大小（以 token 为单位）。默认为 200000，对于具有扩展上下文的模型为 1000000。 |
+| `context_window.context_window_size` | 最大上下文窗口大小（以 token 为单位） |
 | `context_window.used_percentage` | 预先计算的上下文窗口已用百分比 |
 | `context_window.remaining_percentage` | 预先计算的上下文窗口剩余百分比 |
 | `context_window.current_usage` | 上一次 API 调用的 token 数，详见[上下文窗口字段](#context-window-fields) |

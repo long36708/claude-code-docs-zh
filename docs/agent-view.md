@@ -375,7 +375,8 @@ agent view 对会话进行分组，使需要输入的会话位于顶部，`Ready
 | `Ctrl+J` | 在分派输入框中插入换行符 |
 | `Ctrl+X` | 停止会话；在两秒内再按一次即可删除 |
 | `Shift+↑` / `Shift+↓` | 重新排序选定的会话 |
-| `Esc` | 关闭窥视面板、清空输入框或退出。当您通过用 `←` 将会话转入后台而打开 agent view 时，最后一次 `Esc` 会返回该对话而不是退出。启用 [vim 编辑器模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode)时，在输入框中按 `Esc` 会从 INSERT 模式切换到 NORMAL 模式并保留您的文本，与主提示输入框相同 |
+| `Esc` | 关闭窥视面板、清空输入框或退出。在 Claude Code v2.1.323 或更高版本中，清空提示词需要按两次。当您通过用 `←` 将会话转入后台而打开 agent view 时，最后一次 `Esc` 会返回该对话而不是退出。启用 [vim 编辑器模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode)时，在输入框中按 `Esc` 会从 INSERT 模式切换到 NORMAL 模式并保留您的文本，与主提示输入框相同 |
+| `Ctrl+Y` | 在分派输入框中，恢复您上次清空的文本，或用 `Ctrl+K`、`Ctrl+U` 或 `Ctrl+W` 删除的文本。agent view 退出后，该文本将丢失 |
 | `Ctrl+C` | 清空输入框；按两次退出。当屏幕上有选中的文本时，按下该键会改为清除选区；除非[选中时已自动复制](https://code.claude.com/docs/zh-CN/settings-reference.md#copyonselect)，否则会先复制选区 |
 | `?` | 显示快捷键 |
 
@@ -934,10 +935,10 @@ Claude 会看到此通知并自行回复，因此您无需提示它。如果阅�
 
 ### 打开会话说对话已经打开
 
-两个进程不能写入同一个会话记录。当已停止会话的保存对话已在另一个活跃的 Claude Code 进程中打开时，Claude Code 拒绝启动该会话自己的进程。您看到的内容取决于什么持有对话：
+以下消息表示此机器上的另一个 Claude Code 进程已打开该已停止会话的保存对话，因此 Agent 视图和 `claude attach` 不会打开该会话：
 
-* 您恢复对话的终端，例如使用 `claude --resume` 或 `/resume`：该行显示 `Open in a terminal`，并提示在那里继续，打开该行显示 `Can't open — this session is running in another terminal`。在该终端中继续，或退出它并再次打开该行。
-* 另一个非交互式 Claude Code 进程，例如同一对话的后台会话进程，尚未退出：打开该行显示 `This conversation is already open in another running Claude session`。使用该进程，或等待它退出并再次打开该行。
+* `Can't open — this session is running in another terminal`：另一个进程已打开该对话，例如一次 `claude -p` 运行，或您在其中恢复该对话的终端。请在该终端中继续，或退出该进程或等待其完成，然后再次打开该会话。
+* `This conversation is already open in another running Claude session`：另一个后台会话已打开该对话。请使用该会话，或停止它，然后再次打开此会话。
 
 Claude Code 保存您在被拒绝的尝试中输入的回复（以 `!` 或 `/` 开头的回复除外），并在会话下次启动时发送它。
 
@@ -1055,6 +1056,7 @@ Agent view 在研究预览期间发展迅速。如果您使用的是较旧的 Cl
 
 | 版本 | 更改 |
 | - | - |
+| v2.1.323 | 在 agent view 的输入框中，[`Ctrl+Y`](#keyboard-shortcuts) 会恢复已清除的文本。 |
 | v2.1.299 | [调度输入框中的 `/effort` 和 `/fast`](#set-the-model-effort-and-fast-mode) 会为您接下来调度的会话设置 effort 级别和快速模式。键入不带值的 `/model`、`/effort` 或 `/fast` 会打开选择器。 |
 | v2.1.299 | Claude Code 仅在任何单独的 `--` 分隔符之前、且不在其他标志的值中时，才[将 `--bg` 和 `--background` 识别为该标志](#from-your-shell)，对于位置有歧义的情况会拒绝而不是猜测。在此版本之前，发送给后台会话的内容为 `--bg` 或 `--background` 的提示词或回复可能会被当作该标志。这可能会反复启动新的后台会话，而不是投递该文本。 |
 | v2.1.296 | 您[在会话移到后台时](#switch-sessions-without-leaving-the-terminal)输入的提示词或 `!` shell 命令会被停止或保持未发送状态，其文本会保留在提示词历史中。在此版本之前，回复或命令会在您看不到的地方继续运行，并且在 `←` 之后立即发送的提示词可能会在您看不到的情况下运行第二次。在 `SessionStart` hook 仍在运行时键入的提示词会丢失：既不会发送，也不会出现在提示词历史中。 |
@@ -1102,7 +1104,7 @@ Agent view 在研究预览期间发展迅速。如果您使用的是较旧的 Cl
 | v2.1.246 | `/fork` 会从本身作为副本启动且此后未记录新提示词的会话中[复制完整对话](#copy-the-session-with-%2Ffork)：您附加到的 `/fork` 副本、在 `←` 或 `/background` 将其移到后台后重新附加的会话，或使用 `claude --resume <id> --fork-session` 启动的会话。在此版本之前，如果您在向此类会话发送新提示词之前运行 `/fork`，Claude Code 会打印正常的确认信息，但以空对话启动副本。使用 `←` 或 `/background` 将此类会话移到后台也会以同样方式丢失对话。 |
 | v2.1.246 | 当您在刚调度的会话的工作进程仍在启动时打开它（例如在其行上按 `Enter`），Claude Code 会等待进程启动后再附加。在此版本之前，如果您在进程仍在启动时按 `Enter`，Claude Code 可能会停止会话并显示 [`Session <id> was stopped while the respawn was in flight`](https://code.claude.com/docs/zh-CN/errors#session-was-stopped-while-the-respawn-was-in-flight)。 |
 | v2.1.246 | 当您将已命名的会话[移到后台](#from-inside-a-session)时，Claude Code 只列出它一次；当您再次将同一对话移到后台时，它会为新行的名称编号，例如 `my-session (2)`，现有行保留其名称。在此版本之前，您按 `←` 的终端可能会在 `claude agents --json` 中显示为同名的第二个会话，如果您再次将同一对话移到后台，Claude Code 会以完全相同的名称添加另一行。 |
-| v2.1.239 | 启用 [vim 编辑器模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode)时，在 agent view 的输入框中按 `Esc` 会从 INSERT 切换到 NORMAL 模式并保留您的文本，与主输入框一致；在 NORMAL 模式下输入框中仍有文本时，按 `Esc` 会清除文本，在空输入框上按 `Esc` 会退出，如 [`Esc` 快捷键](#keyboard-shortcuts)所述。在此版本之前，`Esc` 会清除输入框。 |
+| v2.1.239 | 启用 [vim 编辑器模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode)时，在 agent view 的输入框中按 `Esc` 会从 INSERT 切换到 NORMAL 模式并保留您的文本，与主输入框一致。在此版本之前，`Esc` 会清除输入框。 |
 | v2.1.233 | 对于链接到 GitLab 合并请求的会话，Claude Code 会以 GitLab 的 `!1234` 引用语法写入该行的标签。您也可以将合并请求的 URL 粘贴到[调度输入框](#filter-sessions)中以选择该会话。在此版本之前，标签显示为 `#1234`，并且粘贴的合并请求 URL 仅在会话的第一个提示词包含该 URL 时才能匹配到会话。 |
 | v2.1.227 | 当另一个活跃的 Claude Code 会话正在某个 worktree 目录内运行时，[删除会话](#what-deleting-a-session-removes)会保留该会话及其 worktree。Agent view 会在行上显示 `not deleted` 并在页脚中显示原因，`claude rm` 会打印 `kept <id>` 及原因，其中会指明另一个会话的进程 ID。在此版本之前，即使另一个会话仍在其中工作，删除会话也会删除 worktree。 |
 | v2.1.225 | 在您尚未信任的目录中运行 `claude agents` 时，会在 agent view 打开之前显示与 `claude` 启动时相同的[工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。接受会保存该工作区的信任；拒绝则退出而不打开 agent view。在此版本之前，`claude agents` 会在不询问的情况下打开，因此您从中调度的会话会在您从未被要求信任的目录中运行。 列表按目录分组时，将鼠标悬停在某行上会突出显示该行，而不会更改[调度目标](#dispatch-to-a-specific-directory)；使用箭头键或点击选择行仍会更改目标。在此版本之前，将鼠标移到另一个项目中的会话上，会在不提示的情况下更改下一个调度会话的启动目录。 |

@@ -332,7 +332,7 @@ $env:CLAUDE_CODE_NO_FLICKER = "1"; claude
 
 当您粘贴超过 800 个字符或超过三行的内容到提示框时，Claude Code 会将输入折叠为占位符，例如 `[Pasted text #1 +120 lines]`，以保持输入框的可用性，并在您提交时仍会发送完整内容。对于非常大的输入（如整个文件或长日志），将内容写入文件并要求 Claude 读取它，而不是粘贴。对话记录保持可读性，Claude 可以在后续轮次中按路径引用文件。VS Code 集成终端也可能在非常大的粘贴到达 Claude Code 之前丢弃字符，因此在那里使用文件。
 
-如果粘贴包含[不可见的 Unicode 字符](https://code.claude.com/docs/zh-CN/interactive-mode.md#invisible-characters-in-prompts)，Claude Code 会在您按 Enter 时移除它们，并将清理后的提示放回输入框供您再次按 Enter 发送。
+如果粘贴包含[不可见的 Unicode 字符](https://code.claude.com/docs/zh-CN/interactive-mode.md#invisible-characters-in-prompts)，Claude Code 会在您按 Enter 时移除它们。
 
 ### Claude 如何处理粘贴的文本
 

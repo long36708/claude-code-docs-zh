@@ -183,7 +183,7 @@ export VERTEX_REGION_CLAUDE_FABLE_5_2=global
 如果 Agent Platform 拒绝快速模式，Claude Code 会回退到标准速度。此时交互式会话会显示以下终端消息之一：
 
 * `Using standard speed on Fable 5.2 · fast mode wasn't available`：运行 `/fast on` 以再次尝试快速模式
-* `Fast mode was refused for this project · trying again in 30m`：Agent Platform 对快速模式请求返回了 403 或 404 错误。要更早重试，请运行 `/fast on`。
+* `Fast mode paused: your cloud provider refused a fast request · trying again in 30m`：Agent Platform 对快速模式请求返回了 403 或 404 错误。要更早重试，请运行 `/fast on`。需要 Claude Code v2.1.323 或更高版本。
 
 ### 在代理和 LLM 网关后面使用快速模式
 

@@ -872,7 +872,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `speed`：`"fast"` 或 `"normal"`，表示快速模式是否处于活跃状态
 * `query_source`：发出请求的子系统，例如 `"repl_main_thread"`、`"compact"` 或子代理名称
 * `effort`：应用于请求的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)：`"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"`。当 Claude Code 未发送 effort 级别时不存在，例如在不支持 effort 的模型上。
-* `agent.name`、`skill.name`、`plugin.name`、`marketplace.name`、`mcp_server.name`、`mcp_tool.name`：请求的 skill、插件、Agent 和 MCP 归因。有关定义和编辑行为，请参阅[成本计数器](#cost-counter)。
+* `agent.name`、`skill.name`、`plugin.name`、`marketplace.name`、`mcp_server.name`、`mcp_tool.name`：该请求的 skill、插件、Agent 和 MCP 归因。有关定义和编辑行为，请参阅[成本计数器](#cost-counter)。当来自官方市场和内置捆绑包之外的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 调用 [`$.model`](https://code.claude.com/docs/zh-CN/plugins/mods/api#call-a-model) 时，`marketplace.name` 也会存在，并被编辑为 `"third-party"`，除非您设置了 `OTEL_LOG_TOOL_DETAILS=1`。
 
 #### API 错误事件
 
@@ -896,7 +896,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `speed`：`"fast"` 或 `"normal"`，表示快速模式是否处于活跃状态
 * `query_source`：发出请求的子系统，例如 `"repl_main_thread"`、`"compact"` 或子代理名称
 * `effort`：应用于请求的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)。当 Claude Code 未发送 effort 级别时不存在，例如在不支持 effort 的模型上。
-* `agent.name`、`skill.name`、`plugin.name`、`marketplace.name`、`mcp_server.name`、`mcp_tool.name`：请求的 skill、插件、Agent 和 MCP 归因。有关定义和编辑行为，请参阅[成本计数器](#cost-counter)。
+* `agent.name`、`skill.name`、`plugin.name`、`marketplace.name`、`mcp_server.name`、`mcp_tool.name`：该请求的 skill、插件、Agent 和 MCP 归因。有关定义和编辑行为，请参阅[成本计数器](#cost-counter)。关于 mod 的 `$.model` 调用上的 `marketplace.name`，请参阅 [`api_request`](#api-request-event)。
 
 #### API 拒绝事件
 

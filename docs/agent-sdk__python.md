@@ -1725,8 +1725,8 @@ class ResultMessage:
 * `is_error`：当对话以错误状态结束时为 `True`。在 `error_*` 子类型上始终为 `True`。在 `subtype="success"` 上，有三种情况为 `True`。请检查 `stop_reason` 以区分它们：
   * `"refusal"`：模型拒绝回复。请在 `result` 中读取拒绝文本；当 `result` 为空时，在前面的 `AssistantMessage` 中读取。
   * `"tool_deferred_unavailable"`：恢复会话时，[延迟的工具](https://code.claude.com/docs/zh-CN/hooks.md#defer-a-tool-call-for-later)已不再可用，例如因为其 MCP 服务器未连接。在以下两种情况中，恢复后发送的提示词与随恢复一起传递的提示词效果相同：
-    * 无提示词：该调用仍处于挂起状态。使该工具可用后，再次不带提示词地恢复，该调用会首先运行。
-    * 有提示词：Claude Code 会在没有该工具结果的情况下回答它，延迟的调用将不复存在。如果仍需要调用该工具，请发送新的提示词。
+    * 无提示词：默认情况下，该调用仍处于挂起状态。使该工具可用后，再次不带提示词地恢复，该调用会首先运行。
+    * 有提示词：默认情况下，该提示词不会到达 Claude，且该调用仍处于挂起状态。要在没有该工具的情况下继续，请[丢弃该调用](https://code.claude.com/docs/zh-CN/hooks.md#resume-when-a-deferred-tool-is-unavailable)。
   * 任何其他值：轮次因 Claude Code 报告的错误（代替模型回复）而结束，例如 API 错误。读取 `terminal_reason` 了解原因，读取 `result` 获取消息，当 API 返回 HTTP 状态时读取 `api_error_status` 获取该状态。
 * `api_error_status`：终止 API 错误的 HTTP 状态代码。当轮次结束时没有错误时为 `None`。仅在 `subtype="success"` 上填充。
 * `result`：在 `subtype="success"` 上为最终助手消息的文本，或在 `error_*` 子类型上为 `None`。当 `subtype="success"` 且 `is_error=True` 时，如果可用，此字段保存 API 错误字符串，但可能为空，因此请检查 `api_error_status` 和前面的 `AssistantMessage` 内容以获取详情。
@@ -2429,7 +2429,7 @@ HookJSONOutput = AsyncHookJSONOutput | SyncHookJSONOutput
 class SyncHookJSONOutput(TypedDict):
     # Control fields
     continue_: NotRequired[bool]  # Whether to proceed (default: True)
-    suppressOutput: NotRequired[bool]  # Hide stdout from transcript
+    suppressOutput: NotRequired[bool]  # Has no effect
     stopReason: NotRequired[str]  # Message when continue is False
 
     # Decision fields
@@ -2517,7 +2517,7 @@ class AsyncHookJSONOutput(TypedDict):
 
 ### Hook 使用示例
 
-此示例注册两个 hook：一个阻止危险的 Bash 命令（如 `rm -rf /`），另一个记录所有工具使用以进行审计。借助其 [`Bash` 匹配器](https://code.claude.com/docs/zh-CN/agent-sdk/hooks#matchers)，安全 hook 在 Bash 工具调用上运行。日志 hook 没有匹配器，因此会在每次工具调用时运行。
+此示例注册两个 hook：一个阻止危险的 Bash 命令（如 `rm -rf /`），另一个记录所有工具使用以进行审计。借助其 [`Bash` 匹配器](https://code.claude.com/docs/zh-CN/agent-sdk/hooks#matchers)，安全 hook 在 Bash 工具调用上运行。日志 hook 没有匹配器，因此会匹配所有工具。
 
 ```python theme={null}
 import asyncio
@@ -3594,7 +3594,7 @@ class SandboxSettings(TypedDict, total=False):
 >
 > 沙箱取决于平台支持，在 Linux 上，需要 `bubblewrap` 和 `socat` 等工具。默认情况下，当 `enabled` 为 `True` 但沙箱无法启动时，命令在沙箱外运行，并在 stderr 上显示警告。此默认值与 TypeScript SDK 不同，后者中 `failIfUnavailable` 默认为 `true`。
 >
-> 在沙箱设置中设置 `"failIfUnavailable": True` 以改为停止。SDK 会将 `failIfUnavailable` 与已声明的 `SandboxSettings` 字段一起转发给 Claude Code。然后 `query()` 报告一个 `ResultMessage`，其 `subtype="error_during_execution"`，原因在 `errors` 中。因为这是一个单次 `query()` 调用，SDK 在生成该错误结果后会引发异常，所以请将循环包装在 try 块中以继续执行。有关错误约定，请参阅 [处理结果](https://code.claude.com/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。
+> 在沙箱设置中设置 `"failIfUnavailable": True` 以改为停止。设置 `failIfUnavailable` 后，当沙箱无法启动时，`query()` 会引发 [`ResultError`](#resulterror)，因此请将 `async for` 循环包装在 `try` 块中。原因位于该异常的 `errors` 列表中。SDK 会将 `failIfUnavailable` 与已声明的 `SandboxSettings` 字段一起转发给 Claude Code。
 
 要阻止沙箱化命令写入某个文件，请在沙箱设置中将其绝对路径列在 [`denyWrite`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-filesystem-denywrite) 下，例如 `"filesystem": {"denyWrite": ["/home/user/project/.env"]}`。SDK 会将 `filesystem` 与已声明的 `SandboxSettings` 字段一起转发给 Claude Code。沙箱启动后，会阻止对您所列的每个绝对路径的写入。
 
@@ -3621,8 +3621,8 @@ async def main():
         ):
             print(message)
     except Exception as error:
-        # A single-shot query() raises after yielding an error result,
-        # such as when failIfUnavailable is set and the sandbox can't start.
+        # query() raises, for example, when failIfUnavailable is set
+        # and the sandbox can't start.
         print(f"Session ended with an error: {error}")
 
 

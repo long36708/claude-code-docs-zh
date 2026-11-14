@@ -842,13 +842,12 @@ claude plugin update formatter@my-marketplace --scope project
 
 #### 成绩单中的 `hook error` 通知
 
-形式为 `... hook error: Failed with non-blocking status code: <stderr>` 的通知意味着 hook 运行且其命令失败。例如，`Stop hook error: Failed with non-blocking status code: /bin/sh: node: command not found` 意味着 Claude Code 生成的 shell 找不到 `node`。安装它，或确保它在您启动 `claude` 的终端的 `PATH` 上。
+形式为 `... hook error: Failed with non-blocking status code: <stderr>` 的通知意味着 hook 的命令失败。例如，`Stop hook error: Failed with non-blocking status code: /bin/sh: node: command not found` 意味着 Claude Code 生成的 shell 找不到 `node`。安装它，或确保它位于您启动 `claude` 的终端的 `PATH` 上。
 
 如果 stderr 显示插件的路径在空格处被截断，hook 的 shell 形式命令在引号外使用 `${CLAUDE_PLUGIN_ROOT}`，安装路径包含空格。将变量用双引号包装或使用 [exec 形式](https://code.claude.com/docs/zh-CN/hooks.md#exec-form-and-shell-form)。要找到未引用的变量，请在插件的目录上运行 `claude plugin validate` 并查找其 [引用警告](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#quoting-and-path-separators)。
 
-如果通知内容为 `Failed to run: Plugin directory does not exist: <path>`，请参阅 [`Plugin directory does not exist`](#plugin-directory-does-not-exist)。
-
-对于任何其他错误，从插件目录自己运行 hook 的命令以查看完整输出，或使用 [调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks) 捕获完整 stderr。
+* 如果通知内容为 `Failed to run: Plugin directory does not exist: <path>`，请参阅 [`Plugin directory does not exist`](#plugin-directory-does-not-exist)。
+* 对于任何其他错误，请使用 [调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks) 捕获完整 stderr。
 
 #### 插件 hook 阻止工具调用或提示
 
@@ -862,19 +861,19 @@ claude plugin update formatter@my-marketplace --scope project
 
 **1. 检查事件名称**
 
-事件名称区分大小写，因此确认您的完全匹配，例如 `PostToolUse`。
+事件名称区分大小写，因此请确认您的事件名称完全匹配，例如 `PostToolUse`。
 
 **2. 检查匹配器**
 
-确认 hook 的 `matcher` 匹配工具名称。
+对于 `PostToolUse` 等工具事件，确认 hook 的 `matcher` 与工具名称匹配。
 
 **3. 故意触发事件**
 
-对于 `PostToolUse` hook，要求 Claude 编辑文件。
+按照 [调试 hook](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks) 中的说明启用调试日志。对于 `PostToolUse` hook，要求 Claude 编辑一个文件。
 
 **4. 阅读调试日志**
 
-打开 [调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks)，它记录哪些 hooks 匹配。运行的 hook 显示在那里及其退出代码。
+打开 [调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks)。运行过的 hook 会连同其退出码显示在那里。
 
 ### `Plugin directory does not exist: <path>`
 
