@@ -81,7 +81,7 @@ bare 模式还会限制会话运行期间发生的事情：
 运行会等待后台工作，例如后台命令、子代理和工作流、Monitor 监视以及待处理的 `/loop` 唤醒：
 
 * **[后台命令](https://code.claude.com/docs/zh-CN/tools-reference.md#background-commands)**：对于主对话启动的命令（例如开发服务器或监视构建），运行会等待，直到该命令退出或达到其 [时间限制](https://code.claude.com/docs/zh-CN/tools-reference.md#time-limit-for-background-commands)。随后 Claude 会根据结果再进行一轮。在命令运行期间，10 分钟上限不会结束等待。
-* **后台[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)和工作流**：运行会保持打开状态，直到该工作完成，因为其结果是最终输出的一部分。
+* **后台[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)和工作流**：运行会保持打开状态，直到每一项都完成或 10 分钟上限结束等待。
 * **[Monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool) 监视**：运行会等待，直到监视超时或 10 分钟上限结束等待，以先发生者为准。在等待期间，Claude 会继续响应监视报告的内容。默认情况下，监视在 Claude 启动后五分钟超时。
 * **待处理的唤醒**：在以文本形式而非通过 `--input-format stream-json` 传递提示词的运行中，如果 Claude 已安排 [自定节奏的 `/loop` 唤醒](https://code.claude.com/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)，运行会等待每次唤醒触发并执行其迭代，直到 [循环结束](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#stop-a-loop)，即使超过 10 分钟上限也是如此。
 
@@ -90,6 +90,12 @@ bare 模式还会限制会话运行期间发生的事情：
 如果运行达到其 [`--max-budget-usd`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 上限，Claude Code 会停止剩余的后台工作，而不是继续等待。
 
 当后台工作启动新的轮次时，使用默认的 `text` 输出时运行会打印每一轮的结果，使用 `json` 输出时则打印最后一轮的结果。在 v2.1.295 之前，使用 `text` 输出时运行也只打印最后一轮的结果。
+
+#### 为子代理的长时间命令提供更多时间
+
+当子代理的长时间命令在超时时 [转入后台](https://code.claude.com/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background) 后，它会继续运行，但 `claude -p` 运行可能会在该命令完成之前以代码 0 退出。
+
+要将默认超时时间提高到超过该命令的运行时间，请设置 [`BASH_DEFAULT_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars)，例如使用 `BASH_DEFAULT_TIMEOUT_MS=300000 claude -p "<prompt>"` 将其设为五分钟。对于运行时间超过 10 分钟的后台子代理命令，还需提高 [10 分钟上限](#background-tasks-at-exit)。
 
 #### 非交互式运行结束时的 MCP 工作
 
@@ -369,7 +375,7 @@ claude -p "Look at my staged changes and create an appropriate commit" \
 > * 用户调用的 [skill](https://code.claude.com/docs/zh-CN/skills.md) 和自定义命令可以使用。在提示词字符串中包含 `/skill-name`，Claude Code 会在运行前展开它。
 > * 仅在终端界面中运行的内置命令，例如 `/login`，不可用。
 > * `/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数时打印服务器状态的文本摘要。这些形式遵循每个命令的 [可用性说明](https://code.claude.com/docs/zh-CN/commands.md#all-commands)。
-> * 要更改设置，请将 `key=value` 传递给 `/config`，例如 `/config thinking=false`。
+> * 要更改设置，请将 `key=value` 传递给 `/config`，例如 `/config verbose=true`。
 > * `/output-style <style>` 切换 [输出样式](https://code.claude.com/docs/zh-CN/output-styles.md)，单独使用 `/output-style` 会列出它们。需要 Claude Code v2.1.269 或更高版本。
 
 ### 自定义系统提示词

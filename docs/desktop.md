@@ -264,7 +264,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 ### 最小化窗格
 
-要让终端、浏览器、[iOS Simulator](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md) 或[侧边聊天](#ask-a-side-question-without-derailing-the-session)以较小尺寸保持在视野中，请点击窗格标题中的 **Minimize**。该按钮需要 Claude Desktop v4.0.0 或更高版本，并且需要使用 Claude 账户而非[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)。浏览器窗格仅在本地会话中提供该按钮。
+要让终端、浏览器、[iOS Simulator](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md) 或[侧边聊天](#ask-a-side-question-without-derailing-the-session)以较小尺寸保持在视野中，请点击窗格标题中的 **Minimize**。该按钮需要 Claude Desktop v4.0.0 或更高版本。使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)时，则需要 v5.11492.0 或更高版本，因此请[检查您的版本](#check-your-version)。浏览器窗格仅在本地会话中提供该按钮。
 
 当[会话详细信息面板](#see-session-details)显示在屏幕上时，最小化的窗格位于该面板中；否则，它会悬浮在聊天区域的一角：
 

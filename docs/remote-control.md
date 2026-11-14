@@ -178,6 +178,7 @@ Remote Control 会话处于活动状态后，您可以通过以下几种方式�
 已连接的设备会实时显示终端中的对话。以下情况超出了普通消息的范畴：
 
 * **压缩和 `/clear`**：在 Claude Code [压缩对话](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)时，已连接的设备会显示进度，然后显示对话被压缩的位置。当您运行 `/clear` 时，已连接设备上的对话也会重置。
+* **在 `/resume` 或 `/teleport` 后断开连接**：如果已连接的会话有[分享链接](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#share-sessions)，或者 Claude Code 无法检查是否存在分享链接，则当这两个命令中的任一个打开另一个对话时，Remote Control 会断开连接。否则，持有该链接的人将会看到那个对话。要连接新对话，请在终端中运行 `/remote-control`。分享链接检查需要 Claude Code v2.1.324 或更高版本。
 * **使用 `/resume` 切换对话**：已连接的设备不会收到切换到的对话的标题或早期历史，但双向的新消息都会发往或来自终端中当前打开的对话。要再次从设备上处理原来的对话，请在终端中运行 `/resume` 并切换回该对话。
 * **使用 `/teleport` 拉取会话**：当您使用 `/teleport` 将[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#from-cloud-to-terminal)拉取到终端时，已连接的设备不会收到被拉取对话的早期历史。双向的新消息都会发往或来自被拉取的对话，该对话现在就是终端中打开的对话。
 * **来自您其他会话的消息**：借助[跨会话消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)，同一连接会在您位于不同机器上的各个会话之间传递消息。

@@ -306,8 +306,8 @@ Claude Code 首先加载 plugin 根目录处的 `.mcp.json`，然后按顺序加
 | 形式 | 示例值 | Claude Code 的作用 |
 | :- | :- | :- |
 | `.json` 文件路径 | `"./mcp/servers.json"` | 将文件读取为 `mcpServers` 映射 |
-| MCP 包路径 | `"./bundle.mcpb"` | 将 `.mcpb` 或 `.dxt` 包提取到 plugin 根目录下的 `.mcpb-cache/` 并读取其服务器配置 |
-| MCP 包 URL | `"https://example.com/server.mcpb"` | 将包下载到 `.mcpb-cache/`，然后读取它 |
+| MCP 包路径 | `"./bundle.mcpb"` | 将 `.mcpb` 或 `.dxt` 包提取到[插件存放根目录](https://code.claude.com/docs/zh-CN/plugins/loading.md#find-plugins-on-disk)下的 `mcpb/` 中，并读取其服务器配置 |
+| MCP 包 URL | `"https://example.com/server.mcpb"` | 下载包，然后以相同方式提取并读取它 |
 | 内联映射 | `{ "deploy-api": { "command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/server.js"] } }` | 使用映射作为以名称为键的服务器配置 |
 
 包路径或 URL 必须以 `.mcpb` 或 `.dxt` 结尾。任何其他扩展名验证失败。

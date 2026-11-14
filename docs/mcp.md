@@ -516,7 +516,9 @@ MCP task <server task id> (<server>/<tool>) completed.
 
 #### 回答来自 MCP 任务的问题
 
-正在运行的任务可以打开[引导对话框](#respond-to-mcp-elicitation-requests)来请求您输入。`/tasks` 打开期间，该对话框保持隐藏，因此请关闭 `/tasks` 以进行回答。拒绝或按 `Esc` 也是对服务器的一种回答，服务器随后决定任务是否继续。
+正在运行的任务可以打开[引导请求对话框](#respond-to-mcp-elicitation-requests)来向您请求输入。当 `/tasks` 打开时，该对话框会保持隐藏，因此请关闭 `/tasks` 以作答。拒绝也是对服务器的一种回答，之后由服务器决定任务是否继续。
+
+除非您已将 Claude 设置为[等待结果](#make-claude-wait-for-the-result-of-an-mcp-task)，否则可以在对话框中按 `Esc` 稍后再回答。要重新打开该问题，请运行 `/tasks`，打开任务的详情，然后按 `Enter`。稍后回答需要 Claude Code v2.1.324 或更高版本。
 
 在[非交互](https://code.claude.com/docs/zh-CN/headless.md)会话中，Claude Code 会请求服务器取消请求输入的任务，而不会运行您的 [`Elicitation` hook](https://code.claude.com/docs/zh-CN/hooks#elicitation)，也不会调用 Agent SDK 的 `onElicitation` 回调。
 

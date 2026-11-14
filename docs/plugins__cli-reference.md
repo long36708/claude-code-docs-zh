@@ -777,7 +777,7 @@ Claude Code 打印 `Configured marketplaces:` 和每个市场一行 `Source:`，
 | `repo` | `owner/repo`。仅限 `github` 源 |
 | `url` | 克隆或获取 URL。仅限 `git` 和 `url` 源 |
 | `path` | 本地路径。仅限 `directory` 和 `file` 源 |
-| `ref` | 固定的分支或标签。`github` 和 `git` 源，仅在固定时 |
+| `ref` | 固定的分支、标签或提交 SHA。`github` 和 `git` 源，仅在固定时 |
 | `installLocation` | Claude Code 缓存市场的位置 |
 
 添加的 [claude.ai 市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-from-claude-ai)没有本地克隆，因此其条目在 `installLocation` 的位置携带其 claude.ai 标识符 `marketplaceId` 和 `organizationUuid`。它也在记录时携带 `scope` 和 `status`。

@@ -793,7 +793,7 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
 
 * **拒绝规则和询问规则**：与其中任一规则匹配的命令仍会导致中止。要查找该规则，请参阅[管理权限](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)。
 * **仅托管规则**：如果会话中的 `/status` 将该 skill 列在 `allowed-tools ignored this session` 下，请参阅[仅应用托管权限规则时](#when-only-managed-permission-rules-apply)。
-* **未经验证的 Git 文件夹**：如果某个 `HEAD` 或 `.git` 文件可能不属于您，对于包含 `git` 或 Claude Code 无法解析的 Bash 命令，Claude Code 会忽略 `allowed-tools`。如果您信任该文件夹（例如您自己的裸仓库的 worktree），请在会话中使用 [`/permissions`](https://code.claude.com/docs/zh-CN/permissions#manage-permissions) 允许该命令。
+* **裸仓库文件夹**：当某个文件夹中的 `HEAD` 文件直接与 `refs` 或 `commondir` 并列时，该文件夹看起来就是裸仓库。当工作目录所在位置或其上级中最近的仓库看起来是裸仓库时，对于包含 `git` 或 Claude Code 无法解析的 Bash 命令，Claude Code 会忽略 `allowed-tools`。如果您信任该文件夹，请在会话中使用 [`/permissions`](https://code.claude.com/docs/zh-CN/permissions#manage-permissions) 允许该命令。
 
 在自动模式中，原本需要你批准的命令不会中止调用。技能加载时带有指令，告诉 Claude 首先运行该命令，然后 Claude 自己的调用通过[自动模式的常规检查](https://code.claude.com/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)。调用仍然会在[分叉技能](#run-skills-in-a-subagent)中中止，该技能设置 `agent`，以及在 Claude 没有[运行注入命令的 shell 工具](#how-injected-commands-run)的会话中。
 

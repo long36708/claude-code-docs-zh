@@ -392,7 +392,7 @@ tool(
 
 ### 要求特定工具需经批准
 
-将工具的`permission_policy`设置为`always_ask`后，`allowedTools`将不再批准该工具的调用，因此即使该工具已被列出，其调用也可以到达您的[`canUseTool`](https://code.claude.com/docs/zh-CN/agent-sdk/user-input)回调。如果改为设置`always_deny`，则[对该工具的调用会被拒绝](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)，但您加载的插件中的[mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md)[仍然可以批准它](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。该字段仅适用于TypeScript，并且需要Agent SDK v0.3.301或更高版本。
+将工具的`permission_policy`设置为`always_ask`后，`allowedTools`将不再批准该工具的调用，因此即使该工具已被列出，其调用也可以到达您的[`canUseTool`](https://code.claude.com/docs/zh-CN/agent-sdk/user-input)回调。如果改为设置`always_deny`，则会[阻止该工具](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#permission-policy-values)。该字段仅适用于TypeScript，并且需要Agent SDK v0.3.301或更高版本。
 
 请将策略条目放在`createSdkMcpServer()`返回的配置对象的`tools`数组中，而不是放在传入该函数的`tools`选项中。以下示例展开了[天气工具示例](#weather-tool-example)中的`weatherServer`，并添加了一个`tools`数组，为`get_temperature`指定`always_ask`策略：
 

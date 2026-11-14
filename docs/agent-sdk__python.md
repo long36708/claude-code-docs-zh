@@ -1244,7 +1244,7 @@ class ToolPermissionContext:
 | 字段 | 类型 | 描述 |
 | :- | :- | :- |
 | `signal` | `Any \| None` | 保留供将来中止信号支持 |
-| `suggestions` | `list[PermissionUpdate]` | 来自 CLI 的权限更新建议。Bash 提示包括带有 `localSettings` 目标的建议，因此在 `updated_permissions` 中返回它会将规则写入 `.claude/settings.local.json` 并在会话间持久化。 |
+| `suggestions` | `list[PermissionUpdate]` | 来自 CLI 的权限更新建议。Bash 提示可能包含带有 `localSettings` 目标的建议，因此在 `updated_permissions` 中返回它会将规则写入 `.claude/settings.local.json` 并在会话间持久化。 |
 | `tool_use_id` | `str \| None` | 此提示所针对的特定工具调用的标识符。传递给 `can_use_tool` 时始终填充 |
 | `agent_id` | `str \| None` | 当调用来自子代理时的子代理 ID；主 Agent 为 `None` |
 | `blocked_path` | `str \| None` | 触发权限请求的文件路径（如适用）。例如，当 Bash 命令尝试访问允许目录外的路径时 |
@@ -3583,7 +3583,7 @@ class SandboxSettings(TypedDict, total=False):
 | 属性 | 类型 | 默认值 | 描述 |
 | :- | :- | :- | :- |
 | `enabled` | `bool` | `False` | 为命令执行启用沙箱模式 |
-| `autoAllowBashIfSandboxed` | `bool` | `True` | 启用沙箱时自动批准 bash 命令 |
+| [`autoAllowBashIfSandboxed`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) | `bool` | `False` | 启用沙箱时自动批准 Bash 命令。`False` 默认值需要 Python SDK v0.2.182 或更高版本 |
 | `excludedCommands` | `list[str]` | `[]` | 绕过沙箱限制的命令，例如 `["docker *"]`。这些自动运行沙箱外，无需模型参与；[`sandbox.excludedCommands`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-excludedcommands) 涵盖何时应用条目 |
 | `allowUnsandboxedCommands` | `bool` | `True` | 允许模型请求在沙箱外运行命令。当为 `True` 时，模型可以在工具输入中设置 `dangerouslyDisableSandbox`，这会回退到 [权限系统](#permissions-fallback-for-unsandboxed-commands) |
 | `network` | [`SandboxNetworkConfig`](#sandboxnetworkconfig) | `None` | 网络特定的沙箱配置 |

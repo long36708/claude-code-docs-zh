@@ -925,15 +925,13 @@ Claude Code 会在假设的 200K 处[自动压缩](#default-auto-compact-thresho
 
 在 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)或其他自定义部署上，Claude Code 可能会为模型 ID 假设一个与模型实际窗口不同的上下文窗口，无论它是否将 ID 解析为 Claude 模型。设置 [`CLAUDE_CODE_MAX_CONTEXT_TOKENS`](https://code.claude.com/docs/zh-CN/env-vars) 为 Claude Code 应该假设的窗口。
 
-变量的应用方式取决于 ID。当 ID 不以 `claude-`（任何大小写）开头时，或当它携带 Claude Code 在读取 ID 时剥离的后缀（例如 Google Cloud 的 Agent Platform 上使用的 `@YYYYMMDD` 日期）时，Claude Code 将 ID 视为提供商或自定义拼写。在 v2.1.259 之前，Claude Code 没有计算剥离的后缀，所以带有日期后缀的无法识别的 `claude-` ID 被视为裸 `claude-` 名称。
+对于无法识别的 ID、带有 `[1m]` 的无法识别的 ID 以及 Claude Code 能识别的 ID，该变量的作用方式各不相同：
 
-无法识别的提供商或自定义拼写、相同拼写加上 `[1m]` 和所有其他 ID 是三种不同的情况：
-
-* 如果 Claude Code 无法将提供商或自定义拼写解析为它识别的模型，且 ID 不包含 `[1m]`，则变量直接应用，主动压缩在声明的窗口处继续。
-* 如果 Claude Code 无法将提供商或自定义拼写解析为它识别的模型，且 ID 包含 `[1m]`（任何大小写），Claude Code 为其假设 1M 窗口，变量本身不适用。要在保持主动压缩的同时更正窗口，还要设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](https://code.claude.com/docs/zh-CN/env-vars)。设置该变量后，Claude Code 会像相同拼写但不带 `[1m]` 一样调整 ID 的大小，所以当 `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 适用于该无标记拼写时，它就会应用。
+* 如果 Claude Code 无法识别该 ID，且该 ID 不包含 `[1m]`，则该变量会单独生效，主动压缩会在声明的窗口处继续进行。对于 `claude-sonnet-latest` 之类的 ID，这需要 Claude Code v2.1.324 或更高版本。
+* 如果 Claude Code 无法识别该 ID，且该 ID 包含 `[1m]`（任何大小写），Claude Code 会为其假设 1M 窗口。该变量中小于 1M 的值不会单独生效。要在保持主动压缩的同时更正窗口，还需设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](https://code.claude.com/docs/zh-CN/env-vars)。设置该变量后，Claude Code 会像对待不带 `[1m]` 的相同 ID 一样确定该 ID 的窗口大小，因此 `CLAUDE_CODE_MAX_CONTEXT_TOKENS` 会生效。
 
   当声明的窗口大于 200K 时，在此配置中出现[200K 限制未被强制执行](https://code.claude.com/docs/zh-CN/errors.md#the-200k-limit-isnt-enforced)的警告是预期的。
-* 如果 ID 解析为 Claude Code 识别的模型，或 ID 是没有 Claude Code 要剥离的后缀的裸 `claude-` 名称（任何大小写），变量仅在您也设置 [`DISABLE_COMPACT`](https://code.claude.com/docs/zh-CN/env-vars) 时生效，这会禁用所有压缩。
+* 如果 ID 解析为 Claude Code 识别的模型，则该变量仅在您同时设置 [`DISABLE_COMPACT`](https://code.claude.com/docs/zh-CN/env-vars) 时生效，这会禁用所有压缩。
 
   例如，包含 Claude Code 知道的 Claude 模型名称的 ID（例如 `anthropic/claude-opus-4-8`、`us.anthropic.claude-…-v1:0` 或带日期的 `claude-sonnet-4-5@20250929`）解析为该模型。这包括也包含 `[1m]` 的 ID：即使设置了 `CLAUDE_CODE_DISABLE_1M_CONTEXT`，Claude Code 也会将 `claude-opus-4-8[1m]` 解析为 Opus 4.8。
 

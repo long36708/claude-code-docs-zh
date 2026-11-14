@@ -40,7 +40,7 @@
 在托管设置中设置该选项后：
 
 * **用户带来的任何 mod 都不会运行其 hook**：这包括用户安装的插件中的 mod、使用 `--plugin-dir` 加载的 mod，以及[Claude 在会话期间编写的](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod) mod
-* **您组织的 mod 仍然运行**：[计为您组织的](#install-your-organizations-mods) mod 不会被检查。所有其他 mod 都计为用户的 mod，并会被拒绝。这包括您从 GitHub 或其他远程市场启用的插件中的 mod，以及您的组织为其成员在 claude.ai 上启用的 mod。如果没有任何 mod 计为您组织的，则所有已安装的 mod 都不会运行其 hook。
+* **您组织的 mod 仍然运行**：[计为您组织的](#install-your-organizations-mods) mod 不会被检查。所有其他 mod 都计为用户的 mod，并会被拒绝。这包括您的组织为其成员在 claude.ai 上启用的 mod。如果没有任何 mod 计为您组织的，则所有已安装的 mod 都不会运行其 hook。
 * **用户无法撤销它**：守卫仅从托管设置读取该选项，因此用户、项目或本地设置文件中的相同条目，或使用 `--settings` 传递的文件中的条目都不会改变任何内容
 * **文件或 MDM 策略涵盖每个提供商**：当您以文件形式或通过 MDM 提供该选项时，它在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的工作方式相同。对于从 claude.ai 管理控制台进行的交付，请参阅[平台可用性](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)
 * **用户的其他自定义保持工作**：他们[设置文件中的 hook](https://code.claude.com/docs/zh-CN/hooks.md) 和插件 `hooks/hooks.json` 中的 hook、状态栏以及 `/goal` 均不受影响
@@ -126,7 +126,7 @@ Only a plugin that counts as your organization's own runs hooks on these events.
 
 要让这些 hook 运行，请通过以下两种方式之一更改托管设置：
 
-* **将该 mod 作为您组织的 mod 运行**：[安装该 mod，使其算作您组织自己的 mod](#install-your-organizations-mods)。这样它在这些事件上的 hook 就会运行，而守卫对其他所有 mod 仍保持加载。该 mod 会为接收这些设置的每个人开启，并且必须位于您放置在每台机器上的目录中。如果您将其列在 `prependPlugins` 中，请在列表中保留 `sec-default@builtin`。
+* **将该 mod 作为您组织的 mod 运行**：[安装该 mod，使其算作您组织自己的 mod](#install-your-organizations-mods)。这样它在这些事件上的 hook 就会运行，而守卫对其他所有 mod 仍保持加载。该 mod 会为接收这些设置的每个人开启。如果您将其列在 `prependPlugins` 中，请在列表中保留 `sec-default@builtin`。
 * **移除守卫**：在 `prependPlugins` 中省略 `sec-default@builtin`。一个空列表 `"prependPlugins": []` 就足够了。您失去的是整个守卫，而不仅仅是这些事件。这样用户的 mod 就可以做[守卫原本会阻止它做的事情](#know-what-happens-by-default)，并且[守卫的选项](#set-options-on-the-built-in-guard)也不再适用。
 
 如果您通过[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#fetch-and-caching-behavior)下发不含守卫的列表，守卫会保持加载，直到服务器为该会话确认这些设置。要在运行 v2.1.299 或更高版本的机器上确认任一更改，请在该机器上的会话中打开 `/plugin`，并检查该说明是否已消失。
@@ -253,7 +253,7 @@ mod 就是插件，因此您[为组织管理插件](https://code.claude.com/docs
 * **为某个群组（例如试点群组）提供不同的策略**：[为托管设置无法强制执行的内容做好规划](https://code.claude.com/docs/zh-CN/plugins/org.md#plan-for-what-managed-settings-can’t-enforce)
 * **检查哪些应用和会话类型会应用插件键**：[各使用入口何时应用插件键](https://code.claude.com/docs/zh-CN/plugins/org.md#when-each-surface-applies-the-plugin-keys)
 * **设置 CI 和容器**：[为容器和 CI 预置内容](https://code.claude.com/docs/zh-CN/plugins/org.md#seed-containers-and-ci)
-* **提供用户可以安装的 mod**：[托管市场](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)。Claude Code 从 GitHub、git、URL 或 npm 源复制的 mod 计为用户的，而不是[您组织的](#install-your-organizations-mods)。
+* **提供用户可以安装的 mod**：[托管市场](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)。Claude Code 从 GitHub、git、URL 或 npm 源复制的 mod 计为用户的，除非您[将其作为您组织的 mod 安装](#install-your-organizations-mods)。
 
 ### 在内置守卫上设置选项
 
@@ -281,7 +281,15 @@ mod 就是插件，因此您[为组织管理插件](https://code.claude.com/docs
 
 ### 安装您组织的 mod 并设置顺序
 
-您组织的 mod 在用户 mod 无法加载的地方加载，并且可以在用户 mod 之前运行，因此 Claude Code 必须能够判断 mod 是否来自您。只有当以下所有条件都为真时，它才会将 mod 视为您组织的：
+您组织的 mod 在用户 mod 无法加载的地方加载，并且可以在用户 mod 之前运行，因此 Claude Code 必须能够判断 mod 是否来自您。
+
+要让来自远程市场（例如 GitHub 仓库）的 mod 在 v2.1.324 或更高版本上计为您的，请在托管设置中完成以下所有操作：
+
+* 在 `enabledPlugins` 中将 mod 的插件设置为 `true`
+* 在 `extraKnownMarketplaces` 中声明该市场。要控制 mod 的代码何时更改，请[固定该市场和 mod 的条目](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#fields-by-type)。
+* 在 [`prependPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#prependplugins) 或 [`appendPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#appendplugins) 中列出 mod 的 id，例如 `acme-guard@acme-tools`。使用 `prependPlugins` 时，还要列出 `sec-default@builtin` 以保留内置守卫。
+
+用户机器上某个目录中的 mod 只有在以下所有条件都为真时才计为您的：
 
 * 托管的 `enabledPlugins` 将 mod 的插件设置为 `true`
 * 托管设置通过绝对路径将插件的[市场](https://code.claude.com/docs/zh-CN/plugins/create-marketplace.md)指定为用户机器上的目录。`extraKnownMarketplaces` 条目可以做到这一点，并且也会为用户注册该市场。
@@ -316,9 +324,9 @@ mod 就是插件，因此您[为组织管理插件](https://code.claude.com/docs
 }
 ```
 
-Claude Code 复制到其缓存中的插件计为用户的，即使托管的 `enabledPlugins` 启用了它。这涵盖了来自 GitHub、git、URL 或 npm 源的每个插件。其 mod 在用户 mod 中运行，`prependPlugins` 和 `appendPlugins` 会跳过它，`allowManagedModsOnly` 会拒绝它，`allowManagedHooksOnly` 会阻止它加载。用户的调试日志中有一行以插件的 id 和 `is enabled by managed settings, but` 开头。
+两组条件都不满足的已安装插件计为用户的，即使托管的 `enabledPlugins` 启用了它。其 mod 在用户 mod 中运行，`prependPlugins` 和 `appendPlugins` 会跳过它，`allowManagedModsOnly` 会拒绝它，`allowManagedHooksOnly` 会阻止它加载。当托管设置启用它时，用户的调试日志中有一行以插件的 id 和 `is enabled by managed settings, but` 开头。
 
-Claude Code 每次即将采取行动（例如运行工具）时都会触发一个事件，并依次将其传递给每个 mod。计为您的 mod [在用户 mod 之前运行](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)，即使您没有在任何地方列出它。要设置其位置，请在两个设置之一中列出其 id。id 是插件的名称、`@` 和市场的名称，例如 `acme-guard@acme-tools`。
+Claude Code 每次即将采取行动（例如运行工具）时都会触发一个事件，并依次将其传递给每个 mod。满足目录条件的 mod [在用户 mod 之前运行](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)，即使您没有在任何地方列出它。要设置其位置，请在两个设置之一中列出其 id。id 是插件的名称、`@` 和市场的名称，例如 `acme-guard@acme-tools`。
 
 * **`prependPlugins`**：您的 mod 在任何用户 mod 之前看到事件，并在它们之后看到事件的结果。它可以更改事件、拒绝事件或跳过用户 mod。在 v2.1.323 或更高版本上，请检查您的 hook 是否仍能[触及其他 mod 的控件和绘制内容](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#hook-other-mods-drawings-and-controls)。
 * **`appendPlugins`**：您的 mod 在每个用户 mod 之后运行，因此它只看到这些 mod 传递的事件，并以它们传递的形式看到

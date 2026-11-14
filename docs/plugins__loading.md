@@ -225,6 +225,7 @@ Claude Code 在一个插件根目录下保存插件文件和状态记录，该�
 | `cache/<marketplace>/<plugin>/<version>/` | 市场插件的每个已安装版本一个目录。`<plugin>` 是市场条目名称，`<version>` 是[已解析版本](#versions-and-updates)。`${CLAUDE_PLUGIN_ROOT}` 指向此目录 |
 | `data/<plugin-id>/` | 插件的持久目录，公开为 `${CLAUDE_PLUGIN_DATA}`。有关如何形成 `<plugin-id>`，请参阅[路径变量和持久数据](https://code.claude.com/docs/zh-CN/plugins/components.md#path-variables-and-persistent-data)。Claude Code 在插件组件首次使用它时创建它，并在更新中保留它。默认情况下，当您从其最后一个范围卸载插件时，Claude Code 会删除它。有关 `--keep-data` 和它保留的其他情况，请参阅[插件卸载](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#plugin-uninstall) |
 | `marketplaces/<name>/` | 从 GitHub、另一个 Git 主机或 URL 添加的市场的克隆或下载。从本地 `file` 或 `directory` 源添加的市场在此处没有副本，其 `installLocation` 在 `known_marketplaces.json` 中是您给定的路径 |
+| `mcpb/` | Claude Code 从插件声明的 [MCP 捆绑包](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)中提取的文件。需要 Claude Code v2.1.324 或更高版本 |
 | `synced/` | Claude Code [从您的 claude.ai 账户同步的](#synced-plugins)插件 |
 | `.trash/` | claude.ai 同步删除的插件，例如在您在 claude.ai 上关闭一个或停止同步后 |
 | `installed_plugins.json` 和 `known_marketplaces.json` | Claude Code 已安装的内容和已获取的市场的记录，在[检查插件达到的阶段](#check-which-stage-a-plugin-reached)下描述。[托管在 claude.ai 上的市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-from-claude-ai)改为记录在 `known_marketplaces_claudeai.json` 中 |

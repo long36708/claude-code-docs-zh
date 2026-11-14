@@ -1413,7 +1413,7 @@ type CanUseTool = (
 | 选项 | 类型 | 描述 |
 | :- | :- | :- |
 | `signal` | `AbortSignal` | 当操作应被中止时发出信号 |
-| `suggestions` | [`PermissionUpdate`](#permissionupdate)`[]` | 建议的权限更新，使用户不会因此工具再次收到提示。Bash 提示包含一个[目标](#permissionupdatedestination)为 `localSettings` 的建议，因此在 `updatedPermissions` 中返回它会将规则写入 `.claude/settings.local.json`，并在会话之间持久保留。 |
+| `suggestions` | [`PermissionUpdate`](#permissionupdate)`[]` | 建议的权限更新，使用户不会再次被询问此工具的权限。Bash 提示可以包含一个 [destination](#permissionupdatedestination) 为 `localSettings` 的建议，因此在 `updatedPermissions` 中返回它会将规则写入 `.claude/settings.local.json`，并在各会话之间保留。 |
 | `blockedPath` | `string` | 触发权限请求的文件路径（如适用） |
 | `mcpServer` | `{ name: string; source: string }` | 对于 `mcp__*` 工具，表示提供该工具的 MCP 服务器以及该服务器定义的来源，字段与 [`McpServerProvenance`](#mcpserverprovenance) 相同。其他工具不包含此项。需要 Agent SDK v0.3.274 或更高版本 |
 | `decisionReason` | `string` | 说明触发此权限请求的原因 |
@@ -1596,7 +1596,7 @@ type McpServerToolPolicy = {
 选择 `always_ask` 以亲自批准每个调用，或选择 `always_deny` 以直接阻止该工具：
 
 * **`always_ask`**：对该工具的每个调用都[需要批准](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)，即使有 `allowedTools` 条目或 allow 规则覆盖它。该调用会转到您的 `canUseTool` 回调或 [`permissionPromptToolName`](#options) 工具，除非它已先被处理。您加载的插件中的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) [可以先批准它](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。否则，在 `dontAsk` 模式下它会被拒绝，而在 [`auto`、`plan` 和 `bypassPermissions` 模式](#permission-modes-that-can-approve-an-always_ask-call)下，它可能在到达您的回调之前就被批准
-* **`always_deny`**：在所有权限模式下（包括 `bypassPermissions`），对该工具的调用都[会被拒绝](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)，但您加载的插件中的 mod [仍然可以批准它](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)
+* **`always_deny`**：在所有权限模式（包括 `bypassPermissions`）下，Claude Code 都会从 Claude 的上下文中移除该工具。移除功能需要 Claude Code v2.1.324 或更高版本
 
 如果您既未传入 `canUseTool` 也未传入 `permissionPromptToolName`，或将 [`permissionPrompts`](#options) 设为 `'none'`，则未被先行处理的 `always_ask` 调用会被拒绝，除非 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 允许它。
 
@@ -6087,7 +6087,7 @@ type SandboxSettings = {
 | :- | :- | :- | :- |
 | `enabled` | `boolean` | `false` | 为命令执行启用沙箱模式 |
 | `failIfUnavailable` | `boolean` | `true` | 如果 `enabled` 为 `true` 但沙箱无法启动，则在启动时停止。设置为 `false` 可回退到非沙箱执行，并在 stderr 上输出警告 |
-| `autoAllowBashIfSandboxed` | `boolean` | `true` | 启用沙箱时自动批准 Bash 命令 |
+| [`autoAllowBashIfSandboxed`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) | `boolean` | `false` | 启用沙箱时自动批准 Bash 命令。`false` 默认值需要 Agent SDK v0.3.324 或更高版本 |
 | `excludedCommands` | `string[]` | `[]` | 绕过沙箱限制的命令，例如 `['docker *']`。这些命令会自动在沙箱外运行，无需模型参与；有关条目何时适用，请参阅 [`sandbox.excludedCommands`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-excludedcommands) |
 | `allowUnsandboxedCommands` | `boolean` | `true` | 允许模型请求在沙箱外运行命令。为 `true` 时，模型可以在工具输入中设置 `dangerouslyDisableSandbox`，此时将回退到[权限系统](#permissions-fallback-for-unsandboxed-commands) |
 | `network` | [`SandboxNetworkConfig`](#sandboxnetworkconfig) | `undefined` | 网络相关的沙箱配置 |

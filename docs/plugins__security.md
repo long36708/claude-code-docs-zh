@@ -121,7 +121,7 @@ Claude Code 的[权限规则](https://code.claude.com/docs/zh-CN/permissions.md)
 警告读起来与插件来自的市场相同：
 
 ```text theme={null}
-Make sure you trust a plugin before installing, updating, or using it. Anthropic does not control what MCP servers, files, or other software are included in plugins and cannot verify that they will work as intended or that they won't change. See each plugin's homepage for more information.
+Plugins can run code on your computer, with access to your files and shell. Make sure you trust a plugin before installing, updating, or using it. Anthropic does not control what MCP servers, files, or other software are included in plugins and cannot verify that they will work as intended or that they won't change. See each plugin's homepage for more information.
 ```
 
 如果您的组织在[托管设置](https://code.claude.com/docs/zh-CN/plugins/org.md)中设置了 `pluginTrustMessage`，Claude Code 会将该文本附加到警告中。

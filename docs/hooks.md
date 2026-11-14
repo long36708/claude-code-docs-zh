@@ -3777,8 +3777,6 @@ Elicitation hook 可以代替用户回答请求、拒绝或取消请求，或将
 }
 ```
 
-在对话框中，选择 **Decline** 会发送 `decline`，按 `Esc` 会发送 `cancel`，因此请返回您希望服务器看到的那个值。
-
 对于 URL 模式的请求，返回 `accept` 的 hook 会跳过对话框，因此该 URL 永远不会打开。
 
 无论您返回哪个 `action`，Claude Code 都会丢弃 Elicitation hook JSON 输出中的 `reason`、`systemMessage` 和 `continue`。

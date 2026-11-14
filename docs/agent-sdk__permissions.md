@@ -26,8 +26,6 @@ Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用�
 
 如果来自 `disallowed_tools` 或 [SDK 加载的设置文件](#rules-in-settings-files) 的拒绝规则匹配，调用将被拒绝，且不会调用 [`canUseTool`](https://code.claude.com/docs/zh-CN/agent-sdk/user-input)。即使在 [`bypassPermissions`](#bypass-permissions-mode-bypasspermissions) 模式下、即使 hook 返回了 `allow`，调用也会以这种方式被拒绝。
 
-在 TypeScript SDK 中，如果您将某个 [自定义工具](https://code.claude.com/docs/zh-CN/agent-sdk/custom-tools.md#require-approval-for-specific-tools) 的 `permission_policy` 设置为 [`always_deny`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#mcpservertoolpolicy)，对该工具的调用会在此步骤被拒绝。
-
 **3. 询问规则**
 
 检查来自 [settings.json](https://code.claude.com/docs/zh-CN/settings-reference.md#permission-settings) 的 `ask` 规则。如果询问规则匹配，调用会传递到您的 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input) 以获得确认，即使在 `bypassPermissions` 模式下也是如此。

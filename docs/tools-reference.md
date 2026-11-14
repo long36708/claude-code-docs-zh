@@ -197,7 +197,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 * Claude 在后台启动的命令获得 30 分钟，或 Claude 使用 `run_in_background` 传递的 `timeout`，最多 2 小时
 * 在前台启动、然后在达到其超时时移到后台的命令，从移动时起获得 30 分钟
 
-在使用 `-p` 标志且以文本形式（而不是使用 `--input-format stream-json`）传递提示词的运行中，两个默认值都是 10 分钟而不是 30 分钟，因为该运行会[在其结果之后等待后台命令](https://code.claude.com/docs/zh-CN/headless.md#background-tasks-at-exit)。
+在使用 `-p` 标志且以文本形式（而不是使用 `--input-format stream-json`）传递提示词的运行中，两个默认值都是 10 分钟而不是 30 分钟。
 
 当后台命令达到其时间限制时，Claude Code 停止它并告诉 Claude 原因，Claude 可以使用更长的 `timeout` 重新启动命令，如果工作仍然需要的话。停止通知读作 `Background command "<description>" was stopped after reaching its background time limit`。
 
@@ -259,6 +259,10 @@ Edit 工具执行精确字符串替换。它接受一个 `old_string` 和一个 
 Claude 使用 `cat` 或 `grep` 等 Bash 命令查看文件后，也可以在不单独执行 Read 的情况下编辑该文件。这些命令是 `cat`、`nl`、`bat`、`batcat`、`head`、`tail`、`sed -n 'X,Yp'`、`grep`、`egrep`、`fgrep` 和 `rg`，且每个命令都需在单个文件上运行，没有管道或重定向。如果命令没有输出该文件的任何文本（例如搜索没有匹配到任何内容时），编辑前读取检查仍然适用。
 
 当 Claude 以这种方式查看文件时，Claude Code 还会加载适用于该文件的任何[子目录 `CLAUDE.md`](https://code.claude.com/docs/zh-CN/memory#how-claude-md-files-load) 和[路径范围规则](https://code.claude.com/docs/zh-CN/memory.md#path-specific-rules)。请参阅 [Read 和 Edit 权限规则](https://code.claude.com/docs/zh-CN/permissions.md#read-and-edit)，了解您的 `Read` 和 `Edit` 拒绝规则涵盖哪些 Bash 命令。
+
+### 在 Perforce 中保护只读文件
+
+要防止 Edit、Write 和 NotebookEdit 覆盖 Perforce 工作区中的只读文件，请将 [`CLAUDE_CODE_PERFORCE_MODE`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1`。这样，这些工具会拒绝更改只读文件，并告诉 Claude 先运行 `p4 edit`。
 
 ### 非 UTF-8 文件
 

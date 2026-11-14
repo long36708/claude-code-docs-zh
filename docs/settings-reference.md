@@ -4043,7 +4043,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 | 来源 | 示例条目 | 字段 |
 | :- | :- | :- |
-| `github` | `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main", "path": "marketplace" }` | `repo` 必填；`ref` 为分支或标签；`path` 为子目录 |
+| `github` | `{ "source": "github", "repo": "acme-corp/plugins", "ref": "main", "path": "marketplace" }` | `repo` 必填；`ref` 为分支、标签或提交 SHA；`path` 为子目录 |
 | `git` | `{ "source": "git", "url": "https://gitlab.example.com/tools/plugins.git", "ref": "production" }` | `url` 必填；`ref` 和 `path` 与 `github` 相同 |
 | `url` | `{ "source": "url", "url": "https://plugins.example.com/marketplace.json", "headers": { "Authorization": "Bearer ${TOKEN}" } }` | `url` 必填；`headers` 添加用于身份验证访问的 HTTP 标头 |
 | `file` | `{ "source": "file", "path": "/opt/acme-corp/plugins/marketplace.json" }` | `path` 必填，为 `marketplace.json` 文件的绝对路径 |

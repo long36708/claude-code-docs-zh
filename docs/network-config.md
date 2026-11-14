@@ -6,13 +6,15 @@
 
 > 为企业环境配置 Claude Code，支持代理服务器、自定义证书颁发机构 (CA) 和相互传输层安全 (mTLS) 身份验证。
 
-Claude Code 通过环境变量支持各种企业网络和安全配置。这包括通过公司代理服务器路由流量、信任自定义证书颁发机构 (CA)，以及使用相互传输层安全 (mTLS) 证书进行身份验证以增强安全性。
+Claude Code 通过环境变量支持各种企业网络和安全配置。
 
 在启动 Claude Code 之前设置这些环境变量。在 shell 中导出的变量在启动时读取一次，因此运行中的会话不会获取 shell 环境的后续更改。
 
 > [!NOTE]
 >
 > 本页面显示的所有环境变量也可以在 [`settings.json`](https://code.claude.com/docs/zh-CN/settings) 中配置。
+
+当您[登录远程 MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md#authenticate-with-remote-mcp-servers)时，Claude Code 会将您的[代理](#proxy-configuration)、[CA](#custom-ca-certificates) 和[客户端证书](#mtls-authentication)变量应用于其发送的登录请求。对于 [`claude mcp login`](https://code.claude.com/docs/zh-CN/mcp#authenticate-from-the-command-line)，请在 shell、`~/.claude/settings.json` 或[托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#deploy-a-managed-settings-file)中设置这些变量，而不是在项目设置或本地设置中设置。
 
 ## 代理配置
 

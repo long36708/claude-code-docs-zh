@@ -46,7 +46,6 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 * **冒充官方 marketplace 的名称**：名称如 `official-claude-plugins` 或 `claude-plugins-v2`，以及任何包含非 ASCII 字符的名称。错误是 `Marketplace name impersonates an official Anthropic/Claude marketplace`。名称中的控制或双向格式化字符也会报告 `Marketplace name cannot contain control or bidirectional-formatting characters`。已在这样的名称下注册的 marketplace 停止加载，连同其插件。
 * **保留名称的另一种拼写**：仅因尾部的点，或因用除下划线以外的符号代替连字符，而与保留名称不同的名称，因此 `claude.code.plugins` 计为 `claude-code-plugins`。添加 marketplace 失败，错误为 [`is another spelling of "<reserved>", a reserved marketplace name`](https://code.claude.com/docs/zh-CN/errors#marketplace-name-is-another-spelling-of-a-reserved-name)，已使用此类名称注册的 marketplace 将停止加载。此检查需要 Claude Code v2.1.280 或更高版本。
 * **Claude Code 用于不来自 marketplace 的插件的名称**：`inline` 用于使用 [`--plugin-dir`](https://code.claude.com/docs/zh-CN/cli-reference) 加载的插件，`builtin` 用于内置插件，`skills-dir` 用于从 [`.claude/skills/`](https://code.claude.com/docs/zh-CN/skills) 自动加载的插件，`synced` 用于从你的 claude.ai 账户同步的插件。`claude-plugin-test` 也被保留。`skills-dir` 也显示为 `{"source": "skills-dir"}`，在 `strictKnownMarketplaces` 和 `blockedMarketplaces` 中，如 [仅在策略列表中有效的源值](#source-values-valid-only-in-policy-lists) 下所述。
-* **`npm`、`pip`、`uv`、`cargo`、`github` 和 `gh`**：以任何大小写保留。此检查需要 Claude Code v2.1.275 或更高版本。
 * **每个 JavaScript 对象都具有的成员名称**：`constructor`、`hasOwnProperty`、`isPrototypeOf`、`propertyIsEnumerable`、`toLocaleString`、`toString` 和 `valueOf`。`claude plugin marketplace add` 会拒绝使用其中之一的市场，错误为 [`Claude Code reserves this name and cannot register a marketplace under it`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#claude-code-reserves-this-name)。此检查需要 Claude Code v2.1.296 或更高版本。
 * **以 `claudeai-` 开头的名称**：为托管在 claude.ai 上的 marketplace 保留。`claude plugin marketplace add` 拒绝任何其他使用一个的 marketplace，错误为 `Cannot add marketplace "<name>": names starting with "claudeai-" are reserved for marketplaces hosted on claude.ai`。
 * **已注册 GitHub 市场的下载文件夹名称 `<owner>-<repo>`**：对于从 `github` 源（例如 `acme/x-tools`）添加的市场，无论该市场自身的 `name` 是什么，Claude Code 都会通过名为 `acme-x-tools` 的文件夹下载它。当该市场以 `acme-x-tools` 以外的名称注册时，`claude plugin marketplace add` 会在下载另一个名为 `acme-x-tools` 的市场后拒绝它，并报告 `Can't use the marketplace name "acme-x-tools"`。此检查需要 Claude Code v2.1.290 或更高版本。
@@ -405,7 +404,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `headers` | `url` | Claude Code 随获取发送的 HTTP 标头映射，用于经过身份验证的主机 |
 | `headersHelper` | `url` | 打印标头的命令，其值太短暂而无法在 `headers` 中列出。需要 Claude Code v2.1.238 或更高版本。请参阅 [验证 archive 下载](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md#authenticate-archive-downloads) |
 | `repo` | `github` | 在 `marketplace add` 和 `extraKnownMarketplaces` 中，`repo` 必须命名一个存储库。`marketplace add` 拒绝 `owner/*` 作为无效的 `owner/repo` 简写；在 `extraKnownMarketplaces` 中 Claude Code 按字面意思取它，克隆失败 |
-| `ref` | `github`、`git` | 分支或标签。默认为存储库的默认分支 |
+| `ref` | `github`、`git` | 分支、标签，或某个分支或标签上提交的完整小写 SHA。默认为仓库的默认分支。SHA 需要 Claude Code v2.1.324 或更高版本，且对于使用[保留名称](#reserved-names)（如 `claude-plugins-official`）的市场会被拒绝 |
 | `path` | `github`、`git` | marketplace 文件在存储库内的路径。默认为 `.claude-plugin/marketplace.json` |
 | `path` | `file` | marketplace 文件本身。Claude Code 就地读取它，并将上两级的目录作为 marketplace 根目录，因此将文件保持在 `<root>/.claude-plugin/marketplace.json` |
 | `path` | `directory` | marketplace 根目录，包含 `.claude-plugin/marketplace.json` 的目录 |
@@ -413,6 +412,14 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `skipLfs` | `github`、`git` | 接受且无效果。请参阅 [保持插件文件不在 Git LFS 中](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md#keep-plugin-files-out-of-git-lfs) |
 | `name` | `settings` | 必须等于 `extraKnownMarketplaces` 键，不能是 [保留名称](#reserved-names) |
 | `plugins` | `settings` | 内联目录，没有托管文件。每个项采用 `name`、`source`、`description`、`version`、`strict`、`headers` 和 `headersHelper`。将每个项的 `source` 写成对象类型，因为相对路径没有存储库来解析 |
+
+为防止刷新和自动更新使 `github` 或 `git` 市场偏离您已审查的提交，请将 `ref` 设置为该提交的完整 SHA，如下面的源所示：
+
+```json theme={null}
+{ "source": "github", "repo": "acme-corp/plugins", "ref": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0" }
+```
+
+请先在每台机器上更新 Claude Code，因为 v2.1.324 之前的版本无法加载以这种方式固定的市场。带有自身远程源的插件条目仍然可能更新，因此也请固定该条目，例如在 `github`、`url` 或 `git-subdir` 源上使用 [`sha`](#plugin-sources)。
 
 ### 仅在策略列表中有效的源值
 
@@ -472,7 +479,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `Marketplace name cannot contain path separators (/ or \), ".." sequences, or be "."` | 错误 | `name` |
 | `Marketplace name impersonates an official Anthropic/Claude marketplace` | 错误 | `name`。请参阅 [保留名称](#reserved-names) |
 | `Marketplace name cannot contain control or bidirectional-formatting characters` | 错误 | `name` 包含控制字符，例如转义或换行符，或 Unicode 双向格式化字符 |
-| `Marketplace name "inline" is reserved for --plugin-dir session plugins`, and the `builtin`, `skills-dir`, `synced`, `claude-plugin-test`, `npm`, `pip`, `uv`, `cargo`, `github`, and `gh` variants | 错误 | `name` |
+| `Marketplace name "inline" is reserved for --plugin-dir session plugins`，以及 `builtin`、`skills-dir`、`synced` 和 `claude-plugin-test` 变体 | 错误 | `name` |
 | `Author name cannot be empty` | 错误 | `owner.name` |
 | `Plugin name cannot contain spaces. Use kebab-case (e.g., "my-plugin")` | 错误 | `plugins[i].name` |
 | `Plugin name cannot contain control or bidirectional-formatting characters` | 错误 | `plugins[i].name` |

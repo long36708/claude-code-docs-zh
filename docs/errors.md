@@ -89,6 +89,7 @@
 | `Session failed: working folder not found:` | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#working-folder-not-found) |
 | `The program file this Remote Control started from is gone` | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#program-file-is-gone) |
 | `Session failed: spawn error:` 后跟一条 `ENOENT` 消息 | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#program-file-is-gone) |
+| `Remote Control disconnected:` 后跟提及 `share link` 的原因 | [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#what-connected-devices-see) |
 | `OAuth token revoked` / `OAuth token has expired` | [身份验证](#oauth-token-revoked-or-expired) |
 | `Failed to authenticate: OAuth token revoked` | [身份验证](#oauth-token-revoked-or-expired) |
 | `Your account does not have access to Claude. Please login again or contact your administrator.` | [身份验证](#oauth-token-revoked-or-expired) |
@@ -5556,7 +5557,7 @@ This session's saved conversation is no longer on disk (it ended while the backg
 
 ### Worktree has commits that are not pushed anywhere
 
-您尝试删除一个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)，而其 worktree 中包含 Claude Code 无法确认已保存在别处的提交。Claude Code 会保留该 worktree 和会话行，而不是在您未察看的情况下销毁这些提交。`claude rm` 会指明分支和未推送的提交，并说明如何继续：
+您尝试删除一个[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)，而其 worktree 中包含 Claude Code 无法确认已保存在别处的提交。`claude rm` 会说明如何继续：
 
 ```text theme={null}
 kept 7c5dcf5d — its worktree is still at “/home/you/project/.claude/worktrees/fix-login”
@@ -5566,19 +5567,15 @@ kept 7c5dcf5d — its worktree is still at “/home/you/project/.claude/worktree
 
 当 Claude Code 无法汇总这些提交时，详情行会改为显示 `The worktree has unpushed commits`。在 [agent view](https://code.claude.com/docs/zh-CN/agent-view.md) 中，该会话的行会显示 `not removed` 以及相同的原因。
 
-远程上的提交不会阻止删除。您的 `origin` 远程默认分支的本地副本上的提交也不会阻止删除，前提是该分支已在您的主检出（即仓库目录本身，而非某个 worktree）中检出。
-
 **解决方法：**
 
-* 要保留这些提交，请推送该 worktree 的分支，或将其合并到主检出中已检出的默认分支，然后再次删除该会话
-* 要丢弃这些提交，请运行消息中打印的 `claude rm <id> --discard-unpushed` 命令，或在 agent view 中该会话的行上再次按两次 `Ctrl+X`。这会删除该会话和 worktree，连同其分支、未推送的提交以及所有未提交的更改。如果删除再次被拒绝，请按照新消息操作。
-* 当消息说明该 worktree 还被另一个已结束的会话记录时，再次删除不会丢弃它：请推送这些提交，然后再次删除该会话
+* 要保留这些提交，请推送它们。推送使它们出现在某个远程跟踪分支（例如 `origin/claude/fix-login`）上之后，再次尝试删除该会话。
+* 如果消息提供了丢弃这些提交的选项，请先确认您不再需要该 worktree、这些提交以及任何未提交的更改。然后执行消息给出的操作：在 agent view 中该会话的行上按两次 `Ctrl+X`，或运行 `claude rm` 打印的 `claude rm <id> --discard-unpushed <commit>@<worktree-id>` 命令。如果 Claude Code 再次拒绝，请按照新消息操作。
+* 当消息说明该 worktree 还被另一个已结束的会话记录时，再次删除不会丢弃它：请推送这些提交，然后再次尝试删除该会话
 
 在 v2.1.268 之前，`claude rm` 会将提交摘要放在 `kept` 行本身。当 `claude rm` 无法汇总提交时，`kept` 行会以 `worktree has commits that are not pushed anywhere` 代替摘要。
 
 在 v2.1.260 之前，该消息不会指明分支或提交，也没有丢弃途径。您仍然可以删除该会话，这会丢失未提交的更改，但保留分支和提交。请使用拒绝消息中打印的路径运行 `git worktree remove --force --force <path>`，然后运行 `claude rm <id>`。对于已锁定的 worktree，Git 需要两次 `--force`。
-
-在 v2.1.248 之前，主检出中已检出的默认分支不算在内：即使某个分支已在那里合并，在其提交到达远程之前仍会触发此拒绝。
 
 ### Terminal host process died
 

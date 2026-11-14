@@ -703,12 +703,12 @@ Claude Code 导出以下指标。"单位"列显示附加到每个指标的 OpenT
 
 * 所有[标准属性](#standard-attributes)
 * `model`：模型标识符（例如 "claude-sonnet-5"）
-* `query_source`：发出请求的子系统类别。取值为 `"main"`、`"subagent"` 或 `"auxiliary"` 之一
+* `query_source`：发出请求的子系统类别。取值为 `"main"`、`"subagent"`、`"auxiliary"`、`"plugin_model_complete"` 或 `"plugin_model_classify"` 之一。最后两个值标记 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 通过 `$.model.complete` 或 `$.model.classify` 发出的请求。Claude Code 从 v2.1.324 开始统计这些请求，因此升级后总数可能会出现阶跃式上升。
 * `speed`：当请求使用快速模式时为 `"fast"`。否则不存在
 * `effort`：应用于请求的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)：`"low"`、`"medium"`、`"high"`、`"xhigh"` 或 `"max"`。当 Claude Code 未发送 effort 级别时不存在，例如在不支持 effort 的模型上。
 * `agent.name`：发出请求的子代理类型。内置 Agent 名称和来自官方市场插件的 Agent 按原样显示。其他用户定义的 Agent 名称会被替换为 `"custom"`。当请求不是由命名的子代理类型发出时不存在。
 * `skill.name`：请求活跃的 skill，由 Skill 工具或 `/` 命令设置，或由生成的子代理继承。内置、捆绑、用户定义以及官方市场插件的 skill 名称按原样显示。第三方插件的 skill 名称会被替换为 `"third-party"`。当没有活跃的 skill 时不存在。
-* `plugin.name`：当活跃的 skill 或子代理由插件提供时，为所属插件。官方市场插件名称按原样显示。第三方插件名称会被替换为 `"third-party"`。当 skill 和子代理都没有所属插件时不存在。
+* `plugin.name`：当活跃的 skill 或子代理由插件提供时，为其所属插件；或者为通过其 `$.model` 调用发出该请求的插件。官方市场插件名称按原样显示。第三方插件名称会被替换为 `"third-party"`。其他请求不存在该属性。
 * `marketplace.name`：所属插件的安装来源市场。即使设置了 `OTEL_LOG_TOOL_DETAILS=1`，也仅针对官方市场插件发出。否则不存在。
 * `mcp_server.name`：该请求所使用的工具结果所属的 MCP 服务器。内置、claude.ai 代理和官方注册表中的服务器名称按原样显示。用户配置的服务器名称会被替换为 `"custom"`。当请求未使用任何 MCP 工具结果时不存在。在 v2.1.222 之前，Claude Code 会在 MCP 工具调用之后的每个请求上设置此属性，而不仅仅是在使用了工具结果的请求上设置，因此聚合此属性的仪表板在您升级后会显示下降。
   * 从 v2.1.312 开始，由 Anthropic 官方市场中的插件声明的、具有固定 URL 的远程服务器名称也会按原样显示，格式为 `plugin_<plugin>_<server>`。当插件的市场副本并非来自 Anthropic 注册的来源时（例如在云端会话中从种子目录挂载的副本），该名称会被替换为 `"custom"`。
@@ -723,7 +723,7 @@ Claude Code 导出以下指标。"单位"列显示附加到每个指标的 OpenT
 * 所有[标准属性](#standard-attributes)
 * `type`：（`"input"`、`"output"`、`"cacheRead"`、`"cacheCreation"`）。`"input"` 类型不包括从提示缓存读取或写入提示缓存的 token，这些 token 计入 `"cacheRead"` 和 `"cacheCreation"`。`"cacheCreation"` 类型将五分钟和一小时[缓存生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime)的缓存写入合并计数。
 * `model`：模型标识符（例如 "claude-sonnet-5"）
-* `query_source`：发出请求的子系统类别。取值为 `"main"`、`"subagent"` 或 `"auxiliary"` 之一
+* `query_source`：发出请求的子系统类别。取值请参阅[成本计数器](#cost-counter)。
 * `speed`：当请求使用快速模式时为 `"fast"`。否则不存在
 * `effort`：应用于请求的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)。详情请参阅[成本计数器](#cost-counter)。
 * `agent.name`、`skill.name`、`plugin.name`、`marketplace.name`、`mcp_server.name`、`mcp_tool.name`：请求的 skill、插件、Agent 和 MCP 归因。有关定义和编辑行为，请参阅[成本计数器](#cost-counter)。

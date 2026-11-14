@@ -6,7 +6,7 @@
 
 > 跟踪、回溯和总结 Claude 的编辑和对话以管理会话状态。
 
-Claude Code 自动跟踪 Claude 在工作时所做的文件编辑，允许您快速撤销更改并回溯到之前的状态，以防任何事情出现偏差。
+Claude Code 会在您工作时自动跟踪 Claude 所做的文件编辑。要撤销编辑，请在会话中运行 `/rewind` 或其别名 `/undo` 以打开[回溯菜单](#rewind-and-summarize)。
 
 ## 检查点的工作原理
 
