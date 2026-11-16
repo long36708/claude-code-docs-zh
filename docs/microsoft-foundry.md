@@ -173,7 +173,7 @@ Claude Code 从环境中读取 `CLAUDE_CODE_USE_FOUNDRY` 和其他 Microsoft Fou
 
 如需改为保持 200K 窗口，请设置 [`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`](https://code.claude.com/docs/zh-CN/model-config#turn-off-1m-context)。
 
-如果 Claude Code 无法将部署名称匹配到模型，它默认会假定使用 1M 窗口，因此如果您部署的模型接受的窗口更小，请[设置实际窗口大小](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。
+如果 Claude Code 无法将部署名称匹配到模型，它默认会假定使用 1M 窗口，因此如果您部署的模型接受的窗口更小，请[设置实际窗口大小](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)。在 v2.1.323 之前，Claude Code 默认假定使用 200K 窗口，因此在这些版本上，如果模型接受 1M 窗口，请在模型变量中的名称后附加 `[1m]`。
 
 当您在 `ANTHROPIC_DEFAULT_OPUS_MODEL` 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的部署名称后附加 `[1m]` 时，Opus 4.6 和 Sonnet 4.6 可使用 1M 窗口，如[为第三方部署固定模型](https://code.claude.com/docs/zh-CN/model-config.md#pin-models-for-third-party-deployments)中所述。在 v2.1.287 之前，Fable 模型以及 Opus 4.7 及更高版本在 Microsoft Foundry 上同样需要该后缀，否则默认使用 200K 窗口。
 

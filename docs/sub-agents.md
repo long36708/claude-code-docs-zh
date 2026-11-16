@@ -342,7 +342,7 @@ experimental:
 
 ##### 在会话开始前检查 `agents` 目录
 
-若要查找 `agents` 目录中 frontmatter 无法解析的文件，请针对该目录（例如 `.claude/agents` 或 `~/.claude/agents`）运行 `claude plugin validate`。Claude Code 只检查[您指定的目录](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#validate-a-directory)，并且不会标记 frontmatter 可解析但没有 `name` 的文件。需要 Claude Code v2.1.233 或更高版本。
+若要查找 `agents` 目录中 frontmatter 无法解析的文件，请针对该目录（例如 `.claude/agents` 或 `~/.claude/agents`）运行 `claude plugin validate`。Claude Code 只检查[您指定的目录](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#validate-a-directory)，并且不会标记 frontmatter 可解析但没有 `name` 的文件。
 
 ### 选择模型
 

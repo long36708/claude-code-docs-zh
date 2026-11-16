@@ -142,7 +142,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `git-subdir` | `url`, `path`, `ref`, `sha` | git 仓库的一个子目录，使用稀疏检出获取 |
 | `npm` | `package`, `version`, `registry` | npm registry 包或 tarball 链接，使用您的 npm 客户端获取并解包，不运行安装脚本 |
 | `archive` | `url`, `sha256` | HTTPS 上的 Zip 存档 |
-| `command` | `command`, `timeout`, `mode` | 由 Claude Code 在用户机器上运行的命令打印的目录。需要 Claude Code v2.1.229 或更高版本 |
+| `command` | `command`, `timeout`, `mode` | 由 Claude Code 在用户机器上运行的命令打印的目录 |
 
 名称 `url` 和 `github` 也是[marketplace 源](#marketplace-sources)类型，其中 `url` 表示直接链接到 `marketplace.json` 文件而不是 git 仓库。`git` 仅作为 marketplace 源存在，`npm` 既作为 marketplace 源也作为插件源存在。`git-subdir`、`archive` 和 `command` 仅作为插件源存在。
 
@@ -151,7 +151,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 `github`、`url` 和 `git-subdir` 源共享 `ref` 和 `sha` 字段：
 
 * **`ref`**：一个分支或标签。默认为仓库的默认分支。
-* **`sha`**：一个完整的 40 字符小写提交 SHA。当你同时设置 `ref` 和 `sha` 时，Claude Code 检出 `sha`。在大多数 git 主机上，包括 GitHub、GitLab 和 Bitbucket，这意味着即使上游的分支或标签已被删除，只要提交仍然可从仓库到达，安装就会成功。某些服务器（如 AWS CodeCommit）不支持按 SHA 获取提交。在这些服务器上，`ref` 必须仍然存在，固定的提交必须可从它到达。
+* **`sha`**：一个完整的 40 字符小写提交 SHA。当您同时设置 `ref` 和 `sha` 时，Claude Code 检出 `sha`。在大多数 git 主机上，包括 GitHub、GitLab 和 Bitbucket，这意味着即使 `ref` 所指的分支或标签此后已在上游被删除，只要提交仍然可从仓库到达，安装就会成功。某些服务器（如 AWS CodeCommit）不支持按 SHA 获取提交。在这些服务器上，`ref` 必须仍然存在，固定的提交必须可从它到达。
 
 有关每种类型如何获取、缓存和版本化的信息，请参阅 [Plugin loading reference](https://code.claude.com/docs/zh-CN/plugins/loading.md)。
 

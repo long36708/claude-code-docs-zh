@@ -206,8 +206,6 @@ Claude Code 仅从 URL 读取编号。它总是从您的存储库的 `origin` �
 
 此获取操作从不等待您终端中的输入。如果 git 或 ssh 会要求输入密码、密钥密码短语或确认新的 SSH 主机，获取会直接失败，Claude Code 会退出并显示 `Error creating worktree: Failed to fetch PR/MR #<number>` 消息。`ssh-agent` 持有的密钥仍然可用，因此请在开始之前将您的密钥加载到其中，并手动运行一次 `git fetch` 以记录新主机。
 
-在 v2.1.233 之前，Claude Code 仅接受 `#<number>` 和 GitHub 风格的拉取请求 URL 用于 `--worktree`，并总是获取 `pull/<number>/head`。
-
 ### 将 gitignored 文件复制到 worktrees
 
 Worktree 是一个新的检出，因此来自您主存储库的未跟踪文件（如 `.env` 或 `.env.local`）不存在。要在 Claude 创建 worktree 时自动复制它们，请将 `.worktreeinclude` 文件添加到您的项目根目录。

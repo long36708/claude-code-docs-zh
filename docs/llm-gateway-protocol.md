@@ -110,7 +110,7 @@ Claude Code 会在每个流式推理响应到达时逐个事件地读取它，�
 
 两个客户端设置改变了 Claude Code 对它无法识别的模型 ID 的假设，无论开发者使用哪种连接方法：
 
-* **上下文窗口**：Claude Code 默认假设 1M token 的上下文窗口。要声明真实窗口，请参阅 [为网关或自定义模型 ID 更正窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)
+* **上下文窗口**：自 v2.1.323 起，Claude Code 默认假设 1M token 的上下文窗口。要声明真实窗口，请参阅 [为网关或自定义模型 ID 更正窗口](https://code.claude.com/docs/zh-CN/model-config.md#correct-the-window-for-a-gateway-or-custom-model-id)
 * **能力**：要给网关别名赋予其后面模型的能力，请使用您分发的设置中的 [`modelOverrides`](https://code.claude.com/docs/zh-CN/errors#unrecognized-model-id-on-a-request) 条目将该模型的 Anthropic ID 映射到您的别名。有关 `ANTHROPIC_DEFAULT_*_MODEL_SUPPORTED_CAPABILITIES` 变量适用的位置，请参阅 [功能传递](#feature-pass-through)
 
 ## 请求标头

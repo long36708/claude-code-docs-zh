@@ -82,7 +82,7 @@ claude plugin install <plugin> [options]
 | :- | :- |
 | `-s, --scope <scope>` | 安装作用域：`user`、`project` 或 `local`。默认为 `user` |
 | `--config <key=value>` | 设置插件清单中声明的 [`userConfig`](https://code.claude.com/docs/zh-CN/plugins/manifest-reference) 选项。每个选项重复使用一次该标志。写作 `<server>.<key>` 的键则改为设置[捆绑的 MCP 服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)在其自身 `user_config` 中声明的设置，适用于随插件一起提供的捆绑文件。`<server>.<key>` 形式需要 Claude Code v2.1.285 或更高版本 |
-| `-y, --yes` | 接受显示的安装命令，不弹出 `Run this command now?` 提示。当命令在 Claude Code 会话内运行时（例如从 Bash 工具或 hook 中运行）会被忽略。需要 Claude Code v2.1.229 或更高版本 |
+| `-y, --yes` | 接受显示的安装命令，不弹出 `Run this command now?` 提示。当命令在 Claude Code 会话内运行时（例如从 Bash 工具或 hook 中运行）会被忽略 |
 | `--accept-command <sha256>` | 接受之前某次 [`--json` 运行](#plugin-json-result)在 `shownCommand` 中报告了其 `sha256` 的已显示安装命令，用于替代 `-y`。不能与 `-y` 组合使用。请参阅[接受已显示的安装命令](#accept-a-displayed-install-command)。需要 Claude Code v2.1.271 或更高版本 |
 | `--json` | 在 stdout 的最后一行以一个 JSON 对象打印结果，而不是人类可读的消息，便于在脚本中使用。请参阅 [JSON 结果格式](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本 |
 | `--marketplace <source>` | 从位于 `<source>` 的市场安装以裸名称给出的 `<plugin>`，如果您尚未添加该市场，则先添加它。请参阅[用一条命令添加市场并安装](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace-and-install-in-one-command)。需要 Claude Code v2.1.292 或更高版本 |
@@ -261,7 +261,7 @@ claude plugin update <plugin> [options]
 | 标志 | 描述 |
 | :- | :- |
 | `-s, --scope <scope>` | 要更新的作用域：`user`、`project`、`local` 或 `managed`。省略时自动检测 |
-| `-y, --yes` | 接受[命令来源](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)插件已变更的安装命令，不弹出提示。当 stdin 或 stdout 不是 TTY 时必需，除非您传入 `--accept-command`。需要 Claude Code v2.1.229 或更高版本 |
+| `-y, --yes` | 接受[命令来源](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)插件已变更的安装命令，不弹出提示。当 stdin 或 stdout 不是 TTY 时必需，除非您传入 `--accept-command` |
 | `--accept-command <sha256>` | 接受之前某次 [`--json` 运行](#plugin-json-result)在 `shownCommand` 中报告了其 `sha256` 的市场声明命令，用于替代 `-y`。不能与 `-y` 组合使用。需要 Claude Code v2.1.271 或更高版本 |
 | `--json` | 在 stdout 的最后一行以一个 JSON 对象打印结果，格式[与 `plugin install --json` 相同](#plugin-json-result)。需要 Claude Code v2.1.268 或更高版本 |
 
@@ -612,7 +612,7 @@ claude plugin validate ./my-plugin --strict
 
 * `.claude-plugin/marketplace.json`（如果存在）
 * 否则为 `.claude-plugin/plugin.json`
-* 否则为组件文件，根据目录名称选择。在没有清单的情况下验证组件文件需要 Claude Code v2.1.233 或更高版本：
+* 否则为组件文件，根据目录名称选择：
   * 名为 `skills`、`agents` 或 `commands` 的目录：其中的文件
   * 名为 `.claude` 的目录：其中的 `skills`、`agents` 和 `commands` 目录
   * 任何其他目录：其 `.claude` 下的这三个目录

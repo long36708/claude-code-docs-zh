@@ -1032,7 +1032,7 @@ Claude Code 跳过对 `ANTHROPIC_CUSTOM_MODEL_OPTION` 中设置的模型 ID 的�
 默认情况下，在以下情况中，Claude Code 会将固定 ID 视为具有 [1M 上下文窗口](#extended-context)，无需 `[1m]` 后缀：
 
 * **Claude Code 匹配到具有原生 1M 窗口的模型（如 Opus 4.8 或 Sonnet 5）的 ID**：当 ID 包含该模型的 Anthropic API ID（例如 `us.anthropic.claude-opus-4-8` 包含 `claude-opus-4-8`），或 [`modelOverrides`](#override-model-ids-per-version) 条目将该模型映射到该 ID 时，即视为匹配
-* **Claude Code 无法与模型匹配的 ID**：如果该 ID 背后的模型接受的上下文更少，请[设置实际窗口](#correct-the-window-for-a-gateway-or-custom-model-id)
+* **Claude Code 无法与模型匹配的 ID**：如果该 ID 背后的模型接受的上下文更少，请[设置实际窗口](#correct-the-window-for-a-gateway-or-custom-model-id)。在 v2.1.323 之前，Claude Code 默认假定为 200K，因此在这些版本上，如果模型接受 1M，请在 ID 后附加 `[1m]`。
 
 对于通过其 `[1m]` 变体达到 1M 的模型（如 Opus 4.6 或 Sonnet 4.6），请在 `ANTHROPIC_DEFAULT_OPUS_MODEL` 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的模型 ID 后附加 `[1m]` 以启用扩展上下文：
 

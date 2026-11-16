@@ -726,7 +726,7 @@ Claude 是否必须在当前对话中读取现有文件后才能覆盖它取决�
 * 较新的模型可以在与[读取前编辑](#edit-tool-behavior)相同的条件下覆盖他们在此会话中从未读过的文件：读取它不需要权限提示，且 Read tool 可用。
 * Jupyter notebooks 和 Claude 仅部分读取的文件（带有[`PARTIAL view` 通知](#large-files)）在每个模型上都需要读取。
 
-此约束不适用于新文件。在 v2.1.228 之前，每个模型都需要在覆盖现有文件前进行读取。
+此约束不适用于新文件。
 
 使用 Bash 查看文件也满足此要求，遵循[编辑 tool 行为](#edit-tool-behavior)中描述的相同规则。
 

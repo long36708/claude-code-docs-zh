@@ -3887,7 +3887,7 @@ fi
 > }
 > ```
 
-要确认该 hook 是否正常工作，请使用 `claude --debug` 启动 Claude Code，并给 Claude 一个会让服务器询问项目键的任务。不会出现对话框，并且[调试日志](#debug-hooks)中会有一行以 `Elicitation resolved by hook: {"action":"accept","content":{"project_key":"DOCS"}}` 结尾。
+要确认该 hook 正常工作，请使用 `claude --debug` 启动 Claude Code，并给 Claude 一个会让服务器请求项目键的任务。不会出现对话框，并且[调试日志](#debug-hooks)中会有一行包含 `Elicitation resolved by hook:` 和 `accept`。
 
 ### ElicitationResult
 
