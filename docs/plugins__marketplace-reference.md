@@ -91,6 +91,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 | `strict` | boolean | 默认 `true`。`plugin.json` 是否是插件组件的权威来源。请参阅 [严格模式](#strict-mode) |
 | `relevance` | object | 告诉 Claude Code 何时建议插件的信号。请参阅 [为您的组织推荐插件](https://code.claude.com/docs/zh-CN/plugins/relevance.md) |
 | `dependencies` | array | 必须为此插件启用的插件。每个项是 `"name"`、`"name@marketplace"` 或对象。请参阅 [插件依赖项](https://code.claude.com/docs/zh-CN/plugins/dependencies.md) |
+| `engines` | object | 插件适用的 Claude Code 版本，以 [semver 范围](https://github.com/npm/node-semver#ranges) 的形式写在 `claude-code` 键下，例如 `"engines": { "claude-code": ">=2.1.400" }`。需要 Claude Code v2.1.323 或更高版本。要使市场在 v2.0.15 至 v2.1.75 上继续正常工作，请在每个条目中省略 `engines`。只要任何条目具有该字段，这些版本就会拒绝整个 `marketplace.json` |
 | `defaultEnabled` | boolean | 默认 `true`。当用户未在 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 中设置时，插件是否启动时启用。条目值优先于 `plugin.json` |
 | `displayName` | string | 在 UI 中显示的人类可读名称。当条目和插件的 `plugin.json` 都未设置时，用户看到插件的 `name` |
 | `metadata` | object | 用于您自己字段的自由格式对象。Claude Code 不读取它 |
@@ -488,6 +489,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `Claude Code cannot install plugins from marketplace "x". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change the marketplace's "name".` | 错误 | `name` |
 | `Claude Code cannot install plugin "x". Each part of a plugin id (plugin@marketplace) may use only the letters a-z and A-Z, digits, ".", "_" and "-", and must start with a letter or digit. Change this entry's "name".` | 错误 | `plugins[i].name` |
 | `Duplicate plugin name "x" found in marketplace` | 错误 | 两个条目共享一个 `name` |
+| `Must be a version range such as ">=2.1.0"; got "<value>". It will be ignored at load time.` | 错误 | `plugins[i].engines.claude-code` |
 | `plugins.i.source: Invalid input` | 错误 | 该条目的 `source` 与任何类型都不匹配。请参阅 [Invalid input on a source](#invalid-input-on-a-source) |
 | `plugins.i.source: Invalid string: must start with "./"` | 错误 | 缺少开头 `./` 的相对路径 `source`。在 v2.1.285 之前，此错误会改为打印 `Invalid input` |
 | `plugins[i].source: Path contains "..": <path>` | 错误 | 转义 marketplace 根目录的相对 `source` |
@@ -496,6 +498,7 @@ marketplace 源说明 Claude Code 从哪里获取 `marketplace.json`。CLI 在�
 | `chain does not resolve (<reason>) — target must be a name in plugins[], a key in renames, or null` | 错误 | `renames.<old>` |
 | `target "x" is not a valid plugin name (PluginIdSchema)` | 错误 | `renames.<old>` |
 | `Unknown field 'x'. Claude Code ignores it at load time.` | 警告 | 顶级、`metadata` 下、条目中或条目的 `relevance` 下的命名键 |
+| `'engines' must be an object such as { "claude-code": ">=2.1.0" }; got <type>. It will be ignored at load time.` | 警告 | `plugins[i].engines` |
 | `Marketplace has no plugins defined` | 警告 | `plugins` 为空 |
 | `Plugin "x" sets headers/headersHelper, which only apply to "archive" sources; they have no effect on this entry.` | 警告 | `plugins[i].headers` 或 `plugins[i].headersHelper`，在 `source` 不是 `archive` 的条目上 |
 | `Plugin "x" fetches its archive with a headersHelper but sets no sha256 pin` | 警告 | `plugins[i].source.sha256` |

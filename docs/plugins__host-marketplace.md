@@ -198,7 +198,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 ### 将用户保持在一个版本上
 
-一个 marketplace 一次为每个插件提供一个版本，所以你通过选择每个条目指向什么来将用户保持在一个版本上：
+要将用户保持在某一版本，请选择他们获取的 ref、提交或标签：
 
 * **插件条目上的 `ref` 和 `sha`**：`ref` 命名分支或标签，`sha` 为 `github`、`url` 或 `git-subdir` 源命名提交。请参阅 [插件源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#plugin-sources)。
 * **添加命令上的 `#<ref>`**：添加 `your-org/your-marketplace#stable` 的用户获得该目录的分支或标签。对于两条发布线同时进行，请参阅 [运行发布渠道](#run-release-channels)。
@@ -219,7 +219,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 ## 运行发布渠道
 
-要提供稳定和早期访问轨道，托管两个 marketplace，其条目指向同一插件的不同 ref，并让每个用户添加他们想要的。Claude Code 没有发布渠道概念，一个 marketplace 一次为每个插件提供一个版本。
+要提供稳定和早期访问轨道，请托管两个市场，其条目指向同一插件的不同 ref，并让每个用户添加他们想要的那个。
 
 给两个 `marketplace.json` 文件不同的 `name` 值。Claude Code 通过其 `name` 识别 marketplace，所以用户一次不能有两个具有相同名称的 marketplace 注册。
 

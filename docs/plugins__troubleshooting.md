@@ -1063,6 +1063,7 @@ claude plugin install my-plugin@my-marketplace --config api_url=https://example.
 | `Path is a file; skills entries must be directories containing SKILL.md` | `skills` 条目指向 `SKILL.md` 而不是其目录。 | 指向父目录，对于根级 `SKILL.md` 则使用 `.`。 |
 | `No frontmatter block found` 或 `YAML frontmatter failed to parse: <error>` | skill、Agent 或 command 文件缺少 YAML frontmatter 或其无效。 | 在 `---` 分隔符之间添加或修复 frontmatter。在验证插件目录时报告。 |
 | `Plugin name "<name>" is reserved: it passes as one of Anthropic's own` | 插件的 `name` 是[保留名称](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#name)之一。 | 根据插件的功能重命名插件。 |
+| `Must be a version range such as ">=2.1.0"; got "<value>". It will be ignored at load time.` | Claude Code 无法将 `engines` 下的 `claude-code` 值读取为 semver 范围。 | 将该值设置为 Claude Code 版本范围，例如 `">=2.1.0"`。请参阅 [`engines` 字段](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#fields)。 |
 | `Unknown field '<key>'` | 清单中有一个 schema 未定义的字段。 | 删除它，或使用消息建议的名称。Claude Code 在加载时会忽略未知字段。有关 `plugin.json` 中的 `privacyPolicyUrl` 及其他目录列表字段，请参阅[目录列表字段](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#directory-listing-fields)。 |
 
 每次修复后再次运行命令，直到不再打印任何错误。

@@ -140,6 +140,7 @@ claude plugin validate ./my-plugin
 | [`privacyPolicyUrl`](#directory-listing-fields) | String | 插件在 Anthropic 目录中的列表所用的隐私政策链接。Claude Code 不读取它 |
 | [`termsOfServiceUrl`](#directory-listing-fields) | String | 插件在 Anthropic 目录中的列表所用的服务条款链接。Claude Code 不读取它 |
 | [`defaultEnabled`](#defaultenabled) | Boolean | 当用户未设置时 plugin 是否在启用时启动。默认为 `true` |
+| `engines` | Object | 插件适用的 Claude Code 版本，以 `claude-code` 键下的 [semver 范围](https://github.com/npm/node-semver#ranges)表示，例如 `"engines": { "claude-code": ">=2.1.400" }`。需要 Claude Code v2.1.323 或更高版本。若要让插件在 v2.0.15 至 v2.1.75 上正常工作，请省略 `engines`。这些版本在 manifest 包含该字段时会以 `Unrecognized key` 错误拒绝该 manifest |
 | [`dependencies`](#dependencies) | Array of strings or objects | 必须为此 plugin 启用的 plugin |
 | [`userConfig`](#user-configuration) | Object | Claude Code 在 plugin 启用时提示用户输入的值 |
 | `types` | Path | 声明 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#files) 的 `$.state` 值和 `$` 名词的 `.d.ts` 文件 |
