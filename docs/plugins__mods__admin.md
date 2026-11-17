@@ -375,7 +375,7 @@ Claude Code 每次即将采取行动（例如运行工具）时都会触发一�
 >
 > 在 v2.1.323 或更高版本上，`ui.focus` hook 需要更宽的匹配器才能接收其他 mod 的 `$.ui.focus` 调用。请参阅[对其他 mod 的绘制内容和控件设置 hook](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#hook-other-mods-drawings-and-controls)。
 
-此策略 mod 拒绝任何自身代码调用 `$.process.run` 或 `$.process.spawn` 的用户 mod。它还保留审计日志，将每个工具调用和 mod 写入的每个文件写入调试日志。因为它首先运行，日志记录的是请求的原始内容，在任何用户 mod 更改之前。将其保存为 `acme-guard/hooks/register.js`：
+此策略 mod 会阻止任何自身代码调用 `$.process.run` 或 `$.process.spawn` 的用户 mod，并让该用户插件的其余部分正常加载。它还保留审计日志，将每个工具调用和 mod 写入的每个文件写入调试日志。因为它首先运行，日志记录的是请求的原始内容，在任何用户 mod 更改之前。将其保存为 `acme-guard/hooks/register.js`：
 
 ```javascript acme-guard/hooks/register.js theme={null}
 // The methods no user's mod may call, each spelled namespace.method
@@ -387,7 +387,9 @@ export function register(on) {
     // Keep the calls in that mod's code that are on the blocked list
     const blocked = e.uses.calls.filter((call) => BLOCKED_CALLS.includes(call))
     if (e.tier === 'user' && blocked.length > 0) {
-      // Returning refuse keeps the mod from loading, and the text is the reason
+      // v2.1.326 or later: leave out the hooks module and load the rest of the plugin
+      if (e.provides) return next({ ...e, provides: { ...e.provides, modules: [] } })
+      // Earlier versions: refuse leaves out the hooks module, and the text is the reason
       return { refuse: 'Acme policy: mods may not call ' + blocked.join(', ') }
     }
     // Let every other mod load
@@ -410,16 +412,21 @@ export function register(on) {
 
 该文件注册三个 hook：
 
-* **`plugin.register`**：决定另一个 mod 是否加载。它拒绝调用被阻止方法的用户 mod，并放行每个其他 mod。
+* **`plugin.register`**：决定另一个 mod 是否加载。它阻止调用被阻止方法的用户 mod，并放行每个其他 mod。
 * **`tool.call`**：为每个工具调用向调试日志写入一行，例如 `audit tool.call Bash`，并且不更改任何内容
 * **`fs.write`**：为另一个 mod 发起的每个 `$.fs.write` 调用写入一行，例如 `audit fs.write by reader "/tmp/notes.md"`，并且不更改任何内容。mod 的名称在前，路径加了引号，因此 mod 选择的路径无法冒充该行的其他字段。
 
-`plugin.register` hook 读取事件的两个字段：
+`plugin.register` hook 读取事件的三个字段：
 
 * **`e.tier`**：mod 将运行的位置，为 `prepend`、`user`、`append` 或 `builtin` 之一。用户安装的每个 mod 都是 `user`。
 * **`e.uses.calls`**：mod 调用的 mods API 方法，每个写作 `namespace.method`，例如 `process.run`，不带 `claude plugin validate` 打印的 `$.`
+* **`e.provides`**：按类型划分的插件组成部分，例如 `modules`。要加载除 [hook 模块](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself)之外的所有内容，请将清空了 `provides.modules` 的事件传给 `next`。需要 Claude Code v2.1.326 或更高版本。
 
-当用户安装调用 `$.process.run` 的 mod 时，该 mod 不会加载，其调试日志中有一行以 `refused by acme-guard:` 和您的原因结尾。在[热重新加载插件目录的会话](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中，拒绝信息也会出现在会话记录中。
+当用户安装调用 `$.process.run` 的 mod 时，该 mod 不会加载，其调试日志中有一行包含 `hooks module left out by acme-guard`。在[热重新加载插件目录的会话](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中，该行也会出现在会话记录中。在 v2.1.326 之前，请改为查找 `refused by acme-guard:` 和您的原因。
+
+> [!NOTE]
+>
+> 在 v2.1.326 或更高版本上返回 `{ refuse }` 时，整个插件都不会加载，包括其 MCP 服务器和其 `hooks/hooks.json` 中的 hook。如果您为早期版本编写了策略 mod，请在每个只应阻止该 mod 的拒绝之前添加示例中的 `if (e.provides)` 行。关于 `.catch` 处理程序，请参阅[当您的检查失败时拒绝 mod](#refuse-mods-when-your-check-fails)。
 
 要在不拒绝整个 mod 的情况下阻止某个调用，请在[检查是谁发起了该调用](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#mods-api-calls)之后，从该调用名称上的 hook 返回 `{ deny: 'your reason' }`。
 
@@ -431,7 +438,7 @@ export function register(on) {
 
 #### 当您的检查失败时拒绝 mod
 
-如果您的 `plugin.register` hook 抛出异常或超过其时间限制，Claude Code 会跳过该 hook，因此检查以放行方式失败，正在被检查的 mod 会加载。要以拒绝方式失败并拒绝用户 mod，请将检查移到命名函数中，并添加返回拒绝的 `.catch` 处理程序。此版本的文件仅显示 `plugin.register` hook，因此请在 `register` 中保留第一个版本的两个审计 hook：
+如果您的 `plugin.register` hook 抛出异常或超过其时间限制，Claude Code 会跳过该 hook，因此检查以放行方式失败，正在被检查的 mod 会加载。要在检查抛出异常时以拒绝方式失败，请将检查移到命名函数中，并添加 `.catch` 处理程序。此版本的文件仅显示 `plugin.register` hook，因此请在 `register` 中保留第一个版本的两个审计 hook：
 
 ```javascript acme-guard/hooks/register.js theme={null}
 const BLOCKED_CALLS = ['process.run', 'process.spawn']
@@ -440,23 +447,27 @@ const BLOCKED_CALLS = ['process.run', 'process.spawn']
 async function checkMod($, e, next) {
   const blocked = e.uses.calls.filter((call) => BLOCKED_CALLS.includes(call))
   if (e.tier === 'user' && blocked.length > 0) {
+    if (e.provides) return next({ ...e, provides: { ...e.provides, modules: [] } })
     return { refuse: 'Acme policy: mods may not call ' + blocked.join(', ') }
   }
   return next(e)
 }
 
 export function register(on) {
-  // The handler runs only when checkMod throws or exceeds its time limit
+  // The handler runs when checkMod throws
   on('plugin.register', checkMod).catch(async ($, e, next) => {
     // Let your organization's mods and built-in mods load
     if (e.tier !== 'user') return next(e)
-    // Refuse the user's mod that couldn't be checked
+    // Stop the unchecked mod, not its whole plugin
+    if (e.provides && !next.called) return next({ ...e, provides: { ...e.provides, modules: [] } })
     return { refuse: 'Acme policy check failed, so this mod was not loaded' }
   })
 }
 ```
 
-处理程序就位后，如果检查在处理某个 mod 时抛出异常或超时，该 mod 不会加载，拒绝行会带有第二个原因，例如 `refused by acme-guard: Acme policy check failed, so this mod was not loaded`。处理程序将 `user` 层以外的每个 mod 传递给 `next(e)`，因此失败的检查不会阻止您组织列出的 mod。[处理失败的 hook](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails) 介绍其他事件的 `.catch`。
+处理程序就位后，当检查抛出异常时，用户的 mod 不会加载。如果检查在调用 `next` 之后抛出异常，处理程序会回退到 `refuse`。对于超过时间限制的检查，请不要依赖该处理程序。
+
+处理程序将 `user` 层以外的每个 mod 传递给 `next(e)`，因此失败的检查不会阻止您组织列出的 mod。[处理失败的 hook](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails) 介绍其他事件的 `.catch`。
 
 ## 后续步骤
 

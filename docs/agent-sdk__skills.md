@@ -169,7 +169,10 @@ Available commands: ["clear", "compact", "context", "usage", "code-review", "ver
 
 > [!NOTE]
 >
-> 命令可以像任何其他提示一样触及 `maxTurns` / `max_turns` 限制，以错误结果而不是 `success` 结束查询。有关错误结果合约，请参阅 [处理结果](https://code.claude.com/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。如果你的命令可能触及限制，请在 TypeScript 中用 `try`/`catch` 或在 Python 中用 `try`/`except` 包装循环，如 [单消息输入](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md#single-message-input) 中所示，或设置 `maxTurns` 足够高以完成工作。
+> 当命令达到 `maxTurns` / `max_turns` 限制时，查询会以错误结果而非 `success` 结束。有关错误结果的约定，请参阅 [处理结果](https://code.claude.com/docs/zh-CN/agent-sdk/agent-loop.md#handle-the-result)。如果您的命令可能达到该限制，请执行以下任一操作：
+>
+> * 将 `maxTurns` 设置得足够高，以便完成工作。
+> * 在 TypeScript 中用 `try`/`catch`，或在 Python 中用 `try`/`except` 包装 `query()` 循环。
 
 ### 使用 `/compact` 压缩历史
 

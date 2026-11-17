@@ -303,7 +303,7 @@ Hook 条目在设置级别之间合并而不是相互替换：用户、项目和
 | `CwdChanged` | 无匹配器支持 | 总是在每次出现时触发 |
 | `DirectoryAdded` | 目录如何添加 | `slash_command`、`register_repo_root` |
 | `FileChanged` | 要监视的文字文件名（请参阅 [FileChanged](#filechanged)） | `.envrc\|.env` |
-| `StopFailure` | 错误类型 | `rate_limit`、`overloaded`、`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error`、`unknown` |
+| `StopFailure` | 错误类型 | `rate_limit`、`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error`、`unknown` |
 | `InstructionsLoaded` | 加载原因 | `session_start`、`nested_traversal`、`path_glob_match`、`include`、`compact` |
 | `UserPromptExpansion` | 命令名称 | 您的技能或命令名称 |
 | `Elicitation` | MCP 服务器名称 | 您配置的 MCP 服务器名称 |
@@ -807,7 +807,7 @@ hook 打印到 stdout 的内容可能会改变结果。例如，当 `PreToolUse`
 
 | Stdout | 退出 0 | 退出 2 | 任何其他退出码 |
 | :- | :- | :- | :- |
-| 通过 [schema 验证](#json-output)的 JSON 对象 | 成功。字段生效 | 阻止错误。Claude Code 仍读取字段，但它们无法覆盖阻止 | 成功。Claude Code 忽略退出码，仅由字段决定。对于[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)，该运行则算作失败 |
+| 通过 [schema 验证](#json-output)的 JSON 对象 | 成功。字段生效 | 阻止错误。Claude Code 仍读取字段，但即使您返回 `"allow"` 或 `continue: false`，`PreToolUse` 调用仍保持被阻止。对于其他事件，请参阅[退出码 2](#exit-code-2) | 成功。Claude Code 忽略退出码，仅由字段决定。对于[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)，该运行则算作失败 |
 | [无法解析](#exit-code-0)或未通过 schema 验证的 JSON | 非阻止错误。通知带有解析或验证消息 | 阻止错误。您的 stderr 作为原因 | 非阻止错误。通知带有解析或验证消息 |
 | [纯文本](#exit-code-0)或无输出 | 成功 | 阻止错误。您的 stderr 作为原因 | 非阻止错误。通知带有您的 stderr 的第一行 |
 
@@ -844,9 +844,10 @@ Claude 从不看到以 0 退出的 hook 的 stderr。要在 `PreToolUse` 等事�
 
 随阻止一起提供的消息是 hook 的 stderr。如果 hook 还打印了做出阻止决策的 JSON，Claude Code 会改用该决策的原因。
 
-即使 hook 打印了 JSON，退出 2 也会阻止：
+对于 hook 打印的大多数 JSON，退出码 2 仍然会阻止：
 
-* **通过 schema 验证的 JSON**：Claude Code 仍读取 [JSON 输出](#json-output)字段，但它们无法覆盖阻止。即使 `permissionDecision` 为 `"allow"`，也不会放行操作。在 `Elicitation` 和 `ElicitationResult` 上，以 2 退出的 hook 的 `hookSpecificOutput` 被忽略。
+* **设置了 `continue: false` 的 JSON**：在 `Stop` 和 `SubagentStop` 等事件上，该字段优先于退出码 2，因此 Claude 或子代理会结束其轮次。要让 Claude 或子代理继续工作，请省略该字段。在 `PreToolUse` 上，无论是否有该字段，工具调用都保持被阻止。
+* **其他通过 schema 验证的 JSON**：Claude Code 仍读取 [JSON 输出](#json-output)字段。即使 `permissionDecision` 为 `"allow"`，也不会放行操作。在 `Elicitation` 和 `ElicitationResult` 上，以 2 退出的 hook 的 `hookSpecificOutput` 被忽略。
 * **未通过 schema 验证的 JSON**：hook 仍然阻止。Claude Code 使用您的 stderr 作为阻止原因，并在调试日志中记录验证失败。
 
 此脚本通过退出 2 阻止 `rm` 命令，并将所有其他命令留给正常权限流程：
@@ -1022,6 +1023,8 @@ blocking because Git Bash wasn't found, so only exit code 0 or 2 counts as this 
 
 退出码 2 是 hook 发出"停止，不要这样做"信号的方式。效果取决于事件，因为某些事件代表可以被阻止的操作（如尚未发生的工具调用），而其他事件代表已经发生或无法防止的事情。
 
+如果您的 hook 以 2 退出并且还设置了 `continue: false`，请先查看[退出码 2](#exit-code-2)，因为结果可能与您的事件所在行不同。
+
 | Hook 事件 | 可以阻止？ | 退出 2 时发生什么 |
 | :- | :- | :- |
 | `PreToolUse` | 是 | 阻止工具调用 |
@@ -1079,7 +1082,7 @@ HTTP hook 使用 HTTP 状态码和响应体，而不是退出码和 stdout。要
 
 > [!NOTE]
 >
-> 每个 hook 选择一种方法：要么仅使用退出码发出信号，要么退出 0 并打印 JSON 进行结构化控制。如果您混合使用，退出 2 保持其[阻止效果](#exit-code-2-behavior-per-event)，Claude Code 仍然读取 JSON 字段，但[退出码 2](#exit-code-2) 下注明的 elicitation 例外除外。
+> 每个 hook 选择一种方法：要么仅使用退出码发出信号，要么退出 0 并打印 JSON 进行结构化控制。关于混合使用时会发生什么，请参阅[退出码输出](#exit-code-output)。
 
 只向 stdout 打印 JSON 对象，不要打印其他任何内容。对于非[异步](#how-async-hooks-execute)的 hook，stdout 中的其他文本（例如 shell 配置文件在启动时 echo 的一行）会使 Claude Code 无法将该对象读取为 JSON，[Hook JSON 无效](https://code.claude.com/docs/zh-CN/hooks-guide.md#hook-json-has-no-effect)介绍了如何找到并屏蔽这类文本。
 
@@ -1200,7 +1203,7 @@ Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `
 | 事件 | 决策模式 | 关键字段 |
 | :- | :- | :- |
 | UserPromptSubmit、UserPromptExpansion、PostToolUse、PostToolUseFailure、PostToolBatch、Stop、SubagentStop、ConfigChange、PreCompact | 顶级 `decision` | `decision: "block"`、`reason`。Stop 和 SubagentStop 也接受 `hookSpecificOutput.additionalContext` 用于[继续对话的非错误反馈](#stop-decision-control) |
-| TeammateIdle、TaskCompleted | 退出码或 `continue: false` | 退出码 2 阻止操作并提供 stderr 反馈。JSON `{"continue": false, "stopReason": "..."}` 也会完全停止队友，与 `Stop` hook 行为一致；[当 `TaskUpdate` 工具触发该事件时，TaskCompleted 会忽略它](#taskcompleted-decision-control) |
+| TeammateIdle、TaskCompleted | 退出码或顶级 `decision` | 退出码 2 或 `decision: "block"` 会让队友继续工作或让任务保持打开状态。使用 `continue: false` 时，队友进入空闲状态。[Claude Code 在 `TaskUpdate` 调用上忽略 `continue: false`](#taskcompleted-decision-control) |
 | TaskCreated | 退出码或顶级 `decision` | 退出码 2 或 `decision: "block"` [取消任务](#taskcreated-decision-control)并将消息返回给 Claude。`continue: false` 被忽略 |
 | PreToolUse | `hookSpecificOutput` | `permissionDecision`（allow/deny/ask/defer）、`permissionDecisionReason` |
 | PreModelSwitch | `hookSpecificOutput` 或顶级 `decision` | `permissionDecision`（allow/deny/ask）、`permissionDecisionReason`。`decision: "block"` 也会[取消切换](#premodelswitch-decision-control) |
@@ -1520,7 +1523,7 @@ InstructionsLoaded hook 没有决策控制。它们无法阻止或修改指令�
 * [会话作用域的定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)触发，包括 `/loop` 迭代
 * [后台子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)向启动它的会话回报时
 * [另一个会话向](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)您的主对话发送消息时
-* 在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#code-output-withheld-by-a-hook) 会话中，当代码可以在后台运行时，Claude 代码的输出（适用于 `command`、`http` 和 `mcp_tool` hook）
+* 在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#code-output-withheld-by-a-hook) 会话中 Claude 运行的代码的输出（适用于 `command`、`http` 和 `mcp_tool` hook，且代码可以在后台运行时）
 
 对于 `command`、`http` 和 `mcp_tool` 类型，`UserPromptSubmit` hook 的默认超时时间为 30 秒，短于这些类型在大多数其他事件上 600 秒的默认值。由于此 hook 在每个提示词之前运行，并在完成之前阻塞模型处理，卡住的 hook 会使会话停滞。如果您的 hook 需要更多时间，请在 hook 条目中设置 `timeout` 字段。
 
@@ -1605,7 +1608,7 @@ hook 可能恰好在您中断的同一时刻阻止该提示词。此时提示词
 
 #### UserPromptExpansion 输入
 
-除[通用输入字段](#common-input-fields)外，UserPromptExpansion hook 还会接收 `expansion_type`、`command_name`、`command_args`、`command_source` 以及原始的 `prompt` 字符串。对于 skill 和自定义命令，`expansion_type` 字段为 `slash_command`；对于 MCP 服务器提示词，则为 `mcp_prompt`。
+除了[通用输入字段](#common-input-fields)之外，UserPromptExpansion hook 还会接收 `expansion_type`、`command_name`、`command_args`、`command_source` 和 `prompt` 字符串。对于 skill 和自定义命令，`expansion_type` 字段为 `slash_command`；对于 MCP 服务器提示词，为 `mcp_prompt`。
 
 ```json theme={null}
 {
@@ -1615,10 +1618,10 @@ hook 可能恰好在您中断的同一时刻阻止该提示词。此时提示词
   "permission_mode": "default",
   "hook_event_name": "UserPromptExpansion",
   "expansion_type": "slash_command",
-  "command_name": "example-skill",
+  "command_name": "my-plugin:example-skill",
   "command_args": "arg1 arg2",
   "command_source": "plugin",
-  "prompt": "/example-skill arg1 arg2"
+  "prompt": "/my-plugin:example-skill arg1 arg2"
 }
 ```
 
@@ -2633,7 +2636,6 @@ PermissionDenied hook 可以告知模型可以重试被拒绝的工具调用。�
   "cwd": "/Users/...",
   "hook_event_name": "Notification",
   "message": "Claude needs your permission",
-  "title": "Permission needed",
   "notification_type": "permission_prompt"
 }
 ```
@@ -2804,10 +2806,11 @@ TaskCompleted hook 不支持匹配器，每次发生时都会触发。
 
 #### TaskCompleted 决策控制
 
-TaskCompleted hook 支持两种控制任务完成的方式：
+使用 TaskCompleted hook，您可以让任务保持打开，或让队友进入空闲状态：
 
 * **退出码 2**：任务不会被标记为已完成，stderr 消息会作为反馈传回模型。
-* **JSON `{"continue": false, "stopReason": "..."}`**：当事件由队友结束其轮次触发时，完全停止该队友，与 `Stop` hook 的行为一致。`stopReason` 会显示给用户。当事件由 `TaskUpdate` 工具触发时，Claude Code 会忽略 `continue: false`；退出码 2 仍会阻止完成。
+* **JSON `{"decision": "block", "reason": "..."}`**：任务保持打开。Claude 收到 `reason` 并继续工作。
+* **JSON `{"continue": false, "stopReason": "..."}`**：在队友轮次结束时，即使您的另一个 TaskCompleted hook 进行了阻止，队友也会在任务仍处于进行中的状态下进入空闲。`stopReason` 会出现在队友的会话记录中。对于 `TaskUpdate` 调用，Claude Code 会忽略 `continue: false`。
 
 此示例运行测试，如果测试失败则阻止任务完成：
 
@@ -2938,7 +2941,7 @@ Claude Code 设有连续 8 次继续的上限：在 stop hook 连续八次让轮
 
 | 字段 | 描述 |
 | :- | :- |
-| `error` | 错误类型：`rate_limit`、`overloaded`、`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error` 或 `unknown` |
+| `error` | 错误类型：`rate_limit`、`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error` 或 `unknown`。对于 HTTP `529` 过载响应，值为 `server_error` |
 | `error_details` | 关于错误的其他详细信息（如果有） |
 | `last_assistant_message` | 对话中显示的渲染后错误文本。与 `Stop` 和 `SubagentStop` 中该字段包含 Claude 的对话输出不同，对于 `StopFailure`，它包含 API 错误字符串本身，例如 `"API Error: Rate limit reached"` |
 
@@ -2986,10 +2989,11 @@ TeammateIdle hook 不支持匹配器，每次发生时都会触发。
 
 #### TeammateIdle 决策控制
 
-TeammateIdle hook 支持两种控制队友行为的方式：
+使用 TeammateIdle hook，您可以让队友继续工作，或让其进入空闲状态：
 
-* **退出码 2**：队友会收到 stderr 消息作为反馈，并继续工作而不是进入空闲状态。
-* **JSON `{"continue": false, "stopReason": "..."}`**：完全停止该队友，与 `Stop` hook 的行为一致。`stopReason` 会显示给用户。
+* **退出码 2**：队友收到 stderr 消息作为反馈并继续工作。
+* **JSON `{"decision": "block", "reason": "..."}`**：队友收到 `reason` 并继续工作。
+* **JSON `{"continue": false, "stopReason": "..."}`**：即使您的另一个 TeammateIdle hook 进行了阻止，队友也会[进入空闲状态](https://code.claude.com/docs/zh-CN/agent-teams.md#start-your-first-agent-team)。`stopReason` 会出现在队友的会话记录中。
 
 此示例在允许队友进入空闲状态之前检查构建产物是否存在：
 
@@ -4009,7 +4013,7 @@ fi
 * `WorktreeCreate`
 * `WorktreeRemove`
 
-`SessionStart` 和 `Setup` 支持 `command` 和 `mcp_tool` hooks，[MCP tool hook 字段](#mcp-tool-hook-fields)描述了它们的 `mcp_tool` hooks 何时运行。它们不支持 `http`、`prompt` 或 `agent` hooks。
+`Setup` 仅支持 `command` hooks。`SessionStart` 仅支持 `command` 和 `mcp_tool` hooks，[MCP tool hook 字段](#mcp-tool-hook-fields)描述了其 `mcp_tool` hooks 何时运行。
 
 ### 基于提示的 hooks 如何工作
 
@@ -4077,8 +4081,8 @@ LLM 必须使用包含以下内容的 JSON 响应：
 * `PostToolUse`：默认情况下转轮结束，原因在聊天中显示为警告行。设置 `continueOnBlock: true` 以将原因反馈给 Claude 并继续转轮
 * `PostToolBatch`、`UserPromptSubmit` 和 `UserPromptExpansion`：转轮结束，原因显示为警告行。这些事件在 `decision: "block"` 上结束转轮，无论 `continue` 如何
 * `PostToolUseFailure` 和 `TaskCreated`：原因作为工具错误返回给 Claude，转轮继续，无论 `continueOnBlock` 如何
-* `TaskCompleted`：当任务在转轮期间被标记为完成时触发时，原因作为工具错误返回给 Claude，转轮继续，无论 `continueOnBlock` 如何。当它因队友停止而触发时，它的行为类似于 `TeammateIdle` 并默认停止队友
-* `TeammateIdle`：默认情况下队友停止，原因显示为警告行。设置 `continueOnBlock: true` 以将原因反馈给队友并保持其继续工作
+* 在 `TaskUpdate` 调用上触发的 `TaskCompleted`：Claude 将原因作为工具结果接收，轮次继续，无论 `continueOnBlock` 如何
+* `TeammateIdle`，以及在队友轮次结束时触发的 `TaskCompleted`：默认情况下队友进入空闲状态，原因显示在其会话记录中。设置 `continueOnBlock: true` 以将原因发送给队友并使其继续工作
 * `PermissionRequest`：`ok: false` 无效。要从 hook 拒绝批准，请使用[命令 hook](#command-hook-fields)，返回 `hookSpecificOutput.decision.behavior: "deny"`
 * `PermissionDenied`：`ok: false` 无效，因为拒绝已经发生。此事件读取的唯一输出是 `hookSpecificOutput.retry`，提示和代理 hooks 无法设置。它们在此事件上运行，但其输出被丢弃。使用[命令 hook](#command-hook-fields)返回 `retry`
 

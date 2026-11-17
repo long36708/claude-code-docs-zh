@@ -16,6 +16,192 @@ Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、�
 
 单击树中的文件以查看每个文件的作用、何时加载以及示例。
 
+Configuration files
+
+**`CLAUDE.md`**
+
+**When it loads**: 在会话开始时加载到上下文中
+
+项目特定的指令，决定 Claude 在此仓库中的工作方式。请将您的约定、常用命令和架构背景放在这里。
+
+**`.mcp.json`**
+
+**When it loads**: 在交互式会话中，您已[批准](https://code.claude.com/docs/zh-CN/mcp.md#project-scope)的 MCP 服务器会在会话开始时加载。工具 schema 默认延迟加载，并通过[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)按需加载
+
+配置 Model Context Protocol (MCP) 服务器，使 Claude 能够访问外部工具：数据库、API、浏览器等。此文件保存整个团队使用的项目级服务器。仅供自己使用的个人服务器应放在 `~/.claude.json` 中。
+
+**`.worktreeinclude`**
+
+**When it loads**: 当 Claude 通过 `--worktree`、`EnterWorktree` 工具或子代理 `isolation: worktree` 创建 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 时读取
+
+列出要从主仓库复制到每个新 worktree 中的被 gitignore 的文件。worktree 是全新检出的副本，因此 `.env` 等未跟踪文件默认不存在。此处的模式使用 `.gitignore` 语法。只有与某个模式匹配且同时被 gitignore 的文件才会被复制。
+
+**`.claude/`**
+
+项目设置、规则、skill、子代理和其他配置。如果您使用 git，请提交其中的大部分文件以便团队共享，并将 `settings.local.json` 等个人文件排除在提交之外。
+
+**`.claude/settings.json`**
+
+**When it loads**: 在会话开始时读取。大多数编辑会[应用于正在运行的会话](https://code.claude.com/docs/zh-CN/settings.md#when-edits-take-effect)
+
+由 Claude Code 直接应用的设置。权限控制 Claude 可以使用哪些命令和工具；hook 在会话的特定时间点运行您的脚本。与 Claude 作为指导来阅读的 CLAUDE.md 不同，这些设置无论 Claude 是否遵循都会被强制执行。
+
+在[设置优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)中，此文件的优先级高于 `~/.claude/settings.json`，低于 `.claude/settings.local.json`、`--settings` 标志和托管设置。对于大多数单值键（例如 `model`），Claude Code 使用优先级最高的值。大多数列表（例如 `permissions.allow`）会[跨文件合并](https://code.claude.com/docs/zh-CN/settings.md#lists-merge-instead-of-overriding)。
+
+**`.claude/settings.local.json`**
+
+**When it loads**: 在会话开始时读取。大多数编辑会[应用于正在运行的会话](https://code.claude.com/docs/zh-CN/settings.md#when-edits-take-effect)
+
+您针对此项目的个人设置。JSON 格式与 `settings.json` 相同，当 Claude Code 将设置保存到此文件时会将其加入 gitignore。
+
+在[设置优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)中，此文件的优先级高于 `.claude/settings.json`，低于 `--settings` 标志和托管设置。对于大多数单值键（例如 `model`），Claude Code 使用优先级最高的值。大多数列表（例如 `permissions.allow`）会[跨文件合并](https://code.claude.com/docs/zh-CN/settings.md#lists-merge-instead-of-overriding)。
+
+**`.claude/rules/`**
+
+**When it loads**: 没有 `paths:` frontmatter 的规则在会话开始时加载。带有 `paths:` 的规则在 Claude 读取、写入或编辑匹配的文件时加载
+
+按主题拆分为多个文件的项目指令。与 CLAUDE.md 一样，规则是 Claude Code 不会强制执行的指导。如需强制执行的行为，请使用 [hook](https://code.claude.com/docs/zh-CN/hooks.md) 或[权限](https://code.claude.com/docs/zh-CN/permissions.md)。
+
+**`.claude/skills/`**
+
+**When it loads**: 通过 `/skill-name` 调用，或在 Claude 将任务与某个 skill 匹配时调用
+
+每个 skill 是一个文件夹，包含一个 `SKILL.md` 文件以及所需的任何支持文件。默认情况下，您和 Claude 都可以调用 skill。使用 [frontmatter](https://code.claude.com/docs/zh-CN/skills.md#frontmatter-reference) 来控制这一点：设置 `disable-model-invocation: true` 可使 Claude 无法自行调用 `/deploy` 之类的 skill，设置 `user-invocable: false` 则只有 Claude 可以调用该 skill。
+
+**`.claude/commands/`**
+
+**When it loads**: 通过 `/command-name` 调用，或在 Claude 将任务与某个命令匹配时调用
+
+存放单文件命令：保存为 `.claude/commands/deploy.md` 的提示词会以 `/deploy` 运行。对于新命令，请使用 [skill](#ce-skills)，它可以将参考文档、模板或脚本与提示词捆绑在一起。
+
+**`.claude/output-styles/`**
+
+**When it loads**: 在终端启动时读取，因此添加或编辑样式后请重启 Claude Code
+
+每个 Markdown 文件定义一种[输出样式](https://code.claude.com/docs/zh-CN/output-styles.md#how-output-styles-work)，即一组调整 Claude 工作方式的指令。如果某个样式由团队共享（例如所有人都使用的审查模式），请将其放在这里。有关如何选择样式，请参阅 [`~/.claude/output-styles/`](#ce-global-output-styles)。
+
+**`.claude/agents/`**
+
+**When it loads**: 当您或 Claude 调用子代理时，每个子代理在其自己的上下文窗口中运行
+
+每个带有 `name` 和 `description` frontmatter 的 Markdown 文件定义一个子代理，该子代理拥有自己的系统提示词、工具访问权限，还可以选择使用自己的模型。适用于并行工作或隔离任务。
+
+**`.claude/workflows/`**
+
+**When it loads**: 当[工作流已启用](https://code.claude.com/docs/zh-CN/workflows.md)时在启动时加载。每个已保存的工作流以 `/<name>` 命令运行
+
+每个 `.js` 文件是一个[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)：由运行时执行的脚本，用于生成并协调多个子代理。要添加工作流，请让 Claude 编写一个工作流，然后在会话中运行 `/workflows` 并将其保存在此处。
+
+**`.claude/agent-memory/`**
+
+**When it loads**: 子代理运行时，其 `MEMORY.md` 的前 200 行（上限 25KB）会加载到其系统提示词中
+
+在[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)开启时，frontmatter 中带有 [`memory: project`](https://code.claude.com/docs/zh-CN/sub-agents#enable-persistent-memory) 的子代理会在此处获得专用的记忆目录。每个子代理读写自己的 `MEMORY.md`，与主会话在 `~/.claude/projects/` 中的自动记忆相互独立。
+
+**`.claude/agent-memory/<agent-name>/MEMORY.md`**
+
+**When it loads**: 子代理运行时，前 200 行（上限 25KB）会加载到该子代理的系统提示词中
+
+子代理已保存笔记的索引。子代理会自行创建和更新此文件，格式与您主会话的[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#storage-location)索引相同。
+
+**`~/.claude.json`**
+
+**When it loads**: 在会话开始时读取，以获取您的偏好和 MCP 服务器。当您在 `/config` 中更改[全局配置选项](https://code.claude.com/docs/zh-CN/settings-reference.md#global-config-settings)或信任某个项目文件夹时，Claude Code 会写回此文件
+
+保存账户详细信息、各项目的信任决定、您的个人 MCP 服务器以及 UI 开关。
+
+**`~/.claude/`**
+
+与项目 [`.claude/`](#ce-dot-claude) 目录对应的全局目录。此目录中的配置文件会在这台机器上的每个项目中对您生效。
+
+**`~/.claude/CLAUDE.md`**
+
+**When it loads**: 在这台机器上的每个项目中于会话开始时加载
+
+您的全局指令文件。与项目 CLAUDE.md 一同加载。如果两者冲突，Claude 可能遵循其中任意一个。此文件应只包含适用于所有地方的偏好：回复风格、提交格式、个人约定。
+
+**`~/.claude/settings.json`**
+
+**When it loads**: 在会话开始时读取。大多数编辑会[应用于正在运行的会话](https://code.claude.com/docs/zh-CN/settings.md#when-edits-take-effect)
+
+格式与项目 `settings.json` 相同：权限、hook、模型和环境变量。将您希望在每个项目中使用的设置放在这里，例如允许规则、首选模型或通知 hook。
+
+在[设置优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)中，此文件的优先级低于项目的设置文件、`--settings` 标志和托管设置。对于大多数单值键（例如 `model`），Claude Code 使用优先级最高的值。大多数列表（例如 `permissions.allow`）会[跨文件合并](https://code.claude.com/docs/zh-CN/settings.md#lists-merge-instead-of-overriding)。
+
+**`~/.claude/keybindings.json`**
+
+**When it loads**: 在会话开始时读取，并在您编辑该文件时热重载
+
+在交互式 CLI 中重新绑定快捷键。在会话中运行 `/keybindings` 以创建或打开此文件。在选择按键之前，请查看[保留的快捷键](https://code.claude.com/docs/zh-CN/keybindings.md#reserved-shortcuts)。
+
+**`~/.claude/themes/`**
+
+**When it loads**: 在会话开始时读取，并在文件更改时[热重载](https://code.claude.com/docs/zh-CN/terminal-config.md#create-a-custom-theme)。列在 `/theme` 中
+
+每个 `.json` 文件定义一个自定义颜色主题：一个内置的 `base` 预设加上一个由颜色标识组成的 `overrides` 映射。在会话中运行 `/theme` 来创建主题，或自行编写 JSON。选择自定义主题会将 `custom:<slug>` 存储为您的主题偏好。
+
+**`~/.claude/projects/`**
+
+**When it loads**: 在自动记忆开启时，当前项目的 `memory/MEMORY.md` 会在会话开始时加载。其中列出的主题文件按需读取
+
+保存[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)，即 Claude 跨会话保存的笔记：您的角色和偏好、您给出的纠正、项目决策，以及在项目之外何处查找信息。每个项目都有自己的记忆目录，以仓库路径作为键。
+
+**`~/.claude/projects/<project>/memory/MEMORY.md`**
+
+**When it loads**: 在[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)开启时，前 200 行（上限 25KB）会在会话开始时加载
+
+指向主题文件以获取详细信息的索引。Claude 会在工作过程中创建和更新此文件。您可以编辑或删除它。
+
+**`~/.claude/projects/<project>/memory/user_role.md`**
+
+**When it loads**: 当出现相关任务时，Claude 会读取此文件
+
+主题文件的一个示例。Claude 会将每条记忆保存在各自的主题文件中，自行选择文件名，并在 `MEMORY.md` 中列出。
+
+**`~/.claude/rules/`**
+
+**When it loads**: 没有 `paths:` frontmatter 的规则在会话开始时加载。带有 `paths:` 的规则在 Claude 读取、写入或编辑匹配的文件时加载
+
+格式与项目 [`.claude/rules/`](#ce-rules) 相同，应用于这台机器上的每个项目。用于您希望在所有工作中遵循的约定，例如个人代码风格或提交信息格式。
+
+**`~/.claude/skills/`**
+
+**When it loads**: 通过 `/skill-name` 调用，或在 Claude 将任务与某个 skill 匹配时调用
+
+您为自己构建的 skill，可在这台机器上的所有项目中使用。格式与项目 [`.claude/skills/`](#ce-skills) 相同。
+
+**`~/.claude/commands/`**
+
+**When it loads**: 通过 `/command-name` 调用，或在 Claude 将任务与某个命令匹配时调用
+
+格式与项目 [`.claude/commands/`](#ce-commands) 相同，可在这台机器上的所有项目中使用。
+
+**`~/.claude/output-styles/`**
+
+**When it loads**: 在终端启动时读取，因此添加或编辑样式后请重启 Claude Code
+
+每个 Markdown 文件定义一种[输出样式](https://code.claude.com/docs/zh-CN/output-styles.md#how-output-styles-work)，即一组调整 Claude 工作方式的指令。使用样式可将 Claude Code 适配到编程以外的用途，或添加教学或审查模式。
+
+在会话中通过 `/output-style` 或 `/config`，或通过设置中的 `outputStyle` 键选择内置或自定义样式。此处的样式可在这台机器上的每个项目中使用。如果某个项目样式具有相同名称，Claude Code 会使用该项目的样式。
+
+**`~/.claude/agents/`**
+
+**When it loads**: 当您或 Claude 调用子代理时，每个子代理在其自己的上下文窗口中运行
+
+此处定义的子代理可在这台机器上的所有项目中使用。格式与项目 [`.claude/agents/`](#ce-agents) 相同。
+
+**`~/.claude/workflows/`**
+
+**When it loads**: 当[工作流已启用](https://code.claude.com/docs/zh-CN/workflows.md)时在启动时加载。每个已保存的工作流以 `/<name>` 命令运行
+
+保存在此处的工作流脚本可在这台机器上的所有项目中使用。`.claude/workflows/` 中同名的项目工作流优先。
+
+**`~/.claude/agent-memory/`**
+
+**When it loads**: 子代理运行时，其 `MEMORY.md` 的前 200 行（上限 25KB）会加载到其系统提示词中
+
+在[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)开启时，frontmatter 中带有 `memory: user` 的子代理会将知识存储在此处。这些知识在所有项目中持久保留。有关项目级子代理记忆，请参阅 [`.claude/agent-memory/`](#ce-agent-memory)。
+
 ## 未显示的内容
 
 浏览器涵盖您创作和编辑的文件。一些相关文件位于其他位置：
@@ -74,7 +260,7 @@ Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、�
 | [`commands/*.md`](#ce-commands) | 项目和全局 | ✓ | 单文件提示；与 skills 相同的机制 | [Skills](https://code.claude.com/docs/zh-CN/skills.md) |
 | [`output-styles/*.md`](#ce-output-styles) | 项目和全局 | ✓ | 自定义指令集，调整 Claude 的工作方式 | [输出样式](https://code.claude.com/docs/zh-CN/output-styles.md) |
 | [`agents/*.md`](#ce-agents) | 项目和全局 | ✓ | Subagent 定义及其自己的提示和工具 | [Subagents](https://code.claude.com/docs/zh-CN/sub-agents.md) |
-| [`workflows/*.js`](#ce-workflows) | 项目和全局 | ✓ | 由 Claude 编写并从 `/workflows` 保存的动态工作流脚本；每个文件都成为一个 `/<name>` 命令 | [动态工作流](https://code.claude.com/docs/zh-CN/workflows.md) |
+| [`workflows/*.js`](#ce-workflows) | 项目和全局 | ✓ | 由 Claude 编写并从 `/workflows` 保存的动态工作流脚本；每个已保存的工作流都作为一个 `/<name>` 命令运行 | [动态工作流](https://code.claude.com/docs/zh-CN/workflows.md) |
 | [`agent-memory/<name>/`](#ce-agent-memory) | 项目和全局 | ✓ | Subagents 的持久内存 | [持久内存](https://code.claude.com/docs/zh-CN/sub-agents.md#enable-persistent-memory) |
 | [`~/.claude.json`](#ce-claude-json) | 仅全局 | | 应用状态、账户详情、UI 切换、个人 MCP 服务器。如果该文件不存在，Claude Code 会在您启动会话或运行 `claude auth status` 等子命令时创建它，但运行 `--version` 或 `--help` 时不会创建。 | [全局配置](https://code.claude.com/docs/zh-CN/settings-reference.md#global-config-settings) |
 | [`projects/<project>/memory/`](#ce-global-projects) | 仅全局 | | 自动内存：Claude 在会话间对自己的笔记 | [自动内存](https://code.claude.com/docs/zh-CN/memory.md#auto-memory) |

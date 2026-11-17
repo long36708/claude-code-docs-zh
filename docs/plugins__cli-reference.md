@@ -175,7 +175,7 @@ Claude Code 会打印 `Successfully uninstalled plugin: formatter (scope: projec
 
 #### 卸载会删除和保留的内容
 
-当您从插件安装的最后一个作用域卸载该插件时，Claude Code 还会删除该插件存储的[选项和密钥](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#user-configuration)以及其数据目录 `~/.claude/plugins/data/<id>/`。有三种例外情况：
+当您从插件安装的最后一个作用域卸载该插件时，Claude Code 还会删除该插件存储的[选项和密钥](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#user-configuration)以及其数据目录 `~/.claude/plugins/data/<id>/`。其中部分或全部内容可能会保留，例如在以下情况下：
 
 * 使用 `--keep-data` 时，数据目录会保留
 * 当另一个已安装的插件使用同一文件夹时（例如 ID 与此插件仅在字母大小写上不同的插件），数据目录会保留

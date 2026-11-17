@@ -143,21 +143,13 @@
 
 如果您使用 `/model` 切换模型，该切换也会影响[继承主对话模型的子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)，因为 Claude Code 会在 Claude 启动它们时根据会话正在使用的模型解析它们的模型。在 Claude 将研究或测试运行委派给其中某个子代理之前切换到 Opus，该工作也会在 Opus 上运行。要让自定义子代理保持使用较小的模型，请在其定义中设置 `model`。
 
-如果您在使用 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中通过 `/model` 设置模型，您的选择仅适用于当前会话，不会保存为默认值；该模式中的 `/model` 需要 Claude Code v2.1.205 或更高版本。项目和托管设置仍然优先，并在下次启动时重新应用。您的管理员配置为覆盖用户选择的[组织默认模型](#organization-default-model)也会在下次启动时重新应用。
+如果您在使用 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中通过 `/model` 设置模型，您的选择仅适用于当前会话，不会保存为默认值。该模式中的 `/model` 需要 Claude Code v2.1.205 或更高版本。
 
 在 v2.1.144 到 v2.1.152 中，`/model` 仅适用于当前会话，在选择器中按 `d` 可保存默认值。
 
 `--model` 标志和 `ANTHROPIC_MODEL` 环境变量仅适用于使用它们启动的会话。要同时在不同的终端中运行不同的模型，请分别使用各自的 `--model` 标志启动，而不是使用 `/model` 切换。
 
 当 Claude Code 直接或通过代理 Anthropic API 的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)与 Anthropic API 通信时，`/model` 选择器中会显示价格，每行的价格即该行所选模型的价格。在[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)（如 Amazon Bedrock）和 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 上，由您的提供商或网关决定您支付的费用，因此选择器行不显示价格。价格仅是显示标签；它不影响某行选择哪个模型，也不影响提供商的计费。在 v2.1.206 之前，[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 和网关会话显示 Anthropic 标价，且某行可能显示与其所选模型不同的模型的价格。
-
-使用 `claude --resume`、`--continue` 或 `/resume` 选择器启动的恢复会话会保持保存会话记录时所使用的模型。如果恢复的模型已被停用或被 [`availableModels`](#restrict-model-selection) 排除，会话会回退到正常的优先级顺序。在使用提供商特定部署 ID 而不是 Anthropic 模型 ID 的提供商上，如 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry，完全不会恢复会话记录中的模型，会话会通过正常的优先级顺序解析其模型。
-
-如果您的 `model` 设置为 `haiku`，在 Haiku 模型上保存的会话会在 `haiku` 当前解析到的模型上恢复。例如，当 `haiku` 解析到 Haiku 5.5 后，在 Haiku 4.5 上保存的会话会在 Haiku 5.5 上恢复。
-
-您在新启动时通过 `--model` 或 `ANTHROPIC_MODEL` 选择的模型仍然优先于恢复的模型。从 v2.1.195 开始，[`ANTHROPIC_DEFAULT_OPUS_MODEL`](#environment-variables) 系列变量也是如此。[`ANTHROPIC_DEFAULT_MODEL`](#set-a-default-model-for-new-sessions) 在其章节所列条件下也可以优先。
-
-当启动时的活动模型来自项目或托管设置而不是您自己的选择时，启动标题会显示是哪个设置文件设置了它。运行 `/model` 可覆盖；项目或托管设置会在下次启动时重新应用。在嵌入 Claude Code 并设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](https://code.claude.com/docs/zh-CN/env-vars) 的平台上，主机的模型配置优先于托管模型设置，而托管的 `availableModels` 允许列表仍然有效，除非主机提供自己的允许列表；[Exceptions to managed settings precedence](https://code.claude.com/docs/zh-CN/settings.md#exceptions-to-managed-settings-precedence) 说明主机会覆盖哪些键和变量。
 
 如果您或您的组织配置了 [PreModelSwitch hook](https://code.claude.com/docs/zh-CN/hooks.md#premodelswitch)，它们会在请求的切换生效之前运行，并可以阻止切换或要求您确认。要了解 hook 阻止切换的原因以及应如何处理，请参阅 [Model switch was blocked by a PreModelSwitch hook](https://code.claude.com/docs/zh-CN/errors.md#model-switch-was-blocked-by-a-premodelswitch-hook)。
 
@@ -203,6 +195,22 @@ claude --model opus
 }
 ```
 
+当启动时的活动模型来自项目或托管设置而不是您自己的选择时，启动标题会显示是哪个设置文件设置了它。运行 `/model` 可覆盖；项目或托管设置会在新会话中重新应用。
+
+在嵌入 Claude Code 并设置 [`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`](https://code.claude.com/docs/zh-CN/env-vars) 的平台上，主机的模型配置优先于托管模型设置。托管的 `availableModels` 允许列表仍然有效，除非主机提供自己的允许列表。[Exceptions to managed settings precedence](https://code.claude.com/docs/zh-CN/settings.md#exceptions-to-managed-settings-precedence) 说明主机会覆盖哪些键和变量。
+
+#### 恢复的会话使用哪个模型
+
+您使用 `claude --resume` 或 `--continue` 恢复的会话会保持保存时所使用的模型，但以下等情况除外，此时会改为遵循[优先级顺序](#setting-your-model)：
+
+* 您设置了别名变量，如 [`ANTHROPIC_DEFAULT_OPUS_MODEL`](#environment-variables)，或在其章节所列条件下设置了 [`ANTHROPIC_DEFAULT_MODEL`](#set-a-default-model-for-new-sessions)
+* 保存的模型已被停用或被 [`availableModels`](#restrict-model-selection) 排除
+* 您的提供商使用提供商特定的部署 ID 而不是 Anthropic 模型 ID，如 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry
+* 您的 `model` 设置为 `haiku`，且会话是在 Haiku 或 Sonnet 模型上保存的。例如，当 `haiku` 解析到 Haiku 5.5 后，在 Haiku 4.5 上保存的会话会在 Haiku 5.5 上恢复。
+* 您的 `model` 设置为 `opusplan`，且会话是在 Opus 或 Sonnet 模型上保存的
+
+要在您选择的模型上恢复，请传递 `--model` 或设置 `ANTHROPIC_MODEL`。
+
 #### 修复拼写错误的模型名称
 
 以下任一警告都表示 Claude Code 无法识别您设置的模型 ID，而该 ID 与它能识别的某个模型名称或别名拼写相近：
@@ -237,16 +245,16 @@ Claude Code doesn't recognize the model "<model>". Did you mean "<suggestion>"?
 * 您组织的[模型限制](#restrict-model-selection)排除了该模型
 * 该模型对您的账户不可用
 
-当新会话会在该变量的模型上启动时，您使用 `claude --resume`、`--continue` 或 `/resume` 选择器恢复的会话也会在该模型上启动。Claude Code 不会恢复该会话的会话记录中保存的模型。在其他情况下，Claude Code 在您[恢复会话](#setting-your-model)时不使用该变量。
+当新会话会在该变量的模型上启动时，您使用 `claude --resume`、`--continue` 或 `/resume` 选择器恢复的会话也会在该模型上启动。Claude Code 不会恢复该会话的会话记录中保存的模型。在其他情况下，Claude Code 在您[恢复会话](#which-model-a-resumed-session-uses)时不使用该变量。
 
 #### 新会话在与您所选不同的模型上启动
 
 当您使用 `/model` 选择了模型，但下一个会话却在其他模型上启动时，常见原因如下：
 
 * **您只为一个会话选择了它。** 在选择器中按 `s`、使用 `--model` 启动以及在非交互模式中运行 `/model` 都仅适用于当前会话，不会改变已保存的默认值。
-* **优先级更高的项设置了模型。** 项目或托管设置中的 `model` 值、shell 中的 `ANTHROPIC_MODEL`，或管理员设置为覆盖用户选择的[组织默认值](#organization-default-model)，会在每次启动时再次生效。您的 `/model` 选择仍然已保存，只是优先级较低。当项目或托管设置设置了模型时，启动标题会指明该文件。
+* **优先级更高的项设置了模型。** 项目或托管设置中的 `model` 值、shell 中的 `ANTHROPIC_MODEL`，或管理员设置为覆盖用户选择的[组织默认值](#organization-default-model)，会在每次启动新会话时再次生效。您的 `/model` 选择仍然已保存，只是优先级较低。当项目或托管设置设置了模型时，启动标题会指明该文件。
 * **Claude Code 无法保存您的选择。** `/model` 会将 `model` 写入 `~/.claude/settings.json`。如果您无法写入该文件（例如因为另一个工具生成了该文件，或将其链接到只读副本），您所选的模型仅在当前会话中有效，下次启动时会读取旧值。请在生成该文件的工具中设置 `model`，或使该文件可写。参阅 [您在 Claude Code 中所做的更改在新会话中丢失](https://code.claude.com/docs/zh-CN/settings.md#a-change-you-made-in-claude-code-is-lost-in-new-sessions)。
-* **您恢复了一个会话。** 使用 `claude --resume` 或 `--continue` 恢复的会话通常会[保持其原先使用的模型](#setting-your-model)，而不是当前的默认值。
+* **您恢复了一个会话。** 使用 `claude --resume` 或 `--continue` 恢复的会话通常会[保持其原先使用的模型](#which-model-a-resumed-session-uses)，而不是当前的默认值。
 
 ## 限制模型选择
 
@@ -449,9 +457,9 @@ Claude Enterprise 计划上的组织管理员可以从 claude.ai 管理控制台
 * [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中的 `model` 值或通过 `--settings` 提供的值
 * 您的用户、项目或本地设置中的 `model` 值，包括您使用 `/model` 保存的模型
 
-管理员还可以配置组织默认值以覆盖用户选择。启用覆盖后，它优先于用户、项目和本地设置中的 `model` 值，因此您使用 `/model` 保存的模型在当前会话中应用，组织默认值在下次启动时返回。当您的选择不同时，`/model` 显示 `Your organization's default (<model>) applies on restart`。即使启用了覆盖，`--model` 标志、`ANTHROPIC_MODEL`、托管设置和 `--settings` 仍然优先。
+管理员还可以配置组织默认值以覆盖用户选择。启用覆盖后，它优先于用户、项目和本地设置中的 `model` 值。此时您使用 `/model` 保存的模型在当前会话中应用，组织默认值在新会话中恢复。当您的选择不同时，`/model` 显示 `Your organization's default (<model>) applies on restart`。
 
-要限制成员可以选择的模型，请改用[组织模型限制](#organization-model-restrictions)或 [`availableModels`](#restrict-model-selection)。
+即使启用了覆盖，`--model` 标志、`ANTHROPIC_MODEL`、托管设置和 `--settings` 仍然优先。要限制成员可以选择的模型，请改用[组织模型限制](#organization-model-restrictions)或 [`availableModels`](#restrict-model-selection)。
 
 Claude Code 在启动时读取组织默认值一次，因此管理员在会话中期更改的默认值在下次启动时生效。
 
@@ -459,7 +467,7 @@ Claude Code 在启动时读取组织默认值一次，因此管理员在会话�
 
 组织默认值在被采用之前会通过这些限制检查：
 
-* 使用默认前缀匹配时，[`availableModels`](#restrict-model-selection) 本身不适用于组织默认值，因此允许列表外的组织默认值仍然适用。当同时设置了 [`enforceAvailableModels`](#enforce-the-allowlist-for-the-default-model) 时，允许列表外的组织默认值也会被重新映射到第一个允许列表条目
+* 使用默认前缀匹配并设置了 [`enforceAvailableModels`](#enforce-the-allowlist-for-the-default-model) 时，[`availableModels`](#restrict-model-selection) 允许列表外的组织默认值会被重新映射到该列表中的某个模型
 * [组织模型限制](#organization-model-restrictions)对您的账户拒绝的组织默认值会被替换为其系列中最新的允许模型，或当该系列的每个版本都被限制时被替换为成本较低的系列
 * 对于 `deniedModels` 或 `"exact"` 列表阻止的组织默认值，请参阅[阻止特定模型或版本](#block-specific-models-or-versions)
 * 您的账户完全无法使用的组织默认值会被跳过，"默认"选项的解析方式与[没有组织默认值](#default-model-setting)时相同

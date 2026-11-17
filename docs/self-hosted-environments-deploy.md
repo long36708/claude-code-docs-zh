@@ -744,7 +744,7 @@ secrets:
 选择您的会话运行哪个版本以及何时更改：
 
 * **在固定版本之前**：针对您的会话使用的每个模型，检查[模型需要的 Claude Code 版本](https://code.claude.com/docs/zh-CN/model-config.md#available-models)。如果某个模型需要比您的会话所运行版本更新的版本，服务器会以 [Claude Code does not support this model](https://code.claude.com/docs/zh-CN/errors.md#claude-code-does-not-support-this-model) 拒绝对该模型的请求。
-* **将队列保持在一个版本上**：使用固定版本构建镜像，或在裸主机上安装特定版本并[禁用自动更新](https://code.claude.com/docs/zh-CN/setup.md#disable-auto-updates)
+* **将队列保持在一个版本上**：使用固定版本构建镜像，或在裸主机上[安装特定版本](https://code.claude.com/docs/zh-CN/setup.md#install-a-specific-version)并[禁用自动更新](https://code.claude.com/docs/zh-CN/setup.md#disable-auto-updates)
 * **升级固定队列**：阅读您当前版本与要安装版本之间的 [changelog](https://code.claude.com/docs/en/changelog.md) 条目，然后安装较新版本或重建镜像，并重启运行器
 * **升级按需运行器**：阅读您当前版本与要安装版本之间的 [changelog](https://code.claude.com/docs/en/changelog.md) 条目，然后更改您的 [`spawn-runner` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#the-spawn-runner-hook) 启动的镜像。每个新运行器都会获得新版本。已经在运行的运行器（包括由 [`--min-idle`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 启动的备用运行器）会保持其版本，直到退出。不要重启它，因为它的工作指令是一次性的。
 * **如果会话启动的是其他二进制文件**：如果您使用 [`--exec-path`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 或 [`command` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#command) 来启动运行器自身以外的 Claude Code 二进制文件，会话将运行该二进制文件的版本。更新运行器时，请同时更新该二进制文件。

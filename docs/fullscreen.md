@@ -159,7 +159,9 @@ CLAUDE_CODE_NO_FLICKER=1 claude
 
 在终端太窄而无法显示完整标签的情况下，按钮会缩短提示，而不是换行到记录行下方。
 
-要完全关闭自动跟随以使视图保持在您离开的位置，打开 `/config` 并将自动滚动设置为关闭。禁用自动滚动后，视图永远不会自动跳转到底部。权限提示和其他需要响应的对话框仍会根据此设置滚动到视图中。
+#### 关闭 Auto-scroll
+
+要在您发送消息或滚动到底部后仍保持自动跟随暂停，请打开 `/config` 并将 [Auto-scroll](https://code.claude.com/docs/zh-CN/settings-reference.md#autoscrollenabled) 设置为关闭。
 
 ### 鼠标滚轮滚动
 
@@ -221,19 +223,17 @@ export CLAUDE_CODE_SCROLL_SPEED=3
 
 如果显示看起来混乱或部分空白，按 `Ctrl+L` 来重绘屏幕。重绘会保持对话和你的输入原位。
 
-`Cmd+K` 在你的终端将其传递给 Claude Code 时的作用与 `Ctrl+L` 相同。iTerm2 和 Terminal.app 自己处理 `Cmd+K` 并清除自己的屏幕，Claude Code 检测到清除的屏幕并重新绘制对话。在 v2.1.280 之前，从 v2.1.260 开始，按 `Ctrl+L` 或 `Cmd+K`（到达 Claude Code 的地方）会在全屏渲染中清除屏幕。在 v2.1.238 之前，在两秒内按两次 `Ctrl+L` 会运行 `/clear`。
+`Cmd+K` 在您的终端将其传递给 Claude Code 时的作用与 `Ctrl+L` 相同。iTerm2 自己处理 `Cmd+K` 并清除自己的屏幕，Claude Code 检测到清除的屏幕并重新绘制对话。在 v2.1.280 之前，从 v2.1.260 开始，按 `Ctrl+L` 或 `Cmd+K`（到达 Claude Code 的地方）会在全屏渲染中清除屏幕。在 v2.1.238 之前，在两秒内按两次 `Ctrl+L` 会运行 `/clear`。
 
 ## 与 tmux 一起使用
 
 全屏渲染在 tmux 内部可以工作，但有三个注意事项。
 
-鼠标滚轮滚动需要 tmux 的鼠标模式。如果你的 `~/.tmux.conf` 还没有启用它，请添加这一行并重新加载你的配置：
+要在另一个 tmux 窗格处于活动状态时使用鼠标滚轮滚动 Claude Code，请在 `~/.tmux.conf` 中启用 tmux 的鼠标模式并重新加载配置：
 
 ```bash theme={null}
 set -g mouse on
 ```
-
-没有鼠标模式，滚轮事件会发送到 tmux 而不是 Claude Code。使用 `PgUp` 和 `PgDn` 的键盘滚动在任何情况下都可以工作。如果 Claude Code 检测到 tmux 但鼠标模式关闭，它会在启动时打印一次性提示。
 
 全屏渲染与 iTerm2 的 tmux 集成模式不兼容，这是你使用 `tmux -CC` 进入的模式。在集成模式中，iTerm2 将每个 tmux 窗格渲染为本地分割，而不是让 tmux 绘制到终端。备用屏幕缓冲区和鼠标跟踪在那里无法正确工作：鼠标滚轮不起作用，双击可能会破坏终端状态。不要在 `tmux -CC` 会话中启用全屏渲染。在 iTerm2 内部的常规 tmux（不带 `-CC`）可以正常工作。
 

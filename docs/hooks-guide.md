@@ -688,7 +688,7 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 | `SubagentStop` | 代理类型 | 与 `SubagentStart` 相同的值 |
 | `ConfigChange` | 配置源 | `user_settings`、`project_settings`、`local_settings`、`policy_settings`、`skills` |
 | `DirectoryAdded` | 目录如何被添加 | `slash_command`、`register_repo_root` |
-| `StopFailure` | 错误类型 | `rate_limit`、`overloaded`、`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error`、`unknown` |
+| `StopFailure` | 错误类型 | `rate_limit`、`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error`、`unknown` |
 | `InstructionsLoaded` | 加载原因 | `session_start`、`nested_traversal`、`path_glob_match`、`include`、`compact` |
 | `Elicitation` | MCP 服务器名称 | 你配置的 MCP 服务器名称 |
 | `ElicitationResult` | MCP 服务器名称 | 与 `Elicitation` 相同的值 |

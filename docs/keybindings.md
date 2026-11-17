@@ -110,7 +110,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | :- | :- | :- |
 | `chat:cancel` | Escape | 取消当前输入 |
 | `chat:clearInput` | Ctrl+L | 强制全屏重绘，保留输入和对话 |
-| `chat:clearScreen` | Cmd+K | 与 `chat:clearInput` 相同。有关 Cmd+K 在 iTerm2 和 Terminal.app 上的行为，请参阅[清除对话](https://code.claude.com/docs/zh-CN/fullscreen.md#clear-the-conversation) |
+| `chat:clearScreen` | Cmd+K | 与 `chat:clearInput` 相同。有关 Cmd+K 在 iTerm2 上的行为，请参阅[清除对话](https://code.claude.com/docs/zh-CN/fullscreen.md#clear-the-conversation) |
 | `chat:killAgents` | Ctrl+X Ctrl+K | 停止此会话中所有正在运行的[后台子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)，并在此会话剩余时间内关闭 [Artifact 自动回复](https://code.claude.com/docs/zh-CN/artifacts.md#let-claude-reply-to-comments-on-its-own)。在 3 秒内按两次快捷键以确认。在后台子代理的权限提示打开时也可以按下此快捷键 |
 | `chat:cycleMode` | Shift+Tab\* | 循环切换权限模式 |
 | `chat:modelPicker` | Meta+P | 打开模型选择器 |

@@ -927,7 +927,7 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 选择 Claude Code 是否在计划模式下使用自动模式分类器审查 shell 命令。在默认值 `true` 下，当自动模式可用时，分类器会在规划期间审查每条命令，您不会看到提示，[关键路径删除](https://code.claude.com/docs/zh-CN/permission-modes.md#critical-paths)除外。设置为 `false` 后，对于内置只读命令集之外的每条命令，您都会收到权限提示。在 `/config` 中显示为 **Use auto mode during plan**。
 
-* **作用域**：[`User, local, or managed`](#scopes)。仓库无法替您关闭它。
+* **作用域**：[`User, local, or managed`](#scopes)。
   * 这些文件中任何一个或 `--settings` 中的 `false` 都会将其关闭，除非您使用 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 等选项排除了该用户或本地文件。忽略被排除的文件需要 Claude Code v2.1.314 或更高版本
 * **类型**：Boolean
   * `true`：与未设置相同；当自动模式可用时，分类器会在规划期间审查 shell 命令
@@ -2685,7 +2685,7 @@ Compacted using a summary written while you were away · turn off with "idleComp
 
 ### `autoScrollEnabled`
 
-在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)中，跟随新输出滚动到对话底部。关闭此项后，Claude 继续工作时视图会停留在您滚动到的位置；权限提示仍会滚动到视野中。
+在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)中，跟随新输出滚动到对话底部。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：布尔值
@@ -3868,7 +3868,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 关闭[为您的 claude.ai 账户启用的 skill](https://code.claude.com/docs/zh-CN/skills.md#how-synced-skills-behave) 的下载。在[您使用 claude.ai 账户登录的终端会话](https://code.claude.com/docs/zh-CN/skills.md#where-synced-skills-load)中（无论交互式还是非交互式），以及在 Cowork 和云端会话中，Claude Code 会将这些 skill 下载到 `~/.claude/skills/synced/`。设置为 `false` 可停止该下载，并停止加载已同步的 skill。Claude Code 仅识别 `false`：`true` 与未设置相同，不会在原本关闭同步的地方开启同步。
 
-* **作用域**：[`User, local, or managed`](#scopes)，以及通过 `--settings` 传入的文件。仓库无法替您关闭它。
+* **作用域**：[`User, local, or managed`](#scopes)，以及通过 `--settings` 传入的文件。
 * **类型**：Boolean
   * `false`：Claude Code 停止下载同步的 skill，并停止加载 `~/.claude/skills/synced/` 中已有的 skill。在用户设置或托管设置中，还会将它们移动到 `~/.claude/skills/.trash/`
   * `true`：与未设置相同
@@ -3886,7 +3886,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 关闭[为您的 claude.ai 账户启用的插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)的下载。在您使用 claude.ai 账户登录的终端会话以及 Cowork 会话开始时，Claude Code 会将这些插件下载到 `~/.claude/plugins/synced/`，并将每个插件加载为 `<name>@synced`。设置为 `false` 可停止该下载，并停止加载已同步的插件。Claude Code 仅识别 `false`：`true` 与未设置相同，不会在原本关闭同步的地方开启同步。需要 Claude Code v2.1.273 或更高版本。
 
-* **作用域**：[`User, local, or managed`](#scopes)，以及通过 `--settings` 传入的文件。仓库无法替您关闭它。
+* **作用域**：[`User, local, or managed`](#scopes)，以及通过 `--settings` 传入的文件。
 * **类型**：Boolean
   * `false`：Claude Code 停止下载同步的插件，并停止加载 `~/.claude/plugins/synced/` 中已有的插件。在用户设置或托管设置中，还会将它们移动到 `~/.claude/plugins/.trash/`
   * `true`：与未设置相同

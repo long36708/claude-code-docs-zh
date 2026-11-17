@@ -112,7 +112,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 如果您的成员通过 claude.ai 或 Anthropic API 登录，并且您使用的是 Claude Enterprise 计划，您还可以在组织的管理设置中管理模型，无需部署任何内容：
 
 * [组织模型限制](https://code.claude.com/docs/zh-CN/model-config.md#organization-model-restrictions)：禁用单个模型。在服务器端强制执行。
-* [组织默认模型](https://code.claude.com/docs/zh-CN/model-config.md#organization-default-model)：设置新会话启动时使用的模型。成员仍可切换模型。若要在启动时将其恢复为您的默认模型，请打开该章节中描述的覆盖选项。若要限制他们可以选择的模型，请使用[组织模型限制](https://code.claude.com/docs/zh-CN/model-config.md#organization-model-restrictions)。
+* [组织默认模型](https://code.claude.com/docs/zh-CN/model-config.md#organization-default-model)：设置新会话启动时使用的模型。成员仍可切换模型。若要将其恢复为您的默认模型，请打开该章节中描述的覆盖选项。若要限制他们可以选择的模型，请使用[组织模型限制](https://code.claude.com/docs/zh-CN/model-config.md#organization-model-restrictions)。
 * [组织 effort 限制](https://code.claude.com/docs/zh-CN/model-config.md#organization-effort-limits)：按角色限制 effort 级别上限。在服务器端强制执行。
 
 这些控制项均不作用于 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 上的会话。在这些提供商上，请改用托管设置：用 `availableModels` 进行限制，用 `model` 设置默认模型，用 [`maxEffortLevel`](https://code.claude.com/docs/zh-CN/settings-reference#maxeffortlevel) 设置 effort 上限。

@@ -124,7 +124,7 @@ Claude 的上下文窗口保存您的对话历史、文件内容、命令输出�
 
 * 您的 CLAUDE.md 文件
 * 您的[输出样式](https://code.claude.com/docs/zh-CN/output-styles.md)的说明
-* 当 Claude 之前读取的文件在磁盘上更改时的注记
+* 一条注记，说明 Claude 之前编辑过的文件此后已在磁盘上发生更改
 * 提交和拉取请求的归属行
 
 要更改或删除归属行，请设置 [`attribution`](https://code.claude.com/docs/zh-CN/settings-reference#attribution)。要删除 Claude Code 的内置提交和拉取请求说明，请将 [`includeGitInstructions`](https://code.claude.com/docs/zh-CN/settings-reference#includegitinstructions) 设置为 `false`。有关其他开关，请参阅[关闭您的代理替换的上下文](https://code.claude.com/docs/zh-CN/agent-sdk/modifying-system-prompts.md#turn-off-the-context-your-agent-replaces)。

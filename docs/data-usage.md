@@ -103,7 +103,7 @@ Claude Code 发送两种操作遥测：使用指标和错误报告。您可以�
 
 **指标**：延迟、可靠性和使用模式，通过 TLS 发送到 Anthropic 和第三方日志记录基础设施。指标永远不包括您的代码、提示或文件路径。设置 `DISABLE_TELEMETRY=1` 以选择退出。
 
-**错误报告**：来自 Claude Code 自身内部的错误消息和堆栈跟踪，通过 TLS 发送到第三方错误跟踪服务。Claude Code 在任何内容离开您的机器之前会编辑已知的密钥、文件路径、电子邮件地址和其他个人信息的模式。设置 `DISABLE_ERROR_REPORTING=1` 以选择退出。
+**错误报告**：来自 Claude Code 自身内部的错误消息和堆栈跟踪，通过 TLS 发送到第三方错误跟踪服务。Claude Code 在任何内容离开您的机器之前会对已知的密钥、文件路径、电子邮件地址和其他个人信息的模式进行脱敏处理。设置 `DISABLE_ERROR_REPORTING=1` 以选择退出。
 
 错误报告仅在以下所有条件都适用时才启用：
 
@@ -114,7 +114,7 @@ Claude Code 发送两种操作遥测：使用指标和错误报告。您可以�
 
 当您运行 `/feedback` 命令时，您的对话历史记录（包括代码）的副本被发送到 Anthropic。`/bug` 和 `/share` 命令通过相同的路径提交。在从反馈对话框提交报告之前，您可以选择包含多少历史记录：仅当前会话（这是默认设置），或者也包括来自同一项目在过去 24 小时或 7 天内的其他会话。Claude Code 通过相同的路径提交 [Claude 起草的反馈](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)，包括当您在草稿的审查屏幕上选择包含它时的记录。数据通过 TLS 在传输中加密并存储在 Google Cloud Storage 中，Google Cloud Storage 默认对静止数据进行加密。可选地，在公共存储库中创建 GitHub 问题。要选择退出，请将 `DISABLE_FEEDBACK_COMMAND` 环境变量设置为 `1`。
 
-当您使用第三方提供商（如 Amazon Bedrock 或 Google Cloud 的 Agent Platform），或未配置 Anthropic 凭据时，`/feedback` 会将报告写入 `~/.claude/feedback-bundles/` 下的本地存档，而不是将其发送到 Anthropic。已知的 API 密钥和令牌模式在写入存档之前被编辑。在您将该文件发送给您的 Anthropic 账户代表或将其附加到支持请求之前，没有任何内容离开您的机器。
+当您使用第三方提供商（如 Amazon Bedrock 或 Google Cloud 的 Agent Platform），或未配置 Anthropic 凭据时，`/feedback` 会将报告写入 `~/.claude/feedback-bundles/` 下的本地存档，而不是将其发送到 Anthropic。已知的 API 密钥和令牌模式在写入存档之前会被脱敏处理。在您将该文件发送给您的 Anthropic 账户代表或将其附加到支持请求之前，没有任何内容离开您的机器。
 
 ## 按 API 提供商的默认行为
 

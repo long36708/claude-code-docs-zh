@@ -216,7 +216,7 @@ Claude 读取您的评论并进行请求的更改，这些更改显示为您可�
 
 在本地、[SSH](#ssh-sessions) 和 [WSL](https://code.claude.com/docs/zh-CN/desktop-wsl.md) 会话中，结果会显示为一张按文件分组的 **Code review** 卡片。使用该卡片处理这些结果：
 
-* 点击 **Walk through in diff** 打开 diff 视图，逐条查看结果。当前 diff 中的结果会显示在其对应的行上，您可以在那里点击 **Fix this one** 或忽略它。
+* 点击 **Walk through in Changes** 打开 diff 视图，逐条查看结果。当前 diff 中的结果会显示在其对应的行上，您可以在那里点击 **Fix this one** 或忽略它。
 * 点击 **Apply fixes** 让 Claude 修复仍未处理的结果。
 
 在任何会话中，您也可以在输入框中要求 Claude 修复审查发现的问题。有关 `/code-review` 检查的内容及其接受的参数，请参阅[使用 `/code-review` 在本地审查](https://code.claude.com/docs/zh-CN/code-review-local)。
@@ -620,7 +620,7 @@ Dispatch 是您离开终端时与 Claude 协作的几种方式之一。有关与
 
 ## 扩展 Claude Code
 
-连接外部服务、添加可重用工作流、自定义 Claude 的行为并配置预览服务器。要在一个地方管理连接器、skill 和插件，请点击侧边栏中的**自定义**。桌面应用中的 [Cowork](https://claude.com/product/cowork) 从此自定义配置获取其 skill、插件和连接器，该配置通过您的 claude.ai 账户同步，而不是从 CLI 的 `~/.claude` 目录获取。
+连接外部服务、添加可重用工作流、自定义 Claude 的行为并配置预览服务器。要在一个地方管理连接器、skill 和插件，请点击侧边栏中的**自定义**或 **Plugins**。桌面应用中的 [Cowork](https://claude.com/product/cowork) 从此配置获取其 skill、插件和连接器，该配置通过您的 claude.ai 账户同步，而不是从 CLI 的 `~/.claude` 目录获取。
 
 Claude Code 还会在你使用同一账户登录的终端会话中加载为你的 claude.ai 账户启用的 skills 和插件。请参阅[从 claude.ai 同步的 Skills](https://code.claude.com/docs/zh-CN/skills.md#how-synced-skills-behave) 和[从 claude.ai 同步的插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)。
 
@@ -628,7 +628,11 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 
 连接器是具有图形设置流程的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)。
 
-在会话开始之前或期间，点击提示框旁的 **+**，即可在使用 Claude 账户的本地或 [SSH](#ssh-sessions) 会话中添加连接器。选择 **Add connectors** 打开连接器目录。如果菜单显示的是 **Connectors**，请选择它，然后选择 **Browse connectors**。
+在会话开始之前或期间，点击提示框旁的 **+**，即可在使用 Claude 账户的本地或 [SSH](#ssh-sessions) 会话中添加连接器。根据菜单显示的条目打开连接器目录：
+
+* **Add connectors**：选择它
+* **Connectors**：选择它，然后选择 **Browse connectors**
+* **两个条目都没有**：点击侧边栏中的 **Plugins**，该目录会同时列出连接器和插件
 
 > [!NOTE]
 >
@@ -637,9 +641,9 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 > * **WSL 会话中 Connectors 显示为灰色**：请参阅[如果终端或连接器不可用](https://code.claude.com/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)
 > * **云端会话**：请参阅[连接器如何接入 Claude Code](https://code.claude.com/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)
 
-连接后，Claude 可以读取您的日历、发送消息、创建问题并直接与您的工具交互。您可以询问 Claude 在您的会话中配置了哪些连接器。要管理或断开连接器，请点击侧边栏中的**自定义**并打开 **Connectors**。
+连接后，Claude 可以读取您的日历、发送消息、创建问题并直接与您的工具交互。您可以询问 Claude 在您的会话中配置了哪些连接器。要管理或断开连接器，请点击侧边栏中的**自定义**并打开 **Connectors**。如果侧边栏显示的是 **Plugins**，请点击它并在 **Your plugins** 下查看。
 
-对于 Connectors 中未列出的集成，通过[设置文件](https://code.claude.com/docs/zh-CN/mcp.md#installing-mcp-servers)手动添加 MCP 服务器。您也可以[创建自定义连接器](https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)。
+对于连接器目录中未列出的集成，通过[设置文件](https://code.claude.com/docs/zh-CN/mcp.md#installing-mcp-servers)手动添加 MCP 服务器。您也可以[创建自定义连接器](https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)。
 
 ### 使用 skills
 
@@ -655,7 +659,12 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 
 [Plugins](https://code.claude.com/docs/zh-CN/plugins/overview.md)是可重用的包，为 Claude Code 添加 skills、agents、hooks、MCP servers 和 LSP 配置。你可以从桌面应用安装插件，而无需使用终端。
 
-在本地会话或 [SSH 会话](#ssh-sessions)中，点击提示框旁的 **+** 并选择 **Add plugins** 打开插件浏览器。如果菜单显示的是 **Plugins**，请选择它，然后选择 **Browse plugins**，或选择 **Manage plugins** 来启用、禁用或卸载插件。
+在本地会话或 [SSH 会话](#ssh-sessions)中，点击提示框旁的 **+**。根据菜单显示的条目打开插件浏览器：
+
+* **Add plugins**：选择它
+* **Plugins**：选择它，然后选择 **Browse plugins**。如果没有该选项，请选择 **Manage plugins**。
+
+当 **+** 菜单显示 **Plugins** 时，要启用、禁用或卸载插件，请选择 **Plugins > Manage plugins**。在本地会话中，您也可以点击侧边栏中的**自定义**或 **Plugins**。
 
 你可以将插件限定到你的用户账户、特定项目或仅本地。如果你的组织集中管理插件，这些插件在桌面会话中的可用方式与在 CLI 中相同，除了桌面应用在 [`disableSideloadFlags`](https://code.claude.com/docs/zh-CN/settings-reference#disablesideloadflags) 下扣留的那些。
 

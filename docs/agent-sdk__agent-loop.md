@@ -336,7 +336,8 @@ Claude Code 在模型响应到达后才将支出与 `max_budget_usd` / `maxBudge
 > 当查询以错误结果结束时：
 >
 > * 单次 `query()` 调用会产生最终结果消息，然后抛出一个包含失败文本的错误，例如 `Reached maximum number of turns`。抛出是有意的。如果你的代码需要在其后继续，请将循环包装在 try 块中。底层 Claude Code 进程也会以非零代码退出。
-> * 流式输入会话保持活跃，你可以继续发送消息，除了会话崩溃后，它会发出最终的 `error_during_execution` 结果并退出进程。
+> * 流式输入会话保持活跃，您可以继续发送消息，除了会话崩溃后，它会发出最终的 `error_during_execution` 结果并退出进程。
+> * 在 TypeScript 中，当最后一个响应以错误结果结束时，流式输入会话中对 `query()` 的循环会抛出错误。如果您的代码需要在其后继续，请将循环包装在 try 块中。
 
 结果还包括一个 `stop_reason` 字段（TypeScript 中的 `string | null`，Python 中的 `str | None`），指示模型为什么在其最后轮次停止生成。常见值是 `end_turn`（模型正常完成）、`max_tokens`（达到输出令牌限制）和 `refusal`（模型拒绝了请求）。在循环产生的错误结果上，`stop_reason` 携带循环结束前最后一个助手响应的值；会话崩溃后 Claude Code 合成的结果携带 `null`。
 

@@ -20,7 +20,7 @@ Claude Code 按 API token 消耗收费。有关订阅套餐定价（Pro、Max、
 >
 > `/usage` 中的 Session 块显示 API token 使用情况，适用于 API 用户。Claude Pro、Max 和 Ultra 订阅者的使用量包含在订阅中，因此会话成本数据与计费无关。订阅者会在同一屏幕上看到套餐使用条、活动统计以及使用情况明细。
 
-`/usage` 顶部的 Session 块显示当前会话的详细 token 使用统计。
+在 Claude Code 提示符处运行 `/usage`，并在 **Session** 标题下查看当前会话的 token 使用情况。
 
 Claude Code 根据 token 计数按列表价格在本地计算美元数字，除非 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 表生效。管理员会在您组织的托管设置中设置此表，使该数字使用您的合同费率；当表生效时，`Total cost` 行会带有注释 `at your organization's configured rates`。该数字是估计值，有关权威计费信息，请参阅[管理组织的成本](#manage-costs-for-your-organization)。
 

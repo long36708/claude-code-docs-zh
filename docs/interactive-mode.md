@@ -81,7 +81,7 @@
 | :- | :- | :- |
 | 快速转义 | `\` + `Enter` | 在所有终端中工作 |
 | Option 键 | `Option+Enter` | 在 macOS 上启用[Option 作为 Meta](https://code.claude.com/docs/zh-CN/terminal-config.md#enable-option-key-shortcuts-on-macos)后 |
-| Shift+Enter | `Shift+Enter` | 在 iTerm2、WezTerm、Ghostty、Kitty、Warp、Windows Terminal 中原生支持。对于其他终端，请参阅[输入多行提示](https://code.claude.com/docs/zh-CN/terminal-config.md#enter-multiline-prompts) |
+| Shift+Enter | `Shift+Enter` | 在 iTerm2、WezTerm、Ghostty、Kitty、Warp、Windows Terminal 1.25 或更高版本中原生支持。对于其他终端，请参阅[输入多行提示](https://code.claude.com/docs/zh-CN/terminal-config.md#enter-multiline-prompts) |
 | 控制序列 | `Ctrl+J` | 在任何终端中无需配置即可工作 |
 | 粘贴模式 | 直接粘贴 | 对于代码块、日志 |
 

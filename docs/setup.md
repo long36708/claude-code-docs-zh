@@ -236,7 +236,7 @@ Homebrew 安装通过 cask 名称而不是此设置来选择渠道：`claude-cod
 
 您可以在 `/config` 中设置最低版本，让 Claude Code 自动填入您的当前版本；也可以在设置文件中自行输入版本号：
 
-* **在 `/config` 中**：将**自动更新渠道**切换为 stable，然后选择**保留当前版本**。如果您在 `/config` 中切换回 latest，Claude Code 会清除该最低版本。
+* **在 `/config` 中**：将**自动更新渠道**切换为 stable，然后选择保留当前版本的选项。如果您在 `/config` 中切换回 latest，Claude Code 会清除该最低版本。
 * **在您的[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中**：在您的 shell 中运行 `claude --version`，并将 `minimumVersion` 设置为输出开头的版本号。在同一次编辑中，将 `autoUpdatesChannel` 设置为 `"stable"`。
 
 以下 `~/.claude/settings.json` 会将版本为 2.1.323 的安装切换到 stable：
@@ -280,11 +280,11 @@ Homebrew 安装通过 cask 名称而不是此设置来选择渠道：`claude-cod
 claude update
 ```
 
-当更新安装时，该命令报告 `Successfully updated from <old version> to version <new version>`。如果您已经在最新版本上，它报告 `Claude Code is up to date (<version>)`。由 Homebrew、WinGet 或 apk 管理的安装改为报告 `Claude is up to date!`。
+当更新安装时，该命令会输出一行以 `to version <new version>` 结尾的内容。如果您已经在最新版本上，它报告 `Claude Code is up to date (<version>)`。由 Homebrew、WinGet 或 apk 管理的安装改为报告 `Claude is up to date!`。
 
 ## 高级安装选项
 
-这些选项用于版本固定、Linux 包管理器、npm、网络存储和验证二进制完整性。
+这些选项用于安装特定版本、使用 Linux 包管理器、npm、网络存储以及验证二进制完整性。
 
 ### 安装特定版本
 

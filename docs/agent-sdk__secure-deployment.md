@@ -94,7 +94,7 @@ Claude Code 包含多个安全功能来解决常见问题。有关完整详情�
 
 1. **同主机内核**：与 VM 不同，沙箱进程共享主机内核。理论上，内核漏洞可能导致逃逸。对于某些威胁模型，这是可以接受的，但如果您需要内核级隔离，请使用 gVisor 或单独的 VM。
 
-2. **无 TLS 检查**：默认情况下，代理基于客户端提供的主机名将域列入允许列表，不会终止或检查加密流量。在沙箱内运行的代码可能会使用[域前置](https://en.wikipedia.org/wiki/Domain_fronting)或类似技术来访问允许列表外的主机。如果您的威胁模型需要更强的保证，请使用可检查流量的 TLS 终止代理，如[流量转发](#traffic-forwarding)所述。有关更多信息，请参阅[沙箱隔离安全限制](https://code.claude.com/docs/zh-CN/sandboxing.md#security-limitations)。
+2. **无 TLS 检查**：默认情况下，代理根据客户端提供的主机名执行允许列表，不会终止或检查加密流量。在沙箱内运行的代码可能会使用[域前置](https://en.wikipedia.org/wiki/Domain_fronting)或类似技术来访问允许列表外的主机。如果您的威胁模型需要更强的保证，请使用可检查流量的 TLS 终止代理，如[流量转发](#traffic-forwarding)所述。有关更多信息，请参阅[沙箱隔离安全限制](https://code.claude.com/docs/zh-CN/sandboxing.md#security-limitations)。
 
 3. **允许域的凭据**：如果 Agent 对允许的域具有宽松凭据，请确保它无法使用该域来触发其他网络请求或泄露数据。
 

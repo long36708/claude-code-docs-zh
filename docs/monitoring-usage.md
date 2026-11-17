@@ -446,7 +446,7 @@ Claude Code 将这些值作为属性附加到每个指标数据点和事件记�
 > export OTEL_RESOURCE_ATTRIBUTES="org.name=John%27s%20Organization"
 > ```
 >
-> 用引号包装值不会转义空格。例如，`org.name="My Company"` 导致文字值 `"My Company"`（包括引号），而不是 `My Company`。
+> 用引号包装值不会转义空格。
 
 ### 将遥测归因到 Desktop SSH 会话
 

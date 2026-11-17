@@ -79,7 +79,7 @@ hook 有以下要求：
 
 `--environment` 和 `--ref` 分派标志需要在运行脚本的机器上使用 Claude Code v2.1.224 或更高版本，这与运行器本身的下限相同。安装 hook 并在此主机上启动运行器后，测试脚本：
 
-1. 使用 `claude -p "<prompt>" --environment <environment-id> --output-format json` 在测试环境上创建会话。请从 git 检出中运行该命令，以便 CLI 可以从 `origin` 远程自动检测仓库。可选的 `--ref <branch>` 将会话的检出基于命名的 ref 而不是本地 HEAD。该命令退出时不会等待 Claude 的回复。其输出会告知脚本结果：
+1. 使用 `claude -p "<prompt>" --environment <environment-id> --output-format json` 在测试环境上创建会话。请从 git 检出中运行该命令，以便 CLI 可以从 `origin` 远程自动检测仓库。可选的 `--ref <branch>` 将会话的检出基于命名的 ref。该命令退出时不会等待 Claude 的回复。其输出会告知脚本结果：
    * **会话已创建**：一行 JSON，例如 `{"ok":true,"session_id":"session_...","title":"...","url":"...","pool_id":"..."}`
    * **会话创建失败**：输出 `{"ok":false,"error":"..."}` 这一行，并且命令以状态 1 退出
    * **某些较早发生的错误**，例如您的组织无法使用云端会话或缺少提示词：错误输出到 stderr，不输出 JSON 行，并且命令以状态 1 退出
@@ -146,7 +146,7 @@ await_reply() {
 
 # 1. Create the session on the test environment. Run from a git checkout
 # so the CLI can auto-detect the repo. --ref pins the checkout to a named
-# ref regardless of local HEAD.
+# ref.
 TURN1="e2e-probe-$(date +%s)-$$: say exactly 'ok: custom tools are reachable' and nothing else"
 EXPECT1="ok: custom tools are reachable"
 create_json=$(claude -p "$TURN1" --environment "$CLAUDE_TEST_ENVIRONMENT_ID" \
@@ -194,7 +194,7 @@ exit 0
 
 ## 从 CI 进行身份验证
 
-`claude -p ... --environment` 和 `claude -p ... --cloud` 都使用 claude.ai OAuth 令牌进行身份验证；API 密钥（例如 `sk-ant-xxxxx`）对于任何一个调用都不被接受。两种方法使令牌在 CI 中可用。
+`claude -p ... --environment` 和 `claude -p ... --cloud` 都使用 claude.ai OAuth 令牌进行身份验证；API 密钥（例如 `sk-ant-xxxxx`）对于任何一个调用都不被接受。
 
 ### 长期 CI 主机
 
@@ -206,7 +206,7 @@ CLI 在每次调用时自动刷新短期访问令牌，但基础刷新令牌授�
 
 目前没有针对此的长期 CI 令牌。授予云会话控制的范围 `user:sessions:claude_code` 在服务器端限制为 30 天，因此 `claude setup-token`（它铸造一年推理令牌）不涵盖它。[环境秘密](https://code.claude.com/docs/zh-CN/self-hosted-environments-quickstart.md#set-up-an-environment-and-runner)也不被接受，因为它仅授权运行器向环境注册，而不是创建会话。
 
-要在临时运行器上配置存储的登录，请设置 [`CLAUDE_CODE_OAUTH_REFRESH_TOKEN` 和 `CLAUDE_CODE_OAUTH_SCOPES`](https://code.claude.com/docs/zh-CN/env-vars#variables)，以便 `claude auth login` 交换令牌而不需要浏览器；相同的 30 天上限适用于刷新授予。如果您需要不受人类帐户约束的机器身份路径，请联系您的 Anthropic 帐户团队。
+请改为从[长期 CI 主机](#long-lived-ci-host)运行 `claude -p`。如果您需要不受人类帐户约束的机器身份路径，请联系您的 Anthropic 帐户团队。
 
 ## 创建专用测试环境
 

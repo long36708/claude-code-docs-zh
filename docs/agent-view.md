@@ -8,7 +8,7 @@
 
 Agent view 通过 `claude agents` 打开，是所有后台会话的一个屏幕：什么正在运行、什么需要你的输入、什么已完成。调度新会话，一目了然地查看它们的状态而不是滚动浏览记录，只在需要时才介入。每个后台会话都是一个完整的 Claude Code 对话，在没有终端连接的情况下继续运行，所以你可以随时打开它、回复并离开。
 
-![终端中的 Agent view。顶部的一行计算等待输入、正在工作和已完成的会话。四个会话分组在'需要输入'、'正在工作'和'已完成'下。每行显示会话的名称、其最新状态或问题以及时间。底部是用于描述新任务的输入和一行键盘提示。](https://mintcdn.com/claude-code/v_J840yKc6uuKDX_/images/agent-view-light.png?fit=max\&auto=format\&n=v_J840yKc6uuKDX_\&q=85\&s=bd95fda83ea66ca8b2e0e7b68f8cb29e)
+![终端中的 Agent view。顶部的一行计算等待输入、正在工作和已完成的会话。四个会话分组在'需要输入'、'正在工作'和'已完成'下。每行显示会话的名称、其最新状态或问题以及时间。底部是用于描述新任务的输入和一行键盘提示。](https://mintcdn.com/claude-code/H7YQo-xfDxC94ETh/images/agent-view-light.png?fit=max\&auto=format\&n=H7YQo-xfDxC94ETh\&q=85\&s=f27b570ff81c2a316bef487645b1331c)
 
 当你有多个独立任务 Claude 可以在不需要你观看每一步的情况下处理时，使用 agent view。调度一个 bug 修复、一个拉取请求审查和一个不稳定测试调查作为三行，在另一个窗口中继续工作，当一行显示它需要你或有结果时检查回来。
 
@@ -265,7 +265,7 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 如果您在删除提示符中最后的文本或浏览提示历史后立即按 `←`，Claude Code 会要求您确认：第一次按下显示 `Press ← again to open agents`（在已附加的会话中显示 `Press ← again to go back to agents`），第二次按下才会切换。
 
-当 `←` 将前台会话转入后台时，agent view 会在列表上方显示 `Your conversation moved to the background`，并已选中该会话的行。接下来：
+用 `←` 将会话转入后台后：
 
 * 按 `Enter` 重新打开对话。
 * 按 `Esc` 撤销切换并返回对话。如果 `Esc` 显示 `Still starting — try again in a moment`，说明后台会话尚未就绪，请稍后再按一次 `Esc`。

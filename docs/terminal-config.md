@@ -26,10 +26,10 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
 | 终端 | Shift+Enter 换行 |
 | :- | :- |
-| Ghostty、Kitty、iTerm2、WezTerm、Warp、Windows Terminal | 无需设置即可工作 |
+| Ghostty、Kitty、iTerm2、WezTerm、Warp、Windows Terminal 1.25 或更高版本 | 无需设置即可工作 |
 | 支持 kitty 键盘协议的其他终端，例如 foot 和 Alacritty 0.16 或更高版本 | 无需设置即可工作。需要 Claude Code v2.1.269 或更高版本 |
 | VS Code、Cursor、Devin Desktop、Alacritty 0.16 之前版本、Zed | 运行一次 `/terminal-setup` |
-| gnome-terminal、JetBrains IDE（如 PyCharm 和 Android Studio） | 不可用；使用 Ctrl+J 或 `\` 然后 Enter |
+| gnome-terminal、Windows Terminal 1.25 之前版本、JetBrains IDE（如 PyCharm 和 Android Studio） | 不可用；使用 Ctrl+J 或 `\` 然后 Enter |
 
 对于 VS Code、Cursor、Devin Desktop、Alacritty 0.16 之前版本和 Zed，`/terminal-setup` 会将 Shift+Enter 快捷键写入终端的配置文件。在第一次运行时，您会看到确认消息，例如 `Installed VSCode terminal Shift+Enter key binding`。现有绑定保持不变；如果您看到类似 `VSCode terminal Shift+Enter key binding already configured` 的消息，则未进行任何更改。在主机终端中直接运行 `/terminal-setup`，而不是在 tmux 或 screen 内运行，因为它需要写入主机终端的配置。
 
@@ -140,7 +140,7 @@ set -s extended-keys on
 set -as terminal-features 'xterm*:extkeys'
 ```
 
-要将通知从可见窗格发送到外部终端，请保留 `allow-passthrough` 行，并将 [`preferredNotifChannel`](https://code.claude.com/docs/zh-CN/settings-reference#preferrednotifchannel) 设置为 `"iterm2"`、`"kitty"` 或 `"ghostty"`。使用此示例时，位于您未查看的窗口中的窗格不会发送任何通知。`extended-keys` 行让 tmux 区分 Shift+Enter 和普通 Enter，这样换行快捷键就能工作。
+要使用 Shift+Enter，请保留最后两行，然后从 tmux 分离、重新连接，并重启 Claude Code。要将通知从可见窗格发送到外部终端，请保留 `allow-passthrough` 行，并将 [`preferredNotifChannel`](https://code.claude.com/docs/zh-CN/settings-reference#preferrednotifchannel) 设置为 `"iterm2"`、`"kitty"` 或 `"ghostty"`。使用此示例时，位于您未查看的窗口中的窗格不会发送任何通知。
 
 [mod 的 `Image`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#elements) 需要 `allow-passthrough` 和 `focus-events` 行，以及其他[在 tmux 中绘制的要求](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#draw-an-image-inside-tmux)。添加这些行后，还需要从 tmux 分离、重新连接，然后重启 Claude Code。
 
@@ -216,7 +216,7 @@ Claude Code 会监视 `~/.claude/themes/`，并在添加或更改文件时重新
 > | `text` | 默认前景文本 |
 > | `inverseText` | 绘制在彩色背景上的文本，例如状态徽章 |
 > | `inactive` | 次要文本，例如提示、时间戳和禁用项 |
-> | `subtle` | 淡色边框和弱化的次要文本 |
+> | `subtle` | 淡色边框、分隔线和符号 |
 > | `suggestion` | 自动补全建议以及选择器中的选中高亮 |
 > | `permission` | 对话框边框，包括权限提示和选择器 |
 > | `remember` | 记忆和 `CLAUDE.md` 指示器 |

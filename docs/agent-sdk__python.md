@@ -1732,7 +1732,9 @@ class ResultMessage:
 * `result`：在 `subtype="success"` 上为最终助手消息的文本，或在 `error_*` 子类型上为 `None`。当 `subtype="success"` 且 `is_error=True` 时，如果可用，此字段保存 API 错误字符串，但可能为空，因此请检查 `api_error_status` 和前面的 `AssistantMessage` 内容以获取详情。
 * `errors`：循环级别的错误字符串，例如最大轮次消息。仅在 `error_*` 子类型上填充。
 * `terminal_reason`：查询循环结束的原因，例如 `"completed"`、`"max_turns"`、`"api_error"`、`"aborted_streaming"` 或 `"aborted_tools"`。值为 `"aborted_streaming"` 或 `"aborted_tools"` 意味着轮次在完成前被中止。常见原因是 [`interrupt()`](#claudesdkclient) 和权限回调返回 [`PermissionResultDeny`](#permissionresultdeny) 且 `interrupt=True`。在早于该字段的 CLI 版本上为 `None`，在本地命令（如 `/voice` 或 `/usage`）的结果上为 `None`，这些命令绕过查询循环，或在会话严重失败时发出的合成错误结果上为 `None`。镜像 TypeScript SDK 的 [`SDKResultMessage.terminal_reason`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkresultmessage)，其列出了完整的值集。
-* `origin`：触发此轮次的用户消息的来源。在[流式输入模式](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)中，检查此项以区分您自己的提示词结果（其中 `origin` 为 `None` 或 `{"kind": "human"}`）与注入的轮次（如后台任务通知）的结果。需要 Python Agent SDK 0.2.137 或更高版本。
+* `origin`：触发此轮次的用户消息的来源。需要 Python Agent SDK 0.2.137 或更高版本。不要仅凭 `kind` 就屏蔽某个结果。在[流式输入模式](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)中，检查 `origin` 以确定该轮次是否由您自己的提示词启动：
+  * **您自己的提示词**：`origin` 为 `None` 或 `{"kind": "human"}`
+  * **后台任务通知**：`origin["kind"]` 为 `"task-notification"`。该轮次的结果还可能包含 Claude 对您在该轮次运行工具期间发送的消息的回复。
 
 当多个后台任务在相近时间内完成时，Claude Code 可以在一个轮次中回复它们的通知，而不是为每个通知各用一个轮次。您仍会按顺序为每个通知收到一个 `ResultMessage`，每个都带有 `kind` 为 `"task-notification"` 的 `origin`。除最后一个外，其余消息的 `num_turns` 均为 `0` 且 `result` 为空，最后一个则承载回复所有通知的那个轮次。
 

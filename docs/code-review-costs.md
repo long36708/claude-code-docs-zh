@@ -61,9 +61,9 @@ Code Review 通过[使用额度](https://support.claude.com/en/articles/12429409
 
 | 部分 | 显示内容 |
 | :- | :- |
-| PRs reviewed | 所选时间范围内每天审查的 Pull Request 数量 |
+| PRs reviewed by Code Review | 所选时间范围内每天审查的 Pull Request 数量 |
 | Code Review cost | 本月截至目前的 Code Review 支出 |
-| Feedback | 因开发者解决了问题而被自动标记为已解决的审查评论数量 |
+| Code Review feedback | 因开发者解决了问题而被自动标记为已解决的审查评论数量 |
 | Code Review findings | 所选时间范围内 Claude 发布的审查中，每天[按严重级别划分的发现](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#severity-levels)数量 |
 | Repository breakdown | 每个仓库的已审查 PR 数、已解决评论数和审查运行次数，以及估算费用和按 PR 的视图 |
 

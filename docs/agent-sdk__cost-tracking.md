@@ -91,7 +91,7 @@ TypeScript 和 Python SDK 使用不同的字段名称公开相同的使用数据
 | `total_cost_usd` | 已包含。计算子代理请求以及顶级循环 |
 | `modelUsage` / `model_usage` | 已包含。计算子代理请求以及顶级循环，按模型分解 |
 
-在 [单消息输入模式](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md#single-message-input) 中，当后台子代理在最后一轮结束时仍在运行时，Claude Code 会等待它们，直到 [退出时的后台任务](https://code.claude.com/docs/zh-CN/headless.md#background-tasks-at-exit) 中描述的上限，然后再发出结果。结果的 `total_cost_usd`、`duration_api_ms` 和 `modelUsage`，或在 Python 中的 `model_usage`，包括在该等待期间完成的工作。
+在 [单消息输入模式](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md#choose-single-shot-or-streaming-input) 中，Claude Code 会等待在最后一轮结束时仍在运行的后台子代理，然后再发出结果。等待时间最长可达 [退出时的后台任务](https://code.claude.com/docs/zh-CN/headless.md#background-tasks-at-exit) 中描述的上限。结果的 `total_cost_usd`、`duration_api_ms` 和 `modelUsage`，或在 Python 中的 `model_usage`，包括在该等待期间完成的工作。
 
 以下示例遍历来自 `query()` 调用的消息流，并在 `result` 消息到达时打印总成本：
 

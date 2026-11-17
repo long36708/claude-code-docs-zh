@@ -354,7 +354,7 @@ test('the saved count comes back after /clear', async ($, on) => {
 * **`tier`**：在测试文件的顶部调用它一次，如 `tier('prepend')`，以将您的 mod 加载为 `prepend`、`append` 或 `builtin`，其在 [mods 运行的顺序](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in) 中的位置。没有它，您的 mod 加载为 `user`。
 * **`plugins`**：在测试体之前将 `test` 传递一个选项对象。其 `plugins` 数组保存您内联编写的 mods，每个都有一个 `name` 和一个 `register` 函数。要在 `user` 以外的地方加载一个，请将 `tier` 添加到它。
 
-此测试文件首先加载 [admin page 中的 policy mod](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#enforce-a-policy-with-a-mod-of-your-own)。它检查 policy mod 是否拒绝启动进程的 mod 并接受不启动的 mod：
+此测试文件首先加载[管理员页面中的策略 mod](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#enforce-a-policy-with-a-mod-of-your-own)。它检查策略 mod 是否会阻止启动进程的 mod，并允许不启动进程的 mod：
 
 ```typescript acme-guard/tests/guard.test.ts theme={null}
 import { expect, test, tier } from 'claude-code/testing'
@@ -392,7 +392,8 @@ test('refuses a mod that starts a process', { plugins: [runner] }, async ($, on)
   } catch (error) {
     message = error.message
   }
-  expect(message).toBe('runner: refused by acme-guard: Acme policy: mods may not call process.run')
+  // "hooks module left out" on v2.1.326 or later, "refused" on earlier versions
+  expect(message).toMatch(/^runner: (hooks module left out|refused) by acme-guard/)
 })
 
 test('admits a mod that starts no process', { plugins: [reader] }, async ($, on) => {
@@ -405,7 +406,7 @@ test('admits a mod that starts no process', { plugins: [reader] }, async ($, on)
 
 在您的 shell 中，从 `acme-guard` 目录运行 `claude plugin test`。当 policy mod 如 admin page 所示时，两个测试都通过。
 
-工具包在测试对 `$` 的第一次调用时加载每个 mod。当您的 mod 拒绝一个时，该调用会抛出，消息会命名被拒绝的 mod、拒绝它的 mod 和您的原因。在第二个测试中，没有任何东西被拒绝，因此 `reader` 在到达 stub 之前回答工具调用。
+工具包在测试对 `$` 的第一次调用时加载每个 mod。当您的 mod 阻止某个 mod 时，该调用会抛出错误，且消息会指明这两个 mod。在第二个测试中，没有任何 mod 被阻止，因此 `reader` 会在工具调用到达 stub 之前响应该调用。
 
 ## 后续步骤
 

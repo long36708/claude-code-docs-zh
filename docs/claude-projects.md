@@ -258,13 +258,15 @@ Claude 会自动将这些偏好保存到[项目内存](#give-a-project-standing-
 * **在 Claude 桌面应用中**：打开**设置 > Code** 或**设置 > Claude Code**，然后启用**从您的手机和 claude.ai 使用此计算机**。将文件夹添加到该开关下方的列表中。应用打开期间，线程可以在此计算机上运行。
 * **在终端中**：在文件夹中运行 `claude remote-control` 并保持其运行。在 git 仓库中，添加 `--spawn worktree` 可为在那里运行的每个线程提供其自己的 [worktree](https://code.claude.com/docs/zh-CN/worktrees.md)，而不是使用文件夹本身。
 
-**2. 使用本地工作提出任务**
+**2. 提出任务**
 
-在项目对话中，从消息框旁边的 **+** 菜单中选择**本地工作**，这会为您的消息添加**本地**标记，然后写下您想要完成的内容。在消息中说明该任务应在您的计算机上运行也同样有效。
+在项目对话中，从 **+** 菜单中选择**本地工作**（在桌面应用中为**在本地文件夹中工作**），然后写下您想要完成的内容。在消息中说明该任务应在您的计算机上运行也同样有效。
+
+如果**本地工作**呈灰色并附有关于受信任设备的提示，说明您的账户已启用[**需要受信任的设备**](https://code.claude.com/docs/zh-CN/remote-control.md#trusted-devices)，此项目无法在您的计算机上运行线程。要在该文件夹中工作，请直接在该计算机上运行 Claude Code。
 
 **3. 在卡片上允许**
 
-Claude 会回复一张**允许 Claude 在您设备上的文件夹中工作**卡片。如果您连接了多个文件夹，请选择其中一个。两个线程同时在同一文件夹中工作可能会覆盖彼此的更改，因此如果该文件夹是 git 仓库，您可以在文件夹的选项中启用 **Worktree**，为此线程提供其自己的 worktree。然后点击**允许一次**。
+Claude 会回复一张**允许 Claude 在您计算机上的文件夹中工作**卡片。如果您连接了多个文件夹，请选择其中一个。两个线程同时在同一文件夹中工作可能会覆盖彼此的更改。如果该文件夹是 git 仓库，您可以在文件夹的选项中启用 **Worktree**，改为给此线程提供其自己的 worktree。然后点击**允许一次**。
 
 线程在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中运行，因此 Claude 在该文件夹中运行命令和编辑文件而不每次都询问你。如果自动模式在该计算机的 Claude Code 中不可用或已关闭，线程在没有它的情况下运行，它引发的任何权限提示都会在线程中等待你的答案，如[解除等待批准的线程](#unblock-a-thread-waiting-on-approval)所述。
 
@@ -274,8 +276,6 @@ Claude 会回复一张**允许 Claude 在您设备上的文件夹中工作**卡�
 
 * **要让线程重新运行**：请参阅[与您的文件夹失去联系](#lost-contact-with-your-folder)
 * **要防止计算机自动进入睡眠**：在桌面应用中，在**设置 > Code** 或**设置 > Claude Code** 中启用**为 Remote Control 保持此计算机唤醒**
-
-当[**需要受信任的设备**](https://code.claude.com/docs/zh-CN/remote-control.md#trusted-devices)对你的账户打开时，项目无法在你的计算机上运行线程。
 
 ## 给项目提供常规上下文
 

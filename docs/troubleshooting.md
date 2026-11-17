@@ -121,9 +121,9 @@ echo $VTE_VERSION
 
 ### 复制的文本在 SSH 上无法到达您的本地剪贴板
 
-当 Claude Code 通过 SSH 在远程机器上运行时，它无法在您的本地机器上运行剪贴板工具。在 tmux 外，当您在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)中选择文本或运行 `/copy` 时，Claude Code 会将文本作为 OSC 52 转义序列发送到您的终端。您的终端决定是否将其放在您的剪贴板上。`/copy` 报告 `Copied to clipboard`，无论文本是否到达，在 tmux 外，选择通知读取 `sent N chars via OSC 52`。
+当 Claude Code 通过 SSH 在远程机器上运行时，它无法在您的本地机器上运行剪贴板工具。在 tmux 外，当您在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)中选择文本或运行 `/copy` 时，Claude Code 会将文本作为 OSC 52 转义序列发送到您的终端。您的终端决定是否将其放在您的剪贴板上。
 
-某些终端不对 OSC 52 进行操作。iTerm2 忽略它，直到您打开**Settings > General > Selection > Applications in terminal may access clipboard**，macOS Terminal.app 不支持它。
+某些终端不对 OSC 52 进行操作。iTerm2 忽略它，直到您打开**Settings > General > Selection > Applications in terminal may access clipboard**，macOS Terminal.app 不支持它。无论是 `/copy` 消息还是 `sent N chars via OSC 52` 通知，都不能确认文本已到达。
 
 要在没有 OSC 52 的情况下获取文本：
 

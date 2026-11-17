@@ -211,19 +211,17 @@ Focus on:
 
 ### 自动调用
 
-Claude 根据任务和每个子代理的 `description` 自动决定何时调用子代理。例如，如果你定义了一个 `performance-optimizer` 子代理，其描述为"用于查询调优的性能优化专家"，当你的提示中提到优化查询时，Claude 将调用它。
+Claude 根据任务和每个子代理的 `description` 自动决定何时调用子代理。例如，描述为"用于查询调优的性能优化专家"的 `performance-optimizer` 子代理适合处理有关优化查询的提示词。
 
 编写清晰、具体的描述，以便 Claude 能够将任务与正确的子代理匹配。
 
 ### 显式调用
 
-要保证 Claude 使用特定的子代理，请在你的提示中按名称提及它：
+要请求使用特定的子代理，请在提示词中按名称提及它：
 
 ```text theme={null}
 "Use the code-reviewer agent to check the authentication module"
 ```
-
-这会绕过自动匹配，直接调用指定的子代理。
 
 ### 分叉子代理
 

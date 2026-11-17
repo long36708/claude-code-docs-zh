@@ -91,7 +91,7 @@
 >
 > **1. 打开插件浏览器**
 >
-> 单击提示框旁边的 **+** 按钮，然后选择 **Add plugins**。如果 **+** 菜单显示的是 **Plugins** 而不是 **Add plugins**，请选择 **Plugins**，然后选择 **Browse plugins**。插件浏览器打开，显示来自您的市场的插件。
+> 单击输入框旁边的 **+** 按钮，然后选择 **Add plugins**。如果 **+** 菜单显示的是 **Plugins** 而不是 **Add plugins**，请选择 **Plugins**，然后选择 **Browse plugins**。如果没有 **Browse plugins**，请选择 **Manage plugins**。插件浏览器会打开，显示来自您的市场的插件。
 >
 > **2. 选择插件**
 >
@@ -99,7 +99,7 @@
 >
 > **3. 选择作用域**
 >
-> 选择 [作用域](#choose-an-install-scope)：您的用户账户、此项目或仅本地。
+> 选择[作用域](#choose-an-install-scope)：您的用户账户、此项目或仅本地。
 >
 > 要稍后启用、禁用或卸载插件，请参阅 [Install plugins in the desktop app](https://code.claude.com/docs/zh-CN/desktop.md#install-plugins)。
 

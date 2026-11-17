@@ -464,7 +464,7 @@ Fable 模型、Sonnet 5 及更高版本，以及 Opus 4.7 及更高版本在 Ama
 export ANTHROPIC_BEDROCK_SERVICE_TIER=priority
 ```
 
-对于设置了该变量的会话，Claude Code 会在其发出的每个 [Invoke API](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModelWithResponseStream.html) 请求上将此值作为 `X-Amzn-Bedrock-Service-Tier` 标头发送，但[模型访问检查](#startup-model-checks)除外。对于发往 [Mantle 端点](#use-the-mantle-endpoint)或经由 [Claude apps 网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)的请求，此设置不起作用。层级可用性因模型和区域而异。预留容量使用[预配吞吐量](https://docs.aws.amazon.com/bedrock/latest/userguide/prov-throughput.html) ARN 作为模型 ID，而不是此设置。
+对于设置了该变量的会话，Claude Code 会在其发出的每个 [Invoke API](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModelWithResponseStream.html) 请求上将此值作为 `X-Amzn-Bedrock-Service-Tier` 标头发送，但[模型访问检查](#startup-model-checks)除外。对于发往 [Mantle 端点](#use-the-mantle-endpoint)或经由 [Claude apps 网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)的请求，此设置不起作用。层级可用性因模型和区域而异。
 
 若要覆盖您从终端启动的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#settings-and-provider)，请在设置的 [`env`](https://code.claude.com/docs/zh-CN/settings-reference#env) 块中设置 `ANTHROPIC_BEDROCK_SERVICE_TIER`。只有当启动[监督进程](https://code.claude.com/docs/zh-CN/agent-view.md#the-supervisor-process)的 shell 导出了您 export 的值时，这些会话才会获得该值。
 

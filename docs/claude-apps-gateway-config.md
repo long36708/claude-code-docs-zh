@@ -24,7 +24,7 @@ Claude 应用网关部署由一个 YAML 文件配置，按惯例命名为 `gatew
 * [`oidc`](#oidc)：您的身份提供商 (IdP)，包括颁发者、客户端、声明映射以及谁可以登录
 * [`session`](#session)：网关铸造的持有者令牌，包括密钥和生命周期
 * [`store`](#store)：PostgreSQL，用于设备授权和速率限制计数器
-* [`upstreams`](#upstreams)：推理的去向，无论是 Anthropic、Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform 还是 Microsoft Foundry
+* [`upstreams`](#upstreams)：推理的去向，无论是 Anthropic、Amazon Bedrock、Claude Platform on AWS、Claude Models on Google Cloud (Anthropic managed)、Google Cloud 的 Agent Platform 还是 Microsoft Foundry
 
 **可选部分：**
 
@@ -177,7 +177,7 @@ export CLAUDE_GATEWAY_PROXY_IS_EGRESS_BOUNDARY=1
 | - | - | - |
 | `provider: anthropic` 上游、Workload Identity Federation 令牌交换、`telemetry.forward_to` 导出 | 在本地解析和检查，然后通过代理 `CONNECT` 到检查的 IP 地址。`NO_PROXY` 中列出的遥测收集器改为直接到达 | 主机名交给代理 |
 | IdP 发现、JWKS、令牌和 userinfo | 直接，除非[`oidc.use_proxy: true`](#idp-requests-through-a-forward-proxy)，然后 `CONNECT` 到检查的 IP 地址 | 主机名交给代理，除非 `oidc.use_proxy: false` 保持内部 IdP 直接 |
-| Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上游；Google 组查找 | 主机名交给代理 | 不变 |
+| Amazon Bedrock、Claude Platform on AWS、Claude Models on Google Cloud（Anthropic managed）、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上游；Google 组查找 | 将主机名交给代理 | 不变 |
 
 仅代理出口保持关闭，除非网关的环境满足所有这三个条件：
 
@@ -611,6 +611,24 @@ upstreams:
 | `base_url` | 否 | 覆盖派生的端点 |
 
 因为平台解析第一方模型 ID，内置目录路由到它而不带 [`models:`](#models) 块。当您策划 `models:` 列表时，使用第一方 ID 作为 `anthropicAws:` 条目的值。
+
+#### Claude Models on Google Cloud（Anthropic managed）
+
+Claude Models on Google Cloud（Anthropic managed）是由 Anthropic 运营、通过您的 Google Cloud 项目访问的 Claude API。要向其发送模型请求，请添加一个使用 `anthropicGoogleCloud` 提供商的上游。
+
+在添加该上游之前，请将您的网关副本升级到 Claude Code v2.1.307 或更高版本，并[在 Google Cloud 项目中设置该服务](https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/anthropic-managed#set-up-your-account)。在该项目上向网关 Google 凭据所解析到的身份授予 `roles/claude.user`。
+
+```yaml theme={null}
+upstreams:
+  - provider: anthropicGoogleCloud
+    project_id: example-prod
+    workspace_id: wrkspc_01ABCDEFGHIJKLMN
+    auth: {}                           # Google credentials, not an API key; {} uses Application Default Credentials
+    # OR the path to a service account key file:
+    # auth: { service_account_json: /secrets/sa.json }
+```
+
+`project_id` 和 `workspace_id` 都是必需的：`project_id` 是您设置该服务所在项目的 ID，您可以在 Claude Console 中[找到 `wrkspc_` ID](https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/anthropic-managed#find-your-workspace-id)。
 
 #### Google Cloud Agent Platform
 

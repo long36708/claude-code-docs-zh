@@ -868,7 +868,7 @@ Claude 根据您请求中的任务描述、子代理配置中的 `description` �
 当自动委托不够用时，您可以自行请求使用子代理。以下三种模式从一次性建议逐步升级到整个会话的默认设置：
 
 * **自然语言**：在提示词中点名子代理；由 Claude 决定是否委托
-* **@-mention**：保证该子代理为某一个任务运行
+* **@-mention**：告诉 Claude 为某一个任务运行该子代理
 * **会话范围**：通过 `--agent` 标志或 `agent` 设置，让整个会话以该子代理的身份运行
 
 使用自然语言时没有特殊语法。点名子代理，Claude 通常就会委托：
@@ -878,13 +878,13 @@ Use the test-runner subagent to fix failing tests
 Have the code-reviewer subagent look at my recent changes
 ```
 
-**@-mention 子代理。** 输入 `@` 并从自动补全列表中选择子代理，方式与 @-mention 文件相同。这可以确保运行指定的子代理，而不是将选择权交给 Claude：
+**@-mention 子代理。** 输入 `@` 并从自动补全列表中选择子代理，方式与 @-mention 文件相同：
 
 ```text wrap theme={null}
 @"code-reviewer (agent)" look at the auth changes
 ```
 
-您的完整消息仍会发送给 Claude，由 Claude 根据您的要求为子代理编写任务提示词。@-mention 控制的是 Claude 调用哪个子代理，而不是子代理收到什么提示词。
+您的完整消息仍会发送给 Claude，由 Claude 根据您的要求为子代理编写任务提示词。
 
 已启用[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)提供的子代理会以其作用域名称显示在自动补全列表中，例如 `my-plugin:code-reviewer`；当插件[将 Agent 组织到子文件夹中](#choose-the-subagent-scope)时，则显示为 `my-plugin:review:security` 这样的名称。当前在会话中运行的已命名后台子代理也会出现在自动补全列表中，并在名称旁显示其状态。
 

@@ -62,7 +62,7 @@
 
 此处的每种生产拓扑都在纯 HTTP 副本前面放置了一个 L7 代理，例如 Ingress、Cloud Run 的前端或 ALB。将 [`listen.trusted_proxies`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#listen) 设置为代理的源地址范围，以便网关从 `X-Forwarded-For` 读取客户端 IP。仅当 TCP 对端受信任时，网关才会采用该标头。[Google Cloud](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-gcp.md) 和 [AWS](https://code.claude.com/docs/zh-CN/claude-apps-gateway-on-aws.md) 完整示例提供了每种拓扑的具体值。如果没有受信任的代理，每个请求看起来都来自代理的 IP，这会使按 IP 的速率限制合并为一个共享配额，并在审计事件中记录代理的 IP。
 
-不要将请求重定向到网关的设备授权端点和令牌端点，例如在 ingress 处使用 HTTP 到 HTTPS 或主机名规范化的重写。Claude Code 不会跟随这些请求上的重定向，因此对这些请求进行重定向的 ingress 规则会导致登录和令牌刷新失败。
+不要对发往网关设备授权端点和令牌端点的请求进行重定向，例如在 ingress 处使用 HTTP 到 HTTPS 或主机名规范化的重写。Claude Code 不会跟随这些请求上的重定向，因此对这些请求进行重定向的 ingress 规则会导致登录和令牌刷新失败。
 
 为代理设置任意长于网关保活间隔的空闲超时时间，该间隔取决于上游：
 

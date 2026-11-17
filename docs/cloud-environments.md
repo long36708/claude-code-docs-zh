@@ -110,7 +110,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 机密需要逐个添加。要更改机密的主机或值，请将其删除后重新添加。
 
-要向[共享环境](#organization-shared-environments)添加机密，请从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面打开该环境进行编辑，然后在其 **Network secrets** 部分从步骤 2 继续。如果您使用的是 Team 或 Enterprise 计划且不持有[组织管理员角色](#requirements)，请在您自己的环境中执行步骤 1，然后[填写简化表单](#add-a-secret-without-the-role)。
+要向[共享环境](#organization-shared-environments)添加机密，请从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面打开该环境进行编辑，选择其 **Network secrets** 行，然后从步骤 2 继续。如果您使用的是 Team 或 Enterprise 计划且不持有[组织管理员角色](#requirements)，请在您自己的环境中执行步骤 1，然后[填写简化表单](#add-a-secret-without-the-role)。
 
 **1. 打开环境的网络机密**
 
@@ -118,7 +118,7 @@ DATABASE_URL=postgres://localhost:5432/myapp
 
 **2. 添加机密**
 
-选择 **Add secret**（在管理设置中标记为 **Add**）并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Secret type**，即 **Bearer**，并填写以下字段：
+选择 **Add secret** 并填写表单。对于在请求头中传输的 API 密钥，保留默认的 **Secret type**，即 **Bearer**，并填写以下字段：
 
 * **Allowed websites**：API 的主机，例如 `api.example.com`。前导 `*.` 匹配所有子域
 * **Custom headers**：用于携带密钥的请求头占一行。该行默认以 `Authorization` 作为 **Header name**，以 `Bearer` 作为 **Prefix**；将密钥本身粘贴为 **Value**。对于接受裸值的请求头（如 `X-Api-Key`），请更改名称并清除前缀
@@ -200,7 +200,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
 
 每个环境都设置一个网络访问级别，控制其会话可以进行的出站连接。新环境默认为 **Limited** 并勾选 **Allow package managers**，因此其会话可以访问包注册表和其他[允许列表中的域](#default-allowed-domains)。
 
-要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的控件出现在[Default 环境](#the-default-environment)下列出的应用使用入口上，以及[云端定时任务编辑器](https://code.claude.com/docs/zh-CN/routines.md#environments-and-network-access)中。个人环境在您的 claude.ai 账户设置中没有单独的页面。
+要更改环境的网络访问，[打开它进行编辑](#configure-your-environment)并在对话框中使用 **Network access** 选择器。[共享环境](#organization-shared-environments)在那里以只读方式打开，因此 Owner 改为从[管理设置](https://claude.ai/admin-settings)中的 **Cloud environments** 页面更改其网络访问。打开选择器的控件出现在[Default 环境](#the-default-environment)下列出的应用使用入口上，以及[云端定时任务编辑器](https://code.claude.com/docs/zh-CN/routines.md#environments-and-network-access)中。
 
 当您更改 Anthropic 托管环境的网络访问时，其现有会话在约一分钟内遵循新设置，用于通过会话的[网络允许列表](#access-levels)的请求。您无需启动新会话。
 
@@ -296,7 +296,7 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 | 您的用户 `~/.claude/CLAUDE.md` | 否 | 位于您的机器上，不在仓库中。请参阅[添加个人偏好而无需提交到仓库](#add-personal-preferences-without-committing-to-the-repo) |
 | 您的用户 `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` | 否 | 位于您的机器上，不在仓库中。请改为将它们提交到仓库的 `.claude/` 目录。云端会话会自动加载[您在 claude.ai 上启用的 skill](https://code.claude.com/docs/zh-CN/skills.md#skills-in-cowork-and-cloud-sessions) |
 | 仅在您的用户设置中启用的插件 | 否 | 用户作用域的 `enabledPlugins` 位于您机器上的 `~/.claude/settings.json` |
-| 您使用 `claude mcp add` 在默认本地作用域或用户作用域添加的 MCP 服务器 | 否 | 这些写入您机器上的 `~/.claude.json`，而不是仓库。请使用 `claude mcp add --scope project` 添加服务器，它会写入仓库的 [`.mcp.json`](https://code.claude.com/docs/zh-CN/mcp#project-scope)，并提交该文件。具有一个仓库的会话会加载它 |
+| 您使用 `claude mcp add` 在默认本地作用域或用户作用域添加的 MCP 服务器 | 否 | 在这些作用域下，该命令会写入您机器上的 `~/.claude.json`。请从仓库根目录运行 `claude mcp add --scope project` 以写入仓库的 [`.mcp.json`](https://code.claude.com/docs/zh-CN/mcp#project-scope)，并提交该文件。具有一个仓库的会话会加载它 |
 | 您的仓库的 `.claude/settings.json` `env` 块中的传输变量，例如 `NODE_EXTRA_CA_CERTS` 和 [mTLS 客户端证书变量](https://code.claude.com/docs/zh-CN/network-config.md#mtls-authentication) | 否 | 托管环境管理会话的 API 连接，因此 Claude Code 忽略这些键，并在会话的调试日志中记录每个被忽略的键 |
 | Claude 调用的服务的 API 密钥和令牌 | 在 Anthropic 托管的环境中，作为[网络密钥](#add-network-secrets) | 您在环境中添加一次密钥，Agent 代理会将其附加到发往您列出的主机的请求。Agent 代理[无法附加](#requests-that-never-get-the-credential)的密钥保留在环境变量中 |
 | 交互式身份验证，例如 AWS SSO | 否 | 不支持。SSO 需要基于浏览器的登录，无法在云端会话中执行 |

@@ -63,7 +63,7 @@ claude --bare -p "Summarize README.md" --allowedTools "Read"
 bare 模式还会限制会话运行期间发生的事情：
 
 * **MCP 服务器**：只有在命令行中提供的服务器才会连接，例如通过 `--mcp-config`。在交互式会话中，除非您传递 `--ide`，否则 Claude Code 还会跳过自动 IDE 连接。
-* **系统提醒**：Claude 会收到您的提示词和工具结果，但不会收到 Claude Code 原本会随之添加的 [系统提醒](https://code.claude.com/docs/zh-CN/glossary.md#system-reminder)。例如，当 Claude 之前读取过的文件在磁盘上发生更改时，Claude 不会收到通知，也不会获得可用 skill 的列表，包括来自 `--add-dir` 文件夹的 skill。
+* **系统提醒**：Claude 会收到您的提示词和工具结果，但不会收到 Claude Code 原本会随之添加的 [系统提醒](https://code.claude.com/docs/zh-CN/glossary.md#system-reminder)。例如，当 Claude 之前编辑过的文件在磁盘上发生更改时，Claude 不会收到通知，也不会获得可用 skill 的列表，包括来自 `--add-dir` 文件夹的 skill。
 * **后台任务**：Claude 无法运行后台命令或后台子代理，并且 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars) 所关闭的其他功能也同样处于关闭状态。达到 [超时](https://code.claude.com/docs/zh-CN/tools-reference.md#timeout-and-output-limits) 的命令会停止，而不是 [转入后台](https://code.claude.com/docs/zh-CN/tools-reference.md#background-commands)。
 
 在 v2.1.286 之前，这些限制只部分生效：交互式 `--bare` 会话会连接普通会话会连接的 MCP 服务器，每个 `--bare` 会话都会发送系统提醒，并且后台任务仍然可用。

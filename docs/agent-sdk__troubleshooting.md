@@ -4,11 +4,11 @@
 
 # Agent SDK 故障排除
 
-> 修复 Agent SDK 错误：Claude Code CLI 无法启动或退出、工具消息过大，或结果到达时没有结构化输出。
+> 修复 Agent SDK 错误：Claude Code CLI 无法启动或退出、提示词生成器抛出异常、工具消息过大，或缺少结构化输出。
 
-本页面涵盖 CLI 启动、CLI 进程退出、大型工具调用和结果以及结构化输出中的 Agent SDK 错误。本页面上的条目按您看到的错误进行分类。每个条目说明了原因和解决方法。
+本页面涵盖 CLI 启动、CLI 进程退出、大型工具调用和结果、流式输入以及结构化输出中的 Agent SDK 错误。本页面上的条目按您看到的错误进行分类。每个条目说明了原因和解决方法。
 
-与特定功能相关的症状，例如 hook 未触发或 skill 未被使用，在该功能的页面上有故障排除部分。该表列出了涵盖每个症状的部分或页面：
+与特定功能相关的症状，例如 hook 未触发或 skill 未被使用，在该功能的页面上有故障排除部分。在此表中查找您的症状，即可找到涵盖该症状的部分或页面：
 
 | 症状 | 转到 |
 | :- | :- |
@@ -21,6 +21,8 @@
 | 在您的机器上正常工作的 Agent 在已部署的服务或容器中失败 | [故障排除部署失败](https://code.claude.com/docs/zh-CN/agent-sdk/hosting.md#troubleshoot-deployment-failures) |
 | `Not logged in`、`Invalid API key`、`API Error`、`429`、`There's an issue with the selected model` | [错误参考](https://code.claude.com/docs/zh-CN/errors.md#find-your-error) |
 | `CLINotFoundError`、`CLIConnectionError`、`ProcessError`、`Claude Code process exited with code N`、`Claude Code returned an error result`、`CLIJSONDecodeError`、`structured_output` 为 `None` | 本页面上的 [CLI 启动](#cli-startup)、[CLI 进程退出](#cli-process-exit)、[大型工具调用和结果](#large-tool-calls-and-results) 和 [结构化输出](#structured-outputs) |
+| `Operation aborted`、`Claude Code process aborted by user`、`Prompt stream failed; closing stdin`，或 Python `query()` 循环在您的所有消息得到回答之前停止且没有抛出异常 | 本页面上的 [流式输入](#streaming-input) |
+| `Image could not be processed` | 本页面上的 [Image could not be processed](#image-could-not-be-processed) |
 
 ## CLI 启动
 
@@ -163,6 +165,42 @@ options = ClaudeAgentOptions(max_buffer_size=64 * 1024 * 1024)
 
 1. 如果您保持着一个打开的 `ClaudeSDKClient`，请调用 `disconnect()`。发生此错误后，客户端不会再接收任何消息，但 Claude Code 会继续运行，并且仍可能做出更改。
 2. 使用更大的限制和 [`continue_conversation=True`](https://code.claude.com/docs/zh-CN/agent-sdk/sessions#continue-resume-and-fork) 启动新的 `query()` 或 `ClaudeSDKClient`，这会选取工作目录中最近的会话。要选取特定会话，请将 `resume` 设置为初始化 [`SystemMessage`](https://code.claude.com/docs/zh-CN/agent-sdk/python#systemmessage) 中的 `data["session_id"]`。
+
+## 流式输入
+
+### Operation aborted
+
+在 TypeScript 中，遍历 `query()` 的 `for await` 循环会以 `AbortError` 的形式抛出以下消息之一。无论是哪一条，都表示查询已被中止：
+
+```text theme={null}
+Operation aborted
+Claude Code process aborted by user
+```
+
+请检查以下原因：
+
+* **您的代码中止了查询**：如果您的代码对作为 [`abortController`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 选项传入的 `AbortController` 调用了 `abort()`，循环就会抛出这些错误之一。如果您并不打算中止，请检查代码中调用 `abort()` 的位置。
+* **您的异步生成器抛出了错误**：该错误不包含生成器自身的错误消息。要查看该消息，请用 `try`/`catch` 包裹生成器的主体，记录捕获到的错误，然后重新抛出。之后修复您记录下的错误。
+
+### Prompt stream failed; closing stdin
+
+在 Python 中，当您传给 `query()` 函数的异步生成器引发异常时，遍历 `query()` 的 `async for` 循环会正常结束，不会抛出异常。SDK 会以 `ERROR` 级别记录下面这一行。如果您尚未配置日志，Python 会将该行打印到 stderr：
+
+```text theme={null}
+Prompt stream failed; closing stdin: <your exception's message>
+```
+
+要查看异常的回溯信息，请用 `try`/`except` 包裹生成器的主体。连同回溯信息一起记录该异常，然后再次引发它。之后修复您记录下的异常。
+
+### Image could not be processed
+
+当消息中的图像块没有 `source` 对象时，不会有任何错误传递到您的代码。Claude 会收到以下文本说明来代替该图像：
+
+```text theme={null}
+[Image could not be processed: image block has no source object]
+```
+
+Claude 会在没有该图像的情况下作答。请检查每个图像块是否都有 `source` 对象，如[发送带图像的后续消息](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md#send-a-follow-up-with-an-image)中所示。
 
 ## 结构化输出
 

@@ -140,10 +140,11 @@ Claude Code 读取工作目录以确定：
 
 ## 限制轮次和支出
 
-使用 `maxTurns` / `max_turns` 和 `maxBudgetUsd` / `max_budget_usd` 限制轮次和支出。当未设置时，两个上限都关闭。当会话达到上限时，运行以结果消息结束，其子类型命名上限，`error_max_turns` 或 `error_max_budget_usd`。接下来发生的事情因输入模式而异：
+使用 `maxTurns` / `max_turns` 和 `maxBudgetUsd` / `max_budget_usd` 限制轮次和支出。当未设置时，两个上限都关闭。当会话达到上限时，运行以结果消息结束。对于轮次上限，结果的子类型为 `error_max_turns`；对于支出上限，结果的子类型为 `error_max_budget_usd`。单次输入和流式输入对上限结果的处理方式不同：
 
 * **单次 `query()`**：SDK 产生上限结果，然后抛出，因此将循环包装在 try 块中以继续通过错误
-* **流式输入**：会话在上限结果之后保持活动，最大轮次计数对每个排队的消息重新开始。预算总额在消息中累积，一旦支出达到上限，同一对话中的后续消息以相同的预算结果结束。[`/clear`](https://code.claude.com/docs/zh-CN/agent-sdk/cost-tracking) 重新开始预算
+* **流式输入**：会话在上限结果之后保持活动，最大轮次计数对每个排队的消息重新开始。预算总额在消息中累积，一旦支出达到上限，同一对话中的后续消息以相同的预算结果结束。[`/clear`](https://code.claude.com/docs/zh-CN/agent-sdk/cost-tracking) 重新开始预算。
+* **TypeScript 中的流式输入**：当最后一个响应以错误结果（例如 `error_max_turns`）结束时，循环会抛出异常。将循环包装在 try 块中以继续通过该错误。
 
 两个上限对 `0` 的处理方式不同：
 

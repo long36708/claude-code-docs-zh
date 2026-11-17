@@ -152,7 +152,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 侧边栏的会话列表中也可以显示 **Scheduled** 分组，每个任务对应一行。要打开某个任务最近一次运行的会话，请在该分组中点击该任务所在的行。要显示该分组，请先[确认您使用的是哪种布局](https://code.claude.com/docs/zh-CN/desktop.md#check-which-layout-you-have)：
 
-* **当前布局**：打开[**Group and sort** 菜单](https://code.claude.com/docs/zh-CN/desktop.md#organize-and-find-sessions)，选择 **Show**，然后选择 **Scheduled**。该分组默认处于折叠状态，因此请点击其标题将其展开。当您至少有一个任务处于 **Active** 状态（即任务详情页面所显示的 **Status**）时，**Show** 中才会列出 **Scheduled**。如果未列出，请使用 **History** 列表，无论该分组是否显示，它都可以使用。
+* **当前布局**：打开[**Group and sort** 菜单](https://code.claude.com/docs/zh-CN/desktop.md#organize-and-find-sessions)，选择 **Show**，然后选择 **Scheduled**。该分组默认处于折叠状态，因此请点击其标题将其展开。
 * **早期布局**：该分组直接显示在会话列表中，无需启用任何选项
 
 无论通过哪种方式进入某次运行的会话，您都可以查看 Claude 做了什么、审查更改并响应权限提示。Claude 可以编辑文件、运行命令、创建提交和打开 Pull Request，与您自己启动的会话相同。

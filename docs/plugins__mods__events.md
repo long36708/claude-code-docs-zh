@@ -470,7 +470,7 @@ on('tool.call', { tool: 'Bash' }, guard).catch(async ($, e, next) => {
 在 `tool.check` 和 `plugin.register` 中，在 `next` 解析后返回的拒绝仍然有效，因此无需检查 `next.called`，直接返回即可：
 
 * **`tool.check`**：返回 `{ decision: 'deny', reason: 'the reason' }`
-* **`plugin.register`**：返回 `{ refuse: 'the reason' }`，如[在检查失败时拒绝 mod](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#refuse-mods-when-your-check-fails) 所示
+* **`plugin.register`**：返回 `{ refuse: 'the reason' }`。在 v2.1.326 或更高版本中，另一个 mod 的整个插件随后会被排除在外。要仅阻止该 mod，请参阅[在检查失败时拒绝 mod](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#refuse-mods-when-your-check-fails)。
 
 在 `tool.call` 中，在 `next` 解析后返回的 `deny` 会[向 Claude 隐瞒该结果](#guard-or-change-a-tool-call)。
 

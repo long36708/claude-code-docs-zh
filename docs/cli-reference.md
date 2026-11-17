@@ -117,7 +117,7 @@
 | `--plugin-url` | 从 URL 获取插件 `.zip` 存档，仅用于此会话。重复标志以获取多个插件，或在单个带引号的值中传递空格分隔的 URL | `claude --plugin-url https://example.com/plugin.zip` |
 | `--print`, `-p` | 打印回复而不进入交互模式（有关编程使用详情，请参阅 [Agent SDK 文档](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md)）。关于对仍在运行的后台会话使用 `--resume`，请参阅[恢复正在运行的后台会话](https://code.claude.com/docs/zh-CN/sessions.md#resume-a-running-background-session) | `claude -p "query"` |
 | `--prompt-suggestions` | 在每个生成了提示词建议的轮次之后发出 `prompt_suggestion` 消息，其中包含预测的下一个用户提示词；非常短的对话可能不会产生任何建议。需要 `--print`、`--output-format stream-json` 和 `--verbose`。请参阅[提示词建议](https://code.claude.com/docs/zh-CN/interactive-mode.md#prompt-suggestions) | `claude -p --prompt-suggestions --output-format stream-json --verbose "query"` |
-| `--ref <branch>` | 与 `--environment` 一起使用时，让新会话的检出基于命名的 ref 而不是本地 `HEAD` | `claude -p "Run the smoke test" --environment ccpool_abc123 --ref main` |
+| `--ref <branch>` | 与 `--environment` 一起使用时，让新会话的检出基于命名的 ref。需要 Claude Code v2.1.224 或更高版本 | `claude -p "Run the smoke test" --environment ccpool_abc123 --ref main` |
 | `--remote` | `--cloud` 的已弃用别名，包括现有会话形式 | `claude --remote "Fix the login bug"` |
 | `--remote-control`, `--rc` | 启动启用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#start-a-remote-control-session) 的交互式会话，以便您也可以从 claude.ai 或 Claude 应用控制它。可选地为会话传递名称 | `claude --remote-control "My Project"` |
 | `--remote-control-session-name-prefix <prefix>` | 当未设置显式名称时，[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 自动生成会话名称的前缀。默认为您的机器主机名，生成类似 `myhost-graceful-unicorn` 的名称。设置 `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` 可获得相同效果 | `claude remote-control --remote-control-session-name-prefix dev-box` |

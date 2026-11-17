@@ -16,24 +16,25 @@ iOS Simulator 窗格在 Claude Code Desktop 中的对话旁边显示你的应用
 
 ## 要求
 
-模拟器窗格使用 Apple 的模拟器工具，桌面应用不包含这些工具。在开始会话之前，请确保你有：
+模拟器窗格使用 Apple 的模拟器工具，桌面应用不包含这些工具。在开始会话之前，请确保您有：
 
 * Claude Desktop v1.24012.0 或更高版本
 * 一台 Mac，因为 Apple 的 iOS Simulator 仅在 macOS 上运行
 * [Xcode](https://developer.apple.com/xcode/)，其中安装了 iOS 平台，它提供模拟器设备。如果 Xcode 还没有列出任何模拟器，请参阅[模拟器窗格显示未找到模拟器](#the-simulator-pane-says-no-simulators-were-found)
-  * 推荐使用 Xcode 26.x 或 Xcode 27，该窗格可与两者一起使用。如果你安装了多个 Xcode，请参阅[选择模拟器窗格使用的 Xcode](#choose-which-xcode-the-simulator-pane-uses)
+  * 推荐使用 Xcode 26.x 或 Xcode 27，该窗格可与两者一起使用。如果您安装了多个 Xcode，请参阅[选择模拟器窗格使用的 Xcode](#choose-which-xcode-the-simulator-pane-uses)
+  * 要在 iPhone Duo 上进行测试，您需要 Xcode 27.1 或更高版本。有关其他所需条件，请参阅[在 iPhone Duo 上测试您的应用](#test-your-app-on-an-iphone-duo)。
 
 > [!NOTE]
 >
-> 在本页上，"设备"指的是模拟的 iPhone 或 iPad，是你在 Xcode 中的**Window → Devices and Simulators** 下管理的相同模拟器设备之一，而不是物理硬件。
+> 在本页上，"设备"指的是模拟的 iPhone 或 iPad，是您在 Xcode 中的**Window → Devices and Simulators** 下管理的相同模拟器设备之一，而不是物理硬件。
 
-模拟器窗格仅在本地会话中可用。在[云](https://code.claude.com/docs/zh-CN/desktop.md#run-long-running-tasks-in-the-cloud)和 [SSH](https://code.claude.com/docs/zh-CN/desktop.md#ssh-sessions) 会话中，Claude 在无法访问 Mac 上模拟器的机器上运行。
+模拟器窗格仅在本地会话中可用。在[云](https://code.claude.com/docs/zh-CN/desktop.md#run-long-running-tasks-in-the-cloud)和 [SSH](https://code.claude.com/docs/zh-CN/desktop.md#ssh-sessions) 会话中，Claude 在无法访问您 Mac 上模拟器的机器上运行。
 
 ### 选择模拟器窗格使用的 Xcode
 
-如果你安装了多个 Xcode，例如 Xcode 26.x 与 Xcode 27 并行安装，该窗格使用 `xcode-select` 指向的任何一个。要使用不同的安装，请按其路径选择它。
+如果您安装了多个 Xcode，例如 Xcode 26.x 与 Xcode 27 并行安装，该窗格使用 `xcode-select` 指向的那一个。要使用不同的安装，请按其路径选择它。
 
-例如，如果你想要的 Xcode 安装为 `/Applications/Xcode-26.4.app`，请在终端中运行以下命令：
+例如，如果您想要的 Xcode 安装为 `/Applications/Xcode-26.4.app`，请在终端中运行以下命令：
 
 ```bash theme={null}
 sudo xcode-select -s /Applications/Xcode-26.4.app
@@ -133,6 +134,30 @@ Claude 第一次使用模拟器时，桌面应用会要求你允许它。同意�
 * `requireCoworkFullVmSandbox` 策略密钥，它在隔离的虚拟机内而不是在你的 Mac 上运行 Claude 的工具，禁用模拟器窗格和 Claude 的模拟器工具，因此当它被设置时窗格无法连接设备。
 
 Claude 会告诉你何时应用任一情况。
+
+## 在 iPhone Duo 上测试您的应用
+
+您可以在模拟器窗格中使用 iPhone Duo 模拟器测试应用，并将设备折叠为其各个姿态：合上、半开和展开。要在该设备上测试，您需要：
+
+* Claude Desktop v4.29.0 或更高版本，该版本比模拟器窗格本身所需的 v1.24012.0 更新。要进行更新，请打开 **Claude > Check for Updates…**，然后重启应用。
+* Xcode 27.1 或更高版本及其 iOS 模拟器运行时，其中包含 iPhone Duo 模拟器。对于 Xcode 27.1，该运行时为 iOS 27.1。如果缺少该运行时，请[从 Xcode 的 Components 设置中下载](https://developer.apple.com/documentation/xcode/downloading-and-installing-additional-xcode-components)。如果您安装了多个 Xcode，请[选择 Xcode 27.1 或更高版本](#choose-which-xcode-the-simulator-pane-uses)。
+
+要在窗格中打开 iPhone Duo，请在请求中指明该设备，或[自行将窗格切换到该设备](#control-the-simulator-yourself)。如果设备菜单中尚未列出 iPhone Duo，请选择设备列表末尾的 **Add simulator…**，然后选择 iPhone Duo 设备类型。
+
+例如，要让 Claude 在每种姿态下检查应用的某个屏幕：
+
+```text theme={null}
+Run the app on the iPhone Duo simulator and check the settings screen closed, half open, and open.
+```
+
+### 折叠 iPhone Duo
+
+* **自行折叠**：点击旋转按钮旁边的三个姿态按钮之一。将指针悬停在按钮上可查看其名称：**Closed**、**Half open** 或 **Open**。如需介于这些姿态之间的角度，请将指针移到姿态按钮上，然后拖动其上方出现的滑块。
+* **让 Claude 折叠**：请求三种姿态之一，或请求 1 到 179 度之间的半开铰链角度。
+
+### 导出 Xcode Agent skill 的提示
+
+在 iPhone Duo 上进行布局检查之前，Claude 可能会询问是否将 Xcode 的 Agent skill 导出到您的[个人 skill 文件夹](https://code.claude.com/docs/zh-CN/skills.md#where-skills-live)。这些 skill 随 Xcode 提供，用于指导编码 Agent；一旦它们位于该文件夹中，Claude Code 也会在您的其他项目中加载它们。其中包括一个用于让应用布局适配 iPhone Duo 的 skill。
 
 ## 限制
 

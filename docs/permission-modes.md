@@ -583,22 +583,22 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >
 > 每个操作都会经过固定的决策顺序。第一个匹配的步骤生效：
 >
-> 1. 与您的 [allow、ask 或 deny 规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)匹配的操作会立即得到处理，但以下情况除外：
->    * 对[受保护路径](#protected-paths)的写入即使匹配了 allow 规则，也会交由分类器处理。当受保护路径是某个符号链接形式的设置文件所指向的文件时，该写入可能会改为提示您，如[受保护路径](#protected-paths)列表所述
->    * 任何 allow 规则都不会批准已识别的针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除操作
->    * 标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使匹配了 allow 规则，也会直接提示您；在[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具上也是如此（在该设置传达到 Claude Code 的会话中）
->    * 携带[按命令允许的域名](https://code.claude.com/docs/zh-CN/sandboxing.md#per-command-allowed-domains-in-auto-mode)的 shell 命令即使匹配了 allow 规则，也会交由分类器处理，因为规则批准的是命令，而不是其主机
->    * 基于命令内容进行匹配的 ask 规则（例如 `Bash(git push *)`）会回退为权限提示
->    * 当 Claude 请求的路径本身不受保护，但[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)将写入解析到受保护路径时，会提示您
->    * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)读取即使匹配了 allow 规则，也会提示您
-> 2. 工作目录中的只读操作和文件编辑会被自动批准，但对[受保护路径](#protected-paths)的写入以及[首次读取工作目录之外的内容](#first-read-outside-the-working-directories)除外，后者会提示您
->    * 在启用了[服务器端分类器审查](#server-side-classifier-review)的会话中，只读和[沙箱化](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes)的 shell 命令会等待该审查，如果审查标记了它们，则会被阻止
->    * 当[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)将工作目录内的写入解析到工作目录之外的位置时，会提示您
->    * 当 Claude 读取[他人制作的 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 时，适用该部分列出的批准情况
->    * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)读取会提示您
-> 3. 其他所有操作都会交给分类器处理，按默认方式处理的[关键路径删除](#critical-paths)除外。在第 1 步中直接提示您的连接器工具和 `requiresUserInteraction` MCP 工具也永远不会到达分类器，因此组织要求的批准和同意步骤都不会被自动批准
->    * 启用 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 时，Claude 的代码会在运行前交给分类器审查一次，而其中的工具调用不会。您仍可以使用 `deny` 规则阻止某个调用，或使用 `ask` 规则要求弹出提示，但 Claude 可以以[规则无法匹配的形式](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)运行 Bash 命令
-> 4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，原因会指明分类器匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[查看拒绝记录](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)
+> 1. 与您的[允许、询问或拒绝规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)匹配的操作会立即得到处理，但以下情况除外：
+>    * 对[受保护路径](#protected-paths)的写入即使匹配了允许规则，也会交由分类器处理。当受保护路径是某个符号链接设置文件所指向的文件时，该写入可能改为向您发出提示，如[受保护路径](#protected-paths)列表中所述
+>    * 任何允许规则都不会批准已识别的 `rm` 和 `rmdir` [关键路径删除操作](#critical-paths)
+>    * 标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使匹配了允许规则，也会直接向您发出提示；在该设置作用于 Claude Code 的会话中，[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具同样如此
+>    * 带有[按命令允许的域名](https://code.claude.com/docs/zh-CN/sandboxing.md#per-command-allowed-domains-in-auto-mode)的 shell 命令即使匹配了允许规则，也会交由分类器处理，因为规则批准的是命令本身，而不是其访问的主机
+>    * 基于命令内容进行匹配的询问规则（例如 `Bash(git push *)`）会回退为权限提示
+>    * 如果 Claude 请求的路径本身不受保护，但经[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)解析后指向受保护路径，则该写入会向您发出提示
+>    * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)进行的读取即使匹配了允许规则，也会向您发出提示
+> 2. 只读操作以及在工作目录中的文件编辑会被自动批准，但对[受保护路径](#protected-paths)的写入以及[首次读取工作目录之外的内容](#first-read-outside-the-working-directories)除外，后者会向您发出提示
+>    * 在启用了[服务器端分类器审查](#server-side-classifier-review)的会话中，只读 shell 命令和[沙箱化](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes) shell 命令会等待该审查，如果被审查标记则会被阻止
+>    * 工作目录内的写入如果经[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)解析后指向工作目录之外的位置，会向您发出提示
+>    * 当 Claude 读取[他人创建的 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 时，适用该部分中列出的批准情形
+>    * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)进行的读取会向您发出提示
+> 3. 除了采用默认处理方式的[关键路径删除操作](#critical-paths)之外，其他所有操作都会交由分类器处理。在第 1 步中直接向您发出提示的连接器工具和 `requiresUserInteraction` MCP 工具也永远不会到达分类器，因此组织要求的批准和同意步骤都不会被自动批准
+>    * 启用 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 后，Claude 编写的代码会在运行前交由分类器审查一次，而其中的工具调用则不会。您仍然可以使用 `deny` 规则阻止某个调用，或使用 `ask` 规则要求发出提示，但 Claude 可以以[规则无法匹配的形式](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)运行 Bash 命令
+> 4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，该原因会指明分类器所匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[查看拒绝记录](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)
 >
 > 您安装的处理 `tool.check` 的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 也可以批准操作。有关其批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
 >

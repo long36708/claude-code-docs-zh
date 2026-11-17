@@ -218,7 +218,7 @@ for await (const message of query({
 
 > [!NOTE]
 >
-> 此示例使用流式传输来实时显示进度。如果你不需要实时输出（例如，对于后台作业或 CI 管道），你可以一次性收集所有消息。有关详细信息，请参阅[流式传输与单轮模式](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md)。
+> 此示例会在循环接收到 Claude 的文本和工具调用时将其打印出来。如果您不需要实时输出，可以在循环中收集消息，并在循环结束后读取它们。要在单次 `query()` 和流式输入之间进行选择，请参阅[选择单次输入或流式输入](https://code.claude.com/docs/zh-CN/agent-sdk/streaming-vs-single-mode.md#choose-single-shot-or-streaming-input)。
 
 ### 运行你的代理
 

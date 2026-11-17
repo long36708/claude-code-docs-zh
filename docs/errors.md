@@ -407,6 +407,7 @@
 | `Reading a local file from outside this session's connected folders, or through a link, needs the approval card` | [工具错误](#reading-a-local-file-from-outside-the-connected-folders) |
 | `cannot read file_path (...) — the file could not be examined, and no one can answer the approval card` | [工具错误](#reading-a-local-file-from-outside-the-connected-folders) |
 | `WebFetch cannot fetch localhost or other hostnames without a dot` | [工具错误](#webfetch-cannot-fetch-localhost) |
+| `Claude Code is unable to fetch from ...` | [工具错误](#claude-code-is-unable-to-fetch-from-a-host) |
 | `The safety check for domain ... is rate-limited` | [工具错误](#webfetch-domain-safety-check-failed) |
 | `The safety check for domain ... is temporarily rate-limited` | [工具错误](#webfetch-domain-safety-check-failed) |
 | `Unable to verify if domain ... is safe to fetch` | [工具错误](#webfetch-domain-safety-check-failed) |
@@ -483,6 +484,7 @@
 | `Unable to read managed policy settings` | [配置警告](#unable-to-read-managed-policy-settings) |
 | `Managed settings contain invalid entries, including PreToolUse/PermissionRequest hooks that are NOT loaded; fix or remove each entry:` | [配置警告](#managed-settings-hooks-not-loaded) |
 | `otelHeadersHelper failed; telemetry is not being exported. See /status: ...` | [配置警告](#otelheadershelper-failed) |
+| `apply_flag_settings: nothing in this request was applied and earlier settings stay in force. Fix or remove these invalid settings and send it again` | [`applyFlagSettings()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#applyflagsettings) |
 | `"crossSessionInbound" must be one of "accept", "hold", "refuse"` | [配置警告](#crosssessioninbound-must-be-one-of-accept-hold-refuse) |
 | `API Error: ANTHROPIC_FOUNDRY_RESOURCE must be a Foundry resource name` | [配置警告](#anthropic-foundry-resource-must-be-a-foundry-resource-name) |
 | `headersHelper not run — this workspace has no persisted trust` | [配置警告](#headershelper-not-run) |
@@ -5433,6 +5435,18 @@ WebFetch cannot fetch localhost or other hostnames without a dot. To reach a loc
 * 通常无需任何操作：该消息会引导 Claude 通过 Bash 工具使用 `curl`，它可以访问本地和内网服务器
 
 在 v2.1.268 之前，WebFetch 会以通用的 `Invalid URL` 错误报告这些 URL。
+
+### Claude Code is unable to fetch from a host
+
+在请求页面之前，WebFetch 会将 URL 的主机名发送到 `api.anthropic.com`，以对照 Anthropic 的域名安全阻止列表进行检查。此消息表示检查的答复是该主机名无法获取：
+
+```text wrap theme={null}
+Claude Code is unable to fetch from example.com
+```
+
+Claude Code 没有联系该主机，因为检查在请求之前运行。
+
+有关该检查发送的内容，请参阅 [WebFetch 域名安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)。
 
 ### WebFetch domain safety check failed
 

@@ -42,7 +42,7 @@
 
 ### 避免在 URL 托管的 marketplace 中使用相对路径条目
 
-当用户将你的 marketplace 添加为裸 `marketplace.json` URL 时，Claude Code 仅下载该文件。你的 `plugins` 数组中的条目，其 `source` 是相对路径（如 `./plugins/formatter`），则在安装时会失败，出现 [`其 marketplace 条目路径不会停留在 marketplace 目录内`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces)。给每个条目一个可以独立获取的源，如 `github` 仓库或 `archive` URL，或在 git 仓库中托管 marketplace，以便 Claude Code 克隆整个树。
+当用户将你的 marketplace 添加为裸 `marketplace.json` URL 时，Claude Code 仅下载该文件。你的 `plugins` 数组中的条目，其 `source` 是相对路径（如 `./plugins/formatter`），则在安装时会失败，出现 [`its marketplace entry path does not stay inside the marketplace directory`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugins-with-relative-paths-fail-in-url-based-marketplaces)。给每个条目一个可以独立获取的源，如 `github` 仓库或 `archive` URL，或在 git 仓库中托管 marketplace，以便 Claude Code 克隆整个树。
 
 ### 保持托管文件的下载限制内
 

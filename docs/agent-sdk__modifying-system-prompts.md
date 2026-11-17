@@ -384,7 +384,7 @@ SDK 从数组中组装块如下：
 
 ## Claude Code 在系统提示之外添加的上下文
 
-系统提醒是 Claude Code 在会话期间添加到对话中的消息，用于为 Claude 提供上下文，例如 CLAUDE.md 文件的内容或文件在磁盘上已更改的说明。Claude Code 在对话中发送这些消息，而不是在系统提示词中发送，因此无论您使用 `claude_code` 预设还是传递自己的字符串作为 `systemPrompt`，大多数提醒都会送达 Claude。
+系统提醒是 Claude Code 在会话期间添加到对话中的消息，用于为 Claude 提供上下文，例如 CLAUDE.md 文件的内容。Claude Code 在对话中发送这些消息，而不是在系统提示词中发送，因此无论您使用 `claude_code` 预设还是传递自己的字符串作为 `systemPrompt`，大多数提醒都会送达 Claude。
 
 本部分涵盖[最可能改变您的代理行为的提醒](#reminders-claude-code-adds-to-the-conversation)、如何[关闭您的代理替换的上下文](#turn-off-the-context-your-agent-replaces)，以及如何[查看 Claude 在特定请求中收到的内容](#see-what-claude-received)。
 
@@ -399,7 +399,7 @@ SDK 从数组中组装块如下：
 * **可用技能**：Claude 可以调用的 [skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md) 的名称和描述
 * **可用子代理**：Claude 可以启动的 [subagents](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md) 的名称和描述
 * **任务列表提示**：在[具有任务跟踪工具的会话](https://code.claude.com/docs/zh-CN/agent-sdk/todo-tracking.md#model-availability)中，当 Claude 在多个轮次中未触及任务列表时，提示更新任务列表
-* **文件更改说明**：Claude 之前读取的文件在磁盘上已更改的说明
+* **文件更改说明**：Claude 之前编辑过的文件随后在磁盘上已更改的说明
 
 Claude Code 使用一行文本介绍您的 CLAUDE.md 文件，告诉 Claude 这些说明会覆盖默认行为。
 

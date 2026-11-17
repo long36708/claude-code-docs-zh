@@ -126,7 +126,7 @@ quiet, say so in one line.
 
 ### 停止循环
 
-* **[自定节奏的循环](#let-claude-choose-the-interval)**：在循环等待下一次迭代时，按 `Esc` 即可停止它。在 Claude 空闲时，您也可以按 `Ctrl+C` 停止它，但在[您已附加到的后台会话](#detach-without-stopping-a-loop)中除外。`Pending wakeup cancelled` 通知会确认该循环不会再次触发。
+* **[自定节奏的循环](#let-claude-choose-the-interval)**：在循环等待下一次迭代时，在空输入框中按 `Esc` 即可停止它。在 Claude 空闲时，您也可以按 `Ctrl+C` 停止它，但在[您已附加到的后台会话](#detach-without-stopping-a-loop)中除外。`Pending wakeup cancelled` 通知会确认该循环不会再次触发。
 * **[固定间隔的循环](#run-on-a-fixed-interval)**：要停止 `/loop 5m` 之类的循环，请让 Claude 取消它，例如 `cancel the deploy check loop`。`Esc` 和 `Ctrl+C` 无法停止它，也无法停止任何您[通过直接询问 Claude 安排的任务](#manage-scheduled-tasks)。未取消的循环会在[七天后](#seven-day-expiry)结束。
 
 在[自定节奏模式](#let-claude-choose-the-interval)下，Claude 也可以在任务完成后自行结束循环。Claude 会使用 `stop: true` 调用 [`ScheduleWakeup` 工具](https://code.claude.com/docs/zh-CN/tools-reference)，从而立即取消待处理的唤醒。如果某次迭代结束时既没有重新安排也没有停止，Claude Code 会在大约 20 分钟后安排一次备用唤醒，如果该次迭代也没有重新安排，则结束循环。

@@ -331,13 +331,13 @@ Claude Code 在每个请求之前发送给您的对话的指令，涵盖 Claude 
 
 ### System reminder
 
-Claude Code 作为 [harness](#agentic-harness) 添加到对话中的消息，为 Claude 提供上下文。您不会自己发送系统提醒。Claude Code 在会话运行时插入它们，例如当会话启动时、当 hook 返回文本时或当文件在磁盘上更改时。Claude 与您的消息一起读取它们。以下所有内容都作为系统提醒到达 Claude：
+Claude Code 作为 [harness](#agentic-harness) 添加到对话中的消息，为 Claude 提供上下文。您不会自己发送系统提醒。Claude Code 在会话运行时插入它们，例如当会话启动时或当 hook 返回文本时。Claude 与您的消息一起读取它们。以下所有内容都作为系统提醒到达 Claude：
 
 * 您的 [CLAUDE.md](#claude-md) 文件
 * 您的 [output style](#output-style) 的指令
 * [hook](#hook) 作为 `additionalContext` 返回的文本
 * 可用 [skills](#skill) 的列表
-* Claude 之前读取的文件已在磁盘上更改的注记
+* Claude 之前编辑过的文件此后已在磁盘上更改的注记
 * 提交和拉取请求的归属行
 
 在记录的 API 请求中，系统提醒出现在用户消息内的 `<system-reminder>` 标签中，或在某些模型上作为具有 `system` 角色的单独消息。

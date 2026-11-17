@@ -431,7 +431,7 @@ Claude Code 同样根据下发的值来决定 [`API_FORCE_IDLE_TIMEOUT`](https:/
 | 用户删除缓存的设置文件 | 发生[首次启动行为](#fetch-and-caching-behavior) |
 | 用户运行修改的 Claude Code 二进制文件 | 能够运行修改的客户端的用户可以绕过任何客户端控制 |
 | 用户运行较旧的 Claude Code 版本 | 早于服务器管理设置的版本不会获取或应用它们 |
-| API 不可用 | 如果缓存的设置可用且未[过期](#fetch-and-caching-behavior)，则应用缓存的设置。没有缓存的情况下，Claude Code 在下次成功获取前不强制执行任何服务器管理的设置。[获取和缓存行为](#fetch-and-caching-behavior)列出了例外情况，包括 Anthropic 要求这些设置的情况。使用 `forceRemoteSettingsRefresh: true` 时，CLI 退出而不是继续，但[`claude auth` 子命令](#enforce-fail-closed-startup)除外。通过[Claude 应用网关](#platform-availability)登录的客户端即使没有该设置也会在启动时退出，同样豁免 `claude auth` |
+| API 不可用 | 如果缓存的设置可用且未[过期](#fetch-and-caching-behavior)，则应用缓存的设置。没有这样的缓存设置时，Claude Code 在下次成功获取前不强制执行任何服务器管理的设置。[获取和缓存行为](#fetch-and-caching-behavior)列出了例外情况，包括 Anthropic 要求这些设置的情况。使用 `forceRemoteSettingsRefresh: true` 时，CLI 退出而不是继续，但[`claude auth` 子命令](#enforce-fail-closed-startup)除外。通过[Claude 应用网关](#platform-availability)登录的客户端即使没有该设置也会在启动时退出，同样豁免 `claude auth` |
 | 用户使用不同的组织进行身份验证 | 不为托管组织外的账户传递设置，包括使用 [Console API 密钥](#platform-availability)进行身份验证的会话 |
 | 用户配置[第三方模型提供商](#platform-availability) | 服务器管理的设置被绕过。这包括设置 `CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_MANTLE`、`CLAUDE_CODE_USE_VERTEX`、`CLAUDE_CODE_USE_FOUNDRY`、`CLAUDE_CODE_USE_ANTHROPIC_AWS` 或非默认的 `ANTHROPIC_BASE_URL` |
 | 网络流量被拦截或重定向 | 禁用的 TLS 验证或拦截的流量可以改变客户端接收的设置 |

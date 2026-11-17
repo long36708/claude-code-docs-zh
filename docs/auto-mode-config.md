@@ -224,7 +224,7 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 
 > [!NOTE]
 >
-> 在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 会话中，分类器在审查 Claude 的代码时应用 `hard_deny` 和 `soft_deny`，而不是应用于代码发出的每个工具调用。`permissions.deny` 规则适用于每个调用。
+> 在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 会话中，分类器会在代码运行之前，将 `hard_deny` 和 `soft_deny` 应用于每段代码整体。要阻止代码发出的特定工具调用，请使用 `permissions.deny` 规则。
 
 在分类器内，优先级分为四个层级：
 

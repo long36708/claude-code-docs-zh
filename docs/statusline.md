@@ -15,7 +15,7 @@
 * 你在多个会话中工作，需要区分它们
 * 你希望 git 分支和状态始终可见
 
-状态行在其自己的行中呈现，位于内置页脚徽章上方，不会替换它们。配置自定义状态行后，Claude Code 会停止显示页脚中的大多数键盘提示，包括 `esc to interrupt`、`? for shortcuts` 回退和 `hold space to speak` [语音听写](https://code.claude.com/docs/zh-CN/voice-dictation.md)提示。要在对话中出现 ID 时向页脚添加可点击的链接徽章，而无需编写脚本，请改为配置 [`footerLinksRegexes`](https://code.claude.com/docs/zh-CN/settings-reference#footerlinksregexes)。
+状态栏在其自己的行中呈现，位于内置页脚徽章上方，不会替换它们。配置自定义状态栏后，Claude Code 会停止显示部分页脚提示，例如 `? for shortcuts` 和 `hold space to speak` [语音听写](https://code.claude.com/docs/zh-CN/voice-dictation.md)提示。要在对话中出现 ID 时向页脚添加可点击的链接徽章，而无需编写脚本，请改为配置 [`footerLinksRegexes`](https://code.claude.com/docs/zh-CN/settings-reference#footerlinksregexes)。
 
 这是一个[多行状态行](#display-multiple-lines)的示例，它在第一行显示 git 信息，在第二行显示颜色编码的上下文栏。
 

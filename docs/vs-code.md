@@ -378,7 +378,7 @@ VS Code 扩展支持检查点，它会跟踪 Claude 的文件编辑，并允许�
 
 ## 自定义您的工作流
 
-您可以调整 Claude 面板的位置、运行多个对话、对会话列表进行分组或筛选，或切换到终端模式。
+您可以调整 Claude 面板的位置并更改其字体。您还可以运行多个对话、对会话列表进行分组或筛选，或切换到终端模式。
 
 ### 选择 Claude 的位置
 
@@ -395,6 +395,19 @@ VS Code 扩展支持检查点，它会跟踪 Claude 的文件编辑，并允许�
 > [!TIP]
 >
 > 将侧边栏用于主要的 Claude 会话，并为辅助任务打开额外的标签页。Claude 会记住您偏好的位置。活动栏中的会话列表图标与 Claude 面板是分开的。会话列表始终显示在活动栏中，而 Claude 面板图标仅在面板停靠到左侧边栏时才会出现在那里。
+
+### 更改字体
+
+Claude 面板使用 VS Code 的聊天字体设置，与 VS Code 内置聊天视图所用的设置相同。在 Mac 上按 `Cmd+,` 或在 Windows 和 Linux 上按 `Ctrl+,` 打开 VS Code 设置，然后搜索 `chat font`。
+
+| 设置 | 适用于 |
+| - | - |
+| [`chat.fontSize`](vscode://settings/chat.fontSize) | 对话文本和输入框的字号，以像素为单位。代码块和工具输出会随之缩放。需要 VS Code 1.104 或更高版本 |
+| [`chat.fontFamily`](vscode://settings/chat.fontFamily) | 对话文本和输入框的字体。需要 VS Code 1.104 或更高版本 |
+| [`chat.editor.fontSize`](vscode://settings/chat.editor.fontSize) | diff 的字号，以像素为单位。需要 Claude Code v2.1.300 或更高版本 |
+| [`chat.editor.fontFamily`](vscode://settings/chat.editor.fontFamily) | 代码块和工具输出的字体 |
+
+若要将整个 VS Code 与 Claude 面板一起缩放，请在 Mac 上按 `Cmd+=` 或在 Windows 和 Linux 上按 `Ctrl+=` 缩放窗口。
 
 ### 重新加载后继续对话
 
@@ -732,7 +745,7 @@ vscode://anthropic.claude-code/open?prompt=review%20my%20changes
 
 ## 配置设置
 
-您可以在两个位置配置该扩展：VS Code 的扩展设置和 Claude Code 设置文件：
+您可以在 VS Code 的扩展设置和 Claude Code 设置文件中配置该扩展：
 
 * VS Code 中的**扩展设置**：控制扩展在 VS Code 中的行为。使用 `Cmd+,`（Mac）或 `Ctrl+,`（Windows/Linux）打开，然后转到 **Extensions > Claude Code**。也可以输入 `/` 并选择 **General config…** 来打开设置。
 * `~/.claude/settings.json` 中的 **Claude Code 设置**：由扩展和 CLI 共享。用于配置允许的命令、环境变量、hook 和 MCP 服务器。在 Claude Code v2.1.283 或更高版本中，它也是决定对话起始权限模式的输入之一；在更早的版本中，仅适用于 Pro、Max、Ultra 和 Team 计划。[切换权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)列出了优先顺序。详情请参阅[设置](https://code.claude.com/docs/zh-CN/settings.md)。

@@ -1744,7 +1744,7 @@ type SDKAssistantMessage = {
 `SDKAssistantMessageError` 是以下之一：`'authentication_failed'`、`'oauth_org_not_allowed'`、`'account_on_hold'`、`'billing_error'`、`'rate_limit'`、`'overloaded'`、`'invalid_request'`、`'model_not_found'`、`'server_error'`、`'max_output_tokens'`、`'cloud_credential_error'` 或 `'unknown'`。其中四个值的含义超出了它们的名称：
 
 * `'model_not_found'`：选定的模型不存在或对您的账户或部署不可用
-* `'overloaded'`：API 返回 529，因为服务器处于容量限制，与 `'rate_limit'` 不同，后者是针对您配额的 429
+* `'overloaded'`：当 API 因服务器满载而返回 529 时，出现在 [`api_retry` 事件](https://code.claude.com/docs/zh-CN/headless#handle-api-retries)上。当 HTTP 529 结束了该轮次时，助手消息携带 `'server_error'`。针对您配额的 429 对应 `'rate_limit'`
 * `'account_on_hold'`：[您的账户被冻结](https://code.claude.com/docs/zh-CN/errors.md#your-account-is-on-hold)
 * `'cloud_credential_error'`：Claude Code 无法在其运行的机器上获取可用的 AWS 或 Google Cloud 凭据，因此没有请求到达云提供商。通常原因是云登录已过期或从未在该机器上完成，但暂时无法访问的凭据服务会报告相同的值。请参阅[无法加载 AWS 或 Google Cloud 凭据](https://code.claude.com/docs/zh-CN/errors.md#could-not-load-aws-or-google-cloud-credentials)。需要 TypeScript Agent SDK v0.3.267 或更高版本，其中包含 Claude Code v2.1.267
 

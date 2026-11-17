@@ -224,7 +224,7 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
 
 ### 在 Cowork 和云会话中使用 skills
 
-[Cowork](https://claude.com/product/cowork) 会话和 [云端会话](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)（包括 [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)）不会读取您机器上的 `~/.claude/skills/`。交互式和定时的 Cowork 会话都加载为您的 claude.ai 账户启用的 skill，在会话启动时同步。从 Desktop 应用侧边栏中的 **Customize** 或从 claude.ai 上的 skill 设置管理它们。
+[Cowork](https://claude.com/product/cowork) 会话和 [云端会话](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)（包括 [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)）不会读取您机器上的 `~/.claude/skills/`。交互式和定时的 Cowork 会话都加载为您的 claude.ai 账户启用的 skill，在会话启动时同步。请在 [claude.ai/customize/skills/yours](https://claude.ai/customize/skills/yours) 管理这些 skill。
 
 如果 skill 仅存在于您机器上的 `~/.claude/skills/` 中，当 [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md) 调用它时，Claude Code 会报告找不到该 skill。这是因为每次运行都作为新的云端会话启动。要在这些会话中使用个人 skill：
 
