@@ -150,6 +150,8 @@ Claude Code 在会话的调试日志中记录每个被忽略的密钥。
 
 你通常会从后续请求中的[连接或证书错误](https://code.claude.com/docs/zh-CN/errors.md#network-and-connection-errors)发现代理地址错误或证书路径不正确的问题，因为 Claude Code 在读取这些设置时不会验证大多数设置。它在启动时检查的唯一设置是代理 URL：当它无法解析该值（例如缺少 `http://` 方案）时，Claude Code 会停止启动并显示一个错误，指出需要修复的变量。
 
+使用 Claude Code v2.1.327 或更高版本时，在标准输入和标准输出都不是终端的情况下，某些启动会在 `HTTPS_PROXY` 值缺少 `http://` 时继续进行。由 Claude Desktop、SDK 或 cron 启动 Claude Code 时就属于这种情况。请将代理值写成完整的 URL，例如 `http://proxy.example.com:8080`，即使纯 `host:port` 在您的某些会话中可以正常工作。
+
 要在发送请求之前确认你的配置已加载，请使用调试日志启动 Claude Code：
 
 ```bash theme={null}

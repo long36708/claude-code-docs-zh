@@ -34,9 +34,13 @@ on('command.run', { command: 'standup' }, async ($, e) => {
 
 会话启动后，`/standup` 及其描述会出现在您键入 `/` 时看到的列表中。`argumentHint` 在您键入命令和空格后显示在提示中，如 `/standup [days]`。当您运行 `/standup 3` 时，第二个 hook 返回 `Summary for the last 3 day(s): ...`，并且成绩单在插件名称后显示该文本。hook 永远不会调用 `next`，因为该命令除了您的行为外没有其他行为。
 
-您返回的 `text` 会打印在成绩单中，Claude 会读取它。要不打印任何内容，如仅打开[窗格](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#pick-where-to-draw)的命令，请返回 `{}`。要让命令在 Claude 工作时运行，请在注册中添加 `immediate: true`。
+您返回的 `text` 会打印在会话记录中，Claude 会读取它，除非您[对 Claude 隐藏它](#hide-command-text-from-claude)。要不打印任何内容，如仅打开[窗格](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#pick-where-to-draw)的命令，请返回 `{}`。要让命令在 Claude 工作时运行，请在注册中添加 `immediate: true`。
 
 选择一个没有内置命令使用的名称。在会话中键入 `/` 以查看它们。`$.command.register` 对于已占用的名称会抛出异常，并显示诸如 `"/focus" refused: it is the built-in /focus` 的消息。抛出异常的 hook 会被跳过，因此您的 `session.start` hook 的其余部分也不会运行。在该 hook 中最后注册命令，或将调用包装在 `try` 和 `catch` 中。
+
+#### 对 Claude 隐藏命令文本
+
+要打印命令的文本而不让 Claude 读取，请从不调用 [`next`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#the-hook-function) 的 hook 中返回 `{ text, isTextDisplayOnly: true }`，并且不要在注册中设置 `immediate`。否则，或在 v2.1.326 之前，Claude 可以读取该文本。
 
 ### 添加工具
 

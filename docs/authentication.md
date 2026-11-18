@@ -272,15 +272,15 @@ Claude Code 安全地管理您的身份验证凭证：
 
 配置文件是您的 [Anthropic 配置目录](https://platform.claude.com/docs/en/manage-claude/wif-reference#configuration-directory)中的命名凭证配置文件，在 macOS 和 Linux 上默认为 `~/.config/anthropic`，在 Windows 上为 `%APPDATA%\Anthropic`。当您为 [Workload Identity Federation (WIF)](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 设置配置文件时，其身份验证模式为 `oidc_federation`，或当 [`ant auth login`](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/authentication) 写入它或您[在没有 API 密钥的情况下登录到 Console 帐户](#sign-in-without-an-api-key)时为 `user_oauth`。
 
-Claude Code 不在[裸模式](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode)、Claude Desktop 或云会话中读取配置文件或联合变量。在这些会话中，`/status` 不显示 `Profile` 行。
+Claude Code 不在 [bare 模式](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode)、Claude Desktop 或云端会话中读取配置文件或联合变量。在这些会话中，`/status` 不显示 `Profile` 行。在会读取它们的情况下，Claude Code 按此顺序检查三个源，并在第一个已设置的源处停止。
 
-Claude Code 按此顺序检查三个源，并在第一个设置的源处停止。该表显示设置每个源的内容以及它相对于您的 `/login` 凭证的排名。
-
-| 源 | 设置者 | 相对于 `/login` 的排名 |
+| 源 | 设置者 | 相对于 claude.ai 登录 |
 | :- | :- | :- |
 | 命名配置文件 | `ANTHROPIC_PROFILE` | 上方，无论配置文件具有什么身份验证模式 |
 | 联合变量 | `ANTHROPIC_FEDERATION_RULE_ID` 和 `ANTHROPIC_ORGANIZATION_ID`，两者都设置 | 上方 |
-| 活跃配置文件 | 您的配置目录中的 [`active_config` 文件](https://platform.claude.com/docs/en/manage-claude/wif-reference#active-profile)，或名为 `default` 的配置文件 | 当其身份验证模式为 `oidc_federation` 时上方；当其身份验证模式为 `user_oauth` 时在工作的 `/login` 凭证下方 |
+| 活跃配置文件 | 您的配置目录中的 [`active_config` 文件](https://platform.claude.com/docs/en/manage-claude/wif-reference#active-profile)，或名为 `default` 的配置文件 | 当其身份验证模式为 `oidc_federation` 时在上方；当其身份验证模式为 `user_oauth` 时在仍然有效的 claude.ai 登录下方 |
+
+如果 `/login` 保存了 API 密钥且未设置 `CI`，Claude Code 会使用该密钥，而不使用上述任何源。要删除它，请[运行 `/logout`](https://code.claude.com/docs/zh-CN/troubleshoot-install#not-logged-in-or-token-expired)。
 
 对于联合变量，Claude Code 还会在交换您的身份令牌时读取 [WIF 参考](https://platform.claude.com/docs/en/manage-claude/wif-reference#environment-variables)中的其他变量，例如 `ANTHROPIC_IDENTITY_TOKEN_FILE`。对于配置文件格式，请参阅 [WIF 参考](https://platform.claude.com/docs/en/manage-claude/wif-reference#profile-configuration-file)。
 

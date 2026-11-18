@@ -389,10 +389,14 @@ Claude Code 会重新连接在会话中途断开的远程服务器，并在出�
 
 Claude Code 首先会以指数退避方式尝试重新连接断开的远程服务器，最多五次，初始延迟为一秒，每次加倍：
 
-* **在交互式会话中**：Claude Code 重新连接期间，`/mcp` 会将该服务器显示为待定状态。五次尝试失败后，Claude Code 会将该服务器标记为失败，或在服务器需要重新授权时标记为需要身份验证。当它将服务器标记为失败时，您会看到 `MCP server "<name>" disconnected · open /mcp to reconnect` 通知。您可以从 `/mcp` 手动重试。
-* **在 [`claude -p`](https://code.claude.com/docs/zh-CN/headless) 运行和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话中**：Claude Code 进行同样的五次尝试，但没有 `/mcp` 面板来显示它们。如果五次都失败，运行会在没有该服务器工具的情况下继续：
-  * **在暂时性错误（例如 5xx 响应或超时）之后**：Claude Code 会在后台持续重试 HTTP 或 SSE 服务器。重试最多持续约半小时，当某次连接成功时，该服务器的工具会重新可用。在此之前，Agent SDK 会话会报告[状态](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling) `failed`，您的代码可以[重新连接该服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。若要在 `claude -p` 中重新连接它，请重新开始运行。
-  * **当服务器[需要您重新登录](#authenticate-with-remote-mcp-servers)时**：Claude Code 停止重试，Agent SDK 会话会将该服务器的状态报告为 `needs-auth`。在 shell 中使用 [`claude mcp login <name>`](#authenticate-from-the-command-line) 登录。然后重新开始运行，或者在 Agent SDK 会话中改为[重新连接该服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。
+* **在交互式会话中**：Claude Code 重新连接期间，`/mcp` 会将该服务器显示为待处理。五次尝试失败后，Claude Code 会将服务器标记为失败，或者在服务器需要重新授权时标记为需要身份验证。当它将服务器标记为失败时，会有一条通知告诉您 Claude Code 是否仍在重试：
+  * `MCP server "<name>" disconnected · still retrying · open /mcp to reconnect now`：Claude Code 可以在最长约一天的时间内持续重试该服务器。在 `/mcp` 中，失败的服务器显示为 `retrying`。您可以等待，或从 `/mcp` 重新连接它。要停止重试，请从 `/mcp` [为该项目禁用该服务器](#disable-a-server-without-removing-it)。
+  * `MCP server "<name>" disconnected · open /mcp to reconnect`：Claude Code 不会在后台重试该服务器。请从 `/mcp` 重新连接它。
+* **在 [`claude -p`](https://code.claude.com/docs/zh-CN/headless) 运行和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话中**：Claude Code 会进行同样的五次尝试，但没有 `/mcp` 面板来显示它们。如果五次全部失败，运行会在没有该服务器工具的情况下继续：
+  * **发生暂时性错误（例如 5xx 响应或超时）后**：Claude Code 会在后台持续重试 HTTP 或 SSE 服务器。重试最长持续约半小时，对于某些服务器则约一天，当某次重试连接成功时，该服务器的工具会再次变得可用。
+
+    在此之前，Agent SDK 会话会报告[状态](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling) `failed`，您的代码可以[重新连接该服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。要在 `claude -p` 中重新连接它，请重新开始运行。
+  * **当服务器[需要您重新登录](#authenticate-with-remote-mcp-servers)时**：Claude Code 会停止重试，Agent SDK 会话会将服务器状态报告为 `needs-auth`。在 shell 中使用 [`claude mcp login <name>`](#authenticate-from-the-command-line) 登录。然后重新开始运行，或者在 Agent SDK 会话中改为[重新连接该服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。
 
 #### 首次连接失败
 
@@ -1408,7 +1412,7 @@ Connectors 来自 claude.ai 仅在您的活跃 [身份验证方法](https://code
 
 您的组织可以在 [claude.ai connectors](https://claude.com/docs/connectors) 上设置每个工具的控制。Claude Code 在启动时读取这些设置并在本地强制执行它们，除了桌面应用的 [本地和 SSH 会话](#how-connectors-reach-claude-code)。在那里，桌面应用在传入 connector 之前扣留 `blocked` 工具，`ask` 设置不会到达 Claude Code，因此它将会话的普通 [权限规则](https://code.claude.com/docs/zh-CN/permissions.md) 应用于这些工具，而不是在每次调用时提示。在 Claude Code 自身获取 connectors 的会话中，运行 `/mcp` 以查看哪个设置适用于 connector 上的每个工具。
 
-* **工具设置为 `ask`**：Claude Code 在每次调用时提示，原因是 `Your organization requires approval for this tool`。即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)中，提示也会出现。在终端中，该提示不提供记住您选择的选项。匹配该工具的 [Allow 规则](https://code.claude.com/docs/zh-CN/permissions.md)也不会跳过提示。在 `dontAsk` 模式中（从不提示），Claude Code 会改为拒绝调用。
+* **工具设置为 `ask`**：Claude 每次调用该工具时，Claude Code 都会提示，原因为 `Your organization requires approval for this tool`。即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)中，该提示也会出现。在终端中，您无法保存您的选择。匹配的[允许规则](https://code.claude.com/docs/zh-CN/permissions.md)不会跳过该提示。在 `dontAsk` 模式中，或在没有任何方式回应提示的 `-p` 运行中，Claude Code 会改为拒绝该调用。
 * **工具设置为 `blocked`**：Claude Code 在 Claude 看到它之前过滤掉该工具，因此它从不出现在 Claude 的工具列表中。在 Claude Code 自身获取 connectors 的会话中，`/mcp` 工具列表仍然显示该工具，标记为 `disabled by your organization`。
 
 桌面应用和 claude.ai 聊天应用相同的 `blocked` 设置，因此 Claude 也无法在那里使用被阻止的工具，您无法从桌面应用的会话中扣留工具，同时在聊天中保持其可用。桌面应用跳过其所有工具都被阻止的 connector。
@@ -1611,15 +1615,15 @@ claude
 
 ## 要求对特定工具进行批准
 
-如果您正在构建 MCP 服务器，可以通过在工具的 `tools/list` 响应条目中将 `_meta["anthropic/requiresUserInteraction"]` 设置为 `true` 来标记工具需要在每次调用时获得明确批准。该值必须是 JSON 布尔值 `true`；任何其他值都会被忽略。
+如果您正在构建 MCP 服务器，可以通过在工具的 `tools/list` 响应条目中将 `_meta["anthropic/requiresUserInteraction"]` 设置为 `true` 来标记工具需要明确批准。该值必须是 JSON 布尔值 `true`；任何其他值都会被忽略。
 
-Claude Code 会在每次调用时显示该工具的权限提示，即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)中也是如此，并且不会为其提供"不再询问"选项。与该工具匹配的 [允许规则](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)也不会跳过提示。在 `dontAsk` 模式中（从不提示），Claude Code 会拒绝该调用。
+Claude Code 会在 Claude 每次调用该工具时显示其权限提示，即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)中也是如此，并且不会为其提供"不再询问"选项。与该工具匹配的 [允许规则](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)也不会跳过提示。在 `dontAsk` 模式下，或在没有任何方式回答提示的 `-p` 运行中，Claude Code 会改为拒绝该调用。
 
 提示必须到达一个人。在非交互模式下使用 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)，来自提示工具的标记工具的 `allow` 结果会被转换为拒绝，消息为 `MCP tool requires user interaction; not supported via --permission-prompt-tool`。Agent SDK 的 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/permissions)确实会接收这些调用并可以批准它们，因为您的 SDK 应用程序应该将它们显示给用户。
 
 将此用于权限提示本身就是目的的工具，例如同意或访问授予步骤，其中自动批准意味着没有人类曾经同意。来自同一服务器的其他工具保持其正常的权限行为。
 
-以下 `tools/list` 条目将一个工具标记为始终需要批准。
+以下 `tools/list` 条目标记了一个工具：
 
 ```json theme={null}
 {

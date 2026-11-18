@@ -235,8 +235,8 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`$.ui`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、[`place`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#place-a-row-in-the-transcript)、`focus`、`scroll`、`toast`、`notify`、`status`、`log`、`notice`、`ask`、`copy`、`selection`、`blit`、`view`。`view` 需要 Claude Code v2.1.300 或更高版本，`place` 需要 v2.1.314 或更高版本。 |
 | [`$.theme`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `set`、`clear`：设置一个由 Desktop 或移动应用绘制的背景，以及移除该背景。需要 Claude Code v2.1.319 或更高版本。 |
 | [`$.command`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-command) | `register`、`run`、`list` |
-| [`$.tool`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-tool) | `register`、`call`、`check`、`list`。当某次 `call` 需要人工批准时（例如 hook 或您的组织以 `ask` 回应的调用），它会解析为 `{ deny: "<tool> wasn't run: this call needs a person's approval, and a mod's own call can't ask for it." }`，其中 `<tool>` 是该工具的名称。 |
-| `$.agent` | `register`、`spawn`、`list`。`list()` 返回此会话的子代理和队友，每项都带有 `status`，其值为 `pending`、`running`、`waiting`、`idle`、`completed`、`failed` 或 `killed` 之一，其中 `idle` 和 `waiting` 需要 Claude Code v2.1.289 或更高版本。 |
+| [`$.tool`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-tool) | `register`、`call`、`check`、`list` |
+| `$.agent` | `register`、`spawn`、`call`、`list`、`limits`。`call` 和 `limits` 需要 Claude Code v2.1.326 或更高版本。`list()` 返回此会话的子代理和队友，每项都带有 `status`，其值为 `pending`、`running`、`waiting`、`idle`、`completed`、`failed` 或 `killed` 之一，其中 `idle` 和 `waiting` 需要 Claude Code v2.1.289 或更高版本。 |
 | [`$.model`](https://code.claude.com/docs/zh-CN/plugins/mods/api#call-a-model) | `complete`、`fork`、`classify` |
 | [`$.prompt`](https://code.claude.com/docs/zh-CN/plugins/mods/api#start-a-turn-from-a-background-job) | `submit`、`read`、`fill`、`suggest`、`compose`。Claude 读取来自 `submit({ text })` 的文本时，前面会有一句指明您的 mod 为发送者的话。`submit({ text, asUser: true })` 将文本作为用户自己的话发送，不带那句话。 |
 | `$.turn` | `abort` |

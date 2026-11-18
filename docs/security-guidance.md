@@ -199,7 +199,7 @@ patterns:
 /plugin uninstall security-guidance@claude-plugins-official
 ```
 
-如果插件通过项目的 `.claude/settings.json` 启用，从 `/plugin` 卸载它会将覆盖写入您的 `.claude/settings.local.json`，而不是编辑已检入的文件，因此该插件对您保持关闭，而不影响队友。同一对话框还提供了通过从共享的 `.claude/settings.json` 中删除插件来为所有人卸载该插件的选项。如果它通过 [托管设置](https://code.claude.com/docs/zh-CN/admin-setup.md) 启用，只有管理员可以禁用它。
+如果插件通过项目的 `.claude/settings.json` 启用，从 `/plugin` 卸载它会将覆盖写入您的 `.claude/settings.local.json`，而不是编辑已检入的文件。该插件对您保持关闭，而队友不受影响。同一对话框还提供了通过从共享的 `.claude/settings.json` 中删除插件来为所有人卸载该插件的选项。如果它通过 [托管设置](https://code.claude.com/docs/zh-CN/admin-setup.md) 启用，`/plugin` 会拒绝 **Disable plugin** 和 **Uninstall** 操作。
 
 ## 插件如何与 Claude Code 集成
 

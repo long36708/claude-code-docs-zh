@@ -265,8 +265,6 @@ Remote Control 连接时，会话记录（包括您的消息、Claude 的响应�
 
 > [!NOTE]
 >
-> 受信任的设备目前处于测试阶段。功能和特性可能会随着体验的完善而演变。
->
 > 受信任的设备在 Pro、Max、Ultra、Team 和 Enterprise 计划中可用，默认处于关闭状态。在 Team 和 Enterprise 计划中，所有者为组织启用它。在 Pro、Max 和 Ultra 计划中，您可以在设置中的 Cowork 或 Account 页面上自行启用**需要受信任的设备**。
 
 受信任的设备要求您在从 claude.ai、Claude 移动应用或 Claude Desktop 查看或控制 Remote Control 会话之前拥有经过验证的设备。该要求适用于您组织的每个成员，或在 Pro、Max 或 Ultra 计划上仅适用于您自己。它将 Remote Control 访问权限与已知设备和最近的身份验证绑定，而不仅仅是已登录的账户。

@@ -61,22 +61,30 @@
   * 会话使用 Team 或 Enterprise 计划的 [`/login` 凭据](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence)运行
 
   使用 API 密钥的用户，或通过 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 的用户，仅在具有托管设置或 `managed-mcp.json` 的机器上获得内置守卫。使用长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话也不算作上述登录，即使机器上存储了 Team 或 Enterprise 登录信息。
-* **守卫保护您管理的内容。** 用户的 mod 无法更改您的托管 hook 接收或决定的内容、系统提示词，或您的托管 `CLAUDE.md` 和其他托管说明。它也无法更改任何 mod 读取的设置内容，或您的托管 MCP 服务器连接后的工具和描述。
+* **守卫加载后，它会阻止用户的 mod 重写以下内容：**
+  * 系统提示词
+  * 您的托管 `CLAUDE.md` 和其他托管说明
+  * mod 读取设置时得到的结果
+  * 已连接的托管 MCP 服务器的工具列表和工具描述
 * **在 v2.1.323 或更高版本上，用户的 mod 可以阻止托管 MCP 服务器连接。** 在该用户的会话中，`/mcp` 会将该服务器列为被该 mod 拦截。要防止这种情况，请[阻止用户安装的 mod 加载](#stop-user-installed-mods-from-loading)。
-* **在您管理的内容之外，用户的 mod 以该用户身份行事。** mod 保留该用户的权限：它仍然可以读写文件、启动进程和发出网络请求。它还可以重写工具调用和提示词、拒绝工具调用、添加或移除工具，以及在界面中绘制。
-* **权限规则和 `PreToolUse` hook 优先于用户的 mod。** 加载内置守卫后，默认情况下，用户的 mod 无法批准 `deny` 规则拒绝的调用或 `ask` 规则会提示的调用，无论哪个设置文件持有该规则。mod 也无法批准任何 `PreToolUse` hook 阻止的调用。
-
-  权限规则和 `PreToolUse` hook 适用于 Claude 的工具调用，而不适用于 mod 的 [`$.fs` 和 `$.process` 调用](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)。即使 `Read(.env)` 被拒绝，mod 仍然可以使用 `$.fs.read` 读取该文件，或启动执行此操作的程序。要限制 mod 自身的 `$.fs` 和 `$.process` 调用，请[阻止该 mod 加载](#stop-user-installed-mods-from-loading)，或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中处理这些调用。
-* **用户的 mod 仍然可以跳过某些提示。** 在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，mod 批准的调用运行时不进行分类器检查，除非内置守卫已加载，且会话使用 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 Agent SDK [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)运行。在这种情况下，分类器会先检查该调用。对于 mod 的批准不会跳过的提示，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
+* **除守卫阻止的内容外，用户的 mod 以该用户身份行事。** mod 保留该用户的权限：它仍然可以读写文件、启动进程和发出网络请求。它还可以重写工具调用和用户的提示词、拒绝工具调用、添加或移除工具，以及在界面中绘制。
+* **当用户的 mod 批准 Claude 的调用时**，如果守卫已加载，[默认情况下](#set-options-on-the-built-in-guard)以下结果成立，无论哪个设置文件持有该规则或 hook：
+  * 被 `deny` 规则拒绝的调用仍然被拒绝
+  * `ask` 规则会提示的调用仍然会提示
+  * 被 `PreToolUse` hook 阻止的调用仍然被阻止
+* **mod 自身的调用可以跳过您的检查。** 要限制用户的 mod，请[阻止其加载](#stop-user-installed-mods-from-loading)，或在[策略 mod](#enforce-a-policy-with-a-mod-of-your-own) 中处理其调用。
+  * **文件和程序**：[`$.fs` 和 `$.process` 调用](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network)可以跳过权限规则和 `PreToolUse` hook。即使 `Read(.env)` 被拒绝，mod 仍然可以使用 `$.fs.read` 读取该文件，或启动执行此操作的程序。
+  * **工具**：[`$.tool.call` 和 `$.mcp.call`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods) 等调用可以跳过权限规则、权限提示、hook 的 `ask` 以及[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器。
+* **没有守卫时，用户的 mod 可以跳过更多检查。** 请参阅[它可以跳过哪些检查](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
 
 保护程序的源代码在 [Claude Code 存储库的 `mods/sec-default` 目录](https://github.com/anthropics/claude-code/tree/main/mods/sec-default)中是公开的。
 
 ### 了解哪些控制仍然适用
 
-Mods 不会替换您已有的控制：
+您已有的控制在以下限制范围内涵盖 mod：
 
-* **设置 hook 继续工作。** 设置文件和插件的 `hooks/hooks.json` 中的命令、HTTP、提示词和 Agent hook 照常运行，与 mod 一起。
-* **拒绝规则在保护程序加载的地方优先。** 用户的 mod 无法批准 `deny` 规则拒绝的调用，除非您设置 [`allowModsToOverrideDenyRules`](#set-options-on-the-built-in-guard)。
+* **设置文件中的 hook 与 mod 一起运行。** 请参阅[设置 hook 在顺序中的运行位置](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#where-settings-hooks-run-in-the-order)。
+* **对于 Claude 的调用，在[守卫](#know-what-happens-by-default)加载的地方，拒绝规则优先于用户的 mod。** 要让用户的 mod 批准某些被 `deny` 规则拒绝的调用，请设置 [`allowModsToOverrideDenyRules`](#set-options-on-the-built-in-guard)。
 * **托管 hook 首先运行。** 托管设置中的 `PreToolUse` hook 在任何 mod 的 [`tool.call`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#tools) hook 之前运行，当该托管 hook 阻止某个工具调用时，不会有任何 mod 的 `tool.call` hook 针对该调用运行。如果调用继续进行且 mod 重写了它，您的托管 hook 会在重写后的调用上再次运行，因此默认情况下仍然可以阻止它。
 
   来自其他设置文件和插件的 `PreToolUse` hook 在最后一个 mod 之后运行。如果 mod 自行应答工具调用，该工具永远不会运行，这些 hook 也不会运行。请参阅[mod 运行的顺序](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)。
@@ -90,7 +98,7 @@ Mods 不会替换您已有的控制：
 
   这些都不涵盖 mod 使用 `$.process.run` 启动的程序，该程序使用用户自己的访问权限访问网络。
 * **插件控制涵盖 mods。** Mod 是一个插件，因此[限制用户可以安装的内容的设置](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)，例如 `strictKnownMarketplaces`，决定它是否可以被安装。
-* **Mods 无法更改权限提示。** Mod 可以重新设置 Claude Code 界面的大部分样式，但不能更改权限提示，因此它无法更改提示显示的内容。Mod 仍然可以在提示出现之前批准或拒绝工具调用，如[了解默认情况下会发生什么](#know-what-happens-by-default)所述。
+* **权限提示按 Claude Code 绘制的方式显示。** 关于 mod 可以重新绘制的内容，请参阅[更改 Claude Code 已绘制的内容](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#change-what-claude-code-already-draws)。
 * **信任提示首先出现。** 在用户尚未信任的目录中的交互式会话中，在他们回答信任提示之前，没有 mod 加载。
 * **`--safe-mode` 关闭已安装的 mods，包括您的。** 使用 `claude --safe-mode` 启动会话以检查 mod 是否导致了问题。
 
@@ -178,7 +186,7 @@ claude plugin validate ./some-mod
 | `$.http.fetch` | 发出网络请求 |
 | `$.env.get`, `$.settings.read` | 读取环境变量和设置，可以保存 API 密钥。输出中的 `env reads:` 行命名每个变量。 |
 | `$.env.set` | 为 Claude Code 以及它启动的每个命令和 MCP 服务器设置环境变量，可以改变这些程序运行的内容。`env writes:` 行命名每个变量。 |
-| `$.mcp.call` | 在连接的 MCP 服务器上调用工具，不会出现权限提示。在拒绝规则或托管询问规则下，Claude Code 会拒绝该调用。对于标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的工具，或您的组织[设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的工具（在该设置适用于 Claude Code 的情况下），它也会拒绝调用。 |
+| `$.mcp.call` | 在连接的 MCP 服务器上调用工具，不会出现权限提示 |
 | `$.model.complete` | 使用用户的计划或 API 密钥进行模型调用 |
 | `$.prompt.submit` | 提交提示，可以将其作为用户自己的话语发送 |
 | `$.session.send` | 发送另一个会话、子代理或[队友](https://code.claude.com/docs/zh-CN/agent-teams.md)的 Claude 读取的消息 |

@@ -98,7 +98,7 @@ Claude Code 创建会话，打印会话 ID 和指向它的链接，然后退出�
 示例脚本与测试运行器在同一台机器上运行。运行之前，请先准备好该机器：
 
 * **仓库检出**：从您希望会话在其中工作的仓库的 git 检出运行该脚本。
-* **运行器**：在此主机上启动运行器，安装捕获 hook 并导出 `E2E_REPLY_DIR`。
+* **运行器**：先安装捕获 hook 并导出 `E2E_REPLY_DIR`，再在此主机上启动运行器。
 * **登录**：按照[从 CI 进行身份验证](#authenticate-from-ci)中的说明，在运行该脚本的机器上使用 claude.ai 账户登录。
 * **环境 ID**：将 `CLAUDE_TEST_ENVIRONMENT_ID` 设置为您的测试环境的 `ccpool_...` ID，该 ID 显示在管理页面上的环境详细信息对话框中，或由[创建环境调用](#create-a-dedicated-test-environment)返回。
 

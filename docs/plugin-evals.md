@@ -356,7 +356,7 @@ claude plugin eval . --allow-tools Write Edit "Bash(npm test *)"
 
 #### 在托管机器上 shell 授予被拒绝
 
-当授予 shell 的运行在您的组织管理的机器上被拒绝时，原因可能是其[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中的 `sandbox` 键。错误以 `A shell tool (Bash or PowerShell) was granted but this machine cannot confine it (no sandbox backend on this platform, or it is not installed)` 开头。即使已安装后端，它也会指出缺少后端。
+当授予 shell 的运行在您的组织管理的机器上被拒绝时，原因可能是其[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中的 `sandbox` 键。错误以 `A shell tool (Bash or PowerShell) was granted but this machine cannot confine it (no sandbox backend on this platform, or it is not installed)` 开头。
 
 当原因是托管键时，消息以 `this machine's managed settings:` 和该键结尾，而每次运行的进度行会将其截断：
 

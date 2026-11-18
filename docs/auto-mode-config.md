@@ -75,7 +75,7 @@
 
 > [!NOTE]
 >
-> 分类器是在[权限系统](https://code.claude.com/docs/zh-CN/permissions.md)之后运行的第二道门。对于必须永远不运行的操作，无论用户意图或分类器配置如何，请在托管设置中使用 `permissions.deny`，它在咨询分类器之前阻止操作，无法被覆盖。
+> 分类器是在[权限系统](https://code.claude.com/docs/zh-CN/permissions.md)之后运行的第二道门。要在分类器运行之前阻止 Claude 的[匹配调用](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)，请在托管设置中使用 `permissions.deny`。
 
 ## 定义受信基础设施
 

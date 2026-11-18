@@ -16,7 +16,7 @@ Owner 可以为每个仓库控制[审查何时运行](https://code.claude.com/do
 
 ## 严重程度级别
 
-Claude 将每个发现作为内联评论发布在相关代码行上，并用以下三种严重程度级别之一进行标记：
+Claude 用以下三种严重程度级别之一标记每个发现：
 
 | 标记 | 严重程度 | 含义 |
 | :- | :- | :- |
@@ -24,7 +24,7 @@ Claude 将每个发现作为内联评论发布在相关代码行上，并用以�
 | 🟡 | Nit | 小问题，值得修复但不阻塞合并 |
 | 🟣 | Pre-existing | 代码库中已存在、但并非由此 PR 引入的 bug |
 
-如果审查记录了其推理过程，该发现会带有一个折叠的 **Why this was flagged** 部分。展开它即可了解 Claude 为何标记该问题以及如何验证该问题。
+如果审查记录了其推理过程，则发现的问题会包含一个折叠的 **Why this was flagged** 部分。展开该部分即可查看 Claude 标记该问题的原因以及它如何验证该问题。
 
 要更改 Claude 在您的仓库中标记的内容或其对严重程度的判定方式，请参阅[自定义 Code Review](https://code.claude.com/docs/zh-CN/code-review-customize.md)。
 

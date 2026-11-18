@@ -86,7 +86,7 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 }
 ```
 
-当您从未在 tmux 中运行的终端通过 SSH 连接时，请在运行 Claude Code 的计算机上将 [`preferredNotifChannel`](https://code.claude.com/docs/zh-CN/settings-reference#preferrednotifchannel) 设置为您本地终端对应的值：`"iterm2"`、`"kitty"` 或 `"ghostty"`。这样桌面通知就会到达您的本地计算机。Ghostty 和 Kitty 将其转发到您的操作系统通知中心，无需进一步设置。iTerm2 要求您启用转发：
+若要在 tmux 之外通过 SSH 在 Ghostty、Kitty 或 iTerm2 中接收桌面通知，请将 `preferredNotifChannel` 保持为其默认值 `"auto"`。在 v2.1.326 之前，请在运行 Claude Code 的计算机上将其设置为 `"iterm2"`、`"kitty"` 或 `"ghostty"`。iTerm2 要求您启用转发：
 
 **1. 打开 iTerm2 通知设置**
 
@@ -140,7 +140,7 @@ set -s extended-keys on
 set -as terminal-features 'xterm*:extkeys'
 ```
 
-要使用 Shift+Enter，请保留最后两行，然后从 tmux 分离、重新连接，并重启 Claude Code。要将通知从可见窗格发送到外部终端，请保留 `allow-passthrough` 行，并将 [`preferredNotifChannel`](https://code.claude.com/docs/zh-CN/settings-reference#preferrednotifchannel) 设置为 `"iterm2"`、`"kitty"` 或 `"ghostty"`。使用此示例时，位于您未查看的窗口中的窗格不会发送任何通知。
+要使用 Shift+Enter，请保留最后两行，然后从 tmux 分离、重新连接，并重启 Claude Code。要将通知从可见窗格发送到 Ghostty、Kitty 或 iTerm2，请保留 `allow-passthrough` 行并重启 Claude Code。使用此示例时，位于您未查看的窗口中的窗格不会发送任何通知。在 v2.1.326 之前的版本中，或在不支持 `allow-passthrough` 的 3.3 之前版本的 tmux 中，请将 [`preferredNotifChannel`](https://code.claude.com/docs/zh-CN/settings-reference#preferrednotifchannel) 设置为 `"iterm2"`、`"kitty"` 或 `"ghostty"`。
 
 [mod 的 `Image`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#elements) 需要 `allow-passthrough` 和 `focus-events` 行，以及其他[在 tmux 中绘制的要求](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#draw-an-image-inside-tmux)。添加这些行后，还需要从 tmux 分离、重新连接，然后重启 Claude Code。
 

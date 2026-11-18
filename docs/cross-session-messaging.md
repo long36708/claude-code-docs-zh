@@ -150,13 +150,13 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
 
 容器内的会话和主机上的会话无法相互到达。同一容器内的两个会话仍然可以相互发送消息，包括在 [自托管运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments) 上。WSL 2 内的会话和同一计算机上的本机 Windows 会话也无法相互到达。
 
-要在任何消息超出这台机器之前要求你的批准，设置 [`isolatePeerMachines`](#require-approval-for-cross-machine-messages)。
+如需在 Claude 的消息发往这台机器之外之前要求您的批准，请设置 [`isolatePeerMachines`](#require-approval-for-cross-machine-messages)。
 
 #### 来自其他机器和云端会话的回复
 
 [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)（包括在[自托管运行器](https://code.claude.com/docs/zh-CN/self-hosted-environments)上运行的云端会话）无法使用 `SendMessage` 回复来自另一台机器的消息，即使该消息带有[回复地址](#what-a-message-looks-like)也不行。消息仍然会到达。您可以在 [claude.ai/code](https://claude.ai/code) 上该云端会话的会话记录中查看其回复。
 
-如果 Claude 向这台机器之外的会话发送消息时，此会话未连接到 Remote Control，消息仍然会发出，但不带[回复地址](#what-a-message-looks-like)。接收方 Claude 无法回复该消息。
+如需接收来自您另一台机器上会话的回复，请在 Claude 发送消息之前将您的会话连接到 Remote Control。否则，消息将不带[回复地址](#what-a-message-looks-like)，接收方 Claude 也就无法回复该消息。
 
 ## 会话如何处理传入消息
 
@@ -269,11 +269,11 @@ Claude Code 会为每个启用了跨会话消息传递的会话绑定一个收�
 
 ## 限制跨会话消息传递
 
-除了每条消息的默认值，您可以通过两种方式缩小消息传递。在任何消息离开机器之前要求您的批准，或为会话或组织关闭消息传递。
+除了每条消息的默认行为之外，您还可以通过两种方式进一步限制消息传递：要求 Claude 的消息在离开本机之前须经您批准，或者为某个会话或组织关闭消息传递。
 
 ### 要求批准跨机器消息
 
-设置 [`isolatePeerMachines`](https://code.claude.com/docs/zh-CN/settings-reference#isolatepeermachines) 为 `true` 以要求您的明确批准，在任何 `SendMessage` 到达超出此机器的会话之前：
+将 [`isolatePeerMachines`](https://code.claude.com/docs/zh-CN/settings-reference#isolatepeermachines) 设置为 `true`，即可要求 Claude 的 `SendMessage` 在到达本机以外的会话之前须经您明确批准：
 
 ```json theme={null}
 {

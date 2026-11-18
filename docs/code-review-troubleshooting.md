@@ -63,7 +63,8 @@
 
 * **检查运行 Details**：在 **Checks** 标签页中，点击 **Claude Code Review** 检查旁边的 **Details**。严重程度表会列出发现项及其文件、行号和摘要，无论内联评论是否被接受。
 * **Files changed 注释**：打开 PR 上的 **Files changed** 标签页。有行号但未作为内联评论发布的发现项会以注释的形式显示在相关行上。
-* **审查正文**：没有内联位置或位于当前 diff 之外的发现项，会显示在审查正文的 **Additional findings** 标题下。
+* **整个文件的评论**：打开 PR 上的 **Conversation** 标签页，查找 Claude 针对整个文件（而非某一行）发布的评论
+* **审查正文**：在 **Conversation** 标签页中，查找 Claude 审查中的 **Additional findings** 标题
 
 ## 检查运行提到 REVIEW\.md
 

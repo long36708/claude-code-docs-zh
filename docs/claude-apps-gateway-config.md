@@ -57,7 +57,7 @@ Claude 应用网关部署由一个 YAML 文件配置，按惯例命名为 `gatew
 | - | - | - |
 | `host` | 否 | 绑定地址。默认 `0.0.0.0`。 |
 | `port` | 否 | 绑定端口。默认 `8080`。 |
-| `public_url` | 除非 `host` 是环回地址 | 外部可见的 `https://` 源，用于构建 IdP `redirect_uri` 和发现元数据。当 `host` 不是环回地址时需要，无论 TLS 是在代理（如 ALB、Ingress 或 Cloud Run）还是通过 `tls` 在网关本身终止，因为网关永远不会从 `X-Forwarded-*` 标头派生自己的源；这些标头可被客户端欺骗。没有它启动会失败。下面的 `trusted_proxies` 仅控制客户端 IP 解析。还需要启用[遥测](#telemetry)，因为网关从此 URL 构建它推送给客户端的 OTLP 端点。 |
+| `public_url` | 除非 `host` 是环回地址 | 外部可见的 `https://` 源，用于构建 IdP `redirect_uri` 和发现元数据。当 `host` 不是环回地址时需要，无论 TLS 是在代理（如 ALB、Ingress 或 Cloud Run）还是通过 `tls` 在网关本身终止，因为网关永远不会从 `X-Forwarded-*` 标头派生自己的源；这些标头可被客户端欺骗。没有它启动会失败。下面的 `trusted_proxies` 仅控制客户端 IP 解析。启用[遥测](#telemetry)时也需要它，因为网关从此 URL 构建它推送给客户端的 OTLP 端点。 |
 | `tls.cert` / `tls.key` | 否 | 如果网关自己终止 TLS，则为 PEM 路径 |
 | `trusted_proxies` | 否 | 要信任的前端的 CIDR 或 IP。设置后，网关仅信任来自这些对端的 `X-Forwarded-For`，并记录真实客户端 IP，用于按 IP 的速率限制和审计。 |
 

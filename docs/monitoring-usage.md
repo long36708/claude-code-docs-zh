@@ -125,7 +125,7 @@ Claude Code 不会删除您在托管设置中自己设置的每信号变量，�
 | `OTEL_LOG_ASSISTANT_RESPONSES` | 在 `assistant_response` 事件上启用助手响应文本的日志记录（默认值：禁用）。未设置时，回退到 `OTEL_LOG_USER_PROMPTS` 的值 | `1` 启用，`0` 保持脱敏 |
 | `OTEL_LOG_TOOL_DETAILS` | 在工具事件和跟踪跨度属性中启用工具参数和输入参数的日志记录：Bash 命令、MCP 服务器和工具名称、技能名称、用户编写的工作流名称和工具输入。还在 `user_prompt` 事件上启用自定义、插件和 MCP 命令名称，以及在[成本和令牌计数器](#cost-counter)上启用真实代理、技能、插件和 MCP 服务器和工具名称（默认值：禁用）。对于 Claude Desktop 的内置服务器，在 Claude Desktop 拥有的会话中，即使关闭标志，`mcp_server_name`/`mcp_tool_name` 也会在 `tool_decision`/`tool_result` 上发出。该异常需要 Claude Code v2.1.214 或更高版本 | `1` 启用 |
 | `OTEL_LOG_TOOL_CONTENT` | 在 [`tool.output` 跨度事件](#tool-output-span-event)中启用工具内容的日志记录（默认值：禁用）。跨度属性在[其自己的门](#new-context-gates)下携带工具内容。需要[跟踪](#traces-beta)。内容在内容限制处截断（默认值 60 KB） | `1` 启用 |
-| `OTEL_LOG_MANAGED_SETTINGS` | 将编辑的托管设置和编辑前设置的 SHA-256 摘要添加到[托管设置已解决](#managed-settings-resolved-event)事件（默认值：禁用）。项目或本地设置中的值不会将其打开。需要 Claude Code v2.1.274 或更高版本 | `1` 启用 |
+| `OTEL_LOG_MANAGED_SETTINGS` | 将脱敏后的托管设置和脱敏前设置的 SHA-256 摘要添加到[托管设置解析](#managed-settings-resolved-event)事件（默认值：禁用）。项目或本地设置中的值不会将其打开。需要 Claude Code v2.1.274 或更高版本 | `1` 启用 |
 | `OTEL_LOG_RAW_API_BODIES` | 将完整的 Anthropic Messages API 请求和响应 JSON 作为 `api_request_body` / `api_response_body` 日志事件发出（默认值：禁用）。正文包括整个对话历史记录。启用此选项意味着同意 `OTEL_LOG_USER_PROMPTS`、`OTEL_LOG_TOOL_DETAILS` 和 `OTEL_LOG_TOOL_CONTENT` 会揭示的所有内容 | `1` 表示在内容限制处截断的内联正文（默认值 60 KB），或 `file:<dir>` 表示磁盘上的未截断正文，事件中有 `body_ref` 指针 |
 | `CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH` | 内容限制：内容承载属性（如模型响应、工具内容、系统提示词和原始 API 正文）的最大长度，包括截断标记，以 UTF-16 代码单位为单位（默认值：61440，即 60 KB）。默认值针对将属性值上限设为 64 KB 的后端进行了调整；仅当您的后端接受更大的值时才提高它，或降低它以减少遥测量。当设置了 OpenTelemetry SDK 属性限制 `OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT` 或其日志记录和跨度变体之一且其值更低时，Claude Code 在该较小的值处截断，以便 `[TRUNCATED ...]` 标记保持在 SDK 限制内 | `262144` |
 | `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` | 指标时间性偏好（默认值：`delta`）。如果您的后端期望累积时间性，请设置为 `cumulative` | `delta`、`cumulative` |
@@ -934,7 +934,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.name`：`"api_request_body"`
 * `event.timestamp`：ISO 8601 时间戳
 * `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
-* `body`：JSON 序列化的 Messages API 请求参数，例如系统提示词、消息和工具，在内容限制处截断（默认 60 KB）。之前 assistant 轮次中的扩展思考内容会被编辑。仅在内联模式（`OTEL_LOG_RAW_API_BODIES=1`）下发出。
+* `body`：JSON 序列化的 Messages API 请求参数，例如系统提示词、消息和工具，在内容限制处截断（默认 60 KB）。之前 assistant 轮次中的扩展思考内容会被脱敏。仅在内联模式（`OTEL_LOG_RAW_API_BODIES=1`）下发出。
 * `body_ref`：包含未截断请求体的 `<dir>/<uuid>.request.json` 文件的绝对路径。仅在文件模式（`OTEL_LOG_RAW_API_BODIES=file:<dir>`）下发出。
 * `body_length`：未截断的请求体长度。当 `OTEL_LOG_RAW_API_BODIES=file:<dir>` 时为 UTF-8 字节数，当 `=1` 时为 UTF-16 代码单元数
 * `body_truncated`：当发生内联截断时为 `"true"`。在文件模式下以及未发生截断时不存在。
@@ -956,7 +956,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.name`：`"api_response_body"`
 * `event.timestamp`：ISO 8601 时间戳
 * `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
-* `body`：JSON 序列化的 Messages API 响应，包括 id、内容块、用量和停止原因，在内容限制处截断（默认 60 KB）。扩展思考内容会被编辑。仅在内联模式（`OTEL_LOG_RAW_API_BODIES=1`）下发出。
+* `body`：JSON 序列化的 Messages API 响应，包括 id、内容块、用量和停止原因，在内容限制处截断（默认 60 KB）。扩展思考内容会被脱敏。仅在内联模式（`OTEL_LOG_RAW_API_BODIES=1`）下发出。
 * `body_ref`：包含未截断响应体的 `<dir>/<request_id>.response.json` 文件的绝对路径。仅在文件模式（`OTEL_LOG_RAW_API_BODIES=file:<dir>`）下发出。
 * `body_length`：未截断的响应体长度。当 `OTEL_LOG_RAW_API_BODIES=file:<dir>` 时为 UTF-8 字节数，当 `=1` 时为 UTF-16 代码单元数
 * `body_truncated`：当发生内联截断时为 `"true"`。在文件模式下以及未发生截断时不存在。
@@ -1834,7 +1834,7 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
   * [成本和 token 计数器](#cost-counter)以及 `api_request`、`api_error` 和 `api_refusal` 事件在其归属属性中携带真实的 Agent、skill、插件和 MCP 服务器以及工具名称
   * `claude_code.tool` span 携带输入派生属性（如 `file_path`）。在详细的 beta 追踪下，它还携带 [`tool_input`](#new-context-gates) 属性
 * 默认情况下，trace spans 中不记录工具内容。要包含它，请设置 `OTEL_LOG_TOOL_CONTENT=1`。`claude_code.tool` span 随后携带一个 [`tool.output` span 事件](#tool-output-span-event)，其中包含原始文件内容、Bash 命令输出以及 MCP 工具、WebFetch 和 WebSearch 返回的内容，在内容限制处截断（默认为 60 KB）每个属性。来自 MCP 工具、WebFetch 和 WebSearch 的结果需要 Claude Code v2.1.283 或更高版本。工具内容也通过 [`new_context` 到达 spans，其门控因 span 而异](#new-context-gates)。根据需要配置您的遥测后端以过滤或编辑这些属性
-* 默认情况下不记录原始 Anthropic Messages API 请求和响应主体。要包含它们，请在您的 shell、用户设置或托管设置中设置 `OTEL_LOG_RAW_API_BODIES`。在 [项目和本地设置](https://code.claude.com/docs/zh-CN/settings-reference.md#variables-claude-code-ignores-in-env) 中被忽略。主体包含完整的对话历史，包括系统提示、每个先前的用户和助手轮次以及工具结果，因此启用此选项意味着同意其他 `OTEL_LOG_*` 内容标志会揭示的所有内容。Claude Code 始终从这些主体中编辑 Claude 的扩展思考内容，无论其他设置如何。您设置的值决定了 Claude Code 如何传递主体：
+* 默认情况下不记录原始 Anthropic Messages API 请求和响应主体。要包含它们，请在您的 shell、用户设置或托管设置中设置 `OTEL_LOG_RAW_API_BODIES`。在 [项目和本地设置](https://code.claude.com/docs/zh-CN/settings-reference.md#variables-claude-code-ignores-in-env) 中被忽略。主体包含完整的对话历史，包括系统提示词、每个先前的用户和助手轮次以及工具结果，因此启用此选项意味着同意其他 `OTEL_LOG_*` 内容标志会揭示的所有内容。Claude Code 始终对这些主体中 Claude 的扩展思考内容进行脱敏，无论其他设置如何。您设置的值决定了 Claude Code 如何传递主体：
   * 使用 `=1` 时，Claude Code 为每个 API 调用发出 `api_request_body` 和 `api_response_body` 日志事件。事件的 `body` 属性携带 JSON 序列化的有效负载，在内容限制处截断（默认为 60 KB）
   * 使用 `=file:<dir>` 时，Claude Code 将未截断的主体写入该目录下的 `.request.json` 和 `.response.json` 文件，事件携带 `body_ref` 路径而不是内联主体。使用日志收集器或 sidecar 传输目录，而不是通过遥测流
 

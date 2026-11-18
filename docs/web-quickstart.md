@@ -229,7 +229,7 @@ Claude 将其更改推送到分支后，聊天旁边面板中的 **Changes** 卡
 
 `/web-setup` 在 Claude Code CLI 内运行，而不是在您的 shell 中。首先启动 `claude`，然后在提示符处输入 `/web-setup`。
 
-如果您在 Claude Code 内输入它，命令菜单显示 `No commands match "/web-setup"`，或提交它返回 `Unknown command: /web-setup`，该命令被隐藏是因为未满足要求。原因通常是您使用 API 密钥或第三方提供商而不是 claude.ai 订阅进行身份验证。运行 `/login` 以使用您的 claude.ai 账户登录。
+如果 Claude Code 的命令菜单显示 `No commands match "/web-setup"`，或提交 `/web-setup` 返回 `Unknown command: /web-setup` 或提示其不可用，则该命令被隐藏是因为未满足某项要求。原因通常是您使用 API 密钥或第三方提供商而不是 claude.ai 订阅进行身份验证。运行 `/login` 以使用您的 claude.ai 账户登录。
 
 在 Team 和 Enterprise 套餐上，该命令默认被隐藏：[快速设置开关](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#quick-setup-for-team-and-enterprise)处于关闭状态，直到所有者将其打开。在其关闭期间，请改为[从浏览器连接 GitHub](#connect-github)。
 

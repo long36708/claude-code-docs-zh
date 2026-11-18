@@ -37,7 +37,7 @@ Claude Code 使用分层权限系统来平衡功能和安全性。该表显示�
 打开字段后，输入注释，然后按以下键之一：
 
 * `Enter`：提交您的答案并附加注释。如果您将字段留空，Claude Code 会提交答案而不附加注释。
-* `Tab`：关闭字段而不回答。Claude Code 保留您输入的文本，如果您使用该选项回答，仍会发送它。
+* `Tab`：关闭字段而不回答。要发送您输入的文本，请在回答之前再次按 `Tab`。
 * `Shift+Tab`：在文件提示上，例如 Edit 或 Write 提示，关闭字段的方式与 `Tab` 相同。在 v2.1.235 之前，在字段内按 `Shift+Tab` 会选择允许操作在会话的其余部分进行的选项，因此 Claude Code 批准了会话其余部分的操作并丢弃了注释。
 
 Claude Code 根据您的回答方式以不同的方式传递注释：
@@ -77,7 +77,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 | `acceptEdits` | 自动接受工作目录或 `additionalDirectories` 中路径的文件编辑和常见文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp` |
 | `plan` | Claude 读取文件并运行只读 shell 命令来探索，但不编辑您的源文件；在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)可用的情况下，分类器批准的命令也会运行。在 CLI 和 VS Code 扩展中标记为 Plan |
 | `auto` | 无需常规提示即可运行；在 shell 命令和网络请求等操作运行之前，后台[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)会检查它们是否与您的请求一致 |
-| `dontAsk` | 自动拒绝每个会导致提示的调用，但您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍可以批准其中的部分调用。您的工作目录中的文件读取和其他不需要批准的操作仍会运行，通过 `/permissions` 或 `permissions.allow` 规则预先批准的工具也会运行。`AskUserQuestion`、标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具、[从网络路径读取](#network-paths)，以及在该设置到达 Claude Code 的会话中[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具，即使您已允许它们也会被拒绝 |
+| `dontAsk` | 自动拒绝每个会导致提示的调用，但在[某些设置情形](#precedence-among-rules-hooks-and-mods)下，您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍可以批准其中的部分调用。您的工作目录中的文件读取和其他不需要批准的操作仍会运行，通过 `/permissions` 或 `permissions.allow` 规则预先批准的工具也会运行。`AskUserQuestion` 和[其他一些调用](https://code.claude.com/docs/zh-CN/permission-modes.md#allow-only-pre-approved-tools-with-dontask-mode)即使您已允许它们也会被拒绝 |
 | `bypassPermissions` | 跳过权限提示，除了[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves) |
 
 > [!WARNING]
@@ -90,7 +90,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 
 ## 权限规则语法
 
-权限规则遵循格式 `Tool` 或 `Tool(specifier)`。括号内的说明符是字面意思，因此包含括号的命令或路径不需要转义。
+权限规则遵循格式 `Tool` 或 `Tool(specifier)`。
 
 ### 匹配工具的所有使用
 
@@ -589,7 +589,9 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
   但是，作为 deny 或 ask 规则，这两个名称中的每一个也都涵盖 `reports__v2` 服务器的所有工具。要仅涵盖名为 `reports` 的服务器，请以 `mcp__reports__<tool>` 形式为每个工具编写一条规则，或重命名其中一个服务器。
 
-如果您的组织已设置[claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#organization-controls-on-connector-tools)工具为 `ask`，该设置在您的会话中到达 Claude Code，该工具的 allow 规则不会生效：Claude Code 在每次调用时都会提示，即使在 `auto` 和 `bypassPermissions` 模式下。在 `dontAsk` 模式下（从不提示），Claude Code 会拒绝调用。Claude Code 自己获取的连接器工具显示为 `mcp__claude_ai_<server>__<tool>`。
+如果您的组织已将某个 [claude.ai 连接器](https://code.claude.com/docs/zh-CN/mcp.md#organization-controls-on-connector-tools)工具设置为 `ask`，并且该设置在您的会话中到达 Claude Code，则该工具的 allow 规则不会生效。每次 Claude 调用该工具时，Claude Code 都会提示，即使在 `auto` 和 `bypassPermissions` 模式下也是如此。在 `dontAsk` 模式下，或在没有任何对象回应提示的 `-p` 运行中，Claude Code 会改为拒绝该调用。
+
+Claude Code 自己获取的连接器工具显示为 `mcp__claude_ai_<server>__<tool>`。
 
 在 Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) 会话中，Claude 通过 Cowork 的 `mcp__workspace__bash` 工具而不是内置 `Bash` 工具运行 shell 命令，Cowork 同样为 web 获取提供 `mcp__workspace__web_fetch`。Claude Code 也将命名整个 `Bash` 或 `WebFetch` 工具的 deny 规则应用于这些 Cowork 工具，因此托管的 `Bash` deny 规则阻止 Claude 在 Cowork 中运行 shell 命令。当 Claude Code 阻止此类调用时，消息命名 Cowork 工具：`Permission to use mcp__workspace__bash has been denied.` Allow 规则不会转移：Claude Code 从不将 `Bash` allow 规则应用于 `mcp__workspace__bash`。
 
@@ -635,7 +637,7 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 
 PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask 规则，无论 PreToolUse hook 返回什么：匹配的 deny 规则会阻止调用，匹配的 ask 规则即使在 hook 返回 `"allow"` 或 `"ask"` 时仍然会提示。这保留了[管理权限](#manage-permissions)中描述的 deny 优先级，包括在托管设置中设置的 deny 规则。
 
-该优先级涵盖设置文件中的 hook 和插件的 `hooks/hooks.json` 中的 hook。您安装的处理 [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/events#approve-or-refuse-a-tool-call-before-the-user-is-asked) 事件的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 会在 `PreToolUse` hook 运行之后给出其答案。当存在[托管设置](https://code.claude.com/docs/zh-CN/settings.md#check-what-your-organization-enforces)或 [`managed-mcp.json` 文件](https://code.claude.com/docs/zh-CN/managed-mcp#deploy-managed-mcp-json)，或会话的凭据是团队或企业 [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence) 时，在 mod 批准调用的情况下，以下结果默认保持不变：
+该优先级涵盖设置文件中的 hook 和插件的 `hooks/hooks.json` 中的 hook。您安装的处理 [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/events#approve-or-refuse-a-tool-call-before-the-user-is-asked) 事件的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 会在 `PreToolUse` hook 运行之后给出其答案。当存在[托管设置](https://code.claude.com/docs/zh-CN/settings.md#check-what-your-organization-enforces)或 [`managed-mcp.json` 文件](https://code.claude.com/docs/zh-CN/managed-mcp#deploy-managed-mcp-json)，或会话的凭据是团队或企业 [`/login`](https://code.claude.com/docs/zh-CN/authentication#authentication-precedence) 时，[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)会默认加载。此时，当 Claude 的调用由并非[您组织的](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods) mod 批准时，以下结果默认保持不变：
 
 * deny 规则拒绝的调用仍会被拒绝。
 * ask 规则会提示的调用仍会提示您。
@@ -643,11 +645,11 @@ PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask
 * `PreToolUse` hook 阻止的调用仍会被阻止，无论该 hook 来自哪个设置文件。
 * 您的 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 或 Agent SDK [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input#handle-tool-approval-requests)会被询问的调用，仍会交由该工具或回调处理。
 
-您的环境可能既没有托管设置，也没有 `managed-mcp.json` 文件，会话的凭据也不是团队或企业 `/login`。在这种环境下，mod 可以批准 deny 规则拒绝的调用或 `PreToolUse` hook 阻止的调用。改用 API 密钥或长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话并未使用该登录，即使该登录已被存储。
+您的环境可能既没有托管设置，也没有 `managed-mcp.json` 文件，会话的凭据也不是团队或企业 `/login`。在这种环境下，mod 可以批准 `PreToolUse` hook 阻止的调用，以及部分 deny 规则拒绝的调用。改用 API 密钥或长期有效的 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token) 运行的会话并未使用该登录，即使该登录已被存储。
 
-在这种配置下，当 mod 批准 ask 规则、`PreToolUse` hook 或 `permissions.blockReadsOutsideWorkingDirectories` 会提示的调用时，您不会收到提示。对于 mod 批准的调用，您的 `--permission-prompt-tool` 或 `canUseTool` 回调也不会被询问。在所有配置下，自动模式、计划模式和 `dontAsk` 模式各自还会带来其特有的结果：
+在这种环境下，mod 批准的调用可以跳过来自 ask 规则、`PreToolUse` hook 或 `permissions.blockReadsOutsideWorkingDirectories` 的提示。它还可以跳过您的 `--permission-prompt-tool` 或 `canUseTool` 回调。在这种环境下，自动模式、计划模式和 `dontAsk` 模式各自还会带来其特有的结果：
 
-* **[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)**：mod 批准的调用运行时无需分类器检查，除非 mod 无法绕过您的权限提示工具或 Agent SDK 权限回调。在这种情况下，分类器会先检查该调用。
+* **[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)**：mod 批准的调用可以在不经分类器检查的情况下运行。
 * **[计划模式](#hook-approvals-in-plan-mode)**：mod 无法批准非只读调用，例如文件编辑或进行写入的 shell 命令。
 * **[`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)**：mod 可以批准仅会被该模式拒绝的调用。
 
@@ -721,7 +723,7 @@ Agent SDK 在 TypeScript 中的 [`additionalDirectories`](https://code.claude.co
 | `.claude/settings.json` 和 `.claude/settings.local.json` 中的[设置](https://code.claude.com/docs/zh-CN/settings.md) | 仅 `enabledPlugins` 和 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#extraknownmarketplaces) 键 |
 | [CLAUDE.md](https://code.claude.com/docs/zh-CN/memory.md) 文件、`.claude/rules/` 和 `CLAUDE.local.md` | 仅当设置 `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` 时。`CLAUDE.local.md` 另外需要 `local` 设置源，默认启用 |
 
-要在会话中期从[主工作目录](#working-directories)的子目录加载 skills、命令和 subagents，请使用该子目录的路径运行 `/add-dir`。Claude Code 为会话的其余部分加载它们，无需提示您或添加工作目录，因为子目录已经可读。这需要 Claude Code v2.1.257 或更高版本。
+要在会话中期从[主工作目录](#working-directories)的子目录加载 skill、命令和子代理，请使用该子目录的路径运行 `/add-dir`。Claude Code 在会话的剩余时间内加载它们，而不添加工作目录。这需要 Claude Code v2.1.257 或更高版本。
 
 #### 输出样式、hook 和本地设置的加载位置
 
