@@ -1020,12 +1020,12 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
   * Claude Code 在自动模式下未询问分类器就批准了该调用
   * 用户回答了 Claude Code 在[多次阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#repeated-block-thresholds)后显示的提示
   * 在不带 `--permission-prompt-tool` 的 `-p` 运行中，由于没有人可以回答提示，Claude Code 在多次阻止后拒绝了该调用。该事件将 `decision` 报告为 `"reject"`，将 `source` 报告为 `"config"`
-* `classifier_category`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：分类器阻止该调用时指明的[内置规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)名称，采用小写加下划线形式，例如 Data Exfiltration 规则对应 `"data_exfiltration"`。需要 Claude Code v2.1.301 或更高版本。当以下两个条件同时成立时，该属性存在：
+* `classifier_category`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：分类器阻止该调用时所指出的[策略](https://code.claude.com/docs/zh-CN/auto-mode-config.md#fix-a-policy-denial)或[内置规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)的名称，采用小写加下划线的形式，例如 Data Exfiltration 规则对应 `"data_exfiltration"`。需要 Claude Code v2.1.301 或更高版本。当以下两个条件同时满足时，该属性存在：
 
   * `classifier_verdict` 为 `"block"`
-  * 分类器恰好指明了一条规则，且该规则是内置规则而非您编写的规则
+  * 分类器恰好给出了一个名称，并且 Claude Code 将其识别为策略或内置规则
 
-  在 v2.1.302 之前，对于由[服务器端分类器审查](https://code.claude.com/docs/zh-CN/permission-modes.md#server-side-classifier-review)决定的任何阻止，该属性也不存在。
+  在 v2.1.302 之前，由[服务器端分类器审查](https://code.claude.com/docs/zh-CN/permission-modes.md#server-side-classifier-review)决定的任何阻止中也不存在该属性。在 v2.1.323 之前，指出策略的阻止中不存在该属性。
 * `permission_mode`：此调用的权限检查开始时处于活动状态的[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)：`"default"`、`"plan"`、`"acceptEdits"`、`"bypassPermissions"`、`"dontAsk"` 或 `"auto"`。手动模式显示为 `"default"`。[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#permission-modes)的调用报告的是子代理的权限模式，而不是会话的权限模式。需要 Claude Code v2.1.301 或更高版本
 * `tool_parameters`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：包含工具特定参数的 JSON 字符串。结构与[工具结果事件](#tool-result-event)相同，但不含 `git_commit_id` 等执行后字段。如果权限决策通过 `updatedInput` 重写了工具输入，对于被接受的调用，其值可能与 `tool_result` 不同。当 `decision` 为 `"reject"` 时，可使用此属性查看哪个命令被拒绝。
   * 对于 `"sdk_host_builtin_mcp"` 工具：即使 `OTEL_LOG_TOOL_DETAILS` 关闭，也会包含 `mcp_server_name` 和 `mcp_tool_name`，因为这些名称由宿主应用定义；如果没有它们，对这些内置服务器之一的被拒绝调用在默认数据流中将无法归属。对于用户配置的 MCP 服务器，事件的 `tool_name` 始终为字面值 `"mcp_tool"`，服务器和工具名称仅在启用该标志时出现在 `tool_parameters` 中；参数内容在任何情况下都需要该标志。
@@ -1078,7 +1078,7 @@ Claude Code 已停止发送 `claude_code.safety_event`：
 * `rule_source`：所涉及规则的设置来源，例如 `"policySettings"`、`"userSettings"`、`"projectSettings"`、`"localSettings"`、`"flagSettings"`、`"cliArg"` 或 `"session"`
 * `grant_scope`：对于未将规则保存到设置文件即获批准的提示，为 `"once"` 或 `"session"`
 * `circuit_breaker`：内置安全检查，例如 `"dangerousRemoval"`、`"outsideReadsBlocked"` 或 `"claudeSettingsFile"`
-* `classifier_category`：在 `OTEL_LOG_TOOL_DETAILS=1` 时，为自动模式阻止背后的[内置规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)，例如 `"data_exfiltration"`
+* `classifier_category`：在设置 `OTEL_LOG_TOOL_DETAILS=1` 时，为自动模式阻止背后的[内置规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)，例如 `"data_exfiltration"`，出现条件与 [`tool_decision`](#tool-decision-event) 上的相同
 * `hook_event`：对于 `PreToolUse` hook 为 `"pre_tool_use"`，在 `"hook_review"` 事件上为 `"post_tool_use"`、`"post_tool_use_failure"`、`"stop"` 或 `"subagent_stop"`
 * `tool_class`：Bash 和 [Monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool) 为 `"bash"`，`"powershell"`，Read、Edit、Write、NotebookEdit、Glob 和 Grep 为 `"file"`，WebFetch 和 WebSearch 为 `"web"`，`"mcp"`，或 `"other"`
 * `tool_name`：工具的名称，例如内置工具为 `"Bash"`，或为 `"mcp_tool"`、`"skill_tool"`、`"dynamic_tool"` 或 `"other_tool"`

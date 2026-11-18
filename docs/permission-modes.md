@@ -43,6 +43,8 @@ Claude Code 在任何模式下都不会自动批准以下内容，包括 `bypass
   shell 解析器无法追踪的命令，例如更改目录多次或运行子 shell 的命令，即使在未命名任何外部路径时也会以相同方式提示。当命令在 [沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md) 中运行且沙箱强制执行该块时，此提示不适用。
 * 在 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories) 打开时在工作目录外写入：Claude Code 会拒绝在这些位置的 `Write`、`Edit` 和 `NotebookEdit` 调用，但 [其自身的部分文件](https://code.claude.com/docs/zh-CN/settings-reference.md#what-the-write-block-refuses-and-what-stays-writable) 除外。该设置项不限制 shell 命令、MCP 工具或 hook 运行的程序，因此请使用 [沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md) 来限制 shell 命令的写入位置。需要 Claude Code v2.1.314 或更高版本。
 
+Claude Code 也不会自动批准被标记为 `could not fully check your permission rules` 的 PowerShell 命令。如果您信任该命令，请批准该提示。如果 Claude Code 拒绝了该命令，请让 Claude 改写它。
+
 ## 常见设置
 
 权限模式决定 Claude 在执行操作之前是否询问，而 [Bash 沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)和外层[隔离边界](https://code.claude.com/docs/zh-CN/sandbox-environments.md)决定操作运行后能够访问哪些内容。下表每一行都将一个目标与实现该目标的标志或设置以及所需的隔离配对，可作为起点。[可用模式](#available-modes)列出了每种模式下无需提示即可运行的操作。
@@ -80,7 +82,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 | :- | :- |
 | 任何设置文件将 `disableAutoMode` 设置为 `"disable"` | `default` |
 | `claude -p` 或 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#permission-modes) | `default` |
-| 您的组织已应用 [HIPAA 配置](#hipaa-configuration)，且该会话[符合其适用条件](https://code.claude.com/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect) | Claude Code v2.1.285 或更高版本中为 `default`；仍可切换到自动模式 |
+| 您的组织已应用 [HIPAA 配置](#hipaa-configuration)，且该会话[符合其适用条件](https://code.claude.com/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect) | 在 v2.1.285 至 v2.1.325 上为 `default`。其他版本遵循下一行 |
 | 在终端或通过 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md) | Claude Code v2.1.283 或更高版本中为 `auto`；在较早的版本上，在 Pro、Max、Ultra 或 Team 计划中为 `auto`（在[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中），否则为 `default` |
 
 当标志、设置文件或内置默认值选择 `auto` 但自动模式对会话不可用时，Claude Code 以 Manual 启动会话。自动模式在会话不满足[可用性要求](#eliminate-prompts-with-auto-mode)时不可用，例如设置文件关闭它或不支持它的模型，或当 Anthropic 已在服务器端临时关闭它时。
@@ -138,7 +140,7 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 | 您即将启动的一个会话 | 将权限模式作为标志传递，例如 `claude --permission-mode default` |
 | 您在此机器上启动的每个终端会话 | 在 `~/.claude/settings.json` 中设置 `permissions.defaultMode`。有关 VS Code 扩展读取的内容，请参阅[切换权限模式](#switch-permission-modes) |
 | 您在一个项目中启动的每个终端会话 | 在项目的 `.claude/settings.json` 中设置 `permissions.defaultMode`。您在终端中启动的会话遵守除 `auto` 和 `bypassPermissions` 外的每个值；VS Code 扩展启动的会话不读取项目设置以获取起始权限模式 |
-| 您的组织中的每个终端会话 | 在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `permissions.defaultMode`。终端会话以该模式启动，人们仍然可以切换到自动模式；有关 VS Code 扩展读取的内容，请参阅[切换权限模式](#switch-permission-modes)。要移除自动模式以便没有人可以选择它，请改为将 `permissions.disableAutoMode` 设置为 `"disable"` |
+| 您的组织中的每个终端会话 | 在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置 `permissions.defaultMode`。人们仍然可以切换到自动模式；有关 VS Code 扩展读取的内容，请参阅[切换权限模式](#switch-permission-modes)。要移除自动模式以便没有人可以选择它，请改为将 `permissions.disableAutoMode` 设置为 `"disable"` |
 
 此示例使您机器上的每个终端会话以 Manual 模式启动，其配置值为 `default`。将其保存在 `~/.claude/settings.json` 中：
 
@@ -154,12 +156,10 @@ VS Code 扩展启动的对话遵循[切换权限模式](#switch-permission-modes
 
 ### HIPAA 配置下的权限模式
 
-在已应用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)的组织中，[内置 `auto` 默认值](#which-mode-a-session-starts-in)不适用。当没有其他方式选择起始权限模式时，终端或 VS Code 会话以 Manual 模式启动。终端会话还会显示 `Auto mode isn't the default for your organization · Shift+Tab to switch`，而 VS Code 扩展不显示任何通知。[检查开发人员如何登录和连接](https://code.claude.com/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect)列出了适用此规则的会话。
+如果您的组织已应用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)，Claude Code v2.1.326 或更高版本上的终端和 VS Code 会话[默认](#which-mode-a-session-starts-in)以自动模式启动。在 v2.1.285 至 v2.1.325 上，[符合条件的会话](https://code.claude.com/docs/zh-CN/hipaa-setup.md#check-how-developers-sign-in-and-connect)默认以 Manual 模式启动。
 
-自动模式和 `bypassPermissions` 仍然可用：
+要继续以 Manual 模式启动，请参阅[以不同的权限模式启动](#start-in-a-different-mode)。要为您的组织关闭自动模式或 `bypassPermissions`：
 
-* **切换到自动模式**：按 `Shift+Tab`，或使用[您界面中的控件](#switch-permission-modes)
-* **以自动模式启动**：传递 `--permission-mode auto`，或在您的用户设置中将 `permissions.defaultMode` 设置为 `auto`，或在托管设置中为整个组织进行此设置。请参阅[以不同的权限模式启动](#start-in-a-different-mode)
 * **移除自动模式**：在托管设置中将 [`permissions.disableAutoMode`](https://code.claude.com/docs/zh-CN/settings-reference#disableautomode) 设置为 `"disable"`
 * **阻止 `bypassPermissions`**：在托管设置中将 [`permissions.disableBypassPermissionsMode`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-disablebypasspermissionsmode) 设置为 `"disable"`
 
@@ -329,8 +329,6 @@ claude --permission-mode plan
 自动模式让 Claude 无需经过常规权限提示即可执行操作。一个独立的分类器模型会在操作运行前对其进行审查，阻止任何超出您请求范围、针对无法识别的基础设施，或看起来受 Claude 读取的恶意内容驱动的操作。显式的 [ask 规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)仍会强制弹出提示。
 
 在 Claude Code v2.1.283 或更高版本中，对于所有计划和提供商，自动模式都是交互式终端和 VS Code 会话的[内置初始权限模式](#which-mode-a-session-starts-in)。在更早的版本中，它仅在 Pro、Max、Ultra 和 Team 计划中是内置初始权限模式。
-
-分类器还会在 Claude Code 投递之前审查 Claude 通过 [`SendMessage`](https://code.claude.com/docs/zh-CN/tools-reference) 发送给另一个 Agent 的每条消息，无论是纯文本还是结构化的 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 消息，这在自动模式和[分类器审查命令时的计划模式](#analyze-before-you-edit-with-plan-mode)中均适用；发送审查需要 Claude Code v2.1.222 或更高版本。
 
 默认情况下，分类器不会审查已识别的针对关键路径的 `rm` 和 `rmdir` 删除操作，例如 `rm -rf /` 或 `rm -rf ~`。[关键路径](#critical-paths)介绍了它们在各权限模式下的处理方式。
 
@@ -526,7 +524,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 沙箱化命令默认没有网络访问权限。Claude 会在命令本身上指明该命令所需的主机，分类器会将这些主机与命令一起审查，而获批的列表仅为该条命令开放这些主机。[按命令允许的域名](https://code.claude.com/docs/zh-CN/sandboxing.md#per-command-allowed-domains-in-auto-mode)介绍了列表能开放和不能开放的内容，以及命令尝试访问未列出的主机时会发生什么。
 
-运行 `claude auto-mode defaults` 可以以 JSON 格式打印完整的规则列表。如果常规操作被阻止，管理员可以通过 `autoMode.environment` 设置添加受信任的仓库、存储桶和服务：请参阅[配置自动模式](https://code.claude.com/docs/zh-CN/auto-mode-config.md)。
+运行 `claude auto-mode defaults` 可以以 JSON 格式打印 Claude Code 内置的规则列表。如果常规操作被阻止，管理员可以通过 `autoMode.environment` 设置添加受信任的仓库、存储桶和服务：请参阅[配置自动模式](https://code.claude.com/docs/zh-CN/auto-mode-config.md)。
 
 推送到您正在处理的仓库的任何分支，以及创建与您的请求相符的 Pull Request，都会在无提示的情况下运行，除非该推送或 Pull Request 属于[阻止列表](#what-the-classifier-blocks-by-default)中的情况，例如密钥或敏感数据离开仓库，或 Pull Request 针对的是其他仓库或组织。如果要在保持自动模式的同时，要求在这些命令执行前进行人工确认，请添加 `permissions.ask` 规则，这些规则按[命令的书写形式](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)进行匹配：请参阅[常见边界](https://code.claude.com/docs/zh-CN/auto-mode-config.md#common-boundaries)。
 
@@ -553,7 +551,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 如果您告诉 Claude 某个被阻止的操作是允许的，分类器会将其视为您的批准，并可以解除阻止。您的措辞决定了该操作是否会运行，以及批准的覆盖范围：
 
-* **指明操作及其具体细节**：您的消息必须指明该操作以及使其具有危险性的具体内容，例如强制推送的分支。仅指明动词不会解除任何阻止，因此"您可以强制推送"不会解除阻止。
+* **指明操作及其具体细节**：请包含使其具有危险性的具体内容，例如强制推送的分支。如果您仅指明动词，例如"您可以强制推送"，阻止可能仍会保持不变。
 * **预期它仅涵盖一个操作**：批准涵盖您所指明的破坏性操作，因此之后的操作会再次被阻止，除非您授予的是持续性批准。如果不想逐个操作地批准某种常规模式，请将其添加到 [`autoMode.allow`](https://code.claude.com/docs/zh-CN/auto-mode-config#override-the-block-and-allow-rules)。
 * **有些阻止会保持不变**：[分类器的优先级顺序](https://code.claude.com/docs/zh-CN/auto-mode-config.md#override-the-block-and-allow-rules)规定了您的批准可以解除哪些阻止。要运行它不会解除阻止的步骤，请[退出自动模式](#switch-permission-modes)并回应权限提示。
 
@@ -592,22 +590,26 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >    * 如果 Claude 请求的路径本身不受保护，但经[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)解析后指向受保护路径，则该写入会向您发出提示
 >    * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)进行的读取即使匹配了允许规则，也会向您发出提示
 > 2. 只读操作以及在工作目录中的文件编辑会被自动批准，但对[受保护路径](#protected-paths)的写入以及[首次读取工作目录之外的内容](#first-read-outside-the-working-directories)除外，后者会向您发出提示
->    * 在启用了[服务器端分类器审查](#server-side-classifier-review)的会话中，只读 shell 命令和[沙箱化](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes) shell 命令会等待该审查，如果被审查标记则会被阻止
+>    * 在启用了[服务器端分类器审查](#server-side-classifier-review)的会话中，文件编辑、只读 shell 命令和[沙箱化](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes) shell 命令会等待该审查，如果被审查标记则会被阻止
 >    * 工作目录内的写入如果经[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)解析后指向工作目录之外的位置，会向您发出提示
 >    * 当 Claude 读取[他人创建的 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 时，适用该部分中列出的批准情形
 >    * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)进行的读取会向您发出提示
 > 3. 除了采用默认处理方式的[关键路径删除操作](#critical-paths)之外，其他所有操作都会交由分类器处理。在第 1 步中直接向您发出提示的连接器工具和 `requiresUserInteraction` MCP 工具也永远不会到达分类器，因此组织要求的批准和同意步骤都不会被自动批准
 >    * 启用 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 后，Claude 编写的代码会在运行前交由分类器审查一次，而其中的工具调用则不会。您仍然可以使用 `deny` 规则阻止某个调用，或使用 `ask` 规则要求发出提示，但 Claude 可以以[规则无法匹配的形式](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)运行 Bash 命令
-> 4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，该原因会指明分类器所匹配的规则，例如 `[Data Exfiltration]`，而不是给出书面解释；请参阅[查看拒绝记录](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)
+>    * 在 Code Mode 之外，分类器会在 Claude Code 投递之前审查 Claude 通过 [`SendMessage`](https://code.claude.com/docs/zh-CN/tools-reference) 发送给另一个 Agent 的消息。如果某条允许规则匹配 `SendMessage`，或 `PreToolUse` hook 返回 `"allow"`，消息可以跳过此审查。该审查在[分类器审查命令时的计划模式](#analyze-before-you-edit-with-plan-mode)下也会运行。需要 Claude Code v2.1.222 或更高版本。
+> 4. 如果分类器阻止了操作，Claude 会收到原因。在大多数会话中，该原因是分类器所匹配的[策略](https://code.claude.com/docs/zh-CN/auto-mode-config.md#fix-a-policy-denial)或规则的名称，例如 `[Destructive or Unwanted Actions]`；请参阅[查看拒绝记录](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)
 >
-> 您安装的处理 `tool.check` 的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 也可以批准操作。有关其批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
+> 您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 也可以批准操作。有关其批准无法越过您的规则和 hook 的情况，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
 >
 > 有关在 VS Code 扩展中 [Claude in Chrome](https://code.claude.com/docs/zh-CN/chrome.md) 浏览器操作如何获得批准，请参阅 [VS Code 会话中的权限提示](https://code.claude.com/docs/zh-CN/chrome.md#permission-prompts-in-vs-code-sessions)。
 >
-> 进入自动模式时，授予任意代码执行能力的宽泛 allow 规则会被丢弃：
+> 进入自动模式时，授予任意代码执行能力的宽泛 allow 规则会被丢弃，包括：
 >
 > * 通配的 `Bash(*)` 或 `PowerShell(*)`
 > * 带通配符的解释器，例如 `Bash(python*)`
+> * 仅后跟通配符的[包装命令](https://code.claude.com/docs/zh-CN/permissions.md#process-wrappers)，例如 `Bash(timeout *)`
+> * 以通配符开头的 shell 规则，例如 `Bash(* --version)`
+> * 某些带通配符的路径，例如 `Bash($HOME/bin/*)` 或 `PowerShell(C:\tools\x.exe *)`
 > * 包管理器的 run 命令
 > * `Agent` allow 规则
 > * [`Monitor`](https://code.claude.com/docs/zh-CN/tools-reference#monitor-tool) allow 规则，因为 Claude Code 通过 shell 运行 Monitor 命令
@@ -634,7 +636,9 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >
 > Claude Code 的分类器请求可以在您通过 `/model` 选择的模型以外的模型上运行。请参阅[它们在哪个模型上运行](#default-classifier-model)。
 >
-> 在 Enterprise 计划以及使用 Claude API、[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 的账户上，分类器调用会计入您的 token 用量。每次检查都会发送部分会话记录以及待执行的操作，从而在执行前增加一次往返。受保护路径之外的读取和工作目录编辑会跳过分类器，因此开销主要来自 shell 命令和网络操作。当服务器在会话的模型请求中审查操作时，不存在需要计算的单独分类器调用；请参阅[服务器端分类器审查](#server-side-classifier-review)。
+> 在 Enterprise 计划中，分类器调用会计入您的 token 用量。在使用 Claude API、[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)、Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry 的账户上，它们同样会计入。每次检查都会发送部分会话记录以及待执行的操作，从而在执行前增加一次往返。
+>
+> 当服务器在会话的模型请求中审查操作时，不存在需要计算的单独分类器调用。请参阅[服务器端分类器审查](#server-side-classifier-review)。
 >
 > 沙箱化的网络访问不会为每个连接增加分类器请求。分类器会在一次审查中将[命令所指明的主机](https://code.claude.com/docs/zh-CN/sandboxing.md#per-command-allowed-domains-in-auto-mode)与命令一起判断，Claude Code 会根据获批的列表检查每个连接，而无需再次调用分类器。
 

@@ -125,7 +125,7 @@ bare 模式还会限制会话运行期间发生的事情：
 
 ### 通过 Claude 管道传输数据
 
-非交互模式读取 stdin，因此您可以像任何其他命令行工具一样管道传输数据并重定向响应。
+非交互模式读取 stdin，因此您可以通过管道传入数据并将响应重定向输出。
 
 此示例将构建日志管道传输到 Claude 并将说明写入文件：
 
@@ -370,7 +370,7 @@ claude -p "Look at my staged changes and create an appropriate commit" \
   --allowedTools "Bash(git diff *),Bash(git log *),Bash(git status *),Bash(git commit *)"
 ```
 
-`--allowedTools` 标志使用 [权限规则语法](https://code.claude.com/docs/zh-CN/settings-reference.md#permission-rule-syntax)。尾部的 ` *` 启用前缀匹配，因此 `Bash(git diff *)` 允许任何以 `git diff` 开头的命令。`*` 之前的空格很重要：没有它，`Bash(git diff*)` 也会匹配 `git diff-index`。
+`--allowedTools` 标志使用 [权限规则语法](https://code.claude.com/docs/zh-CN/settings-reference.md#permission-rule-syntax)。带有尾部的 ` *` 时，`Bash(git diff *)` 匹配带参数或不带参数的 `git diff`。`*` 之前的空格很重要：没有它，`Bash(git diff*)` 也会匹配 `git diff-index`。
 
 > [!NOTE]
 >

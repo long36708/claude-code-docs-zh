@@ -365,7 +365,7 @@ What's the structure of @src/components?
 Show me the data from @github:repos/owner/repo/issues
 ```
 
-这使用 @server:resource 格式从连接的 MCP 服务器获取数据。有关详细信息，请参阅 [MCP 资源](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-resources)。
+有关详细信息，请参阅 [MCP 资源](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-resources)。
 
 > [!TIP]
 >
@@ -490,7 +490,7 @@ subagent 在其自己的上下文窗口中读取文件并报告摘要。有关�
 
 ## 将 Claude 管道输入脚本
 
-以非交互方式运行 Claude 用于 CI、预提交钩子或批处理。stdin 和 stdout 像任何 Unix 工具一样工作。
+以非交互方式运行 Claude 用于 CI、预提交钩子或批处理。
 
 ```bash theme={null}
 git log --oneline -20 | claude -p "summarize these recent commits"

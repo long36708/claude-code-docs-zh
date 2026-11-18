@@ -1805,7 +1805,7 @@ type SDKUserMessage = {
 设置 `shouldQuery`、`client_composed` 或 `priority` 可以改变 Claude Code 处理您所发送消息的方式：
 
 * `shouldQuery`：设置为 `false` 以将消息附加到会话记录中而不触发助手轮。消息被保留并合并到下一条触发轮的用户消息中。使用此方法注入上下文，例如您在带外运行的命令的输出，而无需在模型调用上花费。
-* `client_composed`：设置为 `true` 以让 Claude Code 按原样传递消息文本。Claude Code 然后不展开 `@path` 或 [`@server:resource`](https://code.claude.com/docs/zh-CN/mcp#use-mcp-resources) 提及，也不运行以 `/` 开头的文本作为命令。当 [`verbatimPrompts`](#options) 选项打开时，SDK 在每条消息上设置该字段。需要 TypeScript Agent SDK v0.3.280 或更高版本和 Claude Code v2.1.248 或更高版本。
+* `client_composed`：将其设置为 `true`，可让 Claude Code 按原样传递消息文本。此时 Claude Code 不会展开 `@path` 提及，也不会将以 `/` 开头的文本作为命令运行。当 [`verbatimPrompts`](#options) 选项开启时，SDK 会在每条消息上设置该字段。需要 TypeScript Agent SDK v0.3.280 或更高版本以及 Claude Code v2.1.248 或更高版本。
 * `priority`：控制您在轮次运行期间发送的消息何时到达 Claude：
   * `'next'` 或未设置 `priority` 字段：Claude 会在同一轮次中读取该消息，时机是其正在运行的工具调用一完成之时。如果轮次先结束，该消息将开启下一轮次。
   * `'later'`：Claude Code 会暂存该消息直到轮次结束，然后将其作为新轮次发送。
@@ -4447,12 +4447,13 @@ type GrepOutput = {
   totalLines?: number;
   appliedLimit?: number;
   appliedOffset?: number;
+  timedOut?: boolean;
 };
 ```
 
 返回搜索结果。形状因 `mode` 而异：文件列表、带匹配的内容或匹配计数。在 `count` 模式下，`numFiles` 和 `numMatches` 是完整结果集上的总计，不是分页切片。在 v2.1.208 之前，截断列出条目的 `head_limit` 或 `offset` 也会截断这些总计。
 
-`totalFiles` 需要 Claude Code v2.1.208 或更高版本，并在 `files_with_matches` 模式下报告 `head_limit` 和 `offset` 分页前的总结果数。`totalLines` 需要 Claude Code v2.1.210 或更高版本，并在 `content` 模式下报告分页前的总行数。
+`totalFiles` 需要 Claude Code v2.1.208 或更高版本，并在 `files_with_matches` 模式下报告 `head_limit` 和 `offset` 分页前的总结果数。`totalLines` 需要 Claude Code v2.1.210 或更高版本，并在 `content` 模式下报告分页前的总行数。`timedOut` 需要 Claude Code v2.1.317 或更高版本，当搜索超时时为 `true`，因此结果可能不完整。
 
 ### TaskStop
 

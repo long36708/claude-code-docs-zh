@@ -39,7 +39,7 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 1. 定期使用 `/compact` 以减少上下文大小。如果它返回 `Not enough messages to compact.`，则对话的轮次太少而无法总结；即使上下文已满，单个大粘贴填充它时也可能发生这种情况
 2. 在主要任务之间关闭并重启 Claude Code
 3. 考虑将大型构建目录添加到您的 `.gitignore` 文件
-4. 使用 [`claude --safe-mode`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 重启以检查插件、MCP 服务器或 hook 是否是源头。它禁用会话的所有自定义；如果使用量下降，请参阅[调试您的配置](https://code.claude.com/docs/zh-CN/debug-your-config.md#test-against-a-clean-configuration)以找出是哪一个
+4. 使用 [`claude --safe-mode`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 重启以检查插件、MCP 服务器或 hook 是否是源头。如果使用量下降，请参阅[调试您的配置](https://code.claude.com/docs/zh-CN/debug-your-config.md#test-against-a-clean-configuration)以找出是哪一个
 
 如果会话的堆内存超过 2.5GB，会出现严重内存使用警告。要释放内存，请重启 Claude Code 并运行 [`claude --continue`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 以在新进程中恢复对话。
 

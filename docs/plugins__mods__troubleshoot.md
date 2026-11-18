@@ -84,7 +84,7 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 ### `hooks module did not load`
 
-该行以 mod 的名称开头，然后是 `hooks module did not load:` 和一个原因，当问题在您的代码中时，它给出文件和行。Claude Code 无法加载模块，例如因为其顶级代码抛出了异常。
+该行以 mod 的名称开头，然后是 `hooks module did not load:` 和一个原因，对于语法错误，该原因会给出文件和行。Claude Code 无法加载模块，例如因为其顶级代码抛出了异常。
 
 修复原因命名的错误。
 

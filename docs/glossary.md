@@ -295,7 +295,7 @@ Bash 工具的操作系统级文件系统和网络隔离。命令在您预先定
 
 ### Settings layers
 
-Claude Code 读取配置的层次结构，按优先级顺序从最高到最低：[managed policy](#managed-settings)、通过 `--settings` 标志传递的设置、`.claude/settings.local.json` 处的本地设置、`.claude/settings.json` 处的项目设置，然后是 `~/.claude/settings.json` 处的用户设置。数组跨层合并；更高层的标量覆盖较低的。请参阅 [Settings precedence](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)。
+Claude Code 读取配置的层次结构。按优先级从高到低，这些层级依次为 [managed policy](#managed-settings)、通过 `--settings` 标志传递的设置、`.claude/settings.local.json` 处的本地设置、`.claude/settings.json` 处的项目设置，以及 `~/.claude/settings.json` 处的用户设置。大多数列表（例如 `permissions.allow`）会[跨文件合并](https://code.claude.com/docs/zh-CN/settings.md#lists-merge-instead-of-overriding)。请参阅 [Settings precedence](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)。
 
 了解更多：[Settings files](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)
 

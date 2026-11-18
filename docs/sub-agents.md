@@ -654,7 +654,7 @@ Implement API endpoints. Follow the conventions and patterns from the preloaded 
 
 #### 启用持久记忆
 
-`memory` 字段为子代理提供一个跨对话保留的持久目录。子代理使用此目录随时间积累知识，例如代码库模式、调试心得和架构决策。
+`memory` 字段为子代理提供一个跨对话保留的持久目录。子代理使用此目录随时间积累知识，例如您的偏好、您给出的纠正以及项目决策。
 
 ```yaml theme={null}
 ---
@@ -664,7 +664,7 @@ memory: user
 ---
 
 You are a code reviewer. As you review code, update your agent memory with
-patterns, conventions, and recurring issues you discover.
+the review preferences and corrections you're given.
 ```
 
 根据记忆应适用的范围选择作用域：
@@ -691,10 +691,10 @@ patterns, conventions, and recurring issues you discover.
 * 直接在子代理的 markdown 文件中加入记忆指令，使其主动维护自己的知识库：
 
   ```markdown theme={null}
-  Update your agent memory as you discover codepaths, patterns, library
-  locations, and key architectural decisions. This builds up institutional
-  knowledge across conversations. Write concise notes about what you found
-  and where.
+  Update your agent memory as you learn the team's preferences, project
+  constraints, and the reasons behind key decisions. This builds up
+  institutional knowledge across conversations. Write concise notes about
+  what you learned and why it matters.
   ```
 
 #### 使用 hook 的条件规则

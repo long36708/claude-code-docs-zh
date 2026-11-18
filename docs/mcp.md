@@ -449,7 +449,7 @@ Claude Code 默认会向 stdio 服务器询问该修订版。若要让 stdio 频
 > * `--transport` 和 `--header` 标志也接受 `-t` 和 `-H` 简写形式
 > * 使用 `MCP_TIMEOUT` 环境变量配置 MCP 服务器启动超时时间（例如，`MCP_TIMEOUT=10000 claude` 设置 10 秒的超时时间）
 > * 通过在服务器的 `.mcp.json` 条目中添加以毫秒为单位的 `timeout` 字段来设置单个服务器的工具执行超时时间，例如 `"timeout": 600000` 表示十分钟。这仅对该服务器覆盖 `MCP_TOOL_TIMEOUT` 环境变量
-> * 当 MCP 工具输出超过 10,000 个 token 时，Claude Code 会显示警告，并默认将输出限制为 25,000 个 token。若要更改 token 限制，请设置 `MAX_MCP_OUTPUT_TOKENS` 环境变量，例如 `MAX_MCP_OUTPUT_TOKENS=50000`。警告阈值是固定的。除非服务器提高了某个工具自身的限制，否则超过 50,000 个字符的成功文本结果会保存到文件中，不受此变量影响。请参阅 [MCP 输出限制和警告](#mcp-output-limits-and-warnings)
+> * 有关工具输出大小的限制，请参阅 [MCP 输出限制与警告](#mcp-output-limits-and-warnings)
 > * 使用 `/mcp` 对需要 OAuth 2.0 身份验证的远程服务器进行身份验证
 
 ### MCP 工具调用的时间限制
@@ -1512,7 +1512,7 @@ claude mcp serve
 
 当 MCP 工具产生大量输出时，Claude Code 会帮助管理 token 使用情况，以防止压倒您的对话上下文：
 
-* **输出警告阈值**：当任何 MCP 工具输出超过 10,000 个 token 时，Claude Code 会显示警告
+* **输出警告阈值**：当任何 MCP 工具输出超过固定的 10,000 个 token 时，[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)会显示警告
 * **可配置限制**：您可以使用 `MAX_MCP_OUTPUT_TOKENS` 环境变量调整允许的最大 MCP 输出 token 数
 * **默认限制**：默认最大值为 25,000 个 token
 * **范围**：环境变量适用于未声明自己限制的工具。设置了 [`anthropic/maxResultSizeChars`](#raise-the-limit-for-a-specific-tool) 的工具会对文本内容使用该值，而不管 `MAX_MCP_OUTPUT_TOKENS` 设置为什么。返回图像数据的工具仍然受 `MAX_MCP_OUTPUT_TOKENS` 限制
@@ -1694,7 +1694,7 @@ MCP 服务器可以在任务进行中使用引出功能向您请求结构化输�
 
 ## 使用 MCP 资源
 
-MCP 服务器可以公开资源，您可以使用 @ 提及来引用这些资源，类似于引用文件的方式。
+MCP 服务器可以公开资源，您可以使用 @ 提及来引用这些资源，类似于引用文件的方式。使用 `claude -p` 时，资源提及会保留为纯文本。
 
 ### 引用 MCP 资源
 

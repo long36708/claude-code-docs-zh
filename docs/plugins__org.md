@@ -148,7 +148,8 @@ CLAUDE_CODE_PLUGIN_CACHE_DIR=/opt/claude-seed claude plugin install code-formatt
 播种市场遵循这些规则：
 
 * **只读**：Claude Code 从不写入播种并为播种市场强制 `autoUpdate` 关闭。
-* **播种条目优先**：在每次启动时，播种中声明的市场覆盖用户的同名条目。用户使用 `claude plugin disable` 选择退出播种插件，而不是通过删除市场。
+* **从声明的源构建**：如果用户设置或托管设置在 `extraKnownMarketplaces` 中声明了某个播种市场的名称，请从该源和 `ref` 构建播种。
+* **选择退出**：当仓库的设置启用了某个播种插件时，用户使用 `claude plugin disable` 选择退出，而不是通过删除市场。
 * **更新和删除失败**：`claude plugin marketplace update <name>` 和在播种市场上不带 `--scope` 的 `remove` 失败，并显示命名播种目录的消息。
 * **策略仍然适用**：[允许列表和阻止列表](#restrict-what-users-can-install)也检查播种市场的记录源。允许您构建播种的源。
 

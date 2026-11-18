@@ -188,6 +188,8 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 * **让任务自行更新**：要让任务使用 `update_scheduled_task` MCP 工具更改其自己的调度或提示词，请单击 **Run now** 并每次批准该调用
 * **在磁盘上编辑提示词**：打开 `~/.claude/scheduled-tasks/<task-name>/SKILL.md`；如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars) 变量，则打开其下的 `scheduled-tasks/<task-name>/SKILL.md`。该文件使用 YAML frontmatter 表示 `name` 和 `description`，提示词作为正文。更改在下一次运行时生效。Schedule、folder 和 enabled 状态不在此文件中：请通过 Edit 表单更改它们或询问 Claude。
 
+如果某个已经运行过的本地一次性任务未显示在 **Scheduled tasks** 页面上，请单击列表上方的排序图标并选择 **Include completed**。
+
 ## 相关资源
 
 * [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)：在云端按计划、通过 API 调用或响应 GitHub 事件运行任务，即使您的计算机关闭

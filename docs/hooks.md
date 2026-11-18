@@ -265,9 +265,11 @@ Hooks 在 JSON 设置文件中定义。配置有三个嵌套级别：
 
 Hook 条目在设置级别之间合并而不是相互替换：用户、项目和本地设置添加自己的 hooks 而不删除托管的 hooks，[`disableAllHooks`](#disable-or-remove-hooks) 设置无法禁用来自托管设置外部的托管 hooks。
 
-[HTTP hook 允许列表](https://code.claude.com/docs/zh-CN/settings-reference.md#hook-and-skill-settings) 适用于来自所有源的 hooks，包括托管策略设置：
+#### 限制 HTTP hook
 
-* `allowedHttpHookUrls`：在任何设置级别定义时，Claude Code 仅在其 URL 与合并的允许列表匹配时运行 HTTP hook 处理程序
+在托管设置中设置这些 [HTTP hook 允许列表](https://code.claude.com/docs/zh-CN/settings-reference.md#hook-and-skill-settings) 可覆盖您组织部署的 hook，在任何设置文件中设置则可覆盖其他 hook：
+
+* `allowedHttpHookUrls`：定义时，Claude Code 仅在 HTTP hook 处理程序的 URL 与合并后的允许列表匹配时运行该处理程序
 * `httpHookAllowedEnvVars`：定义时，Claude Code 仅将该列表上的环境变量插值到 hook 标头中
 
 ### 匹配器模式
@@ -2530,7 +2532,13 @@ PostToolUseFailure hook 接收与 PostToolUse 相同的 `tool_name` 和 `tool_in
 
 | 字段 | 描述 |
 | :- | :- |
-| `reason` | 拒绝原因。对于分类器判定，在大多数会话中，它会用方括号标明匹配的规则，例如 `[Data Exfiltration]`；其他形式请参阅[查看拒绝记录](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)。对于[无判定拒绝](#permissiondenied-decision-control)，它以 `Auto mode could not evaluate this action and is blocking it for safety` 开头。对于因分类器模型不可用而导致的拒绝，它是固定文本 `Classifier unavailable` |
+| `reason` | 拒绝原因 |
+
+记录拒绝时，`reason` 中可能出现如下文本：
+
+* **分类器裁决**：在大多数会话中，为方括号中匹配的[策略](https://code.claude.com/docs/zh-CN/auto-mode-config.md#fix-a-policy-denial)或规则，例如 `[Destructive or Unwanted Actions]`。其他形式请参阅[查看拒绝记录](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)。
+* **[分类器无裁决](#permissiondenied-decision-control)**：以 `Auto mode could not evaluate this action and is blocking it for safety` 开头
+* **分类器模型不可用，或[服务器检查失败或超时](https://code.claude.com/docs/zh-CN/errors.md#the-server-returned-no-safety-verdict)**：文本 `Classifier unavailable`
 
 #### PermissionDenied 决策控制
 

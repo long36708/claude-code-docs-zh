@@ -14,7 +14,9 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 
 > [!NOTE]
 >
-> 在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中，分类器决定大多数权限提示，而不是您。`Permission required` 列显示工具是否在[手动模式](https://code.claude.com/docs/zh-CN/permission-modes.md)中为工作目录内的路径提示。标记为"否"的文件访问工具，包括 `Read`、`Grep` 和 `Glob`，仍然会为[工作目录和其他目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的路径提示。`Bash` 标记为"是"，但运行内置的[只读命令](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)而不提示。
+> 在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中，分类器决定大多数权限提示，而不是您。`Permission required` 列显示工具是否在[手动模式](https://code.claude.com/docs/zh-CN/permission-modes.md)中为工作目录内的路径提示。标记为"否"的文件访问工具，包括 `Read`、`Grep` 和 `Glob`，仍然会为[工作目录和其他目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的路径提示，但 Claude Code 自身需要的文件除外。
+>
+> `Bash` 标记为"是"，但运行内置的[只读命令](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)而不提示。
 
 | 工具 | 描述 | 需要权限 |
 | :- | :- | :- |

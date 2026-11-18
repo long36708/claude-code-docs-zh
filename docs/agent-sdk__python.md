@@ -3072,12 +3072,13 @@ Claude Code 根据子代理的最后一次 API 请求（而非整个运行过程
     "totalLines": int | None,  # 可选；应用 head_limit 和 offset 之前的总数，在 content 模式下
     "appliedLimit": int | None,  # 当 head_limit 截断了结果时存在
     "appliedOffset": int | None,  # 当应用了 offset 时存在
+    "timedOut": bool | None,  # 当搜索超时时为 True，因此结果可能不完整
 }
 ```
 
 Grep 在每种输出模式下都返回这种 dict 形状。存在哪些可选键取决于 `output_mode`。
 
-`totalFiles` 需要 Claude Code v2.1.208 或更高版本。`totalLines` 需要 Claude Code v2.1.210 或更高版本。
+`totalFiles` 需要 Claude Code v2.1.208 或更高版本。`totalLines` 需要 Claude Code v2.1.210 或更高版本。`timedOut` 需要 Claude Code v2.1.317 或更高版本。
 
 ### NotebookEdit
 

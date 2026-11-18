@@ -233,15 +233,18 @@ Claude Code 安全地管理您的身份验证凭证：
 
 当您使用 `/login` 创建的登录在过期前三天内时，Claude Code 会在启动时显示警告：`Your login expires in 3 days · run /login to renew`。
 
-运行 `/login` 以续期。该警告仅供参考，永远不会阻止请求：身份验证将继续工作，直到登录实际过期。
+运行 `/login` 以续期。该警告仅在 claude.ai 登录是活跃凭据时出现。
 
-一旦存储的登录过期且无法刷新，每个模型请求都会失败，显示 [`Login expired · Please run /login`](https://code.claude.com/docs/zh-CN/errors#login-expired)，直到您再次登录。
+#### 登录过期之后
 
-您可以在请求失败之前检查此状态：[`/status`](https://code.claude.com/docs/zh-CN/commands) 显示 `Login` 行，读取 `Expired — log in again`，加上它为过期登录保存的组织和电子邮件。该行仅在保存的 claude.ai 登录是活跃凭证时出现。该行需要 Claude Code v2.1.210 或更高版本。
+一旦存储的登录过期且无法刷新，请运行 `/login` 重新登录。在您重新登录之前，请求要么失败，要么使用您保存的其他凭据：
 
-该警告仅在 claude.ai 登录是活跃凭证时出现，而不是在云提供商、`ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 提供凭证时出现。
+* **没有其他凭据**：模型请求会失败，显示 [`Login reached its time limit` 或 `Login expired`](https://code.claude.com/docs/zh-CN/errors#login-expired)。
+* **有其他凭据**，例如 [`ant auth login` 配置文件](#anthropic-profiles-and-federation-credentials)：请求可以改用该凭据，费用计入其所属组织。
 
-对于运行无人值守的会话，提前续期最为重要。在 [agent view 中的后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)或 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话一旦凭证过期，就会停止进行，并且在您再次登录之前无法恢复。
+您可以在请求失败之前检查登录是否已过期：[`/status`](https://code.claude.com/docs/zh-CN/commands) 会显示 `Login` 行，内容为 `Expired — log in again`。
+
+对于无人值守运行的会话，提前续期最为重要。登录过期后仍在运行的 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话会断开连接，直到您重新登录。如果您没有保存其他凭据，[agent view 中的后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)会停止进展。
 
 ### 身份验证优先级
 

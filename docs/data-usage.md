@@ -82,7 +82,7 @@ Claude Code 在本地运行。为了与 LLM 交互，Claude Code 通过网络发
 | Anthropic API | 基础设施级磁盘加密 (AES-256)。启用 [Zero Data Retention](https://code.claude.com/docs/zh-CN/zero-data-retention.md) 以实现无服务器端持久化。 |
 | Amazon Bedrock | AES-256，使用 AWS 管理的密钥。可通过 AWS KMS 获得客户管理的密钥。 |
 | Google Cloud 的 Agent Platform | Google 管理的加密密钥。CMEK 可用。 |
-| Microsoft Foundry | 取决于部署的[托管选项](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)。对于在 Azure 上托管的部署，提示和完成内容保留在 Azure 内；只有使用情况元数据和由 Anthropic 安全系统标记的内容才会流向 Anthropic。对于在 Anthropic 上托管的部署，请求路由到 Anthropic 基础设施，使用 AES-256 磁盘加密。 |
+| Microsoft Foundry | 取决于部署的[托管选项](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)。对于在 Azure 上托管的部署，请参阅[数据的处理和存储位置](https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry#hosting-options)。对于在 Anthropic 上托管的部署，请求路由到 Anthropic 基础设施，使用 AES-256 磁盘加密。 |
 
 Claude Code 基于 Anthropic 的 API 构建。有关 API 安全控制的详情，包括 API 日志记录程序，请参阅 [Anthropic 信任中心](https://trust.anthropic.com)中的合规工件。
 

@@ -59,7 +59,7 @@ plist 和 HKLM 注册表位置适用于任何提供商，并且由于需要管�
 
 默认情况下，WSL 仅读取 `/etc/claude-code` 处的 Linux 文件路径。要将您的 Windows 注册表和 `C:\Program Files\ClaudeCode` 策略扩展到同一台机器上的 WSL，请在这些仅限管理员的 Windows 来源之一中设置 [`wslInheritsWindowsSettings: true`](https://code.claude.com/docs/zh-CN/settings-reference#wslinheritswindowssettings)。
 
-无论您选择哪种机制，托管值都优先于用户和项目设置，除了一些安全敏感的[例外](https://code.claude.com/docs/zh-CN/settings.md#exceptions-to-managed-settings-precedence)。数组设置（如 `permissions.allow` 和 `permissions.deny`）合并来自所有源的条目，因此开发人员可以扩展托管列表但不能从中删除。对于 `fallbackModel`、`availableModels` 和 [`modelPicker`](https://code.claude.com/docs/zh-CN/settings-reference#modelpicker)，托管值替换较低层而不是合并。
+无论您选择哪种机制，托管值都优先于用户和项目设置，除了一些安全敏感的[例外](https://code.claude.com/docs/zh-CN/settings.md#exceptions-to-managed-settings-precedence)。数组设置（如 `permissions.allow` 和 `permissions.deny`）会将来自[较低优先级设置](https://code.claude.com/docs/zh-CN/settings.md#lists-merge-instead-of-overriding)的条目合并到[适用的托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)中，因此开发人员可以扩展托管列表但不能从中删除。对于 `fallbackModel`、`availableModels` 和 [`modelPicker`](https://code.claude.com/docs/zh-CN/settings-reference#modelpicker)，托管值替换较低层而不是合并。
 
 ### WSL 会话在 Claude Code Desktop 中
 

@@ -138,7 +138,7 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 }
 ```
 
-`claude mcp add` 失败，显示上述企业策略错误。用户之前配置的服务器在下次启动会话时停止加载，没有警告说明策略是原因。您通过 `managedMcpServers` 提供的服务器以及您允许与托管集合一起使用的任何其他内容在空映射下[仍然会加载](#exclusive-control-with-managed-mcp-json)，因此请保持这些键未设置。
+`claude mcp add` 失败，显示上述企业策略错误。用户之前配置的服务器会在每个用户的下一次会话中停止加载。您通过 `managedMcpServers` 提供的服务器以及您允许与托管集合一起使用的任何其他内容在空映射下[仍然会加载](#exclusive-control-with-managed-mcp-json)，因此请保持这些键未设置。
 
 ### 允许 claude.ai 连接器与托管集合一起使用
 
@@ -523,6 +523,7 @@ URL 支持 `*` 通配符，包括以 `*` 作为整个方案。主机名匹配不
 | 服务器不在允许列表中，且用户运行 `claude mcp add` | `Cannot add MCP server "<name>": not allowed by enterprise policy` |
 | [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization) 为 `true` 或包含 `mcp`，且用户运行 `claude mcp add` | [`Cannot add MCP server: your organization's managed settings allow only MCP servers that plugins provide`](https://code.claude.com/docs/zh-CN/errors#cannot-add-mcp-server-when-managed-settings-allow-only-plugin-servers) |
 | 用户对来自 `managedMcpServers` 的服务器运行 `claude mcp remove` | `MCP server "<name>" is provided by your organization (managed settings) and cannot be removed locally.` |
+| `managed-mcp.json` 在终端会话打开期间生效 | 一条以 `Your organization now manages MCP servers on this computer` 开头的通知 |
 | 先前已配置的服务器现在被策略阻止 | 该服务器从 `/mcp` 和 `claude mcp list` 中消失 |
 | 服务器在会话运行期间被阻止，且用户在 `/mcp` 中选择 **Reconnect** 或将其重新启用 | [`MCP server <name> is blocked by enterprise managed policy`](https://code.claude.com/docs/zh-CN/errors#mcp-server-is-blocked-by-enterprise-managed-policy) |
 

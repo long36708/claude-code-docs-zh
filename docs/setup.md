@@ -40,7 +40,7 @@ Claude Code 在以下平台和配置上运行：
 >
 > **macOS、Linux、WSL：**
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.sh | bash
 > ```
 >
@@ -48,13 +48,13 @@ Claude Code 在以下平台和配置上运行：
 >
 > **Windows PowerShell：**
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > irm https://claude.ai/install.ps1 | iex
 > ```
 >
 > **Windows CMD：**
 >
-> ```batch theme={null}
+> ```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 > ```
 >
@@ -72,7 +72,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] Homebrew
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > brew install --cask claude-code
 > ```
 >
@@ -84,7 +84,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] WinGet
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > winget install Anthropic.ClaudeCode
 > ```
 >
@@ -254,7 +254,7 @@ Homebrew 安装通过 cask 名称而不是此设置来选择渠道：`claude-cod
 
 在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中，`minimumVersion` 会强制执行用户和项目设置无法覆盖的组织范围最低版本。
 
-`minimumVersion` 固定仅约束更新。要使 Claude Code 拒绝在版本范围外启动，请改为使用托管设置 `requiredMinimumVersion` 和 `requiredMaximumVersion`。更新也会遵守 `requiredMaximumVersion` 上限。请参阅 [`requiredMinimumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#requiredminimumversion) 和 [`requiredMaximumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#requiredmaximumversion)。
+`minimumVersion` 固定仅约束更新。要使 Claude Code 拒绝在版本范围外启动，请改为使用托管设置 `requiredMinimumVersion` 和 `requiredMaximumVersion`。请参阅 [`requiredMinimumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#requiredminimumversion) 和 [`requiredMaximumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#requiredmaximumversion)。
 
 ### 禁用自动更新
 

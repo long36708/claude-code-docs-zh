@@ -4,7 +4,7 @@
 
 # 配置自动模式
 
-> 告诉自动模式分类器您的组织信任哪些代码库、存储桶和域。设置环境上下文，覆盖默认的阻止和允许规则，并使用自动模式 CLI 子命令检查您的有效配置。
+> 告诉自动模式分类器您的组织信任哪些代码库、存储桶和域，设置您自己的阻止和允许规则，并检查您的配置。
 
 [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)让 Claude Code 无需常规权限提示即可运行，通过将工具调用路由到一个分类器，该分类器会阻止任何不可逆、破坏性或针对您环境外的操作。拒绝和显式询问规则在分类器之前进行评估，仍然会阻止或提示。使用 `autoMode` 设置块告诉该分类器您的组织信任哪些代码库、存储桶和域，以便它停止阻止常规内部操作。
 
@@ -119,7 +119,7 @@
 }
 ```
 
-保存设置后，运行 `claude auto-mode config` 以[确认有效规则](#inspect-the-defaults-and-your-effective-config)包含您的条目。
+保存设置后，运行 `claude auto-mode config` 以[确认规则](#inspect-the-defaults-and-your-effective-config)包含您的条目。
 
 条目是散文，不是正则表达式或工具模式。分类器将它们读取为自然语言规则。按照您向新工程师描述基础设施的方式编写它们。彻底的环境部分涵盖：
 
@@ -184,7 +184,7 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 * 对于草稿添加了条目的 `allow`、`soft_deny` 和 `hard_deny` 列表，Claude Code 会在每个列表中包含 `"$defaults"`，除非您已经编写了不含它的 `allow` 列表，这样您未替换的[内置规则](#override-the-block-and-allow-rules)将继续生效
 * 保存后，Claude Code 会提议删除 `~/.claude/settings.json` 中被自动模式忽略的 `permissions.allow` 规则（例如 `Bash(*)`），或会自动批准破坏性命令的规则
 
-然后运行 `claude auto-mode config` 以[查看最终生效的结果](#inspect-the-defaults-and-your-effective-config)。
+然后运行 `claude auto-mode config` 以[查看结果](#inspect-the-defaults-and-your-effective-config)。
 
 ### 关闭 `/auto-mode-setup`
 
@@ -214,7 +214,7 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 
 ## 覆盖阻止和允许规则
 
-三个额外的字段让您替换分类器的内置规则列表：
+要在分类器的内置规则基础上添加规则，请设置以下三个额外字段中的任意一个，并在其列表中包含字面字符串 `"$defaults"`：
 
 * `autoMode.hard_deny`：即使用户要求也要阻止的操作
 * `autoMode.soft_deny`：用户意图可以清除的破坏性操作
@@ -236,8 +236,6 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 一般请求不算作明确意图。要求 Claude“清理仓库”不授权强制推送，但要求 Claude“强制推送此分支”则授权。
 
 要放松，当分类器重复标记默认例外不涵盖的常规模式时，添加到 `allow`。要收紧，为您的环境特定的破坏性风险添加到 `soft_deny`（默认值会遗漏），或为即使用户要求也要阻止的操作添加到 `hard_deny`。
-
-要保持内置规则同时添加您自己的规则，请在数组中包含字面字符串 `"$defaults"`。默认规则会在该位置拼接，因此您的自定义规则可以在它们之前或之后，并且当内置列表在版本发布中更改时，您继续继承更新。
 
 以下示例在所有四个列表中保持默认值，并向每个列表添加特定于组织的规则。
 
@@ -268,14 +266,9 @@ Claude Code 在后台进行扫描，然后向您展示草稿。您只能整体�
 
 > [!CAUTION]
 >
-> 在不包含 `"$defaults"` 的情况下设置 `environment`、`allow`、`soft_deny` 或 `hard_deny` 中的任何一个会替换该部分的整个默认列表。如果您设置一个没有 `"$defaults"` 的数组，您会丢弃该部分的内置规则：
->
-> * `soft_deny`：每个内置软阻止规则，包括强制推送、`curl | bash`、生产部署和自动模式绕过
-> * `hard_deny`：内置的数据泄露规则
+> 请在您设置的每个列表中都包含 `"$defaults"`，以免丢失其中包含的任何[内置规则](#inspect-the-defaults-and-your-effective-config)。
 
 每个部分独立评估，因此单独设置 `environment` 会保持默认 `allow`、`soft_deny` 和 `hard_deny` 列表完整。
-
-仅在您打算完全拥有该列表时才省略 `"$defaults"`。要安全地执行此操作，请运行 `claude auto-mode defaults` 打印内置规则，将它们复制到您的设置文件中，然后根据您自己的管道和风险容限审查每条规则。
 
 ## 从 `/permissions` 编辑规则
 
@@ -289,7 +282,7 @@ Claude Code 将来自 [managed settings](https://code.claude.com/docs/zh-CN/serv
 
 ## 暂停 shell 允许规则
 
-默认情况下，narrow Bash 和 PowerShell 允许规则（如 `Bash(npm test)`）在自动模式下保持有效。Claude Code 在分类器运行之前解析它们，除非命令携带[按命令允许的域](https://code.claude.com/docs/zh-CN/sandboxing.md#per-command-allowed-domains-in-auto-mode)。Claude Code 仅暂停授予任意代码执行权限的广泛规则，例如 `Bash(*)` 或通配符解释器，以及每个命名 [`Monitor`](https://code.claude.com/docs/zh-CN/tools-reference#monitor-tool) 的规则，因为 Monitor 命令通过 shell 运行。这意味着 narrow 规则仍然可以让分类器看不到的破坏性参数通过，例如规则前缀未预期的脚本路径或标志。
+在自动模式下，Claude Code 会丢弃[广泛的允许规则](https://code.claude.com/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)，例如 `Bash(*)`。默认情况下，narrow Bash 和 PowerShell 允许规则（如 `Bash(npm test)`）保持有效。Claude Code 在分类器运行之前解析它们，除非命令携带[按命令允许的域](https://code.claude.com/docs/zh-CN/sandboxing.md#per-command-allowed-domains-in-auto-mode)。narrow 规则仍然可以让破坏性参数在分类器看不到的情况下通过，例如规则前缀未预期的脚本路径或标志。
 
 将 `autoMode.classifyAllShell` 设置为 `true`，以在自动模式处于活动状态时，以及在[分类器审查命令时的计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，暂停您的 Bash 和 PowerShell 允许规则。在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) 会话中，即使启用了此设置，分类器也会审查运行这些命令的代码。
 
@@ -307,7 +300,7 @@ Claude Code 将来自 [managed settings](https://code.claude.com/docs/zh-CN/serv
 
 `claude auto-mode` 子命令可帮助您检查、验证和重置配置。
 
-将内置的 `environment`、`allow`、`soft_deny` 和 `hard_deny` 规则打印为 JSON：
+打印 Claude Code 内置的 `environment`、`allow`、`soft_deny` 和 `hard_deny` 规则：
 
 ```bash theme={null}
 claude auto-mode defaults
@@ -315,7 +308,11 @@ claude auto-mode defaults
 
 要读取一条规则的完整措辞而不通过 `jq` 管道，请传递 `--label` 和规则标签的开头，例如 `claude auto-mode defaults --label 'Git Destructive'`。匹配是对每条规则标签的不区分大小写的前缀，没有匹配的部分将打印为空列表。
 
-打印分类器实际使用的内容为 JSON，其中应用了您的设置（如果已设置）或使用默认值：
+> [!NOTE]
+>
+> 当自动模式下的 `/status` 将 [`Auto mode server`](https://code.claude.com/docs/zh-CN/permission-modes#server-side-classifier-review) 显示为 `Enabled` 时，服务器的内置规则可能与此输出不同，并且没有任何 `claude auto-mode` 子命令会打印这些规则。
+
+打印这四个列表，其中应用了您的设置（如果已设置）或使用默认值：
 
 ```bash theme={null}
 claude auto-mode config
@@ -402,19 +399,36 @@ claude auto-mode reset
 
 * **Recently blocked 选项卡**：高亮显示该操作所在的行。在[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)下，所有命令和输入都会显示在列表之前。
 * **Hook**：要以编程方式捕获拒绝的确切输入，请添加一个 [`PermissionDenied` hook](https://code.claude.com/docs/zh-CN/hooks#permissiondenied)，它将其作为 `tool_input` 接收。如果您的 hook 读取 `reason`，则其中不会有 `Auto mode:` 前缀，并且会出现诸如 `Blocked by classifier` 之类的文本，而不是 `No reason provided`。
-* **对话**：找到工具调用。如果调用显示为缩短或折叠成摘要行（例如 `Ran 3 shell commands`），请按 `Ctrl+O` 打开[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)，它会展开该调用。
+* **对话**：找到工具调用。如果调用显示为缩短或折叠成摘要行，请按 `Ctrl+O` 打开[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)。
 
 调用下方的文本告诉您是否有任何需要修复的内容。一行暗色的 `Not run · auto mode's check had no usable answer`，或报告分类器本身问题的文本（例如 `Auto mode could not evaluate this action`），意味着 Claude Code 在没有来自分类器的判决的情况下阻止了调用。对于 `Not run` 行，请按 `Ctrl+O` 阅读完整消息，然后参阅[自动模式无法确定操作的安全性](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)或[服务器未返回安全判决](https://code.claude.com/docs/zh-CN/errors.md#the-server-returned-no-safety-verdict)了解该怎么做。
 
 否则，`Blocked by auto mode` 行意味着分类器判断调用不安全。要放行该调用，请根据 Claude 试图到达或执行的内容采取相应措施：
 
 * Claude 在整个任务中需要的目标，例如包注册表、内部域或存储库主机：将其添加到 `autoMode.environment`。
-* 您想从现在开始运行而无需审查的命令：添加一个 `allow` 规则。
+* 您希望从现在起允许的命令：添加一个 `allow` 规则。
 * 您确实打算执行的一次性操作：在您的下一条消息中说明该意图，让 Claude 重试。
 
 您可以从 `/permissions` 对话框的 [**Auto mode** 选项卡](#edit-rules-from-permissions)添加环境条目或 `allow` 规则。
 
-方括号中的文本，例如 `[Data Exfiltration]`，是分类器匹配的规则的名称。要阅读该规则的完整措辞，请参阅[检查默认值和您的有效配置](#inspect-the-defaults-and-your-effective-config)。
+方括号中的文本指明了分类器匹配的内容。如果它是 Claude Code 的内置规则，请将其名称（不带方括号）传给 [`claude auto-mode defaults --label`](#inspect-the-defaults-and-your-effective-config) 以阅读完整措辞。
+
+### 修复 `Destructive or Unwanted Actions` 及其他策略拒绝
+
+如果拒绝显示以下名称之一，则表示[服务器端分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#server-side-classifier-review)阻止了该调用，并给出了一个宽泛的策略作为理由：
+
+* `[Destructive or Unwanted Actions]`
+* `[Unauthorized Access]`
+* `[Undermining Oversight]`
+* `[Unsanctioned Communication]`
+
+策略名称只是一个类别，`claude auto-mode defaults` 不会列出其措辞。请在对话中阅读被阻止的调用，或在终端会话中运行 `/permissions` 并查看 **Recently blocked**。如果这正是您希望 Claude 执行的操作，请为分类器提供更多上下文：
+
+* **仅针对此次调用**：告诉 Claude 执行该操作，并指明操作及其目标，例如"覆盖 `data/seed.json`"
+* **针对您信任的目标，例如包注册表**：将其添加到 [`autoMode.environment`](#define-trusted-infrastructure)
+* **针对您希望从现在起允许的常规操作**：在 [`autoMode.allow`](#override-the-block-and-allow-rules) 条目中描述它
+
+添加条目后，请让 Claude 重试，以便分类器再次检查该调用。
 
 ### 修复重复拒绝
 

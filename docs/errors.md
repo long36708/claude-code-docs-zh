@@ -105,6 +105,9 @@
 | `Not signed in to the Cloud gateway — run /login.` | [身份验证](#administrator-policy-requires-a-cloud-gateway-sign-in) |
 | `Administrator policy requires a Cloud gateway sign-in on this machine` | [身份验证](#administrator-policy-requires-a-cloud-gateway-sign-in) |
 | `Failed to authenticate: OAuth session expired and could not be refreshed` | [身份验证](#login-expired) |
+| `Login reached its time limit · Please run /login` / `Failed to authenticate: this login reached its time limit` | [身份验证](#login-expired) |
+| `Failed to authenticate: your claude.ai login expired` | [登录过期之后](https://code.claude.com/docs/zh-CN/authentication.md#after-the-login-expires) |
+| `claude.ai login ended · usage now billed to` / `Warning: the claude.ai login on this machine has ended` | [登录过期之后](https://code.claude.com/docs/zh-CN/authentication.md#after-the-login-expires) |
 | `Could not refresh your login because another Claude Code process is refreshing it` | [身份验证](#could-not-refresh-your-login) |
 | `Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh` | [身份验证](#could-not-refresh-your-login) |
 | `Could not refresh your login: the disk that holds the Claude Code config directory (~/.claude by default), or your disk quota on it, is full` | [身份验证](#could-not-refresh-your-login-disk-full) |
@@ -369,6 +372,7 @@
 | `This call was not run. Claude Code could not confirm that the shell is back in the directory`，自 v2.1.323 起 | [工具错误](#command-approved-before-a-restart-was-not-run) |
 | `File is too large to read as an image (the limit is 128MB)` | [工具错误](#file-is-too-large-to-read-as-an-image) |
 | `Cannot read this as an image: <path> is a pipe or a device` | [工具错误](#file-is-too-large-to-read-as-an-image) |
+| `could not fully check your permission rules` | [任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves) |
 | `subagent_type is required: the general-purpose agent is not available in this session` | [工具错误](#subagent-type-is-required) |
 | `Error: this write left the memory index at MEMORY.md at ..., over its ... read limit` | [工具错误](#memory-index-is-over-its-read-limit) |
 | `Sandbox is required but failed to initialize: <reason>` | [沙箱隔离故障排除](https://code.claude.com/docs/zh-CN/sandboxing.md#commands-refused-with-sandbox-is-required) |
@@ -730,8 +734,6 @@ API Error: The response stream was malformed. The response above may be incomple
 
 [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)使用的模型无法对操作进行分类，因此自动模式没有自动批准该操作。您看到的消息取决于分类器如何失败。
 
-对工作目录内的读取、搜索和编辑会跳过分类器，因此它们在所有这些情况下都继续工作。
-
 当分类器模型不可用时：
 
 ```text theme={null}
@@ -1060,6 +1062,7 @@ This request exceeds your group's budget. Ask your organization's admins to rais
 
 ```text theme={null}
 Credit balance is too low
+Credit balance too low · Add funds: https://platform.claude.com/settings/billing
 ```
 
 **要做什么：**
@@ -1415,7 +1418,7 @@ Remote Control stopped — the app running this session is signed out of Claude.
 
 您已保存的登录不再有效。令牌被撤销意味着您在所有位置都退出了登录，或者管理员移除了访问权限；令牌过期意味着会话中途的自动刷新失败了。
 
-这两条消息报告的都是 API 对 Claude Code 所发送请求返回的拒绝。如果已保存的登录在刷新失败后已被清除，您看到的将是[登录已过期](#login-expired)。如果您在 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/env-vars) 中使用长期令牌进行身份验证，当该令牌过期或被撤销时，您也会看到同样的消息。
+这两条消息都报告了 API 对 Claude Code 所发送请求返回的拒绝。如果已保存的登录信息在刷新失败后已被清除，请改为参阅 [Login expired](#login-expired)。如果您使用 [`CLAUDE_CODE_OAUTH_TOKEN`](https://code.claude.com/docs/zh-CN/env-vars) 中的长期令牌进行身份验证，当该令牌过期或被撤销时，您也会看到相同的消息。
 
 ```text theme={null}
 OAuth token revoked · Please run /login
@@ -1457,9 +1460,7 @@ Please run /login · API Error: 401 Invalid authentication credentials
 
 ### 登录已过期
 
-Claude Code 尝试续期您已保存的 claude.ai 登录，但 OAuth 服务拒绝了已存储的刷新令牌，因此 Claude Code 清除了已保存的凭据。此后，每个模型请求都会在到达 API 之前于本地以此消息停止，因为只有 `/login` 才能创建新凭据。
-
-在 v2.1.206 之前，Claude Code 仍会使用环境中剩余的任何凭据发送模型请求，然后每个模型都会以[所选模型存在问题](#theres-an-issue-with-the-selected-model)或 401 失败，而不是提示您登录。
+Claude Code 尝试续期您已保存的 claude.ai 登录信息，但 OAuth 服务拒绝了已存储的刷新令牌，因此 Claude Code 清除了已保存的凭据。在没有[其他已保存凭据](https://code.claude.com/docs/zh-CN/authentication.md#after-the-login-expires)的情况下，模型请求随后会以此消息停止：
 
 ```text theme={null}
 Login expired · Please run /login
@@ -1471,15 +1472,13 @@ Login expired · Please run /login
 Failed to authenticate: OAuth session expired and could not be refreshed
 ```
 
-对于以 `or re-authenticate your Anthropic profile` 结尾的 `Login expired` 消息，请参阅 [Anthropic profile login expired](#anthropic-profile-login-expired)。
+如果登录已达到其时间限制，在 Claude Code v2.1.318 或更高版本中，这两条消息都会改为显示 `reached its time limit`。对于以 `or re-authenticate your Anthropic profile` 结尾的 `Login expired` 消息，请参阅 [Anthropic profile login expired](#anthropic-profile-login-expired)。
 
-这与 [OAuth 令牌已撤销或已过期](#oauth-token-revoked-or-expired)并非同一状态。那些消息报告的是 API 返回的拒绝。而 `Login expired` 是 Claude Code 针对已续期失败的登录自行生成的，因此它不会发送任何请求。当续期失败是因为账户本身被暂停而不是登录过时，Claude Code 会改为显示[您的账户已被暂停](#your-account-is-on-hold)。
-
-您可以在请求失败之前检查是否处于此状态：[`/status`](https://code.claude.com/docs/zh-CN/commands) 会显示一个 `Login` 行，内容为 `Expired — log in again`，以及它为该过期登录保存的组织和电子邮件。只有当已保存的登录是您当前生效的凭据且无法再刷新时，才会显示该行。以其他方式进行身份验证的会话不会显示该行，即使仍保存着已过期的登录。在 v2.1.210 之前，`/status` 在此状态下不会提供任何曾存在登录的迹象，因为凭据已被清除，没有可报告的内容。
+当续期因账户本身被暂停而失败时，Claude Code 会改为显示 [Your account is on hold](#your-account-is-on-hold)。
 
 **解决方法：**
 
-* 运行 `/login` 重新登录。不登录而直接重试，每个请求都会显示相同的消息。
+* 运行 `/login` 重新登录。
 * 如果您在另一个 Claude Code 窗口中使用 claude.ai 账户登录，请参阅[未登录](#not-logged-in)，了解此会话何时会自动开始使用该登录。
 * 在非交互模式下，请在同一环境中运行 `claude`，完成 `/login`，然后重新运行您的命令。对于无法交互式登录的自动化场景，请使用 `ANTHROPIC_API_KEY` 进行身份验证，或[使用 `claude setup-token` 生成长期令牌](https://code.claude.com/docs/zh-CN/authentication#generate-a-long-lived-token)。
 * 如果登录一直失败，请参阅[登录和身份验证](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#login-and-authentication)
@@ -2376,7 +2375,7 @@ Couldn't reconnect to your Remote Control session. Retry, or start a fresh sessi
 Couldn't share the transcript.
 ```
 
-上传内容必须在 8 MiB 的限制以内。在较长的会话中，Claude Code 会逐步删减分享内容的部分，先删除最后一个请求的模型设置，然后删除结构化对话和子代理会话记录；当无法发送任何缩减版本，或者网络或服务器错误导致上传中止时，会显示此消息。当 Claude Code 改为保存本地归档时，此消息表示它无法写入该归档。
+上传内容必须在 8 MiB 的限制以内。在较长的会话中，Claude Code 会逐步删减分享内容的部分。当无法发送任何缩减版本，或者网络或服务器错误导致上传中止时，您会看到此消息。当 Claude Code 改为保存本地归档时，此消息表示它无法写入该归档。
 
 **解决方法：**
 
@@ -2750,7 +2749,7 @@ There's an issue with the selected model (claude-...). It may not exist or you m
 * **Agent SDK**：错误文本省略提示，因为模型是以编程方式设置的。在 TypeScript 中的 [`Options` 上设置 `model`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)，或在 Python 中设置 [`ClaudeAgentOptions(model=...)`](https://code.claude.com/docs/zh-CN/agent-sdk/python#claudeagentoptions)，并处理结构化的 `model_not_found` 错误以显示您自己的重试或模型选择器。
 * 使用别名（如 `sonnet` 或 `opus`）而不是完整的版本化 ID。别名解析为维护的默认值，因此它们不会过时。请参阅[模型配置](https://code.claude.com/docs/zh-CN/model-config.md)。
 * 如果错误的模型在 CLI 中不断返回，则某处设置了过时的 ID。按[优先级顺序](https://code.claude.com/docs/zh-CN/model-config.md#setting-your-model)检查您可以设置模型的位置，并删除过时的值。
-* Claude Code 将过期的 claude.ai 登录报告为[登录过期](#login-expired)，而不是此错误。在 v2.1.206 之前，无法再刷新的过期登录对每个模型都失败，显示此错误；如果您在较旧版本上看到这种情况，请运行 `/login`。
+* 在 v2.1.206 之前，已过期且无法再刷新的 claude.ai 登录会导致每个模型都以此错误失败。在这些版本上，请运行 `/login`。
 * 如果 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/env-vars) 指向 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)，且每个模型都以这种方式失败，请检查您的网关及其上游是否接受[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#tool-search-through-a-gateway)字段。默认情况下，Claude Code 会发送 `defer_loading` 工具字段和 `tool_reference` 块，以及启用它们的 `anthropic-beta` 标头。在 v2.1.304 之前，在网关后面时工具搜索是关闭的，除非您通过 `ENABLE_TOOL_SEARCH` 开启它。
 * 对于 Google Cloud 的 Agent Platform 部署，请参阅 [Google Cloud 的 Agent Platform 故障排除](https://code.claude.com/docs/zh-CN/google-vertex-ai.md#troubleshooting)。
 

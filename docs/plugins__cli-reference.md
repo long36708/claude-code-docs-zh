@@ -183,6 +183,8 @@ Claude Code 会打印 `Successfully uninstalled plugin: formatter (scope: projec
 
 使用 `--json` 时，`keptData` 会报告目录是否保留，保留时 `/plugin` 会显示 `· data preserved`。对于未使用 `--keep-data` 却被保留的目录，此报告需要 Claude Code v2.1.281 或更高版本。`savedKept` 字段需要 Claude Code v2.1.282 或更高版本。
 
+当 Claude Code 删除选项和密钥时，还会删除 v2.1.326 或更高版本从插件的 [MCP 捆绑包](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)中提取到 `~/.claude/plugins/mcpb/` 的文件。当另一个插件使用相同的捆绑包时，这些文件会保留。您在那里仍能找到的任何已提取文件，会在 `cleanupPeriodDays` 期间内没有任何会话使用后被[自动清理](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。
+
 ### plugin enable
 
 启用已禁用的插件。对于[从 claude.ai 同步的插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)，请传入 `<name>@synced` 作为插件。

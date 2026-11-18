@@ -2360,6 +2360,10 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 
 如果你看到 `Failed to load session`，选定的文件夹可能不再存在，Git 存储库可能需要未安装的 Git LFS，或文件权限可能阻止访问。尝试选择不同的文件夹或重启应用。
 
+### Claude Code 报告 "newer than the maximum version allowed by your organization"
+
+当桌面应用[自带的 Claude Code 副本](#claude-code-version-in-the-code-tab)比您的组织通过 [`requiredMaximumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#requiredmaximumversion) 设置的上限更新时，本地会话会失败，并出现一个详细信息中显示此消息的错误。请让管理员将该上限提高到至少为消息中的 Claude Code 版本，或者移除该上限。
+
 ### 会话找不到已安装的工具
 
 如果 Claude 找不到 `npm`、`node` 或其他 CLI 命令等工具，验证工具在你的常规终端中工作，检查你的 shell 配置文件是否正确设置 PATH，并重启桌面应用以重新加载环境变量。

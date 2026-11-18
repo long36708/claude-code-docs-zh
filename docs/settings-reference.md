@@ -848,13 +848,13 @@ Claude Code 会将每个条目写在模型的规范名称下（例如 `claude-op
 
 ### `autoMode`
 
-为[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器的阻止和允许范围添加您自己的规则。使用它告诉分类器您的组织信任哪些仓库、存储桶和域名，使其不再阻止日常的内部操作。分类器自带[内置的允许和拒绝规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)。在数组中包含字面字符串 `"$defaults"`，即可在该位置保留这些内置规则并在其前后添加您的规则；省略它则会用您的规则替换内置规则。
+为[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器的阻止和允许范围添加您自己的规则。使用它告诉分类器您的组织信任哪些仓库、存储桶和域名，使其不再阻止日常的内部操作。分类器自带[内置的允许和拒绝规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)。请在您设置的每个数组中都包含字面字符串 `"$defaults"`，使您的规则添加到内置规则之上。如果省略它，您的规则[可能会替换内置规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#override-the-block-and-allow-rules)。
 
 * **作用域**：[`User or managed`](#scopes)
 * **类型**：包含 `environment`、`allow`、`soft_deny` 和 `hard_deny` 文字描述规则数组以及 [`classifyAllShell`](#automode-classifyallshell) Boolean 的对象
 * **默认值**：未设置，因此分类器仅使用其[内置规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)
 
-此示例通过 `"$defaults"` 保留内置的 `soft_deny` 规则，并额外添加一条阻止 `terraform apply` 的规则：
+此示例保留内置的 `soft_deny` 规则，并额外添加一条阻止 `terraform apply` 的规则：
 
 ```json settings.json theme={null}
 {
@@ -3587,7 +3587,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 ### `allowedHttpHookUrls`
 
-限制 [HTTP hook](https://code.claude.com/docs/zh-CN/hooks.md#http-hook-fields) 可以访问的 URL。定义此键后，Claude Code 仅在 HTTP hook 的 URL 与其中某个模式匹配时才运行该 hook，其余 hook 会被阻止且不会运行；空数组会阻止所有 HTTP hook。
+限制 [HTTP hook](https://code.claude.com/docs/zh-CN/hooks.md#http-hook-fields) 可以访问的 URL。在托管设置中设置此键，可使其适用于您的组织所部署的 hook；在任何设置文件中设置此键，可使其适用于其他 hook。对于适用范围内的 hook，只有当其 URL 与各设置文件合并后的列表中的某个模式匹配时，Claude Code 才会运行该 hook。
 
 * **作用域**：[`Any file`](#scopes)。数组会在各设置文件之间合并。
 * **类型**：URL 模式数组，使用 `*` 作为通配符
@@ -3601,7 +3601,7 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 }
 ```
 
-主机名匹配不区分大小写，并且会将 `hooks.example.com.`（末尾带有表示完全限定域名的点）视为与 `hooks.example.com` 相同，这与 DNS 的处理方式一致。此允许列表适用于所有来源的 hook，包括托管设置。
+主机名匹配不区分大小写，并且会将 `hooks.example.com.`（末尾带有表示完全限定域名的点）视为与 `hooks.example.com` 相同，这与 DNS 的处理方式一致。
 
 在 Agent SDK 的 `managedSettings` 选项中，如果此键的列表包含条目，Claude Code 会忽略此键，因此请改为在 SDK 的 [`settings` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)中传入该列表。请参阅[空列表在父级设置中的作用](https://code.claude.com/docs/zh-CN/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect)。
 
@@ -3742,7 +3742,9 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 ### `httpHookAllowedEnvVars`
 
-[HTTP hook](https://code.claude.com/docs/zh-CN/hooks.md#http-hook-fields) 可以将环境变量的值放入请求头中，例如 `Authorization: Bearer $HOOK_TOKEN` 请求头，但仅限于该 hook 在其自身 `allowedEnvVars` 中列出的变量。此键为所有 HTTP hook 的该列表设置了一个外层限制：只有当 hook 自身的 `allowedEnvVars` 和此键都列出某个变量时，hook 才能使用该变量。可以使用它来阻止 hook 读取不应读取的机密，即使 hook 的定义请求了该机密。
+[HTTP hook](https://code.claude.com/docs/zh-CN/hooks.md#http-hook-fields) 可以将环境变量的值放入请求头中，例如 `Authorization: Bearer $HOOK_TOKEN` 请求头，但仅限于该 hook 在其自身 `allowedEnvVars` 中列出的变量。
+
+在托管设置中设置此键，可使其适用于您的组织所部署的 hook；在任何设置文件中设置此键，可使其适用于其他 hook。对于适用范围内的 hook，只有当其自身的 `allowedEnvVars` 和此键在各设置文件之间合并后的列表都列出某个变量时，该 hook 才能使用该变量。
 
 * **作用域**：[`Any file`](#scopes)。数组会在各设置文件之间合并。
 * **类型**：环境变量名称数组
@@ -3755,8 +3757,6 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
   "httpHookAllowedEnvVars": ["MY_TOKEN", "HOOK_SECRET"]
 }
 ```
-
-此允许列表适用于所有来源的 hook，包括托管设置。
 
 在 Agent SDK 的 `managedSettings` 选项中，如果此键的列表包含条目，Claude Code 会忽略此键，因此请改为在 SDK 的 [`settings` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)中传入该列表。请参阅[空列表在父级设置中的作用](https://code.claude.com/docs/zh-CN/claude-apps-gateway#how-hook-and-skill-keys-in-parent-settings-take-effect)。
 
@@ -5453,7 +5453,9 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 }
 ```
 
-后台自动更新和 `claude update` 会跳过高于上限的版本，因此处于允许范围内的安装会始终保持在该范围内。即使版本高于上限，`claude update`、`claude install` 和 `claude doctor` 仍可正常使用，以便用户进行恢复。将其与 [`requiredMinimumVersion`](#requiredminimumversion) 搭配使用，可强制限定版本范围。
+在原生安装和 npm 安装中，后台自动更新和 `claude update` 会跳过高于上限的版本。即使版本高于上限，`claude update`、`claude install` 和 `claude doctor` 仍可正常使用，以便用户进行恢复。将其与 [`requiredMinimumVersion`](#requiredminimumversion) 搭配使用，可强制限定版本范围。
+
+当桌面应用更新时，其自带的 Claude Code 副本可能会高于上限，此时 [Code 标签页中的本地会话将无法启动](https://code.claude.com/docs/zh-CN/desktop.md#version-above-your-organizations-limit)。如需在 macOS 和 Windows 上防止该副本发生变化，请[关闭桌面应用的自动更新](https://code.claude.com/docs/zh-CN/desktop.md#device-management-policies)。通过 Microsoft Store 安装的版本仍会由 Microsoft Store 进行更新。
 
 ### `requiredMinimumVersion`
 

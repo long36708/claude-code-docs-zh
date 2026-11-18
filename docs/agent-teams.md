@@ -329,7 +329,7 @@ Claude Code 读取您指定的子代理定义，并将其以下部分应用于�
 在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中，分类器对 Agent 之间的消息应用两项检查：
 
 * 它将从另一个 Agent 转交的批准声明视为不受信任的输入，而不是来自您的确认。
-* 它在 Claude Code 传递每条消息之前对其进行审查，无论是普通消息还是结构化协议消息（如关闭请求或计划批准响应）。被它阻止的消息永远不会到达收件人。
+* 它在 Claude Code 传递消息之前对其进行审查，包括结构化协议消息（如关闭请求）。被它阻止的消息不会被传递。在依赖此审查之前，请查看[哪些消息会跳过它](https://code.claude.com/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)。
 
 ### 上下文和通信
 

@@ -267,11 +267,9 @@ Claude Code 将一组内置 Bash 命令识别为只读，并在每种模式下�
 
 像 `ls > out.txt` 这样的重定向会在目标上添加检查。请参阅[重定向](#redirections)。
 
-对于其每个标志都是只读的命令，允许未引用的 glob 模式，因此 `ls *.ts` 和 `wc -l src/*.py` 无需提示即可运行。
-
 在 Manual 模式下，来自此集合的命令在这些情况下仍然提示：
 
-* **具有写入能力标志的命令的未引用 glob**：具有写入能力或执行能力标志的命令，如 `find`、`sort`、`sed` 和 `git`，在存在未引用的 glob 时提示，因为 glob 可能扩展为像 `-delete` 这样的标志。
+* **具有写入能力标志的命令的未引用 glob**：具有写入能力或执行能力标志的命令，如 `find`、`sort`、`sed` 和 `git`，在存在未引用的 glob 时提示，因为 glob 可能扩展为像 `-delete` 这样的标志。像 `ls *.ts` 和 `head src/*.py` 这样的命令尽管带有未引用的 glob，仍无需提示即可运行。
 * **`docker` 指向另一个守护程序**：当命令携带选择不同守护程序的标志时，`docker` 的只读形式提示，如 `-H`、`--context` 或 Podman 的 `--url` 和 `--connection`。
 * **`file` 带有路径打开标志**：当 `file` 传递 `-m`/`--magic-file` 或 `-f`/`--files-from` 时，`file` 提示，因为这些标志使 `file` 打开标志值中命名的路径。
 * **可能打印环境变量的 `ps`**：当 `ps` 的某个参数可能充当 `e` 选项时（如 `ps auxe` 或 `ps aux -e`），`ps` 会提示，因为该选项会打印进程环境变量。`ps aux` 和 `ps -ef` 无需提示即可运行。对 `ps aux -e` 等带短横线形式的检查需要 Claude Code v2.1.290 或更高版本。
@@ -450,9 +448,10 @@ Read 和 Edit 规则都使用[gitignore](https://git-scm.com/docs/gitignore)模�
 
 当您使用"是，不再询问"批准文件路径时，Claude Code 会转义该路径中的 gitignore 模式字符，如 `[`、`]` 和 `*`，因此生成的规则仅匹配您批准的字面路径。您自己编写的规则不会被转义。
 
-您不需要转义路径中的括号，因此 `Edit(./Finance (2024)/**)` 匹配按拼写的 `Finance (2024)` 文件夹。
+Claude Code 将您编写的路径读作 gitignore 模式：
 
-其路径不可用作 gitignore 模式的 deny 或 ask 规则仍然保护该确切路径。其模式不可用的 allow 规则不批准任何内容。
+* **括号**：`Edit(./Finance (2024)/**)` 匹配按拼写的 `Finance (2024)` 文件夹。
+* **不可用的模式**：其路径不可用作 gitignore 模式的 allow 规则不批准任何内容。
 
 一个 deny 或 ask 模式，其路径以 `!` 开头是 gitignore 否定。它从其前面列出的 `path` 或 `./path` 规则中切割出它匹配的路径。在一个设置文件的 `deny` 列表中，`Read(*.env)` 后跟 `Read(!sample.env)` 阻止名称以 `.env` 结尾的每个文件在任何深度，除了名为 `sample.env` 的文件。首先列出的 `!` 规则切割不出任何内容。
 
