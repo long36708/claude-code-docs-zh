@@ -304,7 +304,7 @@ use a subagent to review the rate limiter diff against SPEC.md, check every requ
 * 对您某个 MCP 服务器的工具调用
 * [`prompt` 或 `agent` hook](https://code.claude.com/docs/zh-CN/hooks#hook-handler-fields)，让模型来决定
 
-`prompt` 或 `agent` hook 会让*另一个模型*来决定，所以它也不是确定性的。要真正强制执行，请使用 `command` 或 `http` hook，如果在 hook 本身崩溃或超时时也应阻止该操作，请添加 [`onFailure: "block"`](https://code.claude.com/docs/zh-CN/hooks#block-the-action-when-a-hook-fails)。例如，对于扫描提交中是否含有密钥的 hook，在扫描器宕机时，您宁愿阻止提交，也不愿让它未经扫描就通过。
+`prompt` 或 `agent` hook 会让*另一个模型*来决定，所以它也不是确定性的。要真正强制执行，请使用 `command`、`http` 或 `mcp_tool` hook，如果在 hook 本身崩溃或超时时也应阻止该操作，请添加 [`onFailure: "block"`](https://code.claude.com/docs/zh-CN/hooks#block-the-action-when-a-hook-fails)。例如，对于扫描提交中是否含有密钥的 hook，在扫描器宕机时，您宁愿阻止提交，也不愿让它未经扫描就通过。
 
 下面是将格式化规则写成 `PostToolUse` hook 的样子。它在每次 `Edit` 或 `Write` 之后运行，Claude 是否记得这条规则已不再重要，因为运行它的不是 Claude：
 

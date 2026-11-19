@@ -70,7 +70,11 @@ sudo xcode-select -s /Applications/Xcode-26.4.app
 
 Claude 启动的设备也会出现在 Apple 的 Simulator 应用中，或在 Xcode 27 的 Device Hub 中。Claude 可以在你已经启动的设备上安装应用。
 
-您也可以自己打开模拟器窗格。一旦会话有模拟器连接或 Claude Code 检测到 iOS 应用相关工作，会话的标题栏中就会出现 **iOS Simulator** 按钮。如果窗格还没有显示设备，请单击**Attach simulator**，或从它旁边的设备菜单中选择特定设备；选择关闭的设备会启动它。如果 Xcode 或其模拟器缺失，窗格会显示设置步骤，并在您完成每个步骤时检查它们。
+### 自行打开模拟器窗格
+
+一旦会话连接了模拟器或 Claude Code 检测到 iOS 应用相关工作，请在会话的标题栏或[侧边面板](https://code.claude.com/docs/zh-CN/desktop.md#arrange-your-workspace)中选择 **iOS Simulator**。
+
+如果窗格还没有显示设备，请单击 **Attach simulator**，或从它旁边的设备菜单中选择特定设备；选择已关闭的设备会启动它。如果缺少 Xcode 或其模拟器，窗格会改为显示设置步骤，并在您完成每个步骤时将其勾选。
 
 ## 自己控制模拟器
 
@@ -92,7 +96,7 @@ Claude 启动的设备也会出现在 Apple 的 Simulator 应用中，或在 Xco
 您可以最小化或关闭模拟器窗格，无论哪种方式，Claude 仍然可以使用该设备。
 
 * 如果最小化窗格，设备会以较小尺寸保持在视图中。要最小化窗格或再次展开它，请参阅[最小化窗格](https://code.claude.com/docs/zh-CN/desktop.md#minimize-a-pane)。
-* 如果关闭全尺寸或已最小化的窗格，设备仍保持连接并继续运行。要再次显示设备，请单击会话标题栏中的 **iOS Simulator**。
+* 如果关闭全尺寸或已最小化的窗格，设备仍保持连接并继续运行。要再次显示设备，请[重新打开窗格](#open-the-simulator-pane-yourself)。
 
 ## 会话如何管理设备
 

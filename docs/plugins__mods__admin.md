@@ -117,6 +117,7 @@
 | `prompt.attachment` | Claude Code 为 Claude 添加的消息，例如提醒 |
 | `skill.prompt` | 为 Claude 展开时的 skill 文本 |
 | `attribution.text` | 提交或 Pull Request 的署名文本 |
+| [`telemetry.log`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#telemetry) | 发往 OpenTelemetry 收集器的一条记录。在 v2.1.328 或更高版本中会被跳过 |
 | [`session.compact`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#session) | 对话的一次压缩 |
 | `settings.read` | 一次设置读取，例如 mod 的 `$.settings.read` 调用 |
 | `session.append{door=attachment}` | Claude Code 为 Claude 添加的消息的存储行 |

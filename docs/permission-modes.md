@@ -532,7 +532,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 当 [`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories) 关闭时，在自动模式下，除[从网络路径读取](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)之外的文件读取无需提示即可运行，包括读取[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外的内容。当 Claude 首次对工作目录之外的路径使用 Read、Grep 或 Glob 工具时，Claude Code 会询问是否允许该读取。
 
-在非交互式 `-p` 运行或后台会话中不会出现该提示；这些情况下的读取照常运行。
+在 `-p` 运行、Agent SDK 会话、后台会话、VS Code 聊天面板或桌面应用中不会出现该提示。在这些情况下，读取会照常运行。
 
 无论您如何回答，Claude 都会继续工作：
 
@@ -543,7 +543,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 ### 您在对话中声明的边界
 
-分类器会将您在对话中声明的边界视为阻止信号。如果您告诉 Claude "不要推送"或"在部署前等我审查"，即使默认规则允许，分类器也会阻止相应的操作。边界会一直有效，直到您在后续消息中解除它。Claude 自己判断某个条件已满足并不能解除边界。
+分类器会将您在对话中声明的边界视为阻止信号。如果您告诉 Claude "不要推送"或"在部署前等我审查"，即使默认规则允许，分类器也会阻止[其审查](#how-the-classifier-evaluates-actions)的相应操作。边界会一直有效，直到您在后续消息中解除它。Claude 自己判断某个条件已满足并不能解除边界。
 
 边界不会作为规则存储。分类器在每次检查时都会从会话记录中重新读取这些边界，因此如果[上下文压缩](https://code.claude.com/docs/zh-CN/costs.md#reduce-token-usage)移除了声明边界的消息，该边界可能会丢失。如需硬性保证，请改为添加 [deny 规则](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)。
 
@@ -589,7 +589,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >    * 基于命令内容进行匹配的询问规则（例如 `Bash(git push *)`）会回退为权限提示
 >    * 如果 Claude 请求的路径本身不受保护，但经[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)解析后指向受保护路径，则该写入会向您发出提示
 >    * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)进行的读取即使匹配了允许规则，也会向您发出提示
-> 2. 只读操作以及在工作目录中的文件编辑会被自动批准，但对[受保护路径](#protected-paths)的写入以及[首次读取工作目录之外的内容](#first-read-outside-the-working-directories)除外，后者会向您发出提示
+> 2. 只读操作以及在工作目录中的文件编辑会被自动批准，但对[受保护路径](#protected-paths)的写入以及会显示[首次读取提示](#first-read-outside-the-working-directories)的读取除外。
 >    * 在启用了[服务器端分类器审查](#server-side-classifier-review)的会话中，文件编辑、只读 shell 命令和[沙箱化](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes) shell 命令会等待该审查，如果被审查标记则会被阻止
 >    * 工作目录内的写入如果经[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)解析后指向工作目录之外的位置，会向您发出提示
 >    * 当 Claude 读取[他人创建的 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 时，适用该部分中列出的批准情形

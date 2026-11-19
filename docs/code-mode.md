@@ -42,7 +42,7 @@ await edit(target, "maxAttempts: 3", "maxAttempts: 5");
 * **恢复会话**：只能在终端中、并且在 Code Mode 开启的情况下恢复 Code Mode 会话
 * **自动模式**：自动模式的分类器[审查的是代码，而不是每个工具调用](#permission-checks)
 * **长时间运行的代码**：除非[代码可以在后台运行](#long-running-code)，否则您需要等待代码运行完成，并且代码会在十分钟后停止
-* **Hook**：当 `PreToolUse` hook 无法运行或超时时，您可能会看到[工具调用被拒绝](#tool-call-refused-by-a-hook)；`UserPromptSubmit` hook 可能会导致[代码输出被阻止](#code-output-withheld-by-a-hook)
+* **Hook**：当 `PreToolUse` hook 无法运行或超时时，您可能会看到[工具调用被拒绝](#tool-call-refused-by-a-hook)
 * **不可用的功能**：无法使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)、[Claude in Chrome](https://code.claude.com/docs/zh-CN/chrome.md) 或[计算机使用](https://code.claude.com/docs/zh-CN/computer-use.md)
 * **移动会话**：无法将会话移到 Desktop 应用，也无法将其转为[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，并且 `/fork` 无法启动后台副本
 
@@ -148,31 +148,124 @@ Read every Markdown file in this project and list the links that point to local 
 
 ### 权限检查
 
-当 Claude 运行代码时，代码中的每个工具调用都会以该工具的常用名称（例如 `Bash`）经过您的 `deny` 和 `ask` [权限规则](https://code.claude.com/docs/zh-CN/permissions.md)以及您的 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse)。除了规则和 hook 之外，在自动模式下，分类器会审查代码；在会进行询问的模式下，您需要回复提示：
+在自动模式和 `bypassPermissions` 模式下，代码可以从头到尾运行而不出现权限提示。某些调用仍会提示您，例如[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)。
+
+代码中的每个工具调用都会以该工具的常用名称（例如 `Bash` 或 [MCP 工具的名称](https://code.claude.com/docs/zh-CN/permissions.md#mcp)）经过您的 `deny` 和 `ask` [权限规则](https://code.claude.com/docs/zh-CN/permissions.md)以及 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse)。除了规则和 hook 之外，在自动模式下，分类器会审查代码；在会进行询问的模式下，您需要回复提示：
 
 * **[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)**：分类器会在每段代码运行之前对其进行审查，而不是审查每个工具调用。它看不到运行时计算出的值，例如从搜索输出中获取的路径，因此对于必须加以控制的调用，请保留规则或 hook。当[先前的代码仍在运行而新代码开始运行时，您仍可能收到提示](#permission-prompt-with-a-countdown)
-* **其他[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)**：代码在未经审查的情况下开始运行，对于在该模式下会提示您的每个工具调用，您都会收到提示
+* **其他[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)**：对于在该模式下会提示您的每个工具调用，您都会收到提示
 
 如果您有一个允许或阻止 shell 命令的 `PreToolUse` hook，请让它检查命令的每个部分，就像 [Bash 规则所做的那样](https://code.claude.com/docs/zh-CN/permissions.md#compound-commands)。在 Code Mode 中，在名为 `app` 的文件夹中执行的 `git push` 可能会以 `cd 'app' && git push` 的形式到达您的 hook。
 
-如需检查代码本身，请编写一个匹配 `REPL`（运行代码的工具）的 `PreToolUse` hook，并从 `tool_input.code` 中读取 JavaScript。
+如需检查代码本身，请编写一个匹配 `REPL`（运行代码的工具）的 `PreToolUse` hook，并从 `tool_input.code` 中读取 JavaScript。如需检查代码返回的内容，请参阅[使用 hook 检查代码输出](#check-code-output-with-a-hook)。
 
 > [!WARNING]
 >
 > Bash 规则匹配的是命令文本，因此无论是否使用 Code Mode，Claude 都可以[以规则不匹配的形式](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)运行被拒绝的命令。如需不依赖命令文本的限制，请参阅[沙箱隔离](https://code.claude.com/docs/zh-CN/sandboxing.md)。
 
+#### 要求对某个命令进行批准
+
+如需在自动模式或 `bypassPermissions` 模式下针对特定命令显示提示，请为其添加一条 `ask` 规则。对于[该规则所匹配的命令形式](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)，您会收到提示。如需在运行以 `git push` 开头的命令时收到提示，请将以下规则保存到 `~/.claude/settings.json` 中：
+
+```json theme={null}
+{
+  "permissions": {
+    "ask": ["Bash(git push *)"]
+  }
+}
+```
+
+如需测试该规则，请在一个没有远程仓库的仓库中以自动模式启动新会话，然后让 Claude 运行 `git push origin main`。您会看到针对该命令的提示。
+
+#### 先批准每段代码
+
+如需在代码开始运行之前阅读并批准代码，请为 `REPL`（运行代码的工具）添加一条 `ask` 规则。将以下规则保存到 `~/.claude/settings.json` 中：
+
+```json theme={null}
+{
+  "permissions": {
+    "ask": ["REPL"]
+  }
+}
+```
+
+如需测试该规则，请启动新会话并给 Claude 一个任务。您会看到一个不包含代码的提示。如需在回复之前阅读代码，请按 `Ctrl+O`，展开 **Code** 行，然后再次按 `Ctrl+O` 返回。在主对话中，您无法在该视图中看到[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的代码。
+
+如果您在自动模式下批准，即使分类器本会阻止该代码，代码也会开始运行，并且其项目编辑和只读命令会在没有提示的情况下运行。如果 Claude 报告代码无法启动子代理，请移除该规则。
+
+#### 在代码运行时回复权限提示
+
+如需在代码的某个工具调用的提示处停止代码，请回答 **No** 且不附加评论。以下结果适用于未标注为来自子代理的提示：
+
+* **No 或 `Esc`**：代码停止，已完成的调用所做的更改保持不变
+* **No 并附加[评论](https://code.claude.com/docs/zh-CN/permissions.md#add-a-comment-when-you-answer-a-permission-prompt)**：该调用被拒绝，代码可以继续执行其其他调用
+
 ### 长时间运行的代码
 
 当代码运行耗时较长的构建或测试时，Claude 要么等待它完成，要么让它在后台继续运行：
 
-* **等待**：Claude 在代码完成后才回复，代码会在十分钟后停止，这包括您在权限提示上花费的时间
+* **等待**：Claude 在代码完成后才回复，代码会在十分钟后停止。在 Manual 和 `acceptEdits` [模式](https://code.claude.com/docs/zh-CN/permission-modes.md#available-modes)下，您在工具权限提示上花费的时间不计入这十分钟。在 v2.1.328 之前，这段时间会被计入。
 * **后台**：您可以继续与 Claude 交谈，代码最多可以运行两个小时
 
 如需在后台运行代码，请以自动模式或 `bypassPermissions` 模式启动会话。如果 Claude 仍然在等待，请检查您当前的模式以及启动会话的方式：
 
 * **您切换到了其他模式**：按 `Shift+Tab`，直到回到您启动时所用的模式
-* **您以其他模式启动，或从 `claude --resume` 列表中选择了该会话**：如果您可以[使用自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，请退出，然后在 Code Mode 开启的情况下运行 `claude --continue --permission-mode auto`
+* **您以其他模式启动**：如果您可以[使用自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，请退出，然后在 Code Mode 开启的情况下运行 `claude --continue --permission-mode auto`
+* **您使用的是 v2.1.328 之前的版本，并从 `claude --resume` 列表中选择了该会话**：请退出，[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)，然后在 Code Mode 开启的情况下运行相同的 `claude --resume` 命令。如需保持当前版本，请将 `--resume` 替换为 `--continue`
 * **您向 `--tools` 传递了工具名称**：以自动模式重新启动，不使用该标志
+
+### 停止正在运行的代码
+
+如需在 Claude 正在回复或等待代码时停止代码，请按 `Esc`。如需在 Claude 完成回复后停止后台代码，请在会话中运行 [`/tasks`](https://code.claude.com/docs/zh-CN/commands)，选择正在运行的任务，然后按 `x`。
+
+停止代码后，请在 `/tasks` 中检查由该代码启动且仍在运行的[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)、[shell 命令](https://code.claude.com/docs/zh-CN/interactive-mode.md#background-bash-commands)和 [MCP 调用](https://code.claude.com/docs/zh-CN/mcp.md#automatic-backgrounding-of-long-tool-calls)。如需停止其中某一项，请选择它并按 `x`。
+
+### 使用 hook 检查代码输出
+
+如需在 Claude 读取代码返回的内容之前对其进行检查或脱敏，请编写一个匹配 `REPL`（运行代码的工具）的 [`PostToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#posttooluse)。从 `tool_response` 中读取输出，其中包含如下字段：
+
+```json theme={null}
+{
+  "code": "(await $`cat notes.txt`.text())",
+  "result": "deploy token: abc123",
+  "stdout": "",
+  "stderr": "",
+  "toolsUsed": ["Bash"]
+}
+```
+
+如需隐藏部分输出，请将修改后的 `tool_response` 副本作为 [`updatedToolOutput`](https://code.claude.com/docs/zh-CN/hooks#posttooluse-decision-control) 返回，并按以下方式构建该副本：
+
+* **修改文本**：对 `result`、`stdout`、`stderr` 和 `error` 进行脱敏。需处理 `result` 缺失或为 `null` 的情况，并且仅在代码失败或被停止时才会出现 `error`
+* **保持结构**：以字符串形式返回 `code`、`stdout` 和 `stderr`，并以字符串形式返回 `error` 或将其省略。如果破坏了此结构，Claude 会获得原始输出
+* **移除图片和 PDF**：如果副本中有需要隐藏的 `images` 或 `documents`，请将该字段设置为 `[]`
+
+如需隐藏 `notes.txt` 结果中的部署令牌，请输出以下 JSON：
+
+```json theme={null}
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PostToolUse",
+    "updatedToolOutput": {
+      "code": "(await $`cat notes.txt`.text())",
+      "result": "deploy token: REDACTED",
+      "stdout": "",
+      "stderr": "",
+      "toolsUsed": ["Bash"]
+    }
+  }
+}
+```
+
+如需测试该 hook，请将一个它应当隐藏的值放入文件中，然后让 Claude 读取并引用该文件。输入路径时不要加 `@`，并检查 Claude 的回复是否显示了您的替换文本。
+
+在依赖该 hook 之前，请针对以下情况做好规划：
+
+* **后台代码和失败的代码**：对两者使用同一个 `PostToolUse` hook。它会在[后台代码](#long-running-code)完成时以及代码抛出错误时运行
+* **阻止**：即使您的 hook 进行了阻止，也要返回 `updatedToolOutput`。如果不返回，Claude 仍会读取输出
+* **hook 失败**：当您的检查遇到错误时，请返回一个在您脱敏的字段中填入占位文本的副本。如果 hook 崩溃、超时或输出无效的 JSON，Claude 会获得原始输出
+* **被拒绝的调用**：不要依赖此 hook 来隐藏被拒绝的工具调用输入中的值，例如 Bash 命令。`refusedCalls` 字段可能会重复该输入，而 Claude 会原样读取它
+* **`UserPromptSubmit` 检查**：如果您在 [`UserPromptSubmit` hook](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit) 中检查代码输出，请将该检查移至您的 `PostToolUse` hook。在 v2.1.328 或更高版本中，`UserPromptSubmit` hook 不会接收代码输出，即使管理员在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置了它们也是如此
 
 ## 故障排除
 
@@ -219,10 +312,15 @@ Claude Code will automatically block this request in 1:59, to avoid holding up a
 
 ### 代码输出被 hook 拦截
 
-如果在您预期看到代码输出的地方，Claude 报告了某个 hook 的阻止原因，请检查您的 [`UserPromptSubmit`](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit) hook。当[代码可以在后台运行](#long-running-code)时，该事件上的 `command`、`http` 和 `mcp_tool` hook 也会在代码输出上运行。如需让输出通过，请修改该 hook，使其在输入中的 `source` 为 `poll_event` 时不进行阻止。
+如果在本应显示代码输出的位置出现 `UserPromptSubmit operation blocked by hook`，则表示您的 [`UserPromptSubmit`](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit) hook 将该输出作为提示词接收并阻止了它。如果 Claude 只报告了该 hook 的原因，请让它引用其收到的消息。
+
+在 v2.1.328 或更高版本中，`UserPromptSubmit` hook 不会接收代码输出。如需在更早的版本上让输出通过，请更新 Claude Code 或修改该 hook：
+
+* **更新**：如果您依赖该 hook 检查代码输出，请先[将检查移至 `PostToolUse` hook](#check-code-output-with-a-hook)。然后将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.328 或更高版本
+* **继续使用当前版本**：修改该 hook，使其在输入中的 `source` 为 `poll_event` 时不进行阻止
 
 ## 相关资源
 
 * [权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)：将自动模式与会提示您的模式进行比较
-* [Hooks 参考](https://code.claude.com/docs/zh-CN/hooks.md)：编写 `PreToolUse` 和 `UserPromptSubmit` hook
+* [Hooks 参考](https://code.claude.com/docs/zh-CN/hooks.md)：编写 `PreToolUse` 和 `PostToolUse` hook
 * [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)：在整个组织中应用统一配置

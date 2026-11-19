@@ -70,10 +70,10 @@ Claude Code 会推送一个包含工作流文件的分支，这些文件已配�
 
 如果您选择了审查工作流，Claude 会将每次审查直接发布在 Pull Request 上：对发现的每个问题发布行内评论，若未发现问题则发布一条摘要评论。Claude 会跳过某些 Pull Request，例如草稿。[审查工作流示例](#run-a-skill)使用相同的 skill 并列出了这些情况。在 v2.1.229 之前，Claude 仅将审查结果写入工作流运行日志。
 
-如需更新由早期版本生成的审查工作流，请执行以下任一操作：
+如需更新在 v2.1.229 之前创建的审查工作流文件，请添加：
 
-* 再次运行 `/install-github-app`。当仓库中已有 `claude.yml` 时，选择 **Update workflow file with latest version**。Claude Code 会将最新的工作流文件推送到新分支并打开 Pull Request，与首次安装时相同。
-* 自行将 [审查工作流示例](#run-a-skill)中的 `--comment` 参数和 `claude_args` 行添加到已提交的文件中，这样可以保留您对该文件所做的其他修改。
+* 在 `prompt` 行中添加 `--comment`，如[审查示例](#run-a-skill)所示
+* 示例中的 `claude_args` 行
 
 > [!NOTE]
 >

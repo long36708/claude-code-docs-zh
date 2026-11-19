@@ -1574,7 +1574,7 @@ claude
 
 您的服务器接收 Claude 选择的任何参数，因此请继续在服务器端验证组合。
 
-当 Claude Code 无法生成 API 接受的模式，或在未收到启用重写的远程配置的部署上时，它会跳过该工具，在服务器日志中记录原因，并保持服务器的其他工具可用。
+当 Claude Code 无法生成 API 接受的 schema 时，或者当[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)已开启但[标志尚未到达](https://code.claude.com/docs/zh-CN/env-vars.md#first-session-after-an-install-or-upgrade)时，该工具会被跳过。服务器日志会记录原因，服务器的其他工具仍然可用。在 v2.1.328 之前，关闭获取时该工具也会被跳过。
 
 ## 具有无效输入架构的工具
 
@@ -1589,14 +1589,12 @@ claude
 
 当 Claude Code 排除一个工具时，它会在服务器的日志中记录原因，并告诉 Claude 它排除了哪些工具以及原因，这样你可以询问 Claude 为什么工具缺失。如果你修复了服务器上的架构，下次 Claude Code 加载服务器的工具时该工具就会回来。
 
-当[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)处于关闭状态或标志从未到达时（例如在隔离的机器上），违反规则的工具不会被排除：
+当[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)处于开启状态但[标志尚未到达](https://code.claude.com/docs/zh-CN/env-vars.md#first-session-after-an-install-or-upgrade)时，违反规则的工具不会被排除：
 
 * Claude 会获得未经更改的工具，服务器的日志会为其记录 `input schema would be rejected by the Anthropic API`
 * 如果 API 随后拒绝了该 schema，请参阅 [API 拒绝其输入 schema 的工具](#tools-whose-input-schema-the-api-refuses)
 
-在 v2.1.216 之前，没有部署运行这些检查。
-
-[根级组合器处理](#tool-input-schemas-with-a-root-level-combinator) 是独立的，当标志获取关闭或标志从未到达时保持其自己的行为。
+在 v2.1.328 之前，在获取关闭时工具同样不会被排除。在 v2.1.216 之前，没有任何部署运行这些检查。
 
 ### API 拒绝其输入 schema 的工具
 

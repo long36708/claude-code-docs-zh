@@ -134,7 +134,13 @@ Claude Code 首先合并 `managed-settings.json`，然后按字母顺序合并�
 
 Claude Code 按此顺序检查源，优先级最高的优先：
 
-1. 远程设置，从 claude.ai 作为 [服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 或通过 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 交付。Claude Code 仅在会话使用 [符合条件的凭据](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability) 直接向 Anthropic 的 API 进行身份验证、使用 `/login` 登录网关，或在 Claude Desktop 的 Code 标签页中通过 [为该会话提供设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#apply-code-settings-in-the-code-tab) 的网关运行时才获取此源。在其他提供商上，或当 `ANTHROPIC_BASE_URL` 指向 Anthropic 的 API 以外的地方时，它从下一个源开始
+1. 远程设置，从 claude.ai 作为 [服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 或通过 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 交付。Claude Code 仅在会话满足以下条件之一时才获取此源：
+
+   * 它具有 [符合条件的凭据](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)
+   * 它使用 `/login` 登录网关
+   * 它在 Claude Desktop 的 Code 标签页中通过 [为该会话提供设置](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#apply-code-settings-in-the-code-tab) 的网关运行
+
+   如果您设置了提供商或 `ANTHROPIC_BASE_URL`，请 [在机器上检查获取结果](https://code.claude.com/docs/zh-CN/server-managed-settings.md#verify-settings-delivery)，以确认 Claude Code 是否跳过此源
 2. MDM 或操作系统级策略：macOS plist 或 HKLM 注册表键
 3. 托管设置文件，`managed-settings.d/*.json` 和 `managed-settings.json` 合并在一起
 4. HKCU 注册表，在 Windows 上，以及在 WSL 上一旦 HKLM 注册表或 Windows 托管设置文件打开 [`wslInheritsWindowsSettings`](https://code.claude.com/docs/zh-CN/settings-reference#wslinheritswindowssettings) 并且 HKCU 值也设置它时。Claude Code 仅在 [其上方没有存在的管理员文档](#present-admin-documents) 且没有 [主机提供的父设置](#let-an-embedding-host-add-policy) 提供限制性键时才读取它

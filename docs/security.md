@@ -43,7 +43,7 @@
 ### 核心保护
 
 * **权限系统**：在手动模式下，敏感操作需要明确批准
-* **网络命令批准**：从网络获取内容的命令，如 `curl` 和 `wget`，默认不会自动批准。在手动模式下，它们会像任何其他非只读 Bash 命令一样提示，因此您仍然可以批准一次或添加显式允许规则，如 `Bash(curl *)`。要阻止 Claude 运行它们，请将其添加到 [`permissions.deny`](https://code.claude.com/docs/zh-CN/permissions#tool-specific-permission-rules)。拒绝规则匹配[按照编写的命令](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)；对于不依赖命令文本的网络强制执行，请参阅[沙箱网络隔离](https://code.claude.com/docs/zh-CN/sandboxing.md#network-isolation)
+* **网络命令批准**：在手动模式下，`curl` 和 `wget` 等命令默认会提示您，因此您可以批准一次，或添加允许规则，如 `Bash(curl *)`。要阻止 Claude 运行它们，请将其添加到 [`permissions.deny`](https://code.claude.com/docs/zh-CN/permissions#tool-specific-permission-rules)。拒绝规则匹配[按照编写的命令](https://code.claude.com/docs/zh-CN/permissions.md#bash-rule-limits)；对于不依赖命令文本的网络强制执行，请参阅[沙箱网络隔离](https://code.claude.com/docs/zh-CN/sandboxing.md#network-isolation)
 
 ### 隐私保护
 
@@ -94,9 +94,8 @@
 
 ## 云执行安全性
 
-使用 [cloud sessions](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) 时，会实施额外的安全控制。您的组织路由到 [自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments) 的会话在您自己的基础设施上运行，其中隔离、网络出口和 git 凭证是您部署的责任。在 Anthropic 托管的环境中：
+使用[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)时，会实施额外的安全控制。默认情况下，会话在隔离的、由 Anthropic 管理的 VM 中运行其 shell 命令和文件编辑。您的组织路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话在您自己的基础设施上运行，其中隔离、网络出口和 git 凭据是您部署的责任。在 Anthropic 托管的环境中：
 
-* **隔离的虚拟机**：每个云会话在隔离的、由 Anthropic 管理的 VM 中运行
 * **网络访问控制**：网络访问默认受限，可以配置为禁用或仅允许特定域
 * **凭证保护**：GitHub 凭证在 Anthropic 的服务器上以加密方式存储，永远不会进入会话 VM。VM 持有一个作用域限制于该会话的短期凭证，GitHub 流量通过 [Anthropic proxy](https://code.claude.com/docs/zh-CN/cloud-environments.md#github-proxy) 进行，该代理在服务器端附加 GitHub 凭证。有关如何授予访问权限，请参阅 [GitHub authentication options](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#github-authentication-options)
 * **推送限制**：[GitHub 代理](https://code.claude.com/docs/zh-CN/cloud-environments.md#github-proxy)会拒绝删除分支，以及推送分支以外的任何内容（例如标签）。GitHub 通过将您仓库的分支保护规则和规则集应用于您所连接的 GitHub 访问权限，来决定会话可以更新哪些分支。该访问权限可以绕过的规则不会阻止会话的推送

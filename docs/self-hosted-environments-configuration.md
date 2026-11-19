@@ -334,6 +334,7 @@ claude self-hosted-runner orchestrator \
 | `CLAUDE_RUNNER_PRIMARY_REPO_REVISION` | 会话的第一个 git 源的修订版本：分支、SHA、标签或完整引用名称。当未指定时为空。 |
 | `CLAUDE_RUNNER_REPO_SOURCES` | 所有会话的 git 源的 `{url, revision}` 的 JSON 数组，用于根据辅助仓库进行路由的 hook。当没有源时为空。 |
 | `CLAUDE_RUNNER_CORRELATION_ID` | 在会话创建时提供的关联 ID，回显以便 hook 可以将此工作单映射到创建会话的请求。当会话没有时为空。 |
+| `CLAUDE_RUNNER_META_<LABEL>` | 会话中您通过 [`--hook-label`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#orchestrator-cli-flags) 命名的标签的值。可能未设置。请以 `"${CLAUDE_RUNNER_META_SIZE:-}"` 形式读取标签 `size`。 |
 | `CLAUDE_RUNNER_CLIENT_PLATFORM` | 创建会话的客户端使用入口，例如 `web_claude_ai`、`desktop_app`、`ios` 或 `scheduled_trigger`，用于采用分析。当会话没有记录或识别的使用入口时未设置，对于预热请求也未设置；使用 `[ -n "${CLAUDE_RUNNER_CLIENT_PLATFORM:-}" ]` 检查它，这在 `set -u` 下保持安全。 |
 | `CLAUDE_RUNNER_SPAWN_REASON` | [Anthropic 发送此生成请求的原因](#find-out-why-a-spawn-request-was-sent)，例如 `runner_lost` 或 `resumed`。当请求未携带格式正确的原因时未设置，因此请以 `"${CLAUDE_RUNNER_SPAWN_REASON:-}"` 形式读取它。需要编排器上安装 Claude Code v2.1.318 或更高版本 |
 
@@ -873,7 +874,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 
 * **安装位置**：运行器将提供的每个 hook 脚本写入会话配置目录中保留的 `hooks/.ccr-launcher/` 子目录，并在一个单独的设置文件中注册这些脚本，该文件通过 `--settings` 传递给会话，从而使初始填充的 `settings.json` 以及您位于 `hooks/<name>` 的脚本保持不变。运行器会为每个会话重新创建该保留子目录，并且不会将主机上 `~/.claude/hooks/.ccr-launcher/` 中的内容填充到会话中。
 * **编写者**：控制平面使用其自身部署中的固定常量填充这些脚本，绝不使用按会话或第三方的输入。
-* **仍然适用的管控**：通过 `--settings` 下发的 hook 会进入普通的合并 hook 配置，而不是托管层，因此您的托管设置仍然适用。`disableAllHooks` 会禁用它们，并且它们不属于 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 保持加载的类别。
+* **仍然适用的管控**：[Claude Code 应用的托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)。如果您在其中设置了 [`disableAllHooks`](https://code.claude.com/docs/zh-CN/settings-reference#disableallhooks)，所提供的 hook 将不会运行。它们不属于 [`allowManagedHooksOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedhooksonly) 保持加载的类别。
 
 当某人启动自己的会话时，Claude Code 会将[其 claude.ai 账户中启用的 skill](https://code.claude.com/docs/zh-CN/skills.md#skills-in-cowork-and-cloud-sessions) 下载到该会话的配置目录中。[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)运行不会获得其所有者的 skill，而[将模型请求发送到 Bedrock 或 Agent Platform](#send-model-requests-to-bedrock-or-agent-platform) 的会话不会下载任何 skill。对于这些会话需要的 skill，请将其添加到您的运行器镜像中，或者在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)线程之外，将其提交到仓库的 `.claude/skills/` 中。
 
@@ -911,7 +912,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 * **`--capacity 1`（默认值）并使用内置检出**：会话在其仓库列表中的第一个仓库中启动。该仓库的 `.claude/settings.json` 作为项目设置生效，其 [`.mcp.json`](#mcp-servers) 会被加载，而其他仓库的则不会。
 * **`--capacity` 大于 1，或使用 [`checkout` hook](#checkout)**：会话在包含各检出内容的按会话目录中启动。没有任何仓库的 `.claude/settings.json` 作为项目设置生效，没有任何仓库的 `.mcp.json` 会被加载，并且 hook 命令中的 [`$CLAUDE_PROJECT_DIR`](https://code.claude.com/docs/zh-CN/hooks#reference-scripts-by-path) 是该目录，而不是某个检出目录。
 
-无论会话在何处启动，每个仓库的 `CLAUDE.md` 都会被加载。在项目线程之外，其 skill 也会被加载。运行器将每个仓库作为[附加目录](https://code.claude.com/docs/zh-CN/permissions.md#additional-directories-grant-file-access-not-configuration)传递给 Claude Code，因此 Claude Code 还会从每个仓库的 `.claude/settings.json` 中读取 `enabledPlugins` 和 `extraKnownMarketplaces` 键。
+无论会话在何处启动，每个仓库的 `CLAUDE.md` 都会被加载。在项目线程之外，其 skill 也会被加载。运行器将每个仓库作为[附加目录](https://code.claude.com/docs/zh-CN/permissions.md#additional-directories-grant-file-access-not-configuration)传递给 Claude Code，因此在项目线程之外，Claude Code 还会从每个仓库的 `.claude/settings.json` 中读取 `enabledPlugins` 和 `extraKnownMarketplaces` 键。如果您使用 [`--trust-workspace false`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，Claude Code 会跳过这两个键。跳过 `enabledPlugins` 需要 Claude Code v2.1.323 或更高版本。
 
 要在每个会话中运行某个 hook 或应用某条权限规则，请将其放在运行器主机上的 `~/.claude/settings.json` 中。无论会话在何处启动，运行器都会[将该主机文件填充到每个会话中](#how-each-session’s-config-is-assembled)。在 `Read` 或 `Edit` 规则中，请将路径写为以 `//` 开头的绝对路径或以 `~/` 开头的相对于主目录的[模式](https://code.claude.com/docs/zh-CN/permissions.md#read-and-edit)，因为其他模式会以设置来源或当前目录为锚点。
 

@@ -65,8 +65,6 @@ Turned on voice mode (hold). Hold space to record. Dictation language: en (/conf
 
 前几个按键重复字符在预热期间输入到输入中，当录制激活时会自动删除。单个 `Space` 点击仍然会输入一个空格，因为按住检测仅在快速重复时触发。
 
-按住或点击 `Space` 仅在按键会输入到提示词的地方开始听写。在[转录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)中，`Space` 翻页浏览对话，在[vim 模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode)的非 INSERT 状态下它是一个命令。[重新绑定的修饰符组合](#rebind-the-dictation-key)（如 `meta+k`）永远不会输入文本，所以它也可以从这些地方开始听写。
-
 > [!TIP]
 >
 > 要跳过预热，使用 `/voice tap` 切换到[点击模式](#tap-to-record-and-send)，或[重新绑定到修饰符组合](#rebind-the-dictation-key)，如 `meta+k`。修饰符组合在第一次按键时开始录制。
@@ -80,6 +78,8 @@ Turned on voice mode (hold). Hold space to record. Dictation language: en (/conf
 ```
 
 默认情况下，释放键会插入转录并等待你按 `Enter`。在 `voice` 设置对象中设置 `"autoSubmit": true` 以在释放键时自动发送提示词，只要转录至少有三个单词。
+
+按住或点击 `Space` 仅在该按键原本会输入到提示词中的位置开始听写。在[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)中，`Space` 用于翻页浏览对话；在 [vim 模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode)的非 INSERT 状态下，它是一个命令。要在这两个位置进行听写，请[重新绑定到修饰符组合](#rebind-the-dictation-key)，如 `meta+k`。
 
 ## 点击录音并发送
 

@@ -199,21 +199,21 @@ mTLS: Loaded client key from CLAUDE_CODE_CLIENT_KEY
 Claude Code 运行四个独立的计时器，当流式模型响应变得安静时会中止该响应，因此死连接会失败并重试，而不是挂起。完全没有收到响应头的请求会以以下两种方式之一结束：
 
 * **在运行首字节截止时间的连接上**：第一次尝试最迟会在该截止时间结束。要更改它，请设置 `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`。有关重试的等待时间，请参阅 [API 无响应](https://code.claude.com/docs/zh-CN/errors.md#no-response-from-api)。
-* **在其他连接上**：请求会在 5 到 6 分钟后、主体空闲超时触发时结束，除非您已关闭该超时。要更早结束请求，请降低 `API_TIMEOUT_MS`。在 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话中，您也可以改为通过[启用首字节截止时间](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#retry-an-unanswered-request-sooner-with-the-first-byte-deadline)来更早结束第一次尝试。
+* **在其他连接上**：默认情况下，请求会在 5 到 6 分钟后、主体空闲超时触发时结束。要更早结束请求，请降低 `API_TIMEOUT_MS`。在 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话中，您也可以改为通过[启用首字节截止时间](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#retry-an-unanswered-request-sooner-with-the-first-byte-deadline)来更早结束第一次尝试。
 
 | 计时器 | 中止条件 | 运行位置 | 默认超时 |
 | :- | :- | :- | :- |
 | 首字节截止时间 | Claude Code 发送请求后没有响应头到达 | 直接 Anthropic API 和 [Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)，包括通过 HTTPS 代理，但不包括当 `ANTHROPIC_BASE_URL` 或 `ANTHROPIC_AWS_BASE_URL` 通过[网关](https://code.claude.com/docs/zh-CN/gateways.md)路由时。在 [Claude apps gateway 会话](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#retry-an-unanswered-request-sooner-with-the-first-byte-deadline)中可选，在 Amazon Bedrock 上使用 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1` 时可选；不在 Google Cloud 的 Agent Platform 或 Microsoft Foundry 上运行 | 直接 Anthropic API 上为 180 秒，Claude Platform on AWS 或 Amazon Bedrock 上为 300 秒，加上每 32KB 请求体一秒 |
 | 事件级监视器 | 没有响应事件解析。在字节级监视器运行在 Amazon Bedrock 以外的连接上的情况下，到达的字节（包括保活 ping）也会重置此监视器，但在没有解析事件的情况下仅限一段有限的时间。当字节至少每 10 秒到达一次时，该时间约为五分钟。对于 Claude apps gateway 每 15 秒一次的 ping，该时间约为 7.5 分钟，因此在默认超时下，仅有 ping 的流会在约 12.5 分钟后结束。 | 每个提供商 | 300 秒 |
 | 字节级监视器 | 线路上没有字节到达，包括 SSE 保活 ping | 直接 Anthropic API、[Claude Platform on AWS](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md) 和[网关](https://code.claude.com/docs/zh-CN/gateways.md)连接，包括自定义 `ANTHROPIC_BASE_URL`。在 Amazon Bedrock `vnd.amazon.eventstream` 响应上可选，使用 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1`；不在 Google Cloud 的 Agent Platform 或 Microsoft Foundry 上运行 | 直接 Anthropic API 上为 180 秒。在 Claude Platform on AWS、Amazon Bedrock、[Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话中以及通过自定义 `ANTHROPIC_BASE_URL` 时为 300 秒 |
-| 主体空闲超时 | 5 分钟内没有字节到达，包括等待响应头的时间 | 除了直接 Anthropic API、Claude Platform on AWS 和设置了 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1` 的 Amazon Bedrock 之外的提供商，除非 [`API_FORCE_IDLE_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars) 改变这一点 | 5 分钟 |
+| 主体空闲超时 | 没有字节到达，包括等待响应头的时间 | 除了直接 Anthropic API、Claude Platform on AWS 和设置了 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1` 的 Amazon Bedrock 之外的提供商，除非 [`API_FORCE_IDLE_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars) 改变这一点 | 5 分钟 |
 
 如果设置 `CLAUDE_ENABLE_BYTE_WATCHDOG_BEDROCK=1`，字节级监视器会在 Bedrock 上替换主体空闲超时，而不是与其并行运行。`CLAUDE_STREAM_IDLE_TIMEOUT_MS` 随后也会控制 Bedrock 流在 Claude Code 将连接视为死连接之前可以保持沉默多长时间，在下面列出的限制范围内。到达的字节仍然不会在 Bedrock 上重置事件级监视器。启用调试日志后，每个 Bedrock 流随后会记录一条以 `wire-heartbeat: _chunkTimes absent` 开头的调试消息。
 
 使用这些变量配置计时器，每个变量在 [环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md) 中详细说明：
 
 * `CLAUDE_ENABLE_STREAM_WATCHDOG` 和 `CLAUDE_ENABLE_BYTE_WATCHDOG` 在表列出的连接范围内，使用 `1` 强制打开相应的监视器或使用 `0` 关闭；这两个变量都不会将监视器扩展到它不覆盖的连接类型。`CLAUDE_ENABLE_BYTE_WATCHDOG` 设置为 `0` 也会关闭首字节截止时间。
-* `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 设置两个监视器的超时。Claude Code 将低于 5 分钟的值提高到 5 分钟，并将字节级监视器的值上限设为 30 分钟。
+* `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 设置两个监视器的超时。Claude Code 将低于 5 分钟的值提高到 5 分钟，并将字节级监视器的值上限设为 30 分钟。在 v2.1.328 或更高版本上，设置超过 5 分钟的值还会延长主体空闲超时，最长可达 30 分钟。
 * `CLAUDE_BYTE_STREAM_IDLE_TIMEOUT_MS` 设置字节级监视器的超时，而不改变事件级监视器的超时，限制在 10 秒到 30 分钟之间，并优先于 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 用于该监视器。
 * `CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS` 设置首字节截止时间。在 Claude apps gateway 会话中，设置此变量即可[启用该截止时间](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#retry-an-unanswered-request-sooner-with-the-first-byte-deadline)。在其他运行该截止时间的连接上，如果保持此变量未设置，Claude Code 会使用字节级监视器的超时，因此 `CLAUDE_STREAM_IDLE_TIMEOUT_MS` 和 `CLAUDE_BYTE_STREAM_IDLE_TIMEOUT_MS` 也会改变截止时间。有关该值的限制，请参阅 [API 无响应](https://code.claude.com/docs/zh-CN/errors.md#no-response-from-api)。
 * `API_TIMEOUT_MS` 限制等待响应头的时间，而不是响应头到达后响应可以流式传输多长时间。在首字节截止时间不运行的情况下，将 `API_TIMEOUT_MS` 设置为低于 `300000` 的正值，以便在 5 分钟内重试未得到应答的请求。请将 `API_TIMEOUT_MS` 保持在您预期的最长响应头等待时间以及最长[非流式请求](https://code.claude.com/docs/zh-CN/errors.md#streaming-response-ended-before-any-complete-data-was-received)所需时间之上：需要更长时间的请求会在每次重试时再次超时。

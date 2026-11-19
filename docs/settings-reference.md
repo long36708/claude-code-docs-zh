@@ -86,7 +86,7 @@
 | [`disabledMcpjsonServers`](#disabledmcpjsonservers) | 拒绝项目 [`.mcp.json`](https://code.claude.com/docs/zh-CN/mcp#project-scope) 中的特定服务器 | MCP | 任意文件 |
 | [`disableMobileSimulatorTools`](#disablemobilesimulatortools) | 在[桌面版](https://code.claude.com/docs/zh-CN/desktop.md) iOS Simulator 窗格中屏蔽 Claude 的工具 | 工具 | 托管 |
 | [`disableRemoteControl`](#disableremotecontrol) | 在所有可启动 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 的地方将其关闭 | 远程、桌面与通知 | 任意文件 |
-| [`disableRemotePreviewScripts`](#disableremotepreviewscripts) | 在 SSH 和 WSL 会话中关闭[桌面](https://code.claude.com/docs/zh-CN/desktop.md#preview-html-files-in-ssh-and-wsl-sessions)应用 HTML 预览中的脚本 | 远程、桌面与通知 | 托管 |
+| [`disableRemotePreviewScripts`](#disableremotepreviewscripts) | 在[桌面](https://code.claude.com/docs/zh-CN/desktop.md#preview-html-files-in-ssh-and-wsl-sessions)应用的 SSH 和 WSL 会话中，关闭 Browser 窗格 HTML 预览中的脚本 | 远程、桌面与通知 | 托管 |
 | [`disableSideloadFlags`](#disablesideloadflags) | 拒绝用于旁加载[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)、[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)和 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)的 CLI 标志 | 企业与托管设置 | 托管 |
 | [`disableSkillShellExecution`](#disableskillshellexecution) | 阻止 [skill](https://code.claude.com/docs/zh-CN/skills.md) 和自定义命令运行内联 shell | 插件与 skill | 任意文件 |
 | [`disableWorkflows`](#disableworkflows) | 为所有人关闭[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)；如仅针对您自己，请使用 `enableWorkflows` | hook 与自动化 | 任意文件 |
@@ -1888,7 +1888,7 @@ Claude Code 在项目设置中将 `.` 条目解析为项目根目录，在用户
 | `decode` | 字符串 `"jwt"` | 使用内置模式（或在设置了 `extract` 时使用它）查找文件中的 JSON Web Token（JWT），验证每个候选项，并将其替换为结构有效的伪造令牌，使沙箱内解码该令牌的代码继续正常工作。当没有候选项通过验证时，由 `onExtractNoMatch` 决定结果。需要 v2.1.224 或更高版本 |
 | `maskClaims` | 字符串数组，至少包含一个声明名称；需要 `decode` | 仅掩码每个已验证 JWT 中指定的顶层负载声明，并围绕修改后的负载重建令牌，使其他声明保持可读。当没有指定的声明匹配时，由 `onExtractNoMatch` 决定结果。需要 v2.1.224 或更高版本 |
 | `maskDuplicates` | 布尔值，默认为 `false` | 同时替换文件中其他位置出现的每个被掩码值的逐字副本，例如粘贴到注释中的密钥。Claude Code 按原始子字符串匹配，因此请仅将其用于较长的高熵密钥。仅在设置了 `extract` 或 `decode` 时才会参考此字段。需要 v2.1.221 或更高版本 |
-| `injectHosts` | 字符串数组，每项都是 [`sandbox.network.allowedDomains`](#sandbox-network-alloweddomains) 也允许的主机 | 收窄沙箱代理替换真实值的主机范围。未设置时，代理会在发往 `sandbox.network.allowedDomains` 中每个主机的请求中进行替换。需要 v2.1.221 或更高版本 |
+| `injectHosts` | 字符串数组，每项都是 [`sandbox.network.allowedDomains`](#sandbox-network-alloweddomains) 也允许的主机 | 收窄沙箱代理替换为真实值的主机范围。未设置时，代理会在发往 `sandbox.network.allowedDomains` 中每个主机的请求中进行替换。需要 v2.1.221 或更高版本 |
 
 以下配置仅掩码 `gh` 主机文件中的 `oauth_token` 值，替换该值在文件中的所有其他副本，在模式未匹配任何内容时使文件不可读，并仅在发往 `api.github.com` 的请求中替换为真实令牌：
 
@@ -4976,7 +4976,7 @@ Claude Desktop 会向 Code 会话提供从您的桌面配置派生的策略，�
 
 ### `disableRemoteControl`
 
-关闭 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)：Claude Code 随后会拒绝 `claude remote-control`、`--remote-control` 标志、自动启动以及会话内开关，并报告其已被您组织的策略禁用。将其放在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中，可实现按设备的 MDM 强制执行。
+关闭 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)：Claude Code 随后会拒绝 `claude remote-control`、`--remote-control` 标志、自动启动以及会话内开关。将其放在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中，可实现按设备的 MDM 强制执行。
 
 * **作用域**：[`Any file`](#scopes)
 * **类型**：Boolean
@@ -4992,14 +4992,14 @@ Claude Desktop 会向 Code 会话提供从您的桌面配置派生的策略，�
 
 ### `disableRemotePreviewScripts`
 
-当用户在桌面应用中从 SSH 或 WSL 会话[预览 HTML 文件](https://code.claude.com/docs/zh-CN/desktop.md#preview-html-files-in-ssh-and-wsl-sessions)时，阻止脚本运行。Browser 窗格中的外部浏览不受影响。
+当用户从 SSH 或 WSL 会话在桌面应用的 Browser 窗格中[预览 HTML 文件](https://code.claude.com/docs/zh-CN/desktop.md#preview-html-files-in-ssh-and-wsl-sessions)时，阻止脚本运行。该窗格中的外部浏览不受影响。
 
 桌面应用读取此设置项；终端 CLI 会忽略它。需要 Claude Desktop v5.1231.0 或更高版本。更早的版本会忽略此设置项：要在这些版本中阻止脚本运行，还需设置 [`disableBrowserExternalNavigation`](#disablebrowserexternalnavigation)，它也会关闭外部浏览。
 
 * **作用域**：[`Managed`](#scopes)。桌面应用不会从远程机器或 WSL 发行版读取此设置项。
-* **类型**：Boolean；只有 JSON Boolean `true` 才会生效
-  * `true`：SSH 和 WSL 会话中的 HTML 预览不运行脚本
-  * `false`：此设置项不会关闭脚本
+* **类型**：Boolean；仅 JSON Boolean `true` 生效
+  * `true`：在 SSH 和 WSL 会话中，Browser 窗格中的 HTML 预览不运行脚本
+  * `false`：该键不会关闭脚本
 * **默认值**：未设置，因此此设置项不起作用
 
 如果运行桌面应用的计算机未收到任何其他 Claude Code 托管设置，还需在您创建的托管设置中将 [`parentSettingsBehavior`](#parentsettingsbehavior) 设置为 `"merge"`。在 Windows 上，如果您创建托管设置文件，用户还会失去 WSL 会话，直到您[允许这些会话](https://code.claude.com/docs/zh-CN/admin-setup.md#wsl-sessions-in-claude-code-desktop)。[为您的组织关闭 SSH 和 WSL 预览中的脚本](https://code.claude.com/docs/zh-CN/desktop.md#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)对这两点进行了说明，并介绍了在何处设置此设置项。
@@ -5498,7 +5498,7 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 ### `disableBrowserExternalNavigation`
 
-在桌面应用的 [Browser 窗格](https://code.claude.com/docs/zh-CN/desktop.md#browse-external-sites)中同时为人员和 Claude 关闭外部浏览。Localhost 开发服务器预览仍可正常使用。SSH 和 WSL 会话中的 HTML 预览仍会打开，但它们[不会运行脚本](https://code.claude.com/docs/zh-CN/desktop.md#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。桌面应用会读取此键；终端 CLI 会忽略它。
+在桌面应用的 [Browser 窗格](https://code.claude.com/docs/zh-CN/desktop.md#browse-external-sites)中同时为人员和 Claude 关闭外部浏览。Localhost 开发服务器预览仍可正常使用。Browser 窗格在 SSH 和 WSL 会话中的 HTML 预览仍会打开，但它们[不会运行脚本](https://code.claude.com/docs/zh-CN/desktop.md#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。桌面应用会读取此键；终端 CLI 会忽略它。
 
 * **作用域**：[`Managed`](#scopes)
 * **类型**：布尔值；仅 JSON 布尔值 `true` 生效

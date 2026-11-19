@@ -39,6 +39,7 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 
 * 如果 keymap 已有绑定且其中没有 Terminal `shift-enter`，Claude Code 首先会将其备份到同一目录中的副本，例如 `keymap.json.1a2b3c4d.bak`，然后将 Shift+Enter 绑定合并到您的 keymap 中，保留您的其他快捷键和注释
 * 如果 Claude Code 无法读取或解析 keymap、无法备份或无法验证合并结果，它会[保持文件不变并打印快捷键块供您自己添加](https://code.claude.com/docs/zh-CN/errors.md#terminal-setup-left-your-zed-keymap-unchanged)
+* 如果 keymap 是符号链接，请[自行添加快捷键](https://code.claude.com/docs/zh-CN/errors.md#terminal-setup-left-your-zed-keymap-unchanged)
 
 如果您在 tmux 内运行，即使外部终端支持，Shift+Enter 也需要下面的 [tmux 配置](#configure-tmux)。
 
@@ -336,7 +337,7 @@ $env:CLAUDE_CODE_NO_FLICKER = "1"; claude
 
 ### Claude 如何处理粘贴的文本
 
-当您提交时，Claude 会看到每个 `[Pasted text #N]` 占位符后面的内容，标记为您从其他地方粘贴而不是输入的文本。Claude 被告知粘贴可能包含您没有写的指令，并且仅在您输入的消息要求时才遵循其中的指令。在不[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的会话中，粘贴不会被标记。
+当您提交时，Claude 会看到每个 `[Pasted text #N]` 占位符后面的内容，标记为您从其他地方粘贴而不是输入的文本。Claude 被告知粘贴可能包含您没有写的指令，并且仅在您输入的消息要求时才遵循其中的指令。粘贴内容也可能在未被标记的情况下到达 Claude，例如在您[安装后的第一个会话](https://code.claude.com/docs/zh-CN/env-vars.md#first-session-after-an-install-or-upgrade)中。
 
 ### 删除和恢复折叠的粘贴
 

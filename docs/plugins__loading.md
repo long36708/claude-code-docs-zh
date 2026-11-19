@@ -32,7 +32,7 @@
   * `known_marketplaces.json` 记录 Claude Code 已获取的每个市场，包括其 `source`、`installLocation`、`lastUpdated` 和 `autoUpdate`。每个用户有一个 `known_marketplaces.json`，因此您在一个项目中添加的市场在每个项目中都可用
   * `installed_plugins.json` 记录每个安装及其 `scope`、`installPath` 和 `version`
   * `cache/` 保存插件文件
-* **已加载，在运行中的会话中**：Claude Code 在启动时或最后一次 `/reload-plugins` 时加载的插件集。对设置或磁盘的更改不会到达此层，直到您运行 `/reload-plugins` 或启动新会话。这就是为什么 `claude plugin update` 以 `Restart to apply changes.` 结尾，背景更新会提示您 `Run /reload-plugins to apply`
+* **已加载，在运行中的会话中**：Claude Code 在启动时或上次重新加载时加载的插件集。在 `/plugin` 面板之外安装、更新、启用或禁用插件后，请在会话中运行 [`/reload-plugins`](https://code.claude.com/docs/zh-CN/plugins/cli-reference#reload-plugins) 或启动新会话
 
 ### 会话启动时磁盘上没有的插件和市场
 
@@ -158,7 +158,7 @@ Claude Code 在这些终端会话中既不下载也不加载同步插件，即�
 
 | 源 | 您在哪里设置它 | 到达 |
 | :- | :- | :- |
-| `--add-dir` | 您使用 `--add-dir` 传递的目录中的 `.claude/settings.json` 或 `.claude/settings.local.json` | 仅此会话。仅 `true` 值有效，每个其他源都会覆盖它 |
+| `--add-dir` | 您使用 `--add-dir` 传递的目录中的 `.claude/settings.json` 或 `.claude/settings.local.json` | 仅此会话，且每个其他源都会覆盖它。可能会[在您为该目录保存信任之前被跳过](#enabled-in-an-add-dir-directory-but-not-loaded) |
 | `user` | `~/.claude/settings.json` | 您，在每个项目中 |
 | `project` | `.claude/settings.json` | 克隆存储库的每个人 |
 | `local` | `.claude/settings.local.json` | 您，仅在此存储库中 |
@@ -174,6 +174,12 @@ Claude Code 在这些终端会话中既不下载也不加载同步插件，即�
 要在您的机器上选择退出项目启用的插件，请在 `.claude/settings.local.json` 中将 id 设置为 `false`，它的优先级高于项目文件。
 
 ### 在 `--add-dir` 目录中启用但未加载
+
+在您为已添加的目录保存信任之前，Claude Code 会跳过其 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/permissions#what-runs-before-you-trust-a-folder) 条目。在交互式终端会话中，它还会跳过设置为 `true` 的 `enabledPlugins` 条目。回应 `--add-dir` 显示的提示并不会保存该信任。要保存信任，请在该目录中启动会话并接受[工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)。如果没有出现对话框，请[自行设置信任键](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)。信任检查需要 Claude Code v2.1.319 或更高版本。
+
+> [!NOTE]
+>
+> 位于 [Pull Request worktree](https://code.claude.com/docs/zh-CN/worktrees.md#branch-from-a-pull-request) 内的目录即使在您信任之后也可能被跳过，因此请改为将主检出中的对应副本传递给 `--add-dir`。
 
 仅当已添加目录中某个文件对应的设置源处于开启状态时，Claude Code 才会读取该文件中值为 `true` 的 `enabledPlugins` 条目：
 
@@ -218,7 +224,7 @@ Claude Code 仅当以下源之一将其设置为 `true` 时才获取具有外部
 
 ## 查找磁盘上的插件
 
-Claude Code 在一个插件根目录下保存插件文件和状态记录，该目录是 `~/.claude/plugins`，除非您设置了 [`CLAUDE_CODE_PLUGIN_CACHE_DIR`](https://code.claude.com/docs/zh-CN/env-vars)。表中的每个路径都相对于该根目录。
+Claude Code 在一个插件根目录下保存插件文件和状态记录，该目录是 `~/.claude/plugins`，除非您设置了 [`CLAUDE_CODE_PLUGIN_CACHE_DIR`](https://code.claude.com/docs/zh-CN/env-vars)。表中除 `synced/` 和 `.trash/` 之外的每个路径都相对于该根目录。这两个目录始终位于 `~/.claude/plugins` 下。
 
 | 路径 | 它保存什么 |
 | :- | :- |
@@ -382,7 +388,7 @@ Claude Code 在以下情况下跳过 `name@marketplace` 安装之前的刷新：
 
 在交互式会话中，在您发送第一条消息后，Claude Code 等待最多十分钟的随机延迟。然后它刷新每个启用自动更新的市场，并更新从它们安装的磁盘上的插件。
 
-运行中的会话保留它加载的版本，您会看到 `Plugin updated: <name> · Run /reload-plugins to apply`。无论您是否重新加载，新版本都会在下次启动时加载。
+当您看到 `Plugin updated: <name> · Run /reload-plugins to apply` 时，请在该会话中运行 [`/reload-plugins`](https://code.claude.com/docs/zh-CN/plugins/cli-reference#reload-plugins)。无论您是否重新加载，新版本都会在下次启动时加载。
 
 #### 哪些市场和插件自动更新
 

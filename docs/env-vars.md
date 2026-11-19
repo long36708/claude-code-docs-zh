@@ -250,6 +250,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_DISABLE_CLAUDE_MDS` | 设置为 `1` 可阻止将任何 CLAUDE.md 记忆文件加载到上下文中，包括用户、项目和自动记忆文件 |
 | `CLAUDE_CODE_DISABLE_CRON` | 设置为 `1` 可禁用[会话作用域的定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#disable-scheduled-tasks)。`/loop` skill 和 `CronCreate` 将不可用，任何已安排的任务都会停止触发，包括会话中途已在运行的任务 |
 | `CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT` | 设为 `1` 可关闭 `auto` 和 `bypassPermissions` 模式下针对关键路径删除操作的[时间限制和拒绝](https://code.claude.com/docs/zh-CN/permission-modes.md#time-limits-and-denials-in-auto-and-bypasspermissions-modes)。这些删除操作随后在 `auto` 模式下交由分类器处理，在 `bypassPermissions` 模式下，只要 Claude Code 能够显示提示，就会显示不限时的提示。请在启动 Claude Code 的环境中设置它，因为 Claude Code 会忽略通过设置 `env` 块传递的副本。需要 Claude Code v2.1.281 或更高版本 |
+| `CLAUDE_CODE_DISABLE_DEFERRED_TOOL_RESUME` | 设置为 `1` 可在您使用 `-p` 恢复或继续时跳过[延迟的工具调用](https://code.claude.com/docs/zh-CN/hooks.md#defer-a-tool-call-for-later)。Claude 仍可重复该调用。在设置 `env` 块中会被忽略。需要 Claude Code v2.1.328 或更高版本 |
 | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | 设置为 `1` 可从 API 请求中移除预发布的 `anthropic-beta` 请求标头、与其配对的请求体字段，以及 `defer_loading` 和 `eager_input_streaming` 等 beta 工具架构字段。当代理网关因 `anthropic-beta` 标头返回 `Unexpected value(s)` 错误或返回 `Extra inputs are not permitted` 错误而拒绝请求时使用。[禁用预发布功能](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#disable-pre-release-capabilities)列出了该变量移除的内容（包括 [MCP 工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)）以及 Claude Code 仍会发送的内容 |
 | `CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS` | 设置为 `1` 可禁用内置的 [Explore 和 Plan 子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#built-in-subagents)。Claude 会改用其搜索工具或 general-purpose 子代理进行探索，[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)会直接读取文件，而不是启动 Explore 和 Plan Agent。名为 `Explore` 或 `Plan` 的自定义子代理不受影响。若要在 Agent SDK 或非交互模式下移除所有内置子代理类型，请改用 `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS`。需要 Claude Code v2.1.198 或更高版本 |
 | `CLAUDE_CODE_DISABLE_FAST_MODE` | 设置为 `1` 可禁用[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md) |
@@ -603,8 +604,6 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * 让 Claude 读取[其他组织的公开 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you)
 * 在安装了 Git Bash 的 Windows 上，为 claude.ai 和 Console 账户默认获得 [PowerShell 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#powershell-tool)；除非您设置了 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`，否则 Claude Code 会通过 Git Bash 执行 shell 命令。在未安装 Git Bash 的 Windows 上，该工具保持启用
 * 获得 [Claude 起草的反馈](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)，该功能由 Claude Code 通过获取的标志启用
-* 让 Claude [将大段粘贴内容视为粘贴而非键入的文本](https://code.claude.com/docs/zh-CN/terminal-config.md#how-claude-treats-pasted-text)；`[Pasted text #N]` 占位符背后的内容将以无标记形式传给 Claude
-* 让 Claude Code [排除其输入 schema 会被 API 拒绝的 MCP 工具](https://code.claude.com/docs/zh-CN/mcp.md#tools-with-invalid-input-schemas)
 
 ### 安装或升级后的首个会话
 

@@ -229,7 +229,7 @@ rate_limits:
 
 ### 使用首字节截止时间更快地重试未得到应答的请求
 
-要让 Claude Code 更快地重试未得到应答的流式请求，请在开发者的机器上设置 [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars)，为其设定首字节截止时间。该截止时间限制首次尝试等待响应标头的时长。没有它，该尝试可能等待 5 到 6 分钟。需要开发者机器上的 Claude Code v2.1.307 或更高版本。
+要让 Claude Code 更快地重试未得到应答的流式请求，请在开发者的机器上设置 [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars)，为其设定首字节截止时间。该截止时间限制首次尝试等待响应标头的时长。没有它，该尝试默认可能等待 5 到 6 分钟。需要开发者机器上的 Claude Code v2.1.307 或更高版本。
 
 将该变量设置为以毫秒为单位的正整数，可以在[网关策略的 `env` 块](#deliver-the-value-in-a-policy)中或开发者的 shell 中设置。请使该值高于网关最长的[首字节时间](#keep-api_timeout_ms-above-the-gateways-time-to-first-byte)，否则 Claude Code 可能会中止并重新发送标头返回较慢的健康请求。此示例在开发者的 shell 中设置 60 秒：
 
@@ -237,7 +237,7 @@ rate_limits:
 export CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS=60000
 ```
 
-未得到应答的重新发送可能等待 5 到 6 分钟，直到[响应体空闲超时](https://code.claude.com/docs/zh-CN/network-config.md#streaming-idle-watchdogs)将其结束，然后 Claude Code 在[重试预算](https://code.claude.com/docs/zh-CN/errors.md#tune-retry-behavior)内重试它。如果您降低 `API_TIMEOUT_MS` 只是为了更快地重试，请移除该值，否则一次未得到应答的重新发送就可能以 [No response from API](https://code.claude.com/docs/zh-CN/errors.md#no-response-from-api) 结束该轮次。
+默认情况下，未得到应答的重新发送可能一直等待，直到[响应体空闲超时](https://code.claude.com/docs/zh-CN/network-config.md#streaming-idle-watchdogs)将其结束，然后 Claude Code 在[重试预算](https://code.claude.com/docs/zh-CN/errors.md#tune-retry-behavior)内重试它。请使 `API_TIMEOUT_MS` 远高于响应体空闲超时，否则一次未得到应答的重新发送就可能以 [No response from API](https://code.claude.com/docs/zh-CN/errors.md#no-response-from-api) 结束该轮次。
 
 要确认截止时间已触发，请让开发者在启用[调试日志](https://code.claude.com/docs/zh-CN/network-config.md#verify-your-configuration)的情况下启动 Claude Code，然后在日志中搜索 `[first-byte] no response headers`。
 
@@ -326,7 +326,7 @@ export CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS=60000
 
 当排空窗口结束时仍有请求打开，网关记录一个包含 `drain window over after` 的警告，计数它切断的请求，并命名两个要提高的设置。
 
-迁移是仅追加的，因此回滚到知道较少迁移的先前二进制文件是安全的；它忽略额外的行。回滚也重新验证 YAML 针对较旧二进制文件的架构，因此采用由较新版本引入的密钥的配置在较旧版本上启动失败。在回滚前移除新密钥。
+迁移是仅追加的，因此回滚到知道较少迁移的先前二进制文件是安全的；它忽略额外的行。回滚也会针对较旧二进制文件的 schema 重新验证 YAML，因此采用由较新版本引入的设置项的配置在较旧版本上启动失败。在回滚前移除新的设置项。
 
 > [!WARNING]
 >
@@ -511,7 +511,7 @@ Error streaming, falling back to non-streaming mode: Stream idle timeout - no ch
 | `900000` | 约 22.5 分钟 |
 | `1800000` | 约 37.5 分钟 |
 
-如果上游挂起而网关持续发送 ping，您的开发者也需要等待同样长的时间，Claude Code 才会放弃该流。完全静默的连接仍会在 5 到 6 分钟后结束，因为[响应体空闲超时](https://code.claude.com/docs/zh-CN/network-config.md#streaming-idle-watchdogs)不受此变量影响。
+如果上游挂起而网关持续发送 ping，您的开发者也需要等待同样长的时间，Claude Code 才会放弃该流。
 
 #### 通过策略下发该值
 

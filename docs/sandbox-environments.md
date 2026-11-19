@@ -16,7 +16,7 @@ Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙�
 
 ## 比较沙箱方法
 
-下表中的前两种方法在主机操作系统上运行，不使用容器。其余方法将 Claude Code 放在容器或虚拟机内。
+下表中的前两种方法在主机操作系统上运行，不使用容器。其余方法使用容器或虚拟机。
 
 | 方法 | 隔离的内容 | 需要 Docker | 设置工作量 |
 | :- | :- | :- | :- |
@@ -25,9 +25,9 @@ Claude Code 可以在多种隔离环境中运行，从轻量级的按命令沙�
 | [Dev container](#dev-containers) | 完整开发环境 | 是 | 中等 |
 | [Custom container](#custom-container) | 完整开发环境 | 是 | 中等到高 |
 | [Virtual machine](#virtual-machine) | 完整操作系统 | 否 | 高 |
-| [Cloud sessions](#cloud-sessions) | 完整操作系统，由 Anthropic 托管 | 否 | 无；需要 Claude 订阅，克隆 GitHub 仓库时还需要已连接的 GitHub 账户 |
+| [Cloud sessions](#cloud-sessions) | 默认情况下，为 Anthropic 托管的虚拟机中的 shell 命令和文件编辑 | 否 | 无；需要 Claude 订阅，克隆 GitHub 仓库时还需要已连接的 GitHub 账户 |
 
-[Sandboxed Bash tool](https://code.claude.com/docs/zh-CN/sandboxing.md) 内置于 Claude Code 中，会限制 Bash 命令。内置文件工具、MCP 服务器和 hooks 仍直接在您的主机上运行。表中的所有其他方法都将整个 Claude Code 进程放在隔离边界内，因此文件工具、MCP 服务器和 hooks 也受到限制。
+[Sandboxed Bash tool](https://code.claude.com/docs/zh-CN/sandboxing.md) 内置于 Claude Code 中，会限制 Bash 命令。内置文件工具、MCP 服务器和 hook 仍直接在您的主机上运行。Sandbox runtime 以及您自己的容器或虚拟机会将整个 Claude Code 进程放在隔离边界内，因此文件工具、MCP 服务器和 hook 也受到限制。
 
 > [!WARNING]
 >
@@ -162,9 +162,9 @@ Claude Code 存储库发布了一个 [example dev container](https://code.claude
 
 ## 云会话
 
-[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)在隔离的、由 Anthropic 管理的虚拟机中运行。网络代理强制执行默认允许列表，单独的代理在沙箱外保存您的 GitHub 令牌，同时在其内部为存储库访问发出作用域凭据。您的组织路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话在您配置的基础设施上运行，其中隔离、出站控制和 git 凭据是您部署的责任。
+默认情况下，[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)在隔离的、由 Anthropic 管理的虚拟机中运行其 shell 命令和文件编辑。网络代理强制执行默认允许列表，单独的代理在沙箱外保存您的 GitHub 令牌，同时在沙箱内部为仓库访问发放限定作用域的凭据。您的组织路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话则在您配置的基础设施上运行，其中隔离、出站控制和 git 凭据由您的部署负责。
 
-当您想要完整的虚拟机隔离而无需自己配置基础设施，或当您从没有本地开发环境的设备委派任务时，使用此方法。它需要：
+当您希望命令在虚拟机中运行而无需配置基础设施，或当您从没有本地开发环境的设备委派任务时，使用此方法。它需要：
 
 * **订阅**：Claude 订阅
 * **GitHub**：已连接的 GitHub 账户，以便在 GitHub 仓库中工作。当您使用 `--cloud` 从 CLI 启动时，如果 Claude Code [捆绑并上传您的本地仓库](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github)，则无需 GitHub 账户

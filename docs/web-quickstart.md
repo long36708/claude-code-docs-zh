@@ -10,7 +10,7 @@
 >
 > 云端会话可在 Pro、Max、Ultra 和 Team 计划上使用，以及拥有高级席位或 Chat + Claude Code 席位的企业用户。
 
-云会话在云基础设施上运行 Claude Code，而不是在您的机器上，默认由 Anthropic 管理。此快速入门从浏览器中的 [claude.ai/code](https://claude.ai/code) 启动一个会话。您也可以从 Claude 移动应用、Desktop 应用或终端使用 `claude --cloud` 启动一个会话。
+云端会话在云基础设施上运行 Claude Code，默认由 Anthropic 管理。此快速入门从浏览器中的 [claude.ai/code](https://claude.ai/code) 启动一个会话。您也可以从 Claude 移动应用、Desktop 应用或终端使用 `claude --cloud` 启动一个会话。
 
 Claude 将您选择的 [GitHub 仓库](#connect-github)克隆到隔离的虚拟机中，进行更改，并为您推送一个分支以供审查。会话在设备间持久化，因此您在笔记本电脑上开始的任务稍后可以从手机上审查。每个会话都会与您的其他 Claude 和 Claude Code 用量一起计入您计划的用量限制，云端虚拟机不会单独收费。
 
@@ -134,7 +134,7 @@ gh auth login
 
 从 [claude.ai/code](https://claude.ai/code) 或 Claude 移动应用中的 Code 选项卡，单击输入框下方的仓库选择器，并为 Claude 选择要在其中工作的仓库。您可以添加多个仓库以在一个会话中跨它们工作。
 
-在 claude.ai/code 中，若要从功能分支而不是默认分支启动 Claude，请在仓库选择器后面的控件中更改分支。
+在 claude.ai/code 中，若要从功能分支而不是默认分支启动 Claude，请在仓库选择器后面的控件中更改分支。若要在 claude.ai/code 中不使用仓库启动，请在仓库选择器中选择 **No repository**。
 
 **2. 选择权限模式**
 
@@ -181,8 +181,8 @@ https://claude.ai/code?prompt=Fix%20the%20login%20bug&repositories=acme/webapp
 
 Claude 将其更改推送到分支后，聊天旁边面板中的 **Changes** 卡片会显示整个会话中添加和删除的行，例如 `+42 -18`。点击这些计数以打开差异视图。
 
-* 您也可以点击会话标题栏中的 **Changes**，或标题栏 **⋮** 菜单中的该选项。
-* 若面板处于隐藏状态，要显示它，请点击会话标题栏中的 **Show session rail** 图标，或标题栏 **⋮** 菜单中的该选项。
+* 若面板处于隐藏状态，要显示它，请点击会话标题栏中的 **Activity panel** 或 **Show session rail**，或标题栏 **⋮** 菜单中的 **Show session rail**。
+* 您也可以[将 **Changes** 作为窗格打开](https://code.claude.com/docs/zh-CN/desktop.md#arrange-your-workspace)。
 
 差异默认将会话的更改与其基础分支进行比较。要与不同的分支进行比较，选择**Compare against**并选择一个。与基础分支比较时，diff 可能会[遗漏尚未推送的更改](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#troubleshoot-a-missing-file-in-the-diff-view)。
 

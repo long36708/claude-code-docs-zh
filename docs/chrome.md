@@ -122,7 +122,7 @@ Chrome 未运行时，Claude Code 会正常启动。
 
 ### 管理站点权限
 
-站点级权限继承自 Chrome 扩展程序。在 Chrome 扩展程序设置中管理权限，以控制 Claude 可以在哪些站点上浏览、点击和输入。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，当自动模式分类器本身批准了对某个站点的浏览器调用时，扩展程序会跳过该调用的逐站点检查，除非您的权限规则拒绝 Claude in Chrome 访问任何站点。
+如需让 Claude 在某个站点上执行操作，请在 Claude Code 询问时批准。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，当分类器本身批准了对某个站点的浏览器调用时，扩展程序可以跳过其自身针对该调用的逐站点检查，除非您的权限规则拒绝 Claude in Chrome 访问至少一个站点。
 
 ### VS Code 会话中的权限提示
 

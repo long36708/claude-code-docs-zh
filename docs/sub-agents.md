@@ -1079,7 +1079,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 嵌套子代理适用于本身可拆分为并行子任务的委托任务，例如一个审查子代理为每项发现分派一个验证者。默认情况下，发起启动的子代理会等待每个嵌套子代理的报告：
 
 * **交互式终端会话**：只有顶层子代理的摘要会返回给您，因为启动后台子代理的子代理会等待它们的结果后再结束。
-* **`claude -p` 和 Agent SDK**：当 [fork 模式](#turn-fork-mode-on-or-off)开启时，发起启动的子代理会等待。如果您关闭 fork 模式，嵌套子代理会改为在[后台](#run-subagents-in-foreground-or-background)启动。发起启动的子代理不会等待后台嵌套子代理；如果该嵌套子代理在其启动者结束后仍在运行，它会向您的主对话报告。
+* **`claude -p` 和 Agent SDK**：发起启动的子代理只会等待前台嵌套子代理。如果[后台](#run-subagents-in-foreground-or-background)嵌套子代理在发起启动的子代理结束后仍在运行，它会向您的主对话报告。
 
 要更改该限制，请将 [`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`](https://code.claude.com/docs/zh-CN/env-vars) 设置为您希望在主对话之下允许的子代理层数。例如，[`settings.json`](https://code.claude.com/docs/zh-CN/settings) 中的以下条目将嵌套限制为两层：
 

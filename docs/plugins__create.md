@@ -189,13 +189,13 @@ claude --plugin-dir ./my-first-plugin --plugin-dir ./other-plugin.zip
 
 要从一个地方加载多个插件，请传递一个包含它们的文件夹，例如 `--plugin-dir ./plugins`。加载插件文件夹需要 Claude Code v2.1.265 或更高版本。
 
-如果文件夹没有 `.claude-plugin/` 目录且其顶级没有插件组件，Claude Code 会将其视为插件文件夹。然后，每个具有 `.claude-plugin/plugin.json` 清单的直接子文件夹都作为单独的插件加载。文件夹中的所有其他内容都被跳过而不出错，包括没有清单的子文件夹。如果文件夹中的插件不加载，请检查其子文件夹是否具有 `.claude-plugin/plugin.json`。
+如果文件夹没有 `.claude-plugin/` 目录且其顶级没有插件组件，Claude Code 会将其视为插件文件夹。然后，每个具有 `.claude-plugin/plugin.json` 清单且名称不以 `.` 开头的直接子文件夹都作为单独的插件加载。文件夹中的所有其他内容都会被跳过而不报错。如果某个插件未加载，请检查其子文件夹的名称和清单。
 
 您还可以传递一个在其插件文件夹旁边保留 `.claude-plugin/marketplace.json` 的文件夹。只要该 `.claude-plugin/` 目录不包含 `plugin.json`，插件文件夹仍然会加载。不会从市场文件安装或启用任何内容，因为 Claude Code 不读取它。从这样的文件夹加载插件需要 Claude Code v2.1.281 或更高版本。
 
 在交互式会话中，您还可以在启动后在文件夹中添加和删除插件：
 
-* 您添加的子文件夹一旦其清单存在就作为新插件加载。
+* 您添加的子文件夹一旦其清单存在就作为新插件加载，除非其名称以 `.` 开头。
 * 当您删除子文件夹时，其插件卸载。
 
 会话中会为这些更改中的每一个显示一条消息。如果在对话中间加载或卸载插件会[使提示缓存失效](https://code.claude.com/docs/zh-CN/prompt-caching.md#enabling-or-disabling-a-plugin)，则更改会被保留，消息会告诉您运行 `/reload-plugins` 以应用它。

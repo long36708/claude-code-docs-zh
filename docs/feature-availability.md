@@ -246,7 +246,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 > [!NOTE]
 >
-> 如果您通过 [LLM gateway](https://code.claude.com/docs/zh-CN/llm-gateway) 进行身份验证，功能可用性与网关转发到的基础提供商相匹配，除了 Claude Code 本身关闭的功能。每当 `ANTHROPIC_BASE_URL` 指向 `api.anthropic.com` 以外的主机时，Claude Code 会关闭功能，例如 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#requirements) 和 [server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)，无论网关转发什么。某些功能，例如 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md#requirements)，仅在网关完整转发请求时才有效。
+> 如果您通过 [LLM gateway](https://code.claude.com/docs/zh-CN/llm-gateway) 进行身份验证，功能可用性与网关转发到的基础提供商相匹配，除了 Claude Code 本身关闭的功能。每当 `ANTHROPIC_BASE_URL` 指向 `api.anthropic.com` 以外的主机时，Claude Code 会关闭功能，例如 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#requirements)，无论网关转发什么。某些功能，例如 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md#requirements)，仅在网关完整转发请求时才有效。
 >
 > 有关 Claude Code 发送的请求在 Amazon Bedrock 或 Agent Platform 格式网关、`ANTHROPIC_BASE_URL` 网关和 Claude apps gateway 登录之间如何不同，请参阅[按连接方法的客户端行为](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#how-the-connection-method-changes-client-behavior)。
 

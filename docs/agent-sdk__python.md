@@ -2608,7 +2608,7 @@ asyncio.run(main())
 当 Claude 在 `Agent` 调用中省略 `run_in_background` 时，默认情况下，您的主 Agent 不会等待新 Agent，而子代理会等待：
 
 * **从您的主 Agent 调用**：新 Agent 在后台运行，结果带有 `status: "async_launched"`。如需让主 Agent 改为等待新 Agent，请参阅[选择 Claude 是否等待子代理](https://code.claude.com/docs/zh-CN/agent-sdk/subagents.md#choose-whether-claude-waits-for-subagents)。
-* **从您的某个子代理调用**：发起调用的子代理会[等待新 Agent](https://code.claude.com/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents)。当新 Agent 的定义将 [`background`](#agentdefinition) 设置为 `True`，或者您通过将 `CLAUDE_CODE_FORK_SUBAGENT` 设置为 `0` 来[关闭 fork 模式](https://code.claude.com/docs/zh-CN/sub-agents.md#turn-fork-mode-on-or-off)时，新 Agent 会改为在后台运行。
+* **从您的某个子代理调用**：发起调用的子代理会[等待新 Agent](https://code.claude.com/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents)。当新 Agent 的定义将 [`background`](#agentdefinition) 设置为 `True` 时，新 Agent 会改为在后台运行。
 
 在 Python SDK v0.2.169 之前，由您的子代理启动的 Agent 默认也在后台运行。该版本是首个捆绑 Claude Code v2.1.302 或更高版本的版本。
 

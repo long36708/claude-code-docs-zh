@@ -141,7 +141,7 @@ Claude 自己找到消息的目标，所以你不需要在要求它发送之前�
 | 在你的另一台机器上 | 通过 Anthropic 服务器，通过该机器的 [远程控制](https://code.claude.com/docs/zh-CN/remote-control.md) 连接到达 |
 | 在 [云中](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) | 通过 Anthropic 服务器，直接到云会话 |
 
-启动与你另一台机器上的会话的对话需要 Claude Code v2.1.225 或更高版本和一个 [出现在列表中](#see-which-sessions-claude-can-reach) 的目标。
+与您另一台机器上的会话开始对话需要 Claude Code v2.1.225 或更高版本。
 
 会话在[列表](#see-which-sessions-claude-can-reach)中的行可能显示某种状况，这会影响 Claude 向该会话发送消息时的结果：
 

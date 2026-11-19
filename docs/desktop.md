@@ -148,7 +148,7 @@ Claude 根据您的项目创建初始服务器配置。如果您的应用使用�
 
 #### 为您的组织关闭 SSH 和 WSL 预览中的脚本
 
-要阻止 [SSH 和 WSL 会话中的 HTML 预览](#preview-html-files-in-ssh-and-wsl-sessions)运行脚本，请将 [`disableRemotePreviewScripts` 托管设置](#managed-settings)设置为 `true`。用户仍然可以浏览外部网站。需要 Claude Desktop v5.1231.0 或更高版本。
+要阻止 Browser 窗格中的 [SSH 和 WSL 会话中的 HTML 预览](#preview-html-files-in-ssh-and-wsl-sessions) 运行脚本，请将 [`disableRemotePreviewScripts` 托管设置](#managed-settings) 设为 `true`。用户仍可浏览外部网站。需要 Claude Desktop v5.1231.0 或更高版本。
 
 > [!NOTE]
 >
@@ -164,7 +164,7 @@ Claude 根据您的项目创建初始服务器配置。如果您的应用使用�
 
 然后让用户重启 Desktop 以确保设置生效，并告诉他们会出现什么情况：
 
-* **他们打开的文件**：预览不运行脚本，因此由脚本绘制的图表和表格会保持为空。其提示以 `This preview doesn't run scripts` 开头。
+* **他们在浏览器窗格中打开的 SSH 和 WSL 文件**：预览不运行脚本，因此由脚本绘制的图表和表格会保持为空
 * **正在运行脚本的预览**：如果 Desktop 在重启之前就获取了该设置，这些预览会关闭。用户会看到 `This preview closed because scripts are turned off for previews. Open the file again to view it without scripts.`
 * **他们导出的文件**：如果用户[导出文件](#preview-html-files-in-ssh-and-wsl-sessions)并在浏览器中打开，无论是否启用此设置，其脚本都会在那里运行
 
@@ -174,18 +174,18 @@ Claude 根据您的项目创建初始服务器配置。如果您的应用使用�
 
 ### 浏览外部网站
 
-浏览器窗格是一个选项卡式浏览器，因此您可以在运行的应用旁边打开文档、问题跟踪器或任何其他网站。要打开浏览器，在 macOS 上按 **Cmd+Shift+B** 或在 Windows 上按 **Ctrl+Shift+B**，或点击会话标题栏中的 **Browser**。您可以在窗格中登录网站，包括弹出式登录流程，例如 Google OAuth。
+浏览器窗格是一个选项卡式浏览器，因此您可以在运行的应用旁边打开文档、问题跟踪器或任何其他网站。要打开浏览器，在 macOS 上按 **Cmd+Shift+B** 或在 Windows 上按 **Ctrl+Shift+B**，或[选择 **Browser**](#arrange-your-workspace)。您可以在窗格中登录网站，包括弹出式登录流程，例如 Google OAuth。
 
 您第一次点击聊天中的外部链接时，会出现一个对话框，询问链接是在浏览器窗格中打开还是在您的默认浏览器中打开。要在之后更改您的选择，请使用浏览器窗格 **⋮** 菜单中的 **Open links in built-in browser**。在 macOS 上 **Cmd** 点击或在 Windows 上 **Ctrl** 点击会直接在您的默认浏览器中打开链接。
 
 Claude 可以使用与[验证您的应用](#preview-your-app)相同的工具读取和交互外部页面，并进行两项额外的安全检查：
 
-* 安全分类器在每个权限模式中审查 Claude 在外部页面上的写入操作，例如点击和输入。这些与[自动模式](#choose-a-permission-mode)使用的分类器相同，当它们标记操作时，无论模式如何，您都会收到权限提示。
+* 当会话的[自动模式可用](#auto-mode-availability)时，其安全分类器会在每个权限模式中审查 Claude 在外部页面上的写入操作，例如输入。被标记的操作会被阻止，或在[多次被阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#when-auto-mode-falls-back)后向您发出提示。
 * 在 Auto 和 Bypass permissions 以外的权限模式中，在 Claude 导航到新网站之前也会应用域名允许列表检查。
 
 #### 批准 Claude 在网站上的操作
 
-Claude 第一次在外部网站上操作时，会出现权限卡，Claude 等待您的选择：**Allow once**、**Always allow** 或 **Deny**。**Allow once** 批准操作而不保存任何内容。**Always allow** 在您的设备上保存该网站的批准，您可以在设置中撤销它。每个网站都需要自己的批准，包括子域。您的本地开发服务器和项目文件不需要批准，因此[自动验证](#auto-verify-changes)继续工作而不需要提示。
+在 Auto 和 Bypass permissions 模式之外，Claude 使用您尚未批准的外部网站之前，会出现权限卡。请选择 **Allow once**、**Always allow** 或 **Deny**。**Allow once** 批准操作而不保存任何内容。**Always allow** 在您的设备上保存该网站的批准，您可以在设置中撤销它。每个网站都需要自己的批准。您的本地开发服务器和项目文件不需要批准。
 
 即使在批准的网站上，Claude 也不会在没有您的输入的情况下购买物品、创建账户或绕过 CAPTCHA。在浏览器窗格中浏览使用与 [Claude in Chrome extension](https://code.claude.com/docs/zh-CN/chrome.md) 相同的安全模型。有关 Claude 如何处理敏感网站和风险操作的信息，请参阅[安全使用 Chrome 中的 Claude](https://support.claude.com/en/articles/12902428-using-claude-in-chrome-safely)。
 
@@ -201,7 +201,7 @@ Claude 第一次在外部网站上操作时，会出现权限卡，Claude 等待
 
 ### 使用 diff 视图审查更改
 
-Claude 对您的代码进行更改后，diff 视图让您在创建 Pull Request 之前逐个文件审查修改。要打开 diff 视图，请点击[会话详情面板](#see-session-details)的 **Changes** 卡片中的行数统计，例如 `+12 -1`。您也可以点击会话标题栏中的 **Changes**。云端会话相对于基础分支的 diff 可能[不包含尚未推送的更改](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#troubleshoot-a-missing-file-in-the-diff-view)。
+Claude 对您的代码进行更改后，diff 视图让您在创建 Pull Request 之前逐个文件审查修改。要打开 diff 视图，请点击[会话详情面板](#see-session-details)的 **Changes** 卡片中的行数统计，例如 `+12 -1`，或[选择 **Changes**](#arrange-your-workspace)。云端会话相对于基础分支的 diff 可能[不包含尚未推送的更改](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#troubleshoot-a-missing-file-in-the-diff-view)。
 
 要对特定行进行评论，请将鼠标悬停在某一行上，然后点击其行号旁出现的 **+** 以打开评论框。输入您的反馈并按 **Enter** 添加评论。在多行添加评论后，一次提交所有评论：
 
@@ -241,12 +241,14 @@ Claude 读取您的评论并进行请求的更改，这些更改显示为您可�
 
 ## 整理工作区
 
-Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff、浏览器、终端、文件、计划、任务和子代理，以及 macOS 上的 [iOS Simulator](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)。通过其标题拖动窗格来重新定位它，或拖动窗格边缘来调整大小。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 来关闭焦点窗格。
+Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff、浏览器、终端、文件、计划、任务和子代理，以及 macOS 上的 [iOS Simulator](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md)。通过窗格的选项卡或其顶部的手柄拖动窗格来重新定位它，或拖动窗格边缘来调整大小。在 macOS 上按 **Cmd+\\** 或在 Windows 上按 **Ctrl+\\** 来关闭焦点窗格。
 
-要打开其他窗格，请点击会话标题栏中对应的图标按钮。将鼠标悬停在按钮上可查看每个按钮的名称，例如 **Terminal**、用于 diff 视图的 **Changes**、**Browser** 和 **Files**。如果所需窗格在标题栏中没有按钮，请从按钮旁的 **⋮** 菜单中选择：
+要打开其他窗格，请将鼠标悬停在会话顶部的图标上，查看每个按钮的名称，例如 **Terminal** 或 **Show side panel**。然后按照您所看到的按钮执行相应步骤：
 
-* **窗口较窄时**：放不下的按钮会移入该菜单
-* **对于没有按钮的窗格**：**Background tasks** 和 **Plan** 等窗格会在会话有内容可在这些窗格中显示时列出
+* **Show side panel** 或 **Hide side panel**：如果面板处于隐藏状态，请先显示它，然后从面板的列表或 **+** 菜单中选择一个窗格。
+* **Terminal**、用于 diff 视图的 **Changes**、**Browser** 和 **Files**：点击该窗格的按钮。如果该窗格没有按钮，请从按钮旁的 **⋮** 菜单中选择它。
+
+要打开 **Background tasks** 或 **Plan**，请在会话有内容可在其中显示后，从侧边面板或 **⋮** 菜单中选择它。
 
 要在多个屏幕上工作，可以将 diff 或终端等窗格弹出到其自己的窗口中，完成后再停靠回来。Claude 继续在主窗口中工作。
 
@@ -260,7 +262,7 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 #### 隐藏或显示会话详细信息面板
 
-要隐藏或显示该面板，请点击会话标题栏中或标题栏 **⋮** 菜单中的 **Hide session rail** 或 **Show session rail**。如果仍然看不到该面板，请[检查您使用的是哪种 Code 选项卡布局](#check-which-layout-you-have)。
+要隐藏或显示该面板，请点击会话标题栏中或标题栏 **⋮** 菜单中的 **Hide session rail** 或 **Show session rail**。如果这两个名称都看不到，请点击标题栏中的 **Activity panel**。如果仍然看不到该面板，请[检查您使用的是哪种 Code 选项卡布局](#check-which-layout-you-have)。
 
 ### 最小化窗格
 
@@ -275,7 +277,9 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 ### 在终端中运行命令
 
-集成终端让您无需切换到另一个应用即可在会话旁运行命令。点击会话标题栏中的 **Terminal**，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在您的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。要打开第二个终端选项卡，点击终端窗格标题中的 **+** 或右键点击聊天中的文件夹来选择 **Open in terminal**。
+集成终端让您无需切换到另一个应用即可在会话旁运行命令。要打开它，请[选择 **Terminal**](#arrange-your-workspace)，或在 macOS 或 Windows 上按 **Ctrl+\`**。终端在您的会话工作目录中打开，并与 Claude 共享相同的环境，因此 `npm test` 或 `git status` 等命令看到 Claude 正在编辑的相同文件。
+
+要打开第二个终端选项卡，请点击终端上方的 **+**，如果打开了菜单，再选择 **Terminal**。
 
 如果 WSL 会话中没有终端，请参阅[如果终端或连接器不可用](https://code.claude.com/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)。终端在本地和 [SSH](#ssh-sessions) 会话中可用，但在 [Windows 远程机器](#windows-remote-machines)上存在限制。
 
@@ -392,7 +396,7 @@ Claude 有多种方式与应用或服务交互，其中 computer use 的适用�
 
 ### 启用 computer use
 
-Computer use 默认处于关闭状态。如果在其关闭时您要求 Claude 执行需要它的操作，Claude 会告诉您，只要在设置中启用 computer use，它就可以完成该任务。
+Computer use 默认处于关闭状态。
 
 **1. 更新桌面应用**
 
@@ -419,7 +423,7 @@ Computer use 默认处于关闭状态。如果在其关闭时您要求 Claude �
 * **辅助功能**：让 Claude 能够点击、输入和滚动
 * **屏幕录制**：让 Claude 能够看到您屏幕上的内容
 
-设置页面会显示每项权限的当前状态。如果其中任一权限被拒绝，请点击相应标识以打开对应的系统设置窗格。
+设置页面会显示每项权限的当前状态。如果其中任一权限被拒绝，请点击其旁边的 **Open System Settings**。
 
 ### 应用权限
 
@@ -524,7 +528,7 @@ Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。要改为将�
 
 ### 查看后台任务
 
-任务窗格显示当前会话内正在运行的后台工作：子代理、后台 shell 命令和[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)。会话中有后台工作后，可通过标题栏 **⋮** 菜单中的 **Background tasks** 打开该窗格。
+任务窗格显示当前会话内正在运行的后台工作：子代理、后台 shell 命令和[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)。会话中有后台工作后，请[打开 **Background tasks** 窗格](#arrange-your-workspace)。
 
 点击任意条目可在子代理窗格中查看其输出或将其停止。要查看其他会话正在做什么，请使用[侧边栏](#work-in-parallel-with-sessions)，或请 Claude [为您查看](#work-across-sessions)。
 
@@ -759,7 +763,7 @@ Claude 自动检测你的开发服务器设置并将配置存储在启动会话�
 
 Localhost 地址直接打开，完全像默认端口地址一样。这包括 `localhost`、任何 `*.localhost` 子域、`127.0.0.1` 和 `::1`。出于安全考虑，localhost `url` 必须仅是你的服务器的源 — 没有路径或查询，端口必须与条目的端口匹配。要显示特定页面，在 preview 打开后要求 Claude 导航到那里。带有路径、查询或不匹配端口的 localhost `url` 被报告为配置错误，该错误命名 url 并显示修复。
 
-对于任何其他地址，Desktop 在 preview 首次打开它时要求你的许可，就像你在 preview 中浏览到新网站时一样。外部地址可能包括路径。选择**始终允许**以在将来跳过该网站的提示。限制 preview 中外部网站的组织策略仍然适用。
+任何其他地址都需要经过与 Claude 在 preview 中打开新网站时相同的[网站批准](#browse-external-sites)。外部地址可以包含路径。选择**始终允许**以在将来跳过该网站的提示。限制 preview 中外部网站的组织策略仍然适用。
 
 要预览你已经自己运行的服务器，设置 `url` 而不设置命令。Claude 将 preview 附加到你的运行服务器，而不是启动一个：
 
@@ -1032,13 +1036,18 @@ SSH 会话让您可以在远程计算机上运行 Claude Code，同时使用桌�
 
 **2. 添加连接**
 
-在 **New environment** 对话框的 **SSH** 选项卡上，打开 **Host** 列表，选择 **Add SSH connection…**，然后填写连接详细信息：
+在 **New environment** 对话框中，选择 **SSH** 选项卡，然后从 **Host** 打开新连接的表单：
 
-* **Name**：此连接的友好标签。
-* **SSH host**：`user@hostname` 或 `~/.ssh/config` 中定义的主机。
-* **SSH port**：留空时默认为 22，或使用您的 SSH 配置中的端口。
-* **SSH key (optional)**：您的私钥路径，例如 `~/.ssh/id_ed25519`。留空则使用您的 SSH 配置或 SSH agent。
-* **Worktree folder**：远程机器上的一个文件夹，例如 `~/worktrees`，新会话会在其中创建 worktree。留空则使用[远程机器的默认值](#choose-where-ssh-session-worktrees-go)。
+* **Host 显示一个按钮**：选择 **Add SSH connection…**
+* **Host 显示一个列表**：打开列表并选择底部的 **Add SSH connection…**
+
+填写连接详细信息：
+
+* **Name (optional)**：此连接的易记标签。留空则使用 **SSH host** 的值作为名称。
+* **SSH host**：`user@hostname` 或在 `~/.ssh/config` 中定义的主机。
+* **SSH port**：留空时默认为 22，或使用 SSH 配置中的端口。
+* **SSH key (optional)**：私钥路径，例如 `~/.ssh/id_ed25519`。留空则使用 SSH 配置或 SSH agent。
+* **Worktree folder**：远程计算机上的一个文件夹，例如 `~/worktrees`，新会话会在其中创建 worktree。留空则使用[远程计算机的默认值](#choose-where-ssh-session-worktrees-go)。
 
 然后选择 **Add SSH connection**。
 
@@ -2053,8 +2062,8 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 | `autoMode` | 自定义自动模式分类器在您的组织中信任和阻止的内容。请参阅[配置自动模式](https://code.claude.com/docs/zh-CN/auto-mode-config.md)。 |
 | `browserExternalPageTools` | 设置为 `"disabled"` 以防止 Claude 使用工具在[浏览器窗格](#browse-external-sites)中读取或作用于外部页面。用户仍然可以自己导航到外部网站，本地开发服务器预览不受影响。 |
 | `disableMobileSimulatorTools` | 设置为 `true` 以阻止 Claude 在 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md#turn-off-simulator-access)中控制和捕获设备的工具。该窗格仍可用于用户自己的点击；仅删除 Claude 的访问权限。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
-| `disableBrowserExternalNavigation` | 设置为 `true` 以完全关闭[浏览器窗格](#browse-external-sites)中的外部浏览。用户和 Claude 都无法导航到外部网站，localhost 开发服务器预览不受影响。SSH 和 WSL 会话中的 HTML 预览[不运行脚本](#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
-| `disableRemotePreviewScripts` | 设置为 `true` 以[仅关闭 SSH 和 WSL 会话中 HTML 预览的脚本](#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。Desktop 不会从远程机器或 WSL 发行版中读取它。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。需要 Claude Desktop v5.1231.0 或更高版本。 |
+| `disableBrowserExternalNavigation` | 设置为 `true` 以完全关闭[浏览器窗格](#browse-external-sites)中的外部浏览。用户和 Claude 都无法导航到外部网站，localhost 开发服务器预览不受影响。SSH 和 WSL 会话中浏览器窗格的 HTML 预览[不运行脚本](#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
+| `disableRemotePreviewScripts` | 设置为 `true` 以[关闭 SSH 和 WSL 会话中浏览器窗格 HTML 预览的脚本](#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)，而不关闭外部浏览。Desktop 不会从远程机器或 WSL 发行版中读取它。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。需要 Claude Desktop v5.1231.0 或更高版本。 |
 | `sshConfigs` | 预配置[SSH 连接](#pre-configure-ssh-connections-for-your-team)，在环境选择器中显示。用户无法删除托管连接，也无法编辑除其自己的 **Worktree folder** 之外的任何内容。 |
 | `sshHostCommands` | 为用户提供[主机来自命令的 SSH 连接](#distribute-commands-to-your-team)，与用户自己的连接并存。Desktop 从计算机上的托管设置文件或 MDM 策略中读取它，并在[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中忽略它。需要 macOS 或 Linux 上的 Claude Desktop v3.6556.0 或更高版本，或 Windows 上的 v4.16336.0 或更高版本，并使用 Claude 帐户登录。在 Windows 上，Desktop 还必须[通过 OpenSSH 客户端连接](#use-your-ssh-configuration)。 |
 | `sshHostAllowlist` | 限制 [SSH 会话](#restrict-which-ssh-hosts-users-can-connect-to)连接到已解析主机名与这些模式之一匹配的主机。仅从托管设置中读取。 |

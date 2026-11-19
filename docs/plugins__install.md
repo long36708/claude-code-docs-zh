@@ -63,11 +63,11 @@
 >
 > [Choose an install scope](#choose-an-install-scope) 说明每个选项写入哪个设置文件，以及当同一插件在多个位置设置时哪个适用。
 >
-> 选择范围后，Claude Code 安装插件及其声明的任何依赖项，然后打印安装摘要。
+> 选择作用域后，Claude Code 会安装插件，然后打印安装摘要。
 >
-> **4. 读取安装摘要**
+> **4. 阅读安装摘要**
 >
-> 摘要的最后一句告诉您插件在此会话中是否可用：
+> 摘要的最后一句告诉您插件在此会话中是否已可用：
 >
 > * **已激活**：`Plugin is now active.` 无需重新加载。
 > * **已激活，但服务器需要设置**：`Plugin is now active.` 后跟一条以 `Its bundled MCP server needs` 开头的说明。在您设置其选项之前，插件的[捆绑 MCP 服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)无法启动。在 `/plugin` 的 **Installed** 选项卡上选择该插件，然后选择 **Configure**。
@@ -342,7 +342,7 @@ claude plugin uninstall formatter@your-org --scope project
 
 当插件来自的市场打开了自动更新时，插件会自动更新。会话启动后，Claude Code 刷新这些市场并更新您从中安装的插件的磁盘副本。
 
-运行的会话保持它已加载的版本。更新后，您会看到 `Plugin updated: <name> · Run /reload-plugins to apply`，下一个会话自动加载新版本。
+当您看到 `Plugin updated: <name> · Run /reload-plugins to apply` 时，请在该会话中运行 [`/reload-plugins`](https://code.claude.com/docs/zh-CN/plugins/cli-reference#reload-plugins)。无论您是否重新加载，新版本都会在您下次启动时加载。
 
 这些是每种市场类型的自动更新默认值：
 

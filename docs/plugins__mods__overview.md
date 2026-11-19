@@ -231,7 +231,7 @@ Claude Code 自身的一些功能就是 mod。要查看您的会话拥有哪些�
 | `cc-plugin-telemetry` | 发送 Claude Code 及其内置 mods 记录的分析记录 | 无论 Claude Code 自己的分析在哪里打开 | 在 `/plugin` 中禁用它，或关闭分析，例如使用 [`DISABLE_TELEMETRY`](https://code.claude.com/docs/zh-CN/env-vars) |
 | `cc-plugin-you-should-know` | [You should know](https://code.claude.com/docs/zh-CN/interactive-mode.md#you-should-know-suggestions)：一个侧边 Agent 在发现您可能错过的内容时，会在输入框上方显示一条注释 | 默认关闭，直到您[将其打开](https://code.claude.com/docs/zh-CN/interactive-mode.md#you-should-know-suggestions) | 在 `/plugin` 中禁用它 |
 
-对于不在表中的**内置**插件，请[在 `/plugin` 中打开其详细信息](https://code.claude.com/docs/zh-CN/plugins/install#manage-installed-plugins)，以了解它的作用或将其禁用。
+对于不在表中的**内置**插件，请[在 `/plugin` 中打开其详细信息](https://code.claude.com/docs/zh-CN/plugins/install#manage-installed-plugins)，以了解它的作用。
 
 停止已安装 mods 的设置和标志，例如 `disableAllHooks`、`--bare` 和 `--safe-mode`，不会停止内置 mods。
 

@@ -719,6 +719,8 @@ secrets:
 * **在镜像中克隆**：在该路径处将克隆构建到运行器镜像中。每个新容器随后都会以预热克隆启动，而无需重用磁盘。
 * **在持久卷上克隆**：在使用 [`--lock-to-account`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 预锁定到一个用户账户的运行器上，将 `--base-dir` 指向持久卷，这样磁盘只为该账户服务。预锁定的运行器永远不会接收 Claude Tag 频道会话，因此此选项不适用于为其服务的运行器。
 
+要使用 `--base-dir` 之外的克隆，请在 `--capacity 1` 时将其实际路径传递给 [`--repository-folder`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags)，例如 `--repository-folder acme/api=/volumes/warm/api`。运行器会为每个会话重置该克隆的跟踪文件。为每个运行器提供其自己的副本，并在每个运行器上使用相同的路径。在全新的副本上启动每个运行器，或使用 `--lock-to-account` 预锁定固定机群中的运行器。
+
 重用路径的保证和不保证的内容：
 
 * **克隆深度**：构建克隆时不要使用 `--depth`，是否使用 `--single-branch` 均可。当运行器获取到带有 `origin` 远程的克隆中时，永远不会传递 `--depth`，即使您设置了 [`CLAUDE_RUNNER_FETCH_DEPTH`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#environment-variable-only-settings) 也是如此。使用完整克隆时，每个会话只下载克隆所缺少的提交。使用浅层克隆时，如果会话所在的分支是在克隆最旧的提交之前分叉的，该会话会下载该分支的完整历史。
@@ -955,6 +957,7 @@ claude self-hosted-runner doctor
 * **会话启动失败，显示 `This runner couldn't read`**：运行器使用其 [git 凭据](#configure-git) 向 git 主机请求某个仓库，但得到了未找到的答复。该仓库不存在，或者这些凭据无法访问该仓库。
   * **如果您管理该运行器**：为其 git 凭据授予该仓库的读取权限，然后启动新会话。
   * **如果您启动了该会话**：如果该仓库不存在，请使用正确的仓库启动新会话。如果运行器无法访问该仓库，请让运行器的管理员授予访问权限，然后启动新会话。
+* **会话启动失败，显示 `This runner couldn’t use a folder on its machine`**：检查运行器日志中的 `[runner:error]` 行。如果该文件夹是指向您的克隆的链接，请使用 [`--repository-folder`](#reuse-a-pre-warmed-checkout) 指定该克隆。
 * **会话需要数分钟才能启动或恢复**：原因之一是全新克隆。在每个运行器都从空磁盘启动、且没有 [`checkout` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#checkout) 的机群上，运行器会在启动 Claude Code 之前重新克隆会话的仓库。在空磁盘上恢复的会话会再次等待同样的克隆。
 
   要跳过全新克隆，请提供 [预热检出](#reuse-a-pre-warmed-checkout)。如果您已经提供了预热检出，请 [确认运行器使用了它](#confirm-that-the-runner-uses-your-clone)。如果运行器自行进行克隆并在一个会话后退出，请将 [`CLAUDE_RUNNER_FETCH_DEPTH`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#environment-variable-only-settings) 从默认的 50 个提交调低，以获取更少的历史记录。

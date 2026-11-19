@@ -182,11 +182,9 @@ claude -p "Reply with one word: connected"
 }
 ```
 
-将表中的条件变量添加到相同的 `env` 块。托管的 `ANTHROPIC_BASE_URL` 被强制执行，不能被开发者的 shell 导出覆盖，因为 Claude Code 在进程环境和较低优先级设置上应用它。
+将表中的条件变量添加到相同的 `env` 块。
 
 不要在托管设置中与网关凭证一起包括 `forceLoginMethod`、`forceLoginOrgUUID` 或 `forceLoginGatewayUrl`。`forceLoginMethod` 或 `forceLoginOrgUUID`，具有任何值，在启动时阻止 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 和 `apiKeyHelper`，开发者无法继续。他们看到 `This machine's managed settings require a first-party login`，或当文件将 `forceLoginMethod` 设置为 `"gateway"` 或设置 `forceLoginGatewayUrl` 时看到 [`Administrator policy requires a Cloud gateway sign-in`](https://code.claude.com/docs/zh-CN/errors#administrator-policy-requires-a-cloud-gateway-sign-in)。
-
-[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)交付需要直接连接到 `api.anthropic.com`，因此它不会到达网关路由的会话。网关部署使用这个基于文件的托管设置路径，它强制执行相同的密钥。
 
 对于凭证，在托管设置文件中分发一个 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#rotate-credentials-with-apikeyhelper) 命令，如上所示；该命令作为本地开发者对您的秘密存储进行身份验证，因此每台机器都接收自己的密钥。或者，通过您现有的秘密流程向每个开发者交付他们的密钥，并让他们自己设置 `ANTHROPIC_AUTH_TOKEN`。
 

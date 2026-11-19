@@ -10,7 +10,9 @@
 >
 > 云端会话在 Pro、Max、Ultra 和 Team 计划上可用，以及拥有高级席位或 Chat + Claude Code 席位的 Enterprise 用户。如果[自定义角色](https://support.claude.com/en/articles/13930452)管理您的访问权限，您还需要一个包含云端会话权限的角色，才能从浏览器、应用或终端在 Anthropic 的基础设施上启动会话。请让 Owner 在 [**Organization settings > Roles**](https://claude.ai/admin-settings/roles) 中将该权限添加到您的某个角色。
 
-云端会话是在云基础设施上运行的 Claude Code 会话，而不是在您的机器上运行。默认情况下，它在 Anthropic 管理的基础设施上运行，或在路由到您的组织的[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)时在那里运行。即使关闭笔记本电脑后，会话也会继续运行，您可以从任何设备检查或控制它。它会与您的其他 Claude 和 Claude Code 使用量一起计入您计划的用量限制，云端 VM 不会单独收费。
+云端会话是在云基础设施上运行的 Claude Code 会话。默认情况下，它在 Anthropic 管理的基础设施上运行，或在路由到您的组织的[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)时在那里运行。
+
+即使关闭笔记本电脑后，会话也会继续运行，您可以从任何设备检查或控制它。它会与您的其他 Claude 和 Claude Code 使用量一起计入您计划的用量限制，云端 VM 不会单独收费。
 
 要让云端会话从 GitHub 克隆代码并推送分支，请使用其中一种 [GitHub 连接方式](#github-authentication-options)连接 GitHub。如果您的仓库位于 GitLab、Bitbucket 或其他托管平台上，请参阅[平台限制](#limitations)了解哪些功能可用。
 
@@ -253,8 +255,8 @@ Teleport 需要 claude.ai 订阅身份验证。请找到与您相符的情况：
 
 Claude 将其更改推送到分支后，聊天旁面板中的 **Changes** 卡片会显示添加和删除的行数，例如 `+42 -18`。点击 **Changes** 卡片上的行数即可打开 diff 视图。
 
-* 您也可以点击会话标题栏中的 **Changes**，或标题栏 **⋮** 菜单中的该选项。
-* 面板隐藏时，要显示面板，请点击会话标题栏中的 **Show session rail** 图标，或标题栏 **⋮** 菜单中的该选项。
+* 面板隐藏时，要显示面板，请点击会话标题栏中的 **Activity panel** 或 **Show session rail**，或标题栏 **⋮** 菜单中的 **Show session rail**。
+* 您也可以[将 **Changes** 作为窗格打开](https://code.claude.com/docs/zh-CN/desktop.md#arrange-your-workspace)。
 
 在 diff 视图中，您可以对行添加评论，并与其他分支进行比较：
 
@@ -406,13 +408,11 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 
 ## 安全和隔离
 
-每个云端会话通过多个层与您的机器和其他会话分离：
+默认情况下，云端会话在隔离的、Anthropic 管理的 VM 中运行其 shell 命令和文件编辑。您的组织路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话改为在您自己的基础设施上运行，其中隔离是您的部署的责任。
 
-* **隔离的虚拟机**：每个会话在隔离的、Anthropic 管理的 VM 中运行。您的组织路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话改为在您自己的基础设施上运行，其中隔离是您的部署的责任
 * **网络访问控制**：在 Anthropic 托管的环境中，网络访问默认受限，可以禁用。请参阅[网络访问](https://code.claude.com/docs/zh-CN/cloud-environments.md#network-access)了解访问级别、[默认允许的域](https://code.claude.com/docs/zh-CN/cloud-environments.md#default-allowed-domains)和不通过允许列表的流量。在自托管环境中，您在自己的网络边界处限制会话出口。当在禁用网络访问的情况下运行时，Claude Code 仍然可以与 Anthropic API 通信，这可能允许数据从 VM 中退出。
 * **凭据保护**：在 Anthropic 托管的环境中，git 凭据和签名密钥保持在沙箱外，代理使用作用域凭据代表会话进行身份验证。在自托管环境中，您的部署提供 git 凭据；请参阅[配置 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#configure-git)
 * **网络密钥**：在 Anthropic 托管的环境中，您[添加到云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#add-network-secrets)的密钥以相同的方式保持在沙箱外，在请求离开会话后附加到匹配的请求。自托管环境没有网络密钥
-* **安全分析**：代码在会话的隔离环境内分析和修改，然后创建 PR
 
 ## 故障排除
 
@@ -444,7 +444,7 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 * `Unable to get organization UUID`
 * ``Cloud sessions need a claude.ai sign-in. Run `claude auth login` (or /login in a local session), then try again.``
 * ``Cloud sessions aren't available with this Console sign-in. They need a claude.ai sign-in. Run `claude auth login` (or /login in a local session), then try again.``
-* 在不带会话 ID 运行 `claude --teleport` 时，会话选择器中显示 `Error loading Claude Code sessions`
+* 在不带会话 ID 运行 `claude --teleport` 时，会话选择器中显示 `Couldn't load cloud sessions`。在 v2.1.328 之前，该消息为 `Couldn't load Claude Code sessions` 或 `Error loading Claude Code sessions`
 
 在 shell 中运行 [`claude auth login`](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands) 以使用您的 claude.ai 账户登录，然后重试该命令。在正在运行的会话中，`/login` 的作用相同。如果错误中提到的是您的提供商，请参阅[错误表](#errors-when-sending-to-a-cloud-session)：云端会话无法通过第三方提供商使用。
 

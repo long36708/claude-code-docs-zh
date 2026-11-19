@@ -329,8 +329,8 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
 * [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)（包括您从桌面应用启动的会话）默认在 Anthropic 管理的 VM 上运行：部署到您的设备的设置不会到达它们，因此通过服务器管理设置交付允许列表。您的组织路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话在您自己的计算上运行，也读取运行器镜像中的托管设置文件。[Claude Code 如何组合托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明了该文件何时适用。云端会话中的中途模型切换在请求的模型被允许列表排除时被拒绝。当您的服务器管理设置中的 `availableModels` 列表非空时，服务器拒绝在 claude.ai/code 或从桌面应用以列表排除的模型启动云端会话的请求。
 * [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话在云环境中运行，但不接收服务器管理设置；在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中，它们仍然读取运行器镜像中的托管设置文件。要为这些会话设置模型，请参阅 Claude Tag 管理员指南中的[为作用域选择模型](https://claude.com/docs/claude-tag/admins/customize#choose-the-model-for-a-scope)。
 * Cowork（Claude 桌面应用中的 Agent 式工作选项卡）在 Claude Code 上运行其会话，但按设计不从 claude.ai 管理控制台接收服务器管理设置。当您的服务器管理设置中的 `availableModels` 列表非空且用户选择列表外的模型时，服务器拒绝该模型用于远程 Cowork 会话。当托管设置文件存在于会话运行的地方时，它适用于 Cowork 会话；远程 Cowork 会话在 Anthropic 管理的 VM 上运行，其中不存在设备部署的文件。
-* [第三方提供商](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)（如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和 [AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)）上的会话不接收服务器管理设置，因此通过 MDM 或托管设置文件在那里交付允许列表。
-* 来自管理控制台的交付还要求会话使用登录到您组织的[符合条件的登录](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)或为您组织签发的 OAuth 令牌来获取设置。对于使用 API 密钥进行身份验证的设备群（无论是直接配置的，还是由 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 脚本生成的），请通过 MDM 或托管设置文件交付允许列表。
+* 对于[第三方提供商](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)（如 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 和 [AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)）上的会话，请通过 MDM 或托管设置文件交付允许列表。
+* 来自管理控制台的交付要求会话使用登录到您组织的[符合条件的登录](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)或为您组织签发的 OAuth 令牌来获取设置。对于使用 API 密钥进行身份验证的设备群（无论是直接配置的，还是由 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 脚本生成的），请通过 MDM 或托管设置文件交付允许列表。
 * 桌面代码选项卡还托管 [SSH 会话](https://code.claude.com/docs/zh-CN/desktop.md#ssh-sessions)，它们从运行的远程主机读取托管设置文件。请参阅[桌面托管设置](https://code.claude.com/docs/zh-CN/desktop.md#managed-settings)。
 * claude.ai 和桌面应用中的模型选择器隐藏或灰显您的组织的允许列表排除的模型。选择器状态是用户的便利；它不强制执行允许列表。
 
@@ -517,7 +517,7 @@ Claude Enterprise 计划上的组织管理员可以为每个自定义角色按�
 
 这将 Opus 的推理能力与 Sonnet 的执行效率相结合。
 
-计划模式 Opus 阶段使用与 `opus` 模型设置相同的上下文窗口，执行阶段使用与 `sonnet` 相同的窗口。当 `opus` 和 `sonnet` 解析为默认运行[1M 上下文窗口](#extended-context)的模型时，如当前模型在 Anthropic API 上所做的那样，两个阶段都使用它运行。要在它们不这样做的地方为两个阶段请求 1M 上下文，[设置模型](#setting-your-model)为 `opusplan[1m]`，例如使用 `/model opusplan[1m]`。使用 `/model` 设置它需要 Claude Code v2.1.265 或更高版本；在早期版本上，使用 `--model` 标志或 `model` 设置。
+在 `opus` 和 `sonnet` 默认不具备 [1M 上下文窗口](#extended-context)的情况下，要请求该窗口，请将[模型设置](#setting-your-model)为 `opusplan[1m]`，例如使用 `/model opusplan[1m]`。使用 `/model` 设置它需要 Claude Code v2.1.265 或更高版本；在早期版本上，请改用 `--model` 标志或 `model` 设置。
 
 当 [`availableModels`](#restrict-model-selection) 排除最新的 Opus 但允许较旧版本时，例如 `["sonnet", "claude-opus-4-6"]`，`opusplan` 使用最新的允许的 Opus 进行规划，仅当每个 Opus 都被排除时才保持在 Sonnet 上。在计划模式中通常会升级到 Sonnet 的 Haiku 会话同样使用最新的允许的 Sonnet，仅当每个 Sonnet 都被排除时才保持在 Haiku 上。在 v2.1.205 之前，当升级系列的最新版本被排除时，计划模式会保持在会话的模型上，即使允许列表允许较旧的版本。
 
@@ -1048,7 +1048,7 @@ Claude Code 跳过对 `ANTHROPIC_CUSTOM_MODEL_OPTION` 中设置的模型 ID 的�
 export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-6[1m]'
 ```
 
-使用 `[1m]` 后缀，1M 上下文窗口适用于固定别名的所有使用，包括 [`opusplan`](#opusplan-model-setting) 的计划模式 Opus 阶段和 `model` frontmatter 指定该别名的[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)。
+使用 `[1m]` 后缀时，固定的别名会以 1M 上下文窗口运行。
 
 * Claude Code 在将模型 ID 发送到您的提供商之前会删除该后缀。
 * 仅当底层模型[支持 1M 上下文](https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model)时才附加 `[1m]`。
@@ -1058,9 +1058,7 @@ export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-6[1m]'
 
 > [!NOTE]
 >
-> 通过 [MDM 或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms) 提供的 `availableModels` 允许列表在使用第三方提供商时仍然适用；[服务器托管设置不会在那里提供](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)。
->
-> 过滤与模型别名（如 `opus`）、版本前缀（如 `claude-opus-4-8`）或完整提供商形式的模型 ID 匹配。提供商特定的前缀（如 `us.anthropic.`）不会被删除，因此要允许特定模型，请通过 [`modelOverrides`](#override-model-ids-per-version) 映射它，或列出其完整提供商形式 ID：
+> [`availableModels`](#restrict-model-selection) 过滤与模型别名（如 `opus`）、版本前缀（如 `claude-opus-4-8`）或完整提供商形式的模型 ID 匹配。提供商特定的前缀（如 `us.anthropic.`）不会被删除，因此要允许特定模型，请通过 [`modelOverrides`](#override-model-ids-per-version) 映射它，或列出其完整提供商形式 ID：
 >
 > * **Google Cloud's Agent Platform**：当 Claude Code 请求的 ID 带有 `@` 日期（如 `claude-sonnet-4-5@20250929`）时，请在允许列表条目中包含该日期。单独的 `claude-sonnet-4-5` 在任一 [`availableModelsMatch`](https://code.claude.com/docs/zh-CN/settings-reference#availablemodelsmatch) 设置下都不会匹配该 ID。
 > * **固定模型**：列出您在该模型的 `ANTHROPIC_DEFAULT_*_MODEL` 变量中设置的值

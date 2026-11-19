@@ -51,6 +51,7 @@
 | `--push-outcome-on-release` | `SELF_HOSTED_RUNNER_PUSH_OUTCOME_ON_RELEASE` | 关闭 | 在 runner 因排空或空闲释放等原因主动结束会话时，runner 会在删除工作区之前，将包含新提交的主会话分支推送到 `origin`。尽力而为；会为关闭预算增加 30 秒。需要 git 2.29 或更高版本才能从这些分支恢复。请限制谁可以推送到 `claude/*` 引用；请参阅[恢复的会话会丢失未推送的工作](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#resumed-sessions-lose-unpushed-work)。`checkout` hook 检出的仓库不会被推送；请在 [`post-session` hook](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#post-session) 中为其创建快照。 |
 | `--release-idle-session-min <n>` | `SELF_HOSTED_RUNNER_SESSION_IDLE_MS` | `0` | 在轮次结束或会话等待用户操作后，若不活动达 N 分钟，则释放会话槽位。[某些会话不计为空闲](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#some-sessions-don’t-count-as-idle)，因此请搭配 `--kill-session-after-min` 使用。已完成的后台任务会使会话保持忙碌状态，最长不超过 [`SELF_HOSTED_RUNNER_BG_RESULT_GRACE_MS`](#environment-variable-only-settings) 窗口。要推迟释放，请设置 [`--hold-idle-file`](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy#keep-an-idle-session-while-its-processes-run)。`0` 表示禁用。 |
 | `--remove-session-state [bool]` | `SELF_HOSTED_RUNNER_REMOVE_SESSION_STATE` | 关闭 | 当会话在此 runner 上结束时，无论结果如何，都删除该会话在 `<base-dir>/_sessions/` 下的每会话目录。[复用预热的检出](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#reuse-a-pre-warmed-checkout)介绍了这些目录保存的内容，以及它们保留时谁可以读取。删除是尽力而为的：如果 runner 在清理运行之前被终止或到达其排空截止时间，每会话目录将保留原位。启用该标志后，失败或中断的会话的调试日志不会保留在磁盘上。需要 Claude Code v2.1.268 或更高版本。 |
+| `--repository-folder <owner>/<repo>=<folder>` | `SELF_HOSTED_RUNNER_REPOSITORY_FOLDER` | 未设置 | 在 `--capacity 1` 下，将 `<folder>` 用作没有任何 `checkout` hook 准备的仓库的克隆。可重复使用；在环境变量中以逗号分隔。请参阅[复用预热的检出](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#reuse-a-pre-warmed-checkout)。需要 Claude Code v2.1.328 或更高版本。 |
 | `--retire-at <epoch-seconds>` | `SELF_HOSTED_RUNNER_RETIRE_AT` | 未设置 | 在以秒为单位的绝对 Unix 时间戳处让 runner 退役，适用于会在已知时间终止 runner 的基础设施；[Runner 生命周期](https://code.claude.com/docs/zh-CN/self-hosted-environments#runner-lifecycle)介绍了释放顺序以及如何确定余量。早于 2001 年或晚于 5138 年的值会被该标志拒绝，并被该环境变量忽略。 |
 | `--server-auto-mode-lists <mode>` | `SELF_HOSTED_RUNNER_SERVER_AUTO_MODE_LISTS` | `no-allow` | 控制平面随会话发送的[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器规则列表中，哪些可以作用于该会话：`all`、`no-allow` 或 `none`。有关每个值应用的内容，请参阅[自动模式规则列表](#auto-mode-rule-lists)。无效值会使 runner 在启动时停止。需要 Claude Code v2.1.295 或更高版本。 |
 | `--session-stop-grace-sec <n>` | `SELF_HOSTED_RUNNER_SESSION_STOP_GRACE_MS` | `5` | 会话结束后，在强制终止 Claude 进程之前等待其正常退出的时长。如果子进程自身的 `SessionEnd` hook 需要更多时间，请调高此值。 |
@@ -93,6 +94,7 @@
 | :- | :- | :- |
 | `--hook-concurrency <n>` | `4` | 并行运行的 `spawn-runner` hook 的最大数量。同时限制每次轮询认领的生成请求数。编排器仅在其启动的每个 hook 都完成后才会检查新的生成请求，因此一个缓慢的 hook 会延迟该编排器的后续 hook。 |
 | `--hook-timeout <sec>` | `60` | 在这么多秒后终止钩子的进程树。超时加其 5 秒杀死宽限期必须保持在 `--expected-spawn-seconds` 以下；编排器在启动时强制执行此操作。 |
+| `--hook-label <label>=<values>` | 未设置 | 将会话的 [`--metadata`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 标签作为 `CLAUDE_RUNNER_META_<LABEL>` 传递给 hook。以 `size=small,large` 或 `cpus=1..64` 的形式列出允许的值。带有其他值的生成请求会[阻止该会话生成](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#the-spawn-runner-hook)。固定队列运行器会忽略标签，并且可以接收该会话。每个标签重复一次，并在每个副本上保持完全一致。需要 `--min-idle 0` 以及 Claude Code v2.1.328 或更高版本。 |
 | `--expected-spawn-seconds <sec>` | `120` | 从编排器收到生成请求到运行器注册的预期 p99 时间，包括在您的平台上等待容量的任何时间。服务器强制的范围为 10 到 3600。在每次轮询时作为服务器端租约发送；如果没有运行器在其过期前注册，会话将使用新的订单 ID 重新提供。所有副本必须共享此值。 |
 | `--min-idle <n>` | `0` | 通过主动生成待命运行器来保持至少 N 个空闲会话槽。`0` 禁用预热。与运行器的 `--exit-if-unused-min` 配对，以便多余的待命运行器回收自己。 |
 | `--shutdown-drain-sec <n>` | `0` | 收到 `SIGTERM` 时，停止轮询生成请求，并给正在运行的 `spawn-runner` hook 和任何尚未得到响应的轮询最多这么多秒来完成，之后停止剩余的部分。设为 `0` 时立即停止。最大值为 `3600`，编排器在启动时强制执行此限制。要选择合适的值，请参阅[确定 `--shutdown-drain-sec` 和编排器的停止超时时间](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration#size-shutdown-drain-sec-and-the-supervisors-stop-timeout-for-the-orchestrator)。需要 Claude Code v2.1.299 或更高版本。 |
@@ -193,12 +195,14 @@ SCM 连接器不可用，因此请将本部分中的标志保持未设置。如�
 | `claude_code_self_hosted_orchestrator_queue_pending_sessions` | 当前可认领的生成请求 |
 | `claude_code_self_hosted_orchestrator_queue_backing_off_sessions` | 在可重试的 hook 失败后处于重试退避中的生成请求 |
 | `claude_code_self_hosted_orchestrator_queue_circuit_broken_sessions` | 被阻止生成的会话。每个会话会一直被阻止，直到用户向其发送新消息，或 Owner 从环境的 **Activity** 选项卡重试它。修复原因后，该计数可能仍保持在零以上。高于零时告警。 |
+| `claude_code_self_hosted_orchestrator_sessions_given_up_total{cause}` | Anthropic 放弃为会话启动运行器的次数，按原因区分：`lease_expiry`、`retries_exhausted` 或 `hook_declined`。跨实例时请使用 `SUM`。需要 Claude Code v2.1.328 或更高版本。 |
 | `claude_code_self_hosted_orchestrator_pool_pending_sessions` | 该环境中等待运行器的会话总数。这是环境范围的聚合值，在每个编排器实例上都相同：跨实例时请使用 `MAX` 而不是 `SUM`。 |
 | `claude_code_self_hosted_orchestrator_pool_active_sessions` | 当前分配给该环境中存活运行器的会话数。这是环境范围的聚合值，在每个编排器实例上都相同：跨实例时请使用 `MAX` 而不是 `SUM`。 |
 | `claude_code_self_hosted_orchestrator_spawn_hooks_total{result}` | 累计的 `spawn-runner` hook 结果：`ok`、`retryable`、`non_retryable`。统计的是编排器的 hook 调用次数，而不是运行器生成的会话子进程数：它与 `sessions_started_total` 不可比较，因为大于 1 的容量、预热池以及为同一会话再次生成的运行器都会使两者产生偏差。 |
 | `claude_code_self_hosted_orchestrator_spawn_hook_duration_seconds` | hook 时长的直方图 |
 | `claude_code_self_hosted_orchestrator_warm_hints_dispatched_total` | 自进程启动以来分派的待机生成请求数 |
 | `claude_code_self_hosted_orchestrator_session_queue_wait_seconds` | 每个会话在编排器认领其进行生成之前在队列中等待的秒数的直方图，根据控制平面随每个会话的生成请求发送的队列等待时间戳记录。用于 p50/p99 队列时间告警。预热生成不会被采样。 |
+| `claude_code_self_hosted_orchestrator_session_queue_wait_by_reason_seconds{reason}` | 按[生成原因](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#find-out-why-a-spawn-request-was-sent)（例如 `resumed`）区分的队列等待直方图。需要 Claude Code v2.1.328 或更高版本。 |
 | `claude_code_self_hosted_orchestrator_clock_skew_seconds` | 本地减去服务器的时钟偏差；诊断用，测量后出现 |
 | `claude_code_self_hosted_orchestrator_scm_connector_connected` | [SCM 连接器](#scm-connector-flags)的 WebSocket 打开时为 `1`；拨号或退避期间为 `0`。未设置 `--scm-connector-host` 时不存在。 |
 | `claude_code_self_hosted_orchestrator_scm_connector_requests_forwarded_total` | 自进程启动以来代理到所配置 SCM 主机的累计 HTTP 请求数。未设置 `--scm-connector-host` 时不存在。 |

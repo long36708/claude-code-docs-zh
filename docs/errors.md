@@ -46,6 +46,7 @@
 | `Agent terminated early due to an API error` | [服务器错误](#agent-terminated-early-due-to-an-api-error) |
 | `You've hit your session limit` / `You've hit your weekly limit` / `You've hit your Opus limit` / `You've hit your Sonnet limit` | [使用限制](#youve-hit-your-session-limit) |
 | `Usage credits required for 1M context` | [使用限制](#usage-credits-required-for-1m-context) |
+| `Usage credits ran out before the response was finished.` | [添加使用额度](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription) |
 | `the prompt to confirm went unanswered · nothing was sent`，自 v2.1.324 起 | [用量限制](#the-prompt-to-confirm-went-unanswered) |
 | `Claude stopped here · send a message to be asked again` | [用量限制](#the-prompt-to-confirm-went-unanswered) |
 | `Server is temporarily limiting requests` | [使用限制](#server-is-temporarily-limiting-requests) |
@@ -90,6 +91,7 @@
 | `Remote Control was turned off by your organization's policy` | [Troubleshoot Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#remote-control-was-turned-off-by-your-organizations-policy) |
 | `Session failed: working folder not found:` | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#working-folder-not-found) |
 | `The program file this Remote Control started from is gone` | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#program-file-is-gone) |
+| `Session failed: program not found:` | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#program-file-is-gone) |
 | `Session failed: spawn error:` 后跟一条 `ENOENT` 消息 | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#program-file-is-gone) |
 | `Remote Control disconnected:` 后跟提及 `share link` 的原因 | [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#what-connected-devices-see) |
 | `OAuth token revoked` / `OAuth token has expired` | [身份验证](#oauth-token-revoked-or-expired) |
@@ -318,7 +320,7 @@
 | `Claude Code couldn't restart` | [命令行错误](#claude-code-couldnt-restart) |
 | `Couldn't open Claude Desktop` | [命令行错误](#couldnt-open-claude-desktop) |
 | `Failed to open Claude Desktop. Please try opening it manually.` | [命令行错误](#couldnt-open-claude-desktop) |
-| `Couldn't read your Zed keymap` / `Couldn't back up your Zed keymap` / `Couldn't update your Zed keymap` | [命令行错误](#terminal-setup-left-your-zed-keymap-unchanged) |
+| `Couldn't read your Zed keymap` / `Couldn't back up your Zed keymap` / `Couldn't update your Zed keymap` / `Your Zed keymap is a symbolic link` | [命令行错误](#terminal-setup-left-your-zed-keymap-unchanged) |
 | `Your Zed keymap isn't a readable list of keybindings` | [命令行错误](#terminal-setup-left-your-zed-keymap-unchanged) |
 | `Skill usage reports are not available on this connection.` | [命令行错误](#skill-usage-reports-are-not-available-on-this-connection) |
 | `Custom output styles can't be selected over Remote Control or from a relayed message` | [命令行错误](#custom-output-styles-cant-be-selected-over-remote-control) |
@@ -602,7 +604,7 @@ Claude Code 不重试这些故障：
 非流式尝试会在达到其请求超时或正文空闲超时时结束，以先到者为准：
 
 * **请求超时**：当您为 `API_TIMEOUT_MS` 设置正值时为该值，否则在本地会话中为 300 秒。
-* **[正文空闲超时](https://code.claude.com/docs/zh-CN/network-config.md#streaming-idle-watchdogs)**：在该超时生效且您未将其关闭的情况下，5 到 6 分钟未收到响应即超时，无论您将 `API_TIMEOUT_MS` 设置得多高。
+* **[正文空闲超时](https://code.claude.com/docs/zh-CN/network-config.md#streaming-idle-watchdogs)（在其生效的情况下）**：默认情况下，5 到 6 分钟未收到响应即超时，无论您将 `API_TIMEOUT_MS` 设置得多高。
 
 ## 服务器错误
 
@@ -2700,11 +2702,10 @@ API Error: 400 ... tools.N.custom.input_schema.properties: Property keys should 
 
 Claude Code [在加载服务器的工具时排除其输入 schema 会失败此验证的 MCP 工具](https://code.claude.com/docs/zh-CN/mcp.md#tools-with-invalid-input-schemas)，因此请求通常永远不会包含一个。
 
-在[禁用标志获取的部署](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)上，或在标志从未到达的机器上，Claude Code 在服务器的日志中记录哪个工具会被拒绝，但仍然发送它，因此此错误仍然可能发生。
+该错误仍可能发生，例如：
 
-该错误也可能发生在其 schema 在 `$schema` 中声明 JSON Schema 方言（而不是 draft 2020-12）的工具上。Claude Code 不会根据 JSON Schema 元 schema 检查这些 schema，尽管顶级属性名称检查仍然适用。
-
-在 v2.1.216 之前，没有部署运行排除检查。
+* [功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)已开启，但[标志尚未到达](https://code.claude.com/docs/zh-CN/env-vars.md#first-session-after-an-install-or-upgrade)。在 v2.1.328 之前，即使关闭了获取，也可能出现该错误。
+* 工具的 schema 在 `$schema` 中声明了 draft 2020-12 以外的 JSON Schema 方言。
 
 **要做什么：**
 
@@ -4321,7 +4322,7 @@ Error: Couldn't open Claude Desktop (`open` exited 1: LSOpenURLsWithRole() faile
 
 您在 Zed 中运行了 [`/terminal-setup`](https://code.claude.com/docs/zh-CN/terminal-config#enter-multiline-prompts)，而 Claude Code 无法完成对您的 Zed `keymap.json` 的更新，因此保持该文件原样不变。
 
-每条消息都会指明您的键位映射文件路径，并在末尾附上需要您自行添加的快捷键块：
+每条消息都会给出您的 keymap 路径，并附带需要您自行添加的快捷键代码块：
 
 ```text theme={null}
 Couldn't update your Zed keymap, so it was left unchanged.
@@ -4333,6 +4334,7 @@ To add the binding yourself, add this block to the keymap array in <path to keym
 
 * `Couldn't read your Zed keymap, so it was left unchanged.`：Claude Code 无法读取该文件，例如由于文件权限问题
 * `Your Zed keymap isn't a readable list of keybindings, so it was left unchanged.`：文件可以正常读取，但即使允许 `//` 注释和尾随逗号，也无法解析为快捷键块数组
+* `Your Zed keymap is a symbolic link, so it was left unchanged.`：`keymap.json` 链接到另一个文件
 * `Couldn't back up your Zed keymap; not modifying it.`：Claude Code 无法将该文件复制为其旁边的 `.bak` 备份，因此未做任何更改
 * `Couldn't update your Zed keymap, so it was left unchanged.`：合并后的结果未能验证为包含该快捷键的有效键位映射，因此 Claude Code 将其丢弃而未写入。包含重复键的快捷键块可能导致这种情况
 

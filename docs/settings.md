@@ -323,7 +323,7 @@ Settings precedence, highest first: managed settings, command line, project loca
 
 ## 云会话中的设置
 
-[云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)在[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)中运行在您的存储库的新克隆上，而不是在您的机器上。这改变了哪些设置到达它：
+[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)在[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)中运行，基于您的仓库的全新克隆。这会改变哪些设置能够作用于它：
 
 * **项目中的云端线程**：在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)中的云端线程里，无论该项目包含多少个仓库，仓库 `.claude/settings.json` 中的权限规则、hook 和 `env` 均不适用。[线程从您的仓库中获取哪些内容](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)列出了可改用的方式。
 * **共享项目设置**（`.claude/settings.json`）：在项目线程之外只有一个仓库的会话中会被读取，因为该文件是克隆的一部分，且会话在其中启动。将设置提交到该文件中，即可在这些会话中应用。

@@ -433,7 +433,7 @@ Claude Code 会合并会话所加载的每个[设置作用域](https://code.clau
 当您[排除某个设置来源](#configure-sandboxing)时：
 
 * **项目或本地设置**：Claude Code 不会应用其中的任何 `credentials` 条目。需要 Claude Code v2.1.246 或更高版本。
-* **用户设置**：Claude Code 仍会应用 `~/.claude/settings.json` 中的 `deny` 条目，并将其[文件 `mask` 条目](#mask-credential-files)作为限制保留（这些限制不再授权代理替换真实值），但会丢弃其[环境变量 `mask` 条目](#mask-environment-variables)。
+* **用户设置**：Claude Code 仍会应用 `~/.claude/settings.json` 中的 `deny` 条目，并将其[文件 `mask` 条目](#mask-credential-files)作为限制保留（这些限制不再授权代理替换为真实值），但会丢弃其[环境变量 `mask` 条目](#mask-environment-variables)。
 
 没有内置的凭据拒绝列表，因此只有您列出的文件和变量会受到限制。
 
@@ -445,8 +445,8 @@ Claude Code 会合并会话所加载的每个[设置作用域](https://code.clau
 
 掩码需要满足以下条件：
 
-* **TLS 终止**：代理在请求内容中替换真实值，因此它必须能够看到请求内容。请设置 [`network.tlsTerminate`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-tlsterminate)，使代理自行终止 TLS。如果不设置，掩码会失败，但不会暴露任何内容：命令仍然只能看到哨兵值，但哨兵值会原样到达服务器，导致身份验证失败。要检查此错误配置，请在终端中运行 `claude doctor`，并查看是否有 `TLS termination is unavailable` 警告。
-* **允许的目标**：每个 `mask` 条目可以列出 `injectHosts`，即允许真实值到达的主机。代理只在[域名允许列表](#network-isolation)所允许的连接上注入凭据，因此每个 `injectHosts` 主机还必须能够通过 `network.allowedDomains` 访问。对于没有 `injectHosts` 的 `mask` 条目，代理会在发往 `network.allowedDomains` 中每个主机的请求中替换真实值。
+* **TLS 终止**：代理在请求内容中替换为真实值，因此它必须能够看到请求内容。请设置 [`network.tlsTerminate`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-tlsterminate)，使代理自行终止 TLS。如果不设置，掩码会失败，但不会暴露任何内容：命令仍然只能看到哨兵值，但哨兵值会原样到达服务器，导致身份验证失败。要检查此错误配置，请在终端中运行 `claude doctor`，并查看是否有 `TLS termination is unavailable` 警告。
+* **允许的目标**：每个 `mask` 条目可以列出 `injectHosts`，即允许真实值到达的主机。代理只在[域名允许列表](#network-isolation)所允许的连接上注入凭据，因此每个 `injectHosts` 主机还必须能够通过 `network.allowedDomains` 访问。对于没有 `injectHosts` 的 `mask` 条目，代理会在发往 `network.allowedDomains` 中每个主机的请求中替换为真实值。
 * **受信任的设置作用域**：掩码会授权代理将您的真实凭据发送到某处，因此 Claude Code 只接受来自用户设置、托管设置和 `--settings` 标志的 `mask` 条目、`network.tlsTerminate`、[`credentials.allowPlaintextInject`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-credentials-allowplaintextinject)、`awsPairs` 和 `sigv4`。它会忽略仓库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的这些设置。当您的管理员通过服务器托管设置下发 `mask` 条目、`network.tlsTerminate` 或 `credentials.allowPlaintextInject` 时，它们属于[需要批准的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#security-approval-dialogs)。
 
 #### 掩码环境变量

@@ -142,6 +142,7 @@ claude plugin validate ./my-plugin
 | [`defaultEnabled`](#defaultenabled) | Boolean | 当用户未设置时 plugin 是否在启用时启动。默认为 `true` |
 | `engines` | Object | 插件适用的 Claude Code 版本，以 `claude-code` 键下的 [semver 范围](https://github.com/npm/node-semver#ranges)表示，例如 `"engines": { "claude-code": ">=2.1.400" }`。需要 Claude Code v2.1.323 或更高版本。若要让插件在 v2.0.15 至 v2.1.75 上正常工作，请省略 `engines`。这些版本在 manifest 包含该字段时会以 `Unrecognized key` 错误拒绝该 manifest |
 | [`dependencies`](#dependencies) | Array of strings or objects | 必须为此 plugin 启用的 plugin |
+| `network` | Object | 您的插件所访问的主机，例如 `"network": { "hosts": ["api.example.com"] }`，采用 [`sandbox.network.allowedDomains`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 语法。`claude plugin validate` 会列出这些主机。该字段不会允许或阻止任何主机。需要 Claude Code v2.1.328 或更高版本 |
 | [`userConfig`](#user-configuration) | Object | Claude Code 在 plugin 启用时提示用户输入的值 |
 | `types` | Path | 声明 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#files) 的 `$.state` 值和 `$` 名词的 `.d.ts` 文件 |
 | [`channels`](#channels) | Array of objects | plugin 提供的消息频道，每个绑定到其 MCP 服务器之一 |
@@ -166,7 +167,7 @@ plugin 标识符。它必须非空，没有空格、`@`、`:`、路径分隔符�
 
 Claude Code 在其下命名空间每个组件，因此 plugin `deploy-tools` 中的 agent `reviewer` 显示为 `deploy-tools:reviewer`。
 
-`claude plugin validate` 还检查该名称是否通过作为 Anthropic 自己的 plugin 之一。检查忽略大小写并将任何分隔符的运行视为一个：
+`claude plugin validate` 还会检查名称不会被误认为是 Anthropic 自己的插件之一。该检查不区分大小写，并将任何连续的分隔符视为一个：
 
 | 名称 | 结果 |
 | :- | :- |

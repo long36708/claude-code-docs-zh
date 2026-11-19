@@ -263,7 +263,7 @@ registry.example.com
 
 ### 安全代理
 
-Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行，用于安全和滥用防范目的；在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)中，出站流量通过您自己的网络边界离开。来自 Anthropic 托管会话的所有出站互联网流量都经过此代理，它提供：
+Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行，用于安全和滥用防范目的。在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)中，出站流量改为通过您自己的网络边界离开。来自 Anthropic 托管会话的 VM 的出站互联网流量会经过此代理，它提供：
 
 * 防范恶意请求
 * 速率限制和滥用防范
@@ -546,7 +546,7 @@ SessionStart hooks 在云端的行为与本地相同，但有以下注意事项�
 * **不适用于项目的云端线程**：[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)中的云端线程不会运行来自仓库 `.claude/settings.json` 的 hook，无论仓库数量多少。在 Anthropic 托管环境中，请使用[设置脚本](#setup-scripts)为线程安装依赖项。在自托管环境中，请改为使用[运行程序主机设置](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories)中的 hook。
 * **没有仅云端的范围**：hooks 在本地和云会话中都运行。要跳过本地运行，请在 `CLAUDE_CODE_REMOTE` 环境变量不为 `true` 时提前退出，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 * **需要网络访问**：安装命令需要连接到包注册表。如果您的环境使用 **None** 网络访问，这些 hook 会失败。在默认的 **Limited** 级别下勾选 **Allow package managers** 时，[默认允许列表](#default-allowed-domains)涵盖 npm、PyPI、RubyGems 和 crates.io。
-* **代理兼容性**：在 Anthropic 托管环境中，所有出站流量都经过[安全代理](#security-proxy)，某些包管理器无法与此代理正确配合工作；Bun 是一个已知的例子。在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)中，出站流量改为经过您自己的网络边界。
+* **代理兼容性**：在 Anthropic 托管环境中，来自会话 VM 的出站流量会经过[安全代理](#security-proxy)，某些包管理器无法与此代理正确配合工作；Bun 是一个已知的例子。在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#default-deny-egress)中，出站流量改为经过您自己的网络边界。
 * **增加启动延迟**：hook 在每次会话启动或恢复时运行，不同于受益于[环境缓存](#environment-caching)的设置脚本。请通过跳过已完成的工作来保持安装脚本快速，就像[依赖项安装脚本](#install-dependencies-with-a-sessionstart-hook)所做的那样。
 
 要自定义基础镜像，请使用设置脚本在[提供的镜像](#installed-tools)上安装您需要的内容，或使用 `docker compose` 将您自己的镜像作为 Claude 旁边的容器运行。目前不支持完全替换基础镜像。
