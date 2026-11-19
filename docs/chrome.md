@@ -80,7 +80,7 @@ type "hooks", and tell me what results appear
 
 随时运行 `/chrome` 可检查连接状态、管理权限、重新连接扩展程序，或选择要使用的已连接浏览器。当状态面板显示“状态：已启用”和“扩展程序：已安装”时，表示集成正常工作。
 
-如果连接了多个浏览器，您可以选择 Claude 使用哪一个。如果在您做出选择之前就开始了浏览器操作，Claude 会提示您选择一个。如需之后切换浏览器，请运行 `/chrome` 并选择 **Select browser…**。即使有其他浏览器连接，Claude 也会继续使用您选择的浏览器。
+如果连接了多个浏览器，您可以选择 Claude 使用哪一个。如果在您做出选择之前就开始了浏览器操作，Claude 会提示您选择一个。如需之后切换浏览器，请运行 `/chrome` 并选择其他浏览器。即使有其他浏览器连接，Claude 也会继续使用您选择的浏览器。
 
 对于 VS Code，请参阅 [VS Code 中的浏览器自动化](https://code.claude.com/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)。
 
@@ -101,7 +101,7 @@ type "hooks", and tell me what results appear
 
 ### 默认启用 Chrome
 
-如需无需每次传递 `--chrome` 即可连接 Chrome，请在 CLI 会话中运行 `/chrome` 并选择**默认启用**。在 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)中，在输入框中输入 `/chrome` 并打开**默认启用**开关。两者共享同一个设置，因此在任一处启用后，CLI 和 VS Code 都会启用该设置。
+如需无需每次传递 `--chrome` 即可连接 Chrome，请在 CLI 会话中运行 `/chrome` 并选择默认启用 Chrome 的选项。在 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md#automate-browser-tasks-with-chrome)中，在输入框中输入 `/chrome` 并打开**默认启用**开关。CLI 和 VS Code 共享同一个设置，因此在任一处启用后，两者都会启用该设置。
 
 启用该设置并使用 Claude Code v2.1.287 或更高版本时，每个 VS Code 会话都会在启动时连接到您的浏览器，因此 Claude 无需您输入 `@browser` 即可使用浏览器。在更早的版本中，或者关闭该设置时，VS Code 会话会在您输入 `@browser` 时连接。
 
@@ -295,7 +295,7 @@ Claude Code 会跳过该设置，因为这些文件存储在项目目录中，�
 您可以照常继续工作。如果您需要浏览器工具，或希望消除该警告，请执行以下操作之一：
 
 * **立即获取浏览器工具**：退出，然后在 shell 中使用 `claude --chrome` 重新启动。
-* **在后续会话中获取浏览器工具**：在 Claude Code 输入框中运行 `/chrome` 并选择[**默认启用**](#enable-chrome-by-default)。这适用于之后启动的会话，而不是当前正在运行的会话。
+* **在后续会话中获取浏览器工具**：在 Claude Code 输入框中运行 `/chrome` 并[默认启用 Chrome](#enable-chrome-by-default)。
 * **在不使用浏览器工具的情况下停止警告**：从项目的设置文件中删除 `CLAUDE_CODE_ENABLE_CFC` 这一行。
 
 ### 浏览器无响应

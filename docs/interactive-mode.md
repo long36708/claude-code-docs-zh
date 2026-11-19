@@ -479,7 +479,7 @@ Claude Code 还在多种情况下跳过单个建议，包括：
 /plugin enable cc-plugin-you-should-know@builtin
 ```
 
-在 `/plugin` 未列出该 mod 的情况下，启用命令会返回 `Plugin "cc-plugin-you-should-know@builtin" is not installed in this project`。
+在 `/plugin` 未列出该 mod 的情况下，启用命令会提示该插件未在此项目中安装。
 
 ### 检查的成本
 

@@ -840,6 +840,7 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 * 检查所有 `PreToolUse` hook 是否返回 `permissionDecision: 'deny'`
 * 向您的 hook 添加日志记录以查看它们返回的 `permissionDecisionReason`
 * 验证匹配器模式不会太宽泛：空匹配器匹配所有工具
+* 如果工具结果显示某个 hook `returned updatedInput that failed schema validation` 或 `returned updatedInput that the tool refused`，请修复该 hook 的 `updatedInput`。请包含未更改的 `tool_input` 字段，如[修改工具输入](#modify-tool-input)中所示，因为 `updatedInput` 会替换整个输入。
 
 ### 修改的输入未应用
 

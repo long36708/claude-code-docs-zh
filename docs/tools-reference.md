@@ -148,7 +148,7 @@ Bash 工具在单独的进程中运行每个命令。
   * 如果 `cd` 落在这些目录之外，Claude Code 会重置为项目目录，并将 `Shell cwd was reset to <dir>` 附加到工具结果中。
   * 要禁用此传递，使每个 Bash 命令都在项目目录中启动，请设置 `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`。
 * 环境变量不会保留。一个命令中的 `export` 在下一个命令中不可用。
-* 在您的 shell 启动文件中定义的别名和 shell 函数可用。在会话启动时，Claude Code 会获取 `~/.zshrc`、`~/.bashrc` 或 `~/.profile`（取决于您的 shell），捕获生成的别名、函数和 shell 选项，并将它们应用于每个 Bash 命令。
+* Claude Code 会启动一个非交互式 shell，对于 Zsh 加载 `~/.zshrc`，对于 Bash 加载 `~/.bashrc`，并将它捕获的别名、函数和 shell 选项应用于 Bash 命令。
 
 在启动 Claude Code 之前激活您的 virtualenv 或 conda 环境。要使环境变量在 Bash 命令之间保留，请在启动 Claude Code 之前将 [`CLAUDE_ENV_FILE`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 shell 脚本，或使用 [SessionStart hook](https://code.claude.com/docs/zh-CN/hooks.md#persist-environment-variables) 动态填充它。
 

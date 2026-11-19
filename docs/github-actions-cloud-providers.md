@@ -39,7 +39,7 @@ Claude Code GitHub Action 支持三个提供商，下面的设置步骤仅在云
 
 **1. 选择 GitHub 身份**
 
-Claude Code GitHub Action 通过 GitHub 身份推送提交和发布评论。[快速设置](https://code.claude.com/docs/zh-CN/github-actions.md#quick-setup) 为此安装了官方 Claude GitHub App。使用云提供商时，您可以自己选择身份：
+Claude Code GitHub Action 通过 GitHub 身份推送提交和发布评论。使用云提供商时，您可以自己选择身份：
 
 * **官方 [Claude GitHub App](https://github.com/apps/claude)**: 在存储库上安装它，或如果已经安装，请跳到下一步
 * **自定义 GitHub App**: 当您只想要 Claude Code GitHub Action 使用的三个权限而不是[官方应用的完整权限集](https://code.claude.com/docs/zh-CN/github-actions.md#github-app-permissions)时，创建您自己的应用

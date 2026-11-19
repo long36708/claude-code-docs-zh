@@ -52,7 +52,7 @@
 | `Request rejected (429)` | [使用限制](#request-rejected-429) |
 | `Credit balance is too low` | [使用限制](#credit-balance-is-too-low) |
 | `You've hit your monthly spend limit` / `You've hit your individual spend limit` / `You've hit your org's monthly spend limit` / `You've hit your channel's monthly spend limit` / `You've hit your team's shared budget` / `You've hit your individual usage limit` | [使用限制](#youve-hit-your-monthly-spend-limit) |
-| `Could not update your spend limit` | [使用限制](#could-not-update-your-spend-limit) |
+| `Could not update your spend limit` / `Could not remove your spend limit` | [用量限制](#could-not-update-your-spend-limit) |
 | `spend limit reached` / `spend limit unavailable` / `This request exceeds your group's budget` | [用量限制](#spend-limit-reached) |
 | `Not logged in · Please run /login` | [身份验证](#not-logged-in) |
 | `Couldn't save your login` | [身份验证](#couldnt-save-your-login) |
@@ -104,6 +104,7 @@
 | `Artifacts need a claude.ai login` | [身份验证](#artifacts-need-a-claude-ai-login) |
 | `Not signed in to the Cloud gateway — run /login.` | [身份验证](#administrator-policy-requires-a-cloud-gateway-sign-in) |
 | `Administrator policy requires a Cloud gateway sign-in on this machine` | [身份验证](#administrator-policy-requires-a-cloud-gateway-sign-in) |
+| `Managed settings on this machine configure a Cloud gateway sign-in; run interactive /login to authenticate.` | [`claude auth login`](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands) |
 | `Failed to authenticate: OAuth session expired and could not be refreshed` | [身份验证](#login-expired) |
 | `Login reached its time limit · Please run /login` / `Failed to authenticate: this login reached its time limit` | [身份验证](#login-expired) |
 | `Failed to authenticate: your claude.ai login expired` | [登录过期之后](https://code.claude.com/docs/zh-CN/authentication.md#after-the-login-expires) |
@@ -237,6 +238,8 @@
 | `--bg and --print conflict` | [命令行错误](#conflict-between-bg-and-print) |
 | `Couldn't tell whether --bg is a flag or text here, so nothing was started` | [命令行错误](#couldnt-tell-whether-bg-is-a-flag-or-text) |
 | `Error: Cannot use both --append-subagent-system-prompt and --append-subagent-system-prompt-file. Please use only one.` | [命令行错误](#conflict-between-a-system-prompt-flag-and-its-file-form) |
+| `Error: bypassPermissions not supported in restricted mode` | [受限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#restricted-mode-refuses-bypasspermissions) |
+| `Session was started with bypass permissions, so plan mode won't ask before most edits or commands` | [计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode) |
 | `Cloud sessions cannot be created from a --restricted session` | [命令行错误](#cloud-sessions-cannot-be-created-from-a-restricted-session) |
 | `Cloud sessions are disabled by your organization's policy` | [命令行错误](#cloud-sessions-are-disabled-by-your-organizations-policy) |
 | `Cloud sessions use your claude.ai login`，出现在指明某个凭据的策略拒绝消息末尾 | [命令行错误](#cloud-sessions-use-your-claude-ai-login) |
@@ -271,6 +274,7 @@
 | `Cannot add MCP server to scope: managed` | [命令行错误](#cannot-add-mcp-server-to-the-managed-scope) |
 | `Cannot add MCP server: your organization's managed settings allow only MCP servers that plugins provide` | [命令行错误](#cannot-add-mcp-server-when-managed-settings-allow-only-plugin-servers) |
 | `is Anthropic-hosted and doesn't support local OAuth` | [命令行错误](#anthropic-hosted-and-doesnt-support-local-oauth) |
+| `Can't add to .mcp.json: it lists servers at the top level` | 将服务器移到 `mcpServers` 键下，如[项目作用域格式](https://code.claude.com/docs/zh-CN/mcp.md#project-scope)所示。 |
 | `Can't read .mcp.json: it isn't a regular file or is larger than 2097152 bytes` | [命令行错误](#cant-read-mcp-json) |
 | `MCP server "<name>" was not saved to` / `was not removed from` | [命令行错误](#mcp-server-was-not-saved-or-removed) |
 | `MCP server "<name>" may not have been saved` / `may not have been removed` | [命令行错误](#mcp-server-may-not-have-been-saved-or-removed) |
@@ -309,7 +313,7 @@
 | `Windows reported an error (EBADF) when Claude Code read this session's transcript file` | [命令行错误](#windows-reported-an-error-ebadf) |
 | `Cannot switch renderers in this session` | [命令行错误](#cannot-switch-renderers-in-this-session) |
 | `Cannot switch renderers while work is running in the background` | [命令行错误](#cannot-switch-renderers-in-this-session) |
-| `Can't restart while work is running in the background — wait for it to finish (or stop it via /tasks), then try again.` | [命令行错误](#cant-restart-while-work-is-running-or-remote-control-is-connected) |
+| `Can't restart while work is running in the background` | [命令行错误](#cant-restart-while-work-is-running-or-remote-control-is-connected) |
 | `Can't restart while Remote Control is connected. To use the installed version, exit and start Claude Code again, then run /resume.` | [命令行错误](#cant-restart-while-work-is-running-or-remote-control-is-connected) |
 | `Claude Code couldn't restart` | [命令行错误](#claude-code-couldnt-restart) |
 | `Couldn't open Claude Desktop` | [命令行错误](#couldnt-open-claude-desktop) |
@@ -343,7 +347,7 @@
 | `path escapes plugin directory` | [Plugin 错误](#path-escapes-plugin-directory) |
 | `path not read: <path> is absolute or has a ".." part` | [插件错误](#server-file-path-not-read) |
 | `Plugin not loaded: its manifest <path> was not read` | [Plugin 错误](#plugin-not-loaded-its-manifest-was-not-read) |
-| `path could not be checked` | [Plugin 错误](#path-could-not-be-checked) |
+| `path couldn't be checked` / `path could not be checked` | [插件错误](#path-could-not-be-checked) |
 | `its marketplace entry path does not stay inside the marketplace directory` | [Plugin 错误](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
 | `Plugin source path refused` | [Plugin 错误](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
 | `Failed to load marketplace configuration` | [Plugin 错误](#failed-to-load-marketplace-configuration) |
@@ -369,6 +373,7 @@
 | `cannot contain null bytes (\0)` | [工具错误](#path-cannot-contain-null-bytes) |
 | `Path contains null bytes` | [工具错误](#path-cannot-contain-null-bytes) |
 | `command contains the invisible character U+FEFF (byte order mark) or U+180E (Mongolian vowel separator), and was not run` | [工具错误](#command-contains-an-invisible-character) |
+| `This command's variables and substitutions expand to more text than the permission check reads, so it was not run` | 请让 Claude 使用更少或更短的变量和替换。 |
 | `This call was not run. Claude Code could not confirm that the shell is back in the directory`，自 v2.1.323 起 | [工具错误](#command-approved-before-a-restart-was-not-run) |
 | `File is too large to read as an image (the limit is 128MB)` | [工具错误](#file-is-too-large-to-read-as-an-image) |
 | `Cannot read this as an image: <path> is a pipe or a device` | [工具错误](#file-is-too-large-to-read-as-an-image) |
@@ -378,11 +383,12 @@
 | `Sandbox is required but failed to initialize: <reason>` | [沙箱隔离故障排除](https://code.claude.com/docs/zh-CN/sandboxing.md#commands-refused-with-sandbox-is-required) |
 | `Sandbox is required (sandbox.failIfUnavailable) and stopped being available in this session: <reason>` | [沙箱隔离故障排除](https://code.claude.com/docs/zh-CN/sandboxing.md#commands-refused-with-sandbox-is-required) |
 | `pkill: refusing to run` | [工具错误](#pkill-pattern-matches-the-claude-code-process) |
+| `Sandbox settings can't be changed here` / `Sandbox settings are overridden by a higher-priority configuration` | [沙箱隔离故障排除](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-settings-overridden) |
 | `Failed to write to <name>'s inbox — nothing was sent` | [工具错误](#failed-to-write-to-a-teammate-inbox) |
 | `Failed to write the plan approval request to the lead's inbox — plan not submitted` | [工具错误](#failed-to-write-to-a-teammate-inbox) |
 | `Its agent definition was not restored: the folder its definition file came from is not trusted` | [工具错误](#teammate-agent-definition-not-restored) |
 | `Only a teammate can approve a shutdown request` | [工具错误](#only-a-teammate-can-approve-a-shutdown-request) |
-| `A command-line deny rule cannot be handed to a teammate intact` | [工具错误](#command-line-deny-rule-cannot-be-handed-to-a-teammate) |
+| `cannot be handed to a teammate intact` | [工具错误](#command-line-deny-rule-cannot-be-handed-to-a-teammate) |
 | `Message too large for cross-session delivery` | [工具错误](#message-too-large-for-cross-session-delivery) |
 | `Too many messages to this session just now` | [工具错误](#too-many-messages-to-this-session-just-now) |
 | `Cross-session message was dropped at the recipient session's inbox` | [工具错误](#cross-session-message-dropped-at-the-inbox) |
@@ -453,6 +459,7 @@
 | `The Claude Code program for this computer, the <build> build, could not be found` | [包装器和 IDE 错误](#the-claude-code-program-for-this-computer-could-not-be-found) |
 | `Restored the code, but skipped N files` | [Rewind 警告和错误](#restored-the-code-but-skipped-files) |
 | `No files were restored: N files failed (backup missing, or the file could not be updated)` | [Rewind 警告和错误](#no-files-were-restored) |
+| `Couldn't restore N files: the backup is missing or the file can't be written` | 将失败的文件设为可写，然后从版本控制中恢复它们。 |
 | `The file backups are still being copied. Nothing was changed. Try again in a moment.` | 在 [`/rewind`](https://code.claude.com/docs/zh-CN/checkpointing) 中再次选择同一个点。如果您在 [`/branch`](https://code.claude.com/docs/zh-CN/sessions#branch-a-session) 之后不久恢复代码，Claude Code 可能仍在将文件备份复制到新会话。 |
 | `Transcript writes are failing (...)` | [会话保存警告](#transcript-writes-are-failing) |
 | `Transcript saving is off — CLAUDE_CODE_SKIP_PROMPT_HISTORY is set` | [会话保存警告](#transcript-saving-is-off-skip-prompt-history) |
@@ -467,6 +474,7 @@
 | `N skill or command names refused: run with --debug to see which ([names]), rename, then restart` | [配置警告](#skill-or-command-name-refused) |
 | `Ignoring N permissions.allow entries from ... this workspace has not been trusted` | [配置警告](#workspace-has-not-been-trusted) |
 | `Two Claude Code config files exist: this run uses <path>, not <path>` | [配置警告](#two-claude-code-config-files-exist) |
+| `a settings change wasn't saved` | 将 `~/.claude/settings.json` 和项目的 `.claude/settings.local.json` 设为可写，然后再次进行更改。如果该文件由其他工具生成，请参阅[更改在新会话中丢失](https://code.claude.com/docs/zh-CN/settings.md#a-change-you-made-in-claude-code-is-lost-in-new-sessions)。如果某个文件无效，请参阅[修复损坏的设置文件](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file)。 |
 | `Make this change again later: <path> could not be updated, so it applies to this session only` | [配置警告](#make-this-change-again-later) |
 | `is a network path, which cannot be added as a working directory` | [配置警告](#working-directory-is-a-network-path) |
 | `Remote managed settings failed to load (<cause>)` | [配置警告](#remote-managed-settings-failed-to-load) |
@@ -1080,6 +1088,8 @@ Could not update your spend limit: <reason from the server>
 ```
 
 当服务器解释拒绝时，消息以该原因结尾，重试相同的值会再次失败。当失败没有服务器提供的原因时，例如连接断开，消息读作 `Could not update your spend limit. Press Enter to retry.` 并且重试可能成功。在 v2.1.216 之前，Claude Code 为每个失败显示通用形式。
+
+如果您删除该限制，在 v2.1.327 或更高版本上，通用形式以 `Could not remove your spend limit` 开头。
 
 **要做什么：**
 
@@ -3523,7 +3533,7 @@ Error: Workspace not trusted. /Users/you is your home directory, and for securit
 
 **解决方法：**
 
-* 先从终端信任该目录：在那里运行 `claude rc` 并回答 `y`，或在那里运行 `claude` 并接受[工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)，然后再次运行您原来的命令
+* 先在终端中信任该目录：在那里运行 `claude` 并接受[工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)，然后再次运行您原来的命令
 * 如果在主目录中，请切换到项目目录，并在那里启动 Remote Control
 
 在 v2.1.284 之前，即使在终端中，该命令也从不询问。
@@ -3542,6 +3552,8 @@ Error: Workspace not trusted. Please run `claude` in /Users/you/project first to
 
 * 在脚本或 CI 作业中，追加 `--trust-workspace` 以在该次运行中信任该文件夹：`claude ultrareview --trust-workspace`。仅对您信任的代码追加此标志，因为 git 和 Claude Code 随后可能会运行该文件夹的 git 配置和项目设置中指定的程序。对于您不信任其代码的 Pull Request，请[从您信任的分支运行审查](https://code.claude.com/docs/zh-CN/ultrareview.md#trust-the-folder-before-the-review-runs)。
 * 在您自己的机器上，在该文件夹中运行 `claude` 并接受[工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)，然后再次运行您原来的命令
+
+在会话中，`/ultrareview` 和 `/code-review ultra` 可能会以 `Ultrareview did not start: "<folder>" is not trusted, and this session started without asking whether you trust it` 停止。请在未设置 [`IS_DEMO`](https://code.claude.com/docs/zh-CN/env-vars#variables) 的情况下在该文件夹中启动 `claude`，接受工作区信任对话框，然后在新会话中运行该命令。
 
 `claude ultrareview` 的以下每条消息都表示没有启动任何审查，且退出码为 1：
 
@@ -4642,7 +4654,7 @@ Claude Code 向操作系统询问某个插件路径是否存在时，收到了�
 对于根本不存在的路径，您不会看到此错误。在 `/plugin` 中，该错误显示在插件下方，并指明路径以及操作系统返回的代码：
 
 ```text theme={null}
-skills path could not be checked: /home/user/my-plugin/skills (ELOOP)
+skills path couldn't be checked: /home/user/my-plugin/skills (ELOOP)
 ```
 
 在 `claude plugin list` 中，同一错误显示为 `Path not found: /home/user/my-plugin/skills (skills, ELOOP)`。
@@ -5108,12 +5120,12 @@ Only a teammate can approve a shutdown request, and this session is not running 
 此消息表示 Claude Code 没有在您的 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 中启动[分屏](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)队友。Claude Code 会通过队友自己的命令行，将负责人的命令行拒绝规则传递给分屏队友；当队友对其中某条规则的解读会有所不同时，Claude Code 就会停止：
 
 ```text wrap theme={null}
-A command-line deny rule cannot be handed to a teammate intact, so the teammate would not enforce it — spawn aborted
+The deny rule "<rule>" cannot be handed to a teammate intact, so the teammate was not started. Remove that rule or move it to permissions.deny in settings, then try again.
 ```
 
 **处理方法：**
 
-* 在负责人会话中运行 `/config`，将 **Teammate mode** 设置为 `in-process`，然后让 Claude 再次启动该队友。您无需找出该规则，也无需重新启动负责人。进程内队友[在负责人的实时拒绝规则下运行](https://code.claude.com/docs/zh-CN/agent-teams.md#permissions)。
+* 在负责人会话中运行 `/config`，将 **Teammate mode** 设置为 `in-process`。如果该行显示 `overridden` 且已显示 `in-process`，请循环切换各个值，直到回到该值。然后让 Claude 再次启动该队友。进程内队友[在负责人的实时拒绝规则下运行](https://code.claude.com/docs/zh-CN/agent-teams.md#permissions)。
 * 之后从您的用户设置中读取 [`teammateMode`](https://code.claude.com/docs/zh-CN/settings-reference#teammatemode) 的会话也会以进程内方式启动队友，因为 `/config` 会将该选择保存在那里。如需在之后的会话中改回分屏，请将 **Teammate mode** 设置为 `auto`、`tmux` 或 `iterm2`，即您之前使用的那一项。
 
 ### Message too large for cross-session delivery
@@ -5163,7 +5175,7 @@ Cross-session message was dropped at the recipient session's inbox (recipient: u
 * `its queue of undelivered peer messages was full`：接收方已持有其队列所允许的最大数量的来自其他会话的未送达消息
 * `you sent faster than that session accepts`：发送会话的消息到达速度超过了接收方对单个发送方的接收速度
 * `it repeated your previous message`：该消息与发送会话不久前发给此接收方的某条消息完全相同
-* `a relay loop between sessions was cut`：该消息延续了一条会话之间相互发送消息的链条，而该链条经过接收方的次数过多或变得过长
+* `a relay loop between sessions was cut`：该消息延续了一条较长的[可能被截断的回复链](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#limitations)，例如包含这台机器之外某个会话的回复链
 
 **处理方法：**
 

@@ -218,7 +218,7 @@ mod 已加载，其 hooks 运行，它接触的工具调用被拒绝。
 
 ## 停止轮次后出现提示
 
-### `Stopped: type a message to continue; a mod cannot resume work after Stop`
+### `stopped · type a message to continue`
 
 此提示表示，在您停止轮次之后（例如按下 Esc），某个 mod 试图自行开始工作，而 Claude Code 没有允许它这样做。无需进行任何修复。在您发送下一条消息后，mod 可以再次开始工作，并且[其中部分工作会自行恢复](https://code.claude.com/docs/zh-CN/plugins/mods/api.md#work-your-mod-started-before-the-interruption)。如果您期望从该 mod 获得的结果没有恢复，请再次提出请求，或再次运行该 mod 的命令。
 

@@ -316,7 +316,7 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 | `dev-mods/<session>/` | [Claude 在会话期间编写的 Mods](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod) |
 | `session-env/` | 每个会话的环境元数据 |
 | `tasks/` | 由 task 工具写入的任务列表，每个列表一个目录 |
-| `shell-snapshots/` | 在启动时捕获的别名、函数和 shell 选项，由 [Bash 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#bash-tool-behavior) 应用于每个命令。在正常退出时删除。扫描清理任何在崩溃后留下的内容。 |
+| `shell-snapshots/` | 由 [Bash 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#bash-tool-behavior)应用于每个命令的别名、函数和 shell 选项。在正常退出时删除。扫描会清理崩溃后留下的任何内容。 |
 | `backups/` | `~/.claude.json` 的早期版本，在 Claude Code 重写文件时复制。Claude Code 保留五个最新的版本，加上它无法解析的任何版本的副本。超过年龄截止值后，保存您配置的最后一个副本也会被删除。如果当前文件可以解析、保存了您的配置且小于 8 MiB，则会为其留下一个新副本。 |
 | `feedback-bundles/` | 由 `/feedback` 在第三方提供商上或当未配置 Anthropic 凭证时写入的编辑后的记录存档，用于发送到您的 Anthropic 账户团队 |
 | `feedback/drafts/` | 排队的 [Claude 起草的反馈](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)，等待您在 `/feedback` 中审查。在 `cleanupPeriodDays` 或 30 天后扫除，以较短者为准。当队列达到其 10 个草稿的限制时，Claude Code 删除最旧的草稿以腾出空间。 |

@@ -2203,7 +2203,7 @@ PreToolUse hook 在每次工具调用之前运行，无论该调用是否需要�
 
 | 字段 | 描述 |
 | :- | :- |
-| `behavior` | `"allow"` 授予权限，`"deny"` 拒绝权限。[拒绝规则和询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)仍会被评估，因此返回 `"allow"` 的 hook 不会覆盖匹配的拒绝规则 |
+| `behavior` | `"allow"` 授予权限，`"deny"` 拒绝权限。hook 无法批准被 deny 规则拒绝的内容，除非有 mod 覆盖了该规则：请参阅[规则、hook 和 mod 之间的优先级](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods) |
 | `updatedInput` | 仅用于 `"allow"`：在执行前修改工具的输入参数。会替换整个输入对象，因此请将未更改的字段与修改后的字段一并包含。修改后的输入会再次根据拒绝和询问规则进行评估。`AskUserQuestion` 和 `ExitPlanMode` [需要此字段](#allow-with-updatedinput) |
 | `updatedPermissions` | 仅适用于 `"allow"`：要应用的[权限更新条目](#permission-update-entries)数组，例如添加允许规则或更改会话权限模式 |
 | `message` | 仅适用于 `"deny"`：告知 Claude 权限被拒绝的原因 |
@@ -3334,7 +3334,7 @@ Claude Code 会拒绝包含 `.` 或 `..` 片段的绝对路径，以及任何经
 
 当子代理或工作流 Agent 完成时，Claude Code 会保留您的 WorktreeCreate hook 为其创建的 worktree，并且不会运行您的 WorktreeRemove hook。工作完成后，请自行删除这些 worktree。
 
-对于 `ExitWorktree` 调用或 `claude remote-control` 清理，Claude Code 不会在您的 hook 运行之前提示您。除非调用传递了 [`discard_changes: true`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#exitworktree)，否则 `ExitWorktree` 会拒绝删除由 hook 创建的 worktree，这使您的 hook 成为该路径上的最后一道检查。
+对于 `claude remote-control` 的清理，Claude Code 会在不提示您的情况下运行您的 hook。除非调用传入 [`discard_changes: true`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#exitworktree)，否则 `ExitWorktree` 会拒绝删除由 hook 创建的 worktree。
 
 Claude Code 使用 git 查找已更改或未跟踪的文件，因此对于不是 git 检出或不在 git 检出内的 worktree，即使目录中有未提交的工作，它也找不到任何文件。请在 WorktreeRemove hook 删除任何内容之前检查此类工作。
 

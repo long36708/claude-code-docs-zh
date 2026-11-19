@@ -616,7 +616,9 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >
 > 像 `Bash(npm test)` 这样的窄范围规则会保持有效。当您退出自动模式时，Claude Code 会恢复被丢弃的规则。在 v2.1.236 之前，Claude Code 在自动模式下保留了 `Monitor` allow 规则，因此匹配整个工具的规则会在没有分类器审查的情况下批准 Monitor 命令。
 >
-> 在执行会丢弃未提交工作的命令（例如 `git reset --hard` 或 `rm -rf`）之前，Claude Code 还会自行运行 `git status`，并向分类器显示是否存在已暂存、已修改或未跟踪的工作。即使仓库的 git 配置设置了 `status.showUntrackedFiles=no`，Claude Code 也会在该检查中报告未跟踪的文件。
+> 在执行会丢弃未提交工作的命令（例如 `git reset --hard` 或 `rm -rf`）之前，Claude Code 还可以自行运行 `git status`，并向分类器显示是否存在已暂存、已修改或未跟踪的工作。即使仓库的 git 配置设置了 `status.showUntrackedFiles=no`，Claude Code 也会在该检查中报告未跟踪的文件。
+>
+> 在[服务器端分类器审查](#server-side-classifier-review)下，`git reset --hard` 在干净的工作树上也可能被阻止，因为除非自动模式最近阻止过某个操作，否则 Claude Code 可能会跳过 `git status`。阻止发生后，分类器可以看到干净的状态，并允许 Claude 重试。
 >
 > 在 Claude Code 自身发送的分类器请求中，分类器可以看到用户消息、除只读查询（例如文件读取和搜索）以外的工具调用，以及您的 CLAUDE.md 内容。工具结果会从这些请求中剥离，因此文件或网页中的恶意内容无法直接操纵分类器。
 >
@@ -690,8 +692,6 @@ claude --permission-mode bypassPermissions
 
 `--dangerously-skip-permissions` 标志是等效的。
 
-Claude Code 在您使用 [`--restricted`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 启动的会话中拒绝 `bypassPermissions`。`--restricted` 需要 Claude Code v2.1.248 或更高版本。
-
 第一次使用此模式启动交互式会话时，Claude Code 会显示一个警告对话框，要求您接受对在没有权限检查的情况下执行的操作的责任：
 
 * **如果您接受**：Claude Code 在 `~/.claude/settings.json` 中将 `skipDangerousModePermissionPrompt` 设置为 `true`，因此后续会话会跳过对话框。要再次看到对话框，请从该文件中删除该键或将其设置为 `false`。[`skipDangerousModePermissionPrompt` 参考](https://code.claude.com/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)列出了您或您的组织可以设置它的其他设置文件。
@@ -724,6 +724,10 @@ Claude Code 在您使用 [`--restricted`](https://code.claude.com/docs/zh-CN/cli
 > [!WARNING]
 >
 > `bypassPermissions` 不提供针对提示词注入或意外操作的保护。对于权限提示少得多的后台安全检查，请改用[自动模式](#eliminate-prompts-with-auto-mode)。管理员可以通过在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中将 `permissions.disableBypassPermissionsMode` 设置为 `"disable"` 来阻止此模式。
+
+### 受限模式拒绝 bypassPermissions
+
+Claude Code 在您使用 [`--restricted`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 启动的会话中拒绝 `bypassPermissions`。`--restricted` 需要 Claude Code v2.1.248 或更高版本。如果您看到 `Error: bypassPermissions not supported in restricted mode`，请移除启用 `bypassPermissions` 的标志或设置，例如 `--dangerously-skip-permissions`。要保留 `bypassPermissions`，请改为在不使用 `--restricted` 或 [`CLAUDE_CODE_RESTRICTED`](https://code.claude.com/docs/zh-CN/env-vars#variables) 的情况下启动。
 
 ### 后台会话中忽略了绕过权限
 
@@ -856,6 +860,7 @@ Claude Code 也查看这些构造内部：
 * **内联脚本**：通过 `-c` 传递给 `sh`、`bash`、`zsh` 或类似 POSIX shell 的脚本，如 `bash -c 'rm -rf ~'`。
   * 当脚本是双引号时，调用 shell 在内部 shell 接收脚本之前扩展其变量。在 `find . -name '*.tmp' -exec sh -c "rm -rf \"$1\"/*" _ {} \;` 中，命令对每个匹配扩展为从文件系统根目录的移除，Claude Code 将其视为关键路径移除。
   * 绑定 `$1` 到真实值的单引号脚本（如 `sh -c 'rm -rf "$1"/*' _ {}` 所做的）不被标记。
+  * 如果您看到 `This shell -c script runs rm and could not be checked`，请在批准之前阅读该脚本。该命令计为[关键路径移除](#critical-path-removals-in-each-permission-mode)。
 
 要关闭对直接写在 `-c` 脚本中的关键路径（如 `~`）的检查，请在启动 Claude Code 的环境中设置 [`CLAUDE_CODE_DISABLE_INLINE_SHELL_RM_PROMPT=1`](https://code.claude.com/docs/zh-CN/env-vars#variables)。
 

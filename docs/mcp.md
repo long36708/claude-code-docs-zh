@@ -475,7 +475,7 @@ Claude Code 默认会向 stdio 服务器询问该修订版。若要让 stdio 频
 
 ### 长时间工具调用的自动后台化
 
-如果后台调用在 [`/tasks`](https://code.claude.com/docs/zh-CN/commands#all-commands) 中的详情视图显示 `runs on the server; survives exiting this session`，请参阅[在服务器上运行的 MCP 任务](#mcp-tasks-that-run-on-the-server)。
+如果 [`/tasks`](https://code.claude.com/docs/zh-CN/commands#all-commands) 中某个后台调用的详情视图显示该调用在您退出后仍会继续运行，请参阅[在服务器上运行的 MCP 任务](#mcp-tasks-that-run-on-the-server)。
 
 主对话中的 MCP 工具调用如果在两分钟后仍在运行，会转为后台任务，而不是阻塞会话。Claude 会立即收到任务 ID 并继续工作，调用结束时结果会以任务通知的形式到达。
 
@@ -528,7 +528,7 @@ MCP task <server task id> (<server>/<tool>) completed.
 
 #### MCP 任务运行期间退出、清除或恢复
 
-远程服务器上的任务在您退出后仍会继续运行。stdio 服务器的进程会在 Claude Code 退出时停止，尽管其任务在 `/tasks` 中显示 `runs on the server; survives exiting this session`。除非该服务器的文档说明工作会在进程结束后继续，否则请先让这些任务完成，或在 `/tasks` 中停止它们。
+远程服务器上的任务在您退出后会继续运行。stdio 服务器的进程会在 Claude Code 退出时停止，即使 `/tasks` 显示该服务器的任务会继续运行。除非该服务器的文档说明其工作会在进程结束后继续，否则请先让这些任务完成，或在 `/tasks` 中停止它们。
 
 | 情况 | 任务会怎样 | 您可以做什么 |
 | - | - | - |
@@ -1305,6 +1305,7 @@ claude mcp get weather-api
 > 提示：
 >
 > * 确保 JSON 在您的 shell 中正确转义
+> * 要通过管道传入 JSON，请在其位置传入 `-`：`cat server.json | claude mcp add-json <name> -`。请在 Claude Code 会话之外运行该命令。需要 Claude Code v2.1.327 或更高版本。
 > * JSON 必须符合 MCP 服务器配置架构
 > * 您可以使用 `--scope user` 将服务器添加到您的用户配置而不是项目特定的配置
 
@@ -1413,7 +1414,7 @@ Connectors 来自 claude.ai 仅在您的活跃 [身份验证方法](https://code
 您的组织可以在 [claude.ai connectors](https://claude.com/docs/connectors) 上设置每个工具的控制。Claude Code 在启动时读取这些设置并在本地强制执行它们，除了桌面应用的 [本地和 SSH 会话](#how-connectors-reach-claude-code)。在那里，桌面应用在传入 connector 之前扣留 `blocked` 工具，`ask` 设置不会到达 Claude Code，因此它将会话的普通 [权限规则](https://code.claude.com/docs/zh-CN/permissions.md) 应用于这些工具，而不是在每次调用时提示。在 Claude Code 自身获取 connectors 的会话中，运行 `/mcp` 以查看哪个设置适用于 connector 上的每个工具。
 
 * **工具设置为 `ask`**：Claude 每次调用该工具时，Claude Code 都会提示，原因为 `Your organization requires approval for this tool`。即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)中，该提示也会出现。在终端中，您无法保存您的选择。匹配的[允许规则](https://code.claude.com/docs/zh-CN/permissions.md)不会跳过该提示。在 `dontAsk` 模式中，或在没有任何方式回应提示的 `-p` 运行中，Claude Code 会改为拒绝该调用。
-* **工具设置为 `blocked`**：Claude Code 在 Claude 看到它之前过滤掉该工具，因此它从不出现在 Claude 的工具列表中。在 Claude Code 自身获取 connectors 的会话中，`/mcp` 工具列表仍然显示该工具，标记为 `disabled by your organization`。
+* **工具设置为 `blocked`**：Claude Code 在 Claude 看到该工具之前将其过滤掉，因此它从不出现在 Claude 的工具列表中。在 Claude Code 自身获取连接器的会话中，`/mcp` 工具列表仍然显示该工具，并标记为 `turned off by your organization`。
 
 桌面应用和 claude.ai 聊天应用相同的 `blocked` 设置，因此 Claude 也无法在那里使用被阻止的工具，您无法从桌面应用的会话中扣留工具，同时在聊天中保持其可用。桌面应用跳过其所有工具都被阻止的 connector。
 

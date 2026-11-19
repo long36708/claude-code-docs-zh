@@ -143,7 +143,7 @@ Ripgrep 已随原生 Claude Code 二进制文件捆绑提供。seccomp 过滤器
 
 > [accordion] WSL2 注意事项
 >
-> 在 PowerShell 中使用 `wsl -l -v` 检查您的 WSL 版本。如果看到 `Sandboxing requires WSL2`，则说明您的发行版运行的是 WSL1。请将其升级到 WSL2，或在不使用沙箱隔离的情况下运行 Claude Code。
+> 在 PowerShell 中使用 `wsl -l -v` 检查您的 WSL 版本。如果看到 `Sandboxing needs WSL2` 或 `Sandboxing requires WSL2`，则说明您的发行版运行的是 WSL1。请将其升级到 WSL2，或在不使用沙箱隔离的情况下运行 Claude Code。
 >
 > 在 WSL2 上，WSL 会通过 Unix 套接字将 Windows 二进制文件（例如 `cmd.exe`、`powershell.exe` 或 `/mnt/c/` 下的任何内容）的启动交给 Windows 主机处理，因此沙箱命令能否启动这些程序取决于沙箱的 [Unix 套接字设置](https://code.claude.com/docs/zh-CN/settings-reference.md#sandbox-network-allowunixsockets)：必须先安装可选的 seccomp 过滤器，才能阻止该套接字。要允许这些启动，请设置 `allowAllUnixSockets`，这会向沙箱命令开放所有 Unix 套接字。
 
@@ -1063,9 +1063,9 @@ git remote set-url origin https://git.example.com/example-org/example-repo.git
 
 在设置了 `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` 的 Linux 会话中，每条命令都在沙箱中运行，因此被排除的命令和您输入的命令也会被拒绝。
 
-### `/sandbox` 因 `Sandbox settings are overridden by a higher-priority configuration` 失败
+### `/sandbox` 因 `Sandbox settings can't be changed here` 失败
 
-当更高的[设置级别](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)设置了 `sandbox.enabled`、`sandbox.autoAllowBashIfSandboxed` 或 `sandbox.allowUnsandboxedCommands` 时，`/sandbox` 会打印 `Error: Sandbox settings are overridden by a higher-priority configuration and cannot be changed locally.`，而不是打开其面板。该面板会将您的选择保存到 `.claude/settings.local.json`，而保存在那里的值无法覆盖这些级别。
+当 `sandbox.enabled`、`sandbox.autoAllowBashIfSandboxed` 或 `sandbox.allowUnsandboxedCommands` 在高于本地[设置级别](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)的级别上设置时，`/sandbox` 会打印 `Sandbox settings can't be changed here. Higher-priority settings override them.`，且其面板保持关闭。该面板会将您的选择保存到 `.claude/settings.local.json`，而保存在那里的值无法覆盖更高的级别。
 
 托管设置和 `--settings` 的优先级高于本地设置。要查看此会话加载了其中哪些，请运行 `/status` 并查看 `Setting sources` 行：
 
@@ -1077,7 +1077,7 @@ git remote set-url origin https://git.example.com/example-org/example-repo.git
 此行表示 `/sandbox` 无法将您在其面板中所做的选择保存到项目的 `.claude/settings.local.json`：
 
 ```text theme={null}
-✗ Sandbox settings not changed: /home/you/project/.claude/settings.local.json couldn't be updated (EACCES). Start Claude Code in a project folder you can write to.
+✗ Sandbox settings not changed: /home/you/project/.claude/settings.local.json couldn't be updated (EACCES). Start Claude Code in a project directory you can write to.
 ```
 
 如果括号中的原因是 `EACCES`、`EPERM` 或 `EROFS`，请在您可以写入的项目文件夹中启动 Claude Code，然后在该会话中再次运行 `/sandbox`。如果原因以 `Invalid JSON syntax in settings file` 开头，请更正项目的 `.claude/settings.local.json` 中的 JSON，然后再次运行 `/sandbox`。

@@ -32,9 +32,7 @@
 
 要固定 GitHub 或 git-URL marketplace 的分支或标签，告诉用户追加 `#<ref>`，如 `your-org/your-marketplace#stable`。[插件命令参考](https://code.claude.com/docs/zh-CN/plugins/cli-reference.md#plugin-marketplace-add) 列出了命令接受的每种形式。
 
-成功添加会打印 `Successfully added marketplace: your-marketplace`。Claude Code 从你的 `marketplace.json` 中的 `name` 字段获取该名称，而不是从仓库名称。
-
-用户随后通过其条目的 `name` 和 marketplace 的 `name` 安装插件，如 `/plugin install code-formatter@your-marketplace`。
+用户通过条目的 `name` 和您的 `marketplace.json` 中的顶层 `name` 安装插件，如 `/plugin install code-formatter@your-marketplace`。
 
 ### 为仓库中的每个人注册 marketplace
 
@@ -176,7 +174,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 后台自动更新默认对你的 marketplace 关闭，`marketplace.json` 没有字段来打开它。用户或管理员打开它：
 
-* **告诉用户打开它**：每个用户进入 `/plugin` 中的 **Marketplaces**，选择你的 marketplace，并选择 **启用自动更新**。
+* **告诉用户打开它**：每个用户进入 `/plugin` 中的 **Marketplaces**，选择您的市场，并打开自动更新。
 * **要求管理员设置它**：如果管理员在托管设置中的你的 marketplace 的 `extraKnownMarketplaces` 条目上设置 `"autoUpdate": true`，它对接收这些设置的每个人都打开。请参阅 [设置更新策略](https://code.claude.com/docs/zh-CN/plugins/org.md#set-update-policy)。
 
 没有自动更新，用户在会话中运行 `/plugin marketplace update <name>` 或在 shell 中运行 `claude plugin update <plugin>@<name>` 时接收你的更改。
@@ -293,7 +291,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 1. 比较用户从你的 marketplace 安装的内容与条目和 `renames` 映射，并将既不列出也不重命名的任何插件视为已删除。
 2. 从用户、项目和本地范围卸载每个已删除的插件。仅托管设置安装的插件保持原位。
-3. 在 `/plugin` 中的 **Flagged** 标题下列出每个已删除的插件，状态为 `Removed from marketplace`。
+3. 在 `/plugin` 的 **Installed** 标签页中的 **Needs attention** 下列出每个已卸载的插件。
 
 ## 认证存档下载
 

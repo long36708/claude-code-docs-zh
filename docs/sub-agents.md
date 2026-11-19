@@ -302,7 +302,7 @@ frontmatter 定义子代理的元数据和配置。正文成为指导子代理�
 | `model` | 否 | 要使用的[模型](#choose-a-model)：`sonnet`、`opus`、`haiku`、`fable`、完整模型 ID（如 `claude-opus-5-5`）或 `inherit`。省略时，Claude Code 按照[子代理模型顺序](#choose-a-model)选择模型 |
 | `permissionMode` | 否 | [权限模式](#permission-modes)：`default`、`acceptEdits`、`auto`、`dontAsk`、`bypassPermissions`、`plan`，或作为 `default` 别名的 `manual`。对[插件子代理](#choose-the-subagent-scope)忽略 |
 | `maxTurns` | 否 | 子代理停止前的最大 Agent 轮次数。当子代理达到限制时，Claude Code 会返回其标记为部分结果的输出，Claude 可以[恢复它](#resume-subagents)以继续。部分结果标记需要 Claude Code v2.1.246 或更高版本 |
-| `autoCompactWindow` | 否 | 将此子代理的[自动压缩窗口](#subagent-auto-compact-window)降低到 `100000` 至 `1000000` 之间的 token 数。需要 Claude Code v2.1.296 或更高版本 |
+| `autoCompactWindow` | 否 | 将此子代理的[自动压缩窗口](#subagent-auto-compact-window)降低到 `100000` 或以上的 token 数。需要 Claude Code v2.1.296 或更高版本 |
 | `skills` | 否 | 启动时预加载到子代理上下文中的 [skill](https://code.claude.com/docs/zh-CN/skills.md)。注入的是完整的 skill 内容，而不仅仅是描述。子代理仍可通过 Skill 工具调用未列出的项目、用户和插件 skill |
 | `mcpServers` | 否 | 此子代理可用的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)。每个条目可以是引用已配置服务器的服务器名称（例如 `"slack"`），也可以是以服务器名称为键、以完整 [MCP 服务器配置](https://code.claude.com/docs/zh-CN/mcp.md#installing-mcp-servers)为值的内联定义。对[插件子代理](#choose-the-subagent-scope)忽略 |
 | `hooks` | 否 | 限定于此子代理的[生命周期 hook](#define-hooks-for-subagents)。对[插件子代理](#choose-the-subagent-scope)忽略 |
@@ -328,7 +328,7 @@ experimental:
 
 #### Claude Code 跳过的子代理文件
 
-当项目、用户或托管 `agents` 目录中的文件，或您通过 `--add-dir` 添加的目录下的 `agents` 目录中的文件的 frontmatter 存在以下任一问题时，Claude Code 会跳过该文件，且不会在会话中报告：
+当项目、用户或托管 `agents` 目录中的文件，或您通过 `--add-dir` 添加的目录下的 `agents` 目录中的文件的 frontmatter 存在以下任一问题时，Claude Code 会跳过该文件：
 
 * **没有 `name`**：Claude Code 将该文件视为与您的 Agent 放在一起的文档。
 * **开头的 `---` 不在文件第一行**：Claude Code 认为该文件没有 frontmatter，并将其视为文档。
@@ -1212,7 +1212,7 @@ Continue that code review and now analyze the authorization logic
 
 ##### 为单个子代理设置自动压缩窗口
 
-要让某个子代理比原本更早压缩，请在其 [frontmatter](#supported-frontmatter-fields) 中将 `autoCompactWindow` 设置为 `100000` 到 `1000000` 之间的 token 数。如果您设置了 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](https://code.claude.com/docs/zh-CN/env-vars#variables)，子代理会改用该变量的窗口，此字段不起作用，除非 Claude Code [忽略了该变量的值](https://code.claude.com/docs/zh-CN/model-config.md#claude_code_auto_compact_window-values)。需要 Claude Code v2.1.296 或更高版本。
+要让某个子代理比原本更早压缩，请在其 [frontmatter](#supported-frontmatter-fields) 中将 `autoCompactWindow` 设置为 `100000` 或更大的 token 数。需要 Claude Code v2.1.296 或更高版本。
 
 以下 frontmatter 为一个读取长日志文件的子代理将 `autoCompactWindow` 设置为 200,000 token：
 
@@ -1224,12 +1224,14 @@ autoCompactWindow: 200000
 ---
 ```
 
-请将该值写为 `200000` 这样的纯整数，因为在 frontmatter 中 Claude Code 会将 `200k` 读作 200，超出了允许范围。此时子代理仍会照常加载和压缩，就像该字段不存在一样。要检查 Claude Code 是否忽略了您的值，请在 shell 中运行 `claude --debug`，并在[调试日志](#supported-frontmatter-fields)中搜索 `invalid autoCompactWindow`。
+请将该值写为 `200000` 这样的纯整数，因为在 frontmatter 中 Claude Code 会将 `200k` 读作 200，低于最小值。此时子代理仍会照常加载和压缩，就像该字段不存在一样。要检查 Claude Code 是否忽略了您的值，请在 shell 中运行 `claude --debug`，并在[调试日志](#supported-frontmatter-fields)中搜索 `invalid autoCompactWindow`。
 
-如果该值在范围内但您仍未看到任何变化，请检查以下原因：
+如果该值为 `100000` 或更大，但您仍未看到任何变化，请检查以下原因：
 
 * **该值不低于子代理原本会继承的[自动压缩窗口](https://code.claude.com/docs/zh-CN/model-config.md#context-window-and-auto-compaction)**：要更早压缩，请设置低于该窗口的值。
 * **您通过 `--agent` 或 `agent` 设置以此子代理身份运行整个会话**：此时该字段不起作用。要设置会话的窗口，请参阅[设置自动压缩窗口](https://code.claude.com/docs/zh-CN/model-config.md#set-the-auto-compact-window)。
+
+如果您还设置了 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](https://code.claude.com/docs/zh-CN/env-vars#variables)，子代理会使用 `autoCompactWindow` 值、模型的上下文窗口以及该变量所设窗口三者中的最小值。在 v2.1.312 之前，当该变量设置了窗口时，此字段不起作用。
 
 ## 分叉当前对话
 

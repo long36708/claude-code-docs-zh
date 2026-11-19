@@ -286,7 +286,7 @@ Claude Code 第一次看到项目作用域的服务器时，它会要求您批�
 
 如果服务器不连接，请在会话内使用 `/mcp` 或从 shell 使用 `claude mcp list` 检查其状态，然后匹配下面的症状。`/mcp` 面板还允许您重新连接或进行身份验证而无需离开会话。
 
-> [accordion] /mcp 显示未配置 MCP 服务器
+> [accordion] /mcp 显示 No MCP servers
 >
 > Claude Code 没有为当前目录找到任何服务器。最常见的原因：
 >

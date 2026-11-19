@@ -1301,7 +1301,7 @@ type AgentDefinition = {
 | `skills` | 否 | 要预加载到 Agent 上下文中的 skill 名称数组 |
 | `initialPrompt` | 否 | 当此 Agent 作为主线程 Agent 运行时，作为第一轮用户输入自动提交 |
 | `maxTurns` | 否 | 停止前的最大 agentic 轮次数（API 往返次数） |
-| `autoCompactWindow` | 否 | 当此 Agent 作为子代理运行时，将其[自动压缩窗口](https://code.claude.com/docs/zh-CN/sub-agents.md#subagent-auto-compact-window)降低到 `100000` 至 `1000000` 之间的 token 数。需要 TypeScript Agent SDK v0.3.296 或更高版本 |
+| `autoCompactWindow` | 否 | 当此 Agent 作为子代理运行时，将其[自动压缩窗口](https://code.claude.com/docs/zh-CN/sub-agents.md#subagent-auto-compact-window)降低到 `100000` 或更多的 token 数。需要 TypeScript Agent SDK v0.3.296 或更高版本 |
 | `background` | 否 | 被调用时将此 Agent 作为非阻塞的后台任务运行 |
 | `omitClaudeMd` | 否 | 不将用户、项目和本地 CLAUDE.md 文件纳入此 Agent 的初始上下文；托管策略文件仍会加载。适用于从 Agent 工具提示词中获取所需全部信息的 Agent。当此 Agent 作为主线程 Agent 运行时忽略。需要 TypeScript Agent SDK v0.3.271 或更高版本 |
 | `memory` | 否 | 此 Agent 的记忆来源：`'user'`、`'project'` 或 `'local'` |

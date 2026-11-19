@@ -894,7 +894,7 @@ Claude Code 无法检测网关或其后面的服务器强制的更低限制。�
 * **在脚本和云环境中**：将 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 token 数，例如 `200000`。除非 Claude Code [忽略该值](#claude_code_auto_compact_window-values)，否则该变量优先于命令、标志和 `autoCompactWindow` 设置。此时 `/autocompact` 会报告该覆盖而不保存。状态栏的 `used_percentage` 是相对于模型的完整上下文窗口计算的，因此在设置该变量时，该百分比并不表示何时会运行压缩。
 * **对于单个子代理**：请参阅[为单个子代理设置自动压缩窗口](https://code.claude.com/docs/zh-CN/sub-agents.md#subagent-auto-compact-window)。
 
-命令和标志接受 100K 到 1M token 的窗口大小，采用以下任何形式：
+命令和标志接受 100K token 或更大的窗口大小，采用以下任何形式：
 
 * 纯 token 计数，例如 `200000`
 * `k` 或 `M` 后缀，例如 `500k` 或 `1M`
@@ -904,7 +904,7 @@ Claude Code 无法检测网关或其后面的服务器强制的更低限制。�
 
 #### `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 的值和警告
 
-如果警告中引用了您的 `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 值，则表示该值超出了 100,000 到 1,000,000 的范围，或者不是 token 数。要消除该警告，请设置该范围内的数字，例如 `CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`。在 Claude Code v2.1.304 或更高版本上，您也可以用 `k` 表示千、用 `M` 表示百万来书写该数字，例如 `200k` 或 `1M`。
+如果警告中引用了您的 `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 值，则表示您的会话并未按您设置的方式使用该值。要消除该警告，请设置一个数字，例如 `CLAUDE_CODE_AUTO_COMPACT_WINDOW=200000`。在 Claude Code v2.1.304 或更高版本上，您也可以用 `k` 表示千、用 `M` 表示百万来书写该数字，例如 `200k` 或 `1M`。
 
 在第一列中找到您的警告措辞，然后横向查看会话使用的窗口以及需要更改的内容：
 

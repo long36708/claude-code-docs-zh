@@ -19,7 +19,7 @@
 
 您可以通过以下两种方式之一设置 Claude Code GitHub Action：
 
-* **快速设置**：在 Claude Code 中运行 `/install-github-app`。Claude Code 会为您安装 GitHub App、添加身份验证密钥，并准备好工作流 Pull Request
+* **快速设置**：在 Claude Code 中运行 `/install-github-app`，它会为您设置身份验证密钥和工作流文件
 * **手动设置**：自行安装应用、添加密钥，并将工作流文件复制到仓库中。如果您不在本地运行 Claude Code、该命令执行失败，或者您希望完全掌控工作流文件，请使用此方式
 
 无论采用哪种方式，您都需要拥有该仓库的管理员权限。
@@ -28,18 +28,45 @@
 
 `/install-github-app` 仅适用于 github.com 仓库。如果仓库的 git 远程地址位于 gitlab.com 或 bitbucket.org，该命令会输出提示并退出，而不会开始设置。如需在 GitLab 流水线中运行 Claude Code，请参阅 [Claude Code GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)。
 
-开始之前，请安装 [GitHub CLI](https://cli.github.com) 并使用 `gh auth login` 进行身份验证。Claude Code 会检查该工具，如果缺失会发出警告。
+在快速设置过程中，您需要在浏览器中安装 Claude GitHub App，然后创建并合并一个 Pull Request。
 
-在要连接的仓库中打开 `claude`，运行 `/install-github-app`，然后按照提示操作。Claude Code 会安装 Claude GitHub App，然后为工作流设置身份验证密钥：
+**1. 登录 GitHub CLI**
 
-* 如果 Claude Code 已有 API 密钥，则会复用该密钥；如果仓库已设置 `ANTHROPIC_API_KEY` 密钥，还会询问是否保留现有密钥
-* 否则，您可以选择使用 Claude 订阅创建长期令牌，或粘贴 API 密钥
+安装 [GitHub CLI](https://cli.github.com)。如果您尚未登录，请在 shell 中运行 `gh auth login`。
 
-Claude Code 会将凭据保存为仓库密钥：API 密钥命名为 `ANTHROPIC_API_KEY`，订阅令牌命名为 `CLAUDE_CODE_OAUTH_TOKEN`。
+**2. 从 Claude Code 开始设置**
 
-随后，Claude Code 会推送一个包含您所选工作流文件的分支，这些文件已配置为使用该密钥，并在浏览器中打开 GitHub，其中已准备好待创建的 Pull Request。创建并合并该 Pull Request 后，即可在仓库中使用 `@claude`。
+在 shell 中，于要连接的仓库内运行 `claude`。在 Claude Code 提示符下，运行 `/install-github-app`。
 
-如需在设置中途停止，请按 Esc。正在进行的步骤会完成，后续步骤不会再开始。结束消息会列出仓库中已经发生的操作，例如已推送的分支或已保存的密钥。
+如果设置过程报告缺少 GitHub CLI 权限，请运行其输出的命令，然后重新开始。
+
+**3. 安装 Claude GitHub App**
+
+当浏览器中打开 [Claude GitHub App](https://github.com/apps/claude) 页面时，安装该应用并授予其访问您仓库的权限。然后返回 Claude Code 并按 Enter。
+
+**4. 选择工作流**
+
+选择 **Set up GitHub Actions workflows**。如果只想安装应用后就停止，请拒绝工作流设置，之后再次运行 `/install-github-app` 即可。
+
+在工作流列表中，如果您不需要两者，可以取消选择 `@claude` 提及工作流或 Pull Request 审查工作流。
+
+如果仓库中已有 `claude.yml` 工作流文件，则会显示更新提示来代替工作流列表。如需保留您的文件，请选择 **Skip workflow update (configure secrets only)**，然后跳过 Pull Request 步骤。
+
+**5. 为工作流选择凭据**
+
+当系统询问时，选择使用 Claude 订阅创建长期令牌，或粘贴 API 密钥。如果 Claude Code 已有 API 密钥，则会跳过此问题并使用该密钥。
+
+默认情况下，Claude Code 会将凭据保存为仓库密钥：API 密钥命名为 `ANTHROPIC_API_KEY`，订阅令牌命名为 `CLAUDE_CODE_OAUTH_TOKEN`。
+
+**6. 确认更改**
+
+当 Claude Code 列出计划对仓库进行的更改时，选择 **Yes, make these changes**。
+
+**7. 创建并合并 Pull Request**
+
+Claude Code 会推送一个包含工作流文件的分支，这些文件已配置为使用您的密钥，并打开 GitHub，其中已准备好待您创建的 Pull Request。创建并合并该 Pull Request 即可启用工作流。如需测试提及功能，请在 issue 评论中标记 `@claude`。
+
+如需在设置中途停止，请在 Claude Code 中按 Esc。Claude Code 会完成正在写入仓库的更改，且不会开始新的更改。结束消息会列出仓库中已经发生的操作，例如已推送的分支或已保存的密钥。
 
 如果您选择了审查工作流，Claude 会将每次审查直接发布在 Pull Request 上：对发现的每个问题发布行内评论，若未发现问题则发布一条摘要评论。Claude 会跳过某些 Pull Request，例如草稿。[审查工作流示例](#run-a-skill)使用相同的 skill 并列出了这些情况。在 v2.1.229 之前，Claude 仅将审查结果写入工作流运行日志。
 
@@ -47,8 +74,6 @@ Claude Code 会将凭据保存为仓库密钥：API 密钥命名为 `ANTHROPIC_A
 
 * 再次运行 `/install-github-app`。当仓库中已有 `claude.yml` 时，选择 **Update workflow file with latest version**。Claude Code 会将最新的工作流文件推送到新分支并打开 Pull Request，与首次安装时相同。
 * 自行将 [审查工作流示例](#run-a-skill)中的 `--comment` 参数和 `claude_args` 行添加到已提交的文件中，这样可以保留您对该文件所做的其他修改。
-
-安装 GitHub App 后，Claude Code 会询问是否继续进行 GitHub Actions 设置。选择 **Skip for now** 将在仅安装 GitHub App 的状态下停止。之后可再次运行 `/install-github-app` 来完成工作流和密钥步骤。
 
 > [!NOTE]
 >

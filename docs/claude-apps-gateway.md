@@ -289,7 +289,7 @@ openssl x509 -noout -fingerprint -sha256 -in cert.pem | cut -d= -f2 | tr -d : | 
 
 开发人员按 Enter 即可连接。[首次连接的 TLS 指纹提示](#connect-developers)仍会出现。文件部署到机器上后，尚未完成网关登录的开发人员会看到[管理员策略要求进行 Cloud gateway 登录](https://code.claude.com/docs/zh-CN/errors.md#administrator-policy-requires-a-cloud-gateway-sign-in)中描述的某条消息。通过 `CLAUDE_CODE_USE_BEDROCK` 等环境变量选择云提供商的开发人员不需要进行网关登录。
 
-登录选择器中没有网关选项，而在托管设置中只设置 `forceLoginMethod` 而不设置 URL，会让开发人员停留在“Contact your IT administrator”消息处。登录相关的键应放在您推送到机器的文件中，而不是网关的 `managed.policies[].cli` 块中，后者只会到达已连接的客户端。
+终端的登录选择器中没有网关选项，而在托管设置中只设置 `forceLoginMethod` 而不设置 URL，会让开发人员停留在“Contact your IT administrator”消息处。登录相关的键应放在您推送到机器的文件中，因为网关的 `managed.policies[].cli` 块只会到达已连接的客户端。
 
 #### 在用户设置中设置网关 URL
 

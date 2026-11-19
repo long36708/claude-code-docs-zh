@@ -30,7 +30,7 @@ Claude Code [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)也�
 
 ```
 /voice
-Voice mode enabled (hold). Hold space to record. Dictation language: en (/config to change).
+Turned on voice mode (hold). Hold space to record. Dictation language: en (/config to change).
 ```
 
 `/voice` 接受一个可选的模式参数：

@@ -328,7 +328,7 @@ on('turn.complete', async ($, e, next) => {
 | 向 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友调用 `$.session.send` | 解析为 `{ isDelivered: false, reason: 'Teammate "<name>" was not messaged: <reason>.' }`，其中 `<name>` 是队友的名称 |
 | 对带有 `run_in_background: true` 的 Bash、Monitor 或 CronCreate 调用 [`$.tool.call`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods) | 解析为 `{ deny: '<tool> was not run: it starts background work, a schedule or a goal, and <reason>' }`，其中 `<tool>` 是工具的名称 |
 
-当这些 `$.session.send` 或 `$.tool.call` 调用之一在交互式会话中因中断而被拒绝时，用户可能会看到 [`Stopped:` toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
+当这些 `$.session.send` 或 `$.tool.call` 调用之一在交互式会话中因中断而被拒绝时，用户可能会看到 [`type a message to continue` toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
 
 #### 您的 mod 在中断前启动的工作
 
@@ -343,8 +343,6 @@ on('turn.complete', async ($, e, next) => {
 | 来自您的 mod 启动的监视器的事件 | 监视器继续运行，Claude Code 会丢弃监视器在运行期间触发的事件。 | 无法处理 |
 | 您的 mod 生成并随后通过 `$.session.send` 恢复、在用户下一次输入之前完成的子代理 | 其完成通知会等待，并在该输入之后到达对话 | 无需处理 |
 | 来自 `$.tool.call`、在用户停止轮次时已在运行、并在用户下一次输入之前达到超时的前台 Bash 或 PowerShell 命令 | 在超时时被停止，而不是[移至后台](https://code.claude.com/docs/zh-CN/tools-reference.md#foreground-commands-that-move-to-the-background)。调用解析时会设置 `isError`，输出中包含以下行：`Ended instead of moving to the background: plugins' input is held, by a Stop or by the host's limits.` | 在用户下一次输入之后，按照[重试被拒绝或被丢弃的调用](#retry-a-refused-or-dropped-call)所示再次运行 |
-
-当计划作业到期或监视器在用户下一次输入之前触发事件时，用户可能会看到 [`Stopped:` toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#stopped-type-a-message-to-continue)。
 
 ### 在 `claude -p` 运行和 Agent SDK 会话中被拒绝的调用
 

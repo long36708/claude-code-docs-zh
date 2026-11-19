@@ -70,9 +70,9 @@
 > 摘要的最后一句告诉您插件在此会话中是否可用：
 >
 > * **已激活**：`Plugin is now active.` 无需重新加载。
-> * **已激活，但服务器需要设置**：`Plugin is now active.` 后跟 `Its bundled MCP server needs configuration before it can start`。在您设置其选项之前，插件的[捆绑 MCP 服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)无法启动。在 `/plugin` 的 **Installed** 选项卡上选择该插件，然后选择 **Configure** 以设置服务器的选项。
+> * **已激活，但服务器需要设置**：`Plugin is now active.` 后跟一条以 `Its bundled MCP server needs` 开头的说明。在您设置其选项之前，插件的[捆绑 MCP 服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)无法启动。在 `/plugin` 的 **Installed** 选项卡上选择该插件，然后选择 **Configure**。
 > * **需要重新加载**：`Run /reload-plugins to apply.` 面板会关闭，Claude Code 会为您运行该重新加载。如果重新加载会[使提示缓存失效](https://code.claude.com/docs/zh-CN/prompt-caching.md#enabling-or-disabling-a-plugin)，它会发出警告，并改为让插件保持待处理状态。运行 `/reload-plugins --force` 可强制激活它，这会产生一次未缓存的请求。
-> * **加载失败**：`The plugin couldn't be loaded`。在 `/plugin` 中打开 **Errors** 选项卡查看原因，然后参阅[安装后：插件不工作](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-installed-but-not-working)。
+> * **加载失败**：摘要中包含 `The plugin couldn't`。在 `/plugin` 中打开 **Errors** 选项卡查看原因，然后参阅[安装后：插件不工作](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-installed-but-not-working)。
 >
 > **5. 确认插件正常工作**
 >
@@ -206,7 +206,7 @@ claude plugin install formatter@your-org --scope project
 
 在每个 URL 上包含 `https://` 前缀，或对 SSH 使用 `git@host:path` 形式。如果您输入裸 `gitlab.example.com/your-group/your-marketplace.git`，Claude Code 将其读取为 GitHub `owner/repo` 简写并拒绝它。
 
-命令成功时，它打印 `Successfully added marketplace: <name>`，市场的插件在下次打开 `/plugin` 时出现在 **Discover** 选项卡上，无需重新加载。如果失败，请在 [Troubleshoot plugins](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#add-a-marketplace) 中匹配错误消息。
+要确认添加成功，请在 Claude Code 会话中运行 `/plugin`，并在 **Marketplaces** 选项卡上查找该市场。如果添加失败，请在[插件故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#add-a-marketplace)中查找对应的错误消息。
 
 ### Add a marketplace and install in one command
 
@@ -310,7 +310,7 @@ Claude Code 在以 `claudeai-` 开头的本地名称下注册市场，该名称�
 
 ### Find plugins you no longer use
 
-在 `/plugin` 中的 **Installed** 选项卡上，您自己安装且最近未使用的插件出现在 **Not used recently** 标题下，每个插件的详细信息显示 **Last used** 行。使用该标题和该行查找仍添加启动和上下文成本的插件，然后禁用或卸载它们。
+在 `/plugin` 中的 **Installed** 选项卡上，您自己安装且最近未使用的插件出现在 **Not used recently** 标题下。使用该标题查找仍会增加启动和上下文成本的插件，然后禁用或卸载它们。
 
 ### Plugins with dependencies
 
@@ -353,7 +353,7 @@ claude plugin uninstall formatter@your-org --scope project
 
 ### Turn auto-update on or off for a marketplace
 
-在 Claude Code 会话中，运行 `/plugin` 并转到 **Marketplaces** 选项卡。选择市场，然后选择 **Enable auto-update** 或 **Disable auto-update**。
+在 Claude Code 会话中，运行 `/plugin` 并转到 **Marketplaces** 选项卡。选择市场以打开其菜单，然后打开或关闭自动更新。
 
 ### Update plugins now
 

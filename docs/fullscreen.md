@@ -20,7 +20,7 @@
 
 ## 启用全屏渲染
 
-在任何 Claude Code 对话中运行 `/tui fullscreen`。CLI 会保存 [`tui` 设置](https://code.claude.com/docs/zh-CN/settings-reference#tui)并以您的对话完整地重新启动到全屏模式，因此您可以在会话中途切换而不会丢失上下文。运行 `/tui default` 来切换回经典渲染器，或运行不带参数的 `/tui` 来打印当前活动的渲染器。
+在任何 Claude Code 对话中运行 `/tui fullscreen`。CLI 会保存 [`tui` 设置](https://code.claude.com/docs/zh-CN/settings-reference#tui)并重新启动到全屏模式。运行 `/tui default` 来切换回经典渲染器，或运行不带参数的 `/tui` 来打印当前活动的渲染器。
 
 在[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)中，Claude Code 始终使用经典渲染器，除了附加的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)仍然以全屏渲染。如果您在任何其他会话中运行 `/tui fullscreen`，Claude Code 会打印说明而不是切换，并且不会更改保存的 `tui` 设置。
 

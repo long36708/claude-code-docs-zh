@@ -27,7 +27,7 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 * **Claude for Teams 或 Enterprise**：使用团队管理员邀请您加入的 claude.ai 账户登录。
 * **Claude Console**：使用您的 Console 凭据登录。您的管理员必须先[邀请您](#claude-console-authentication)。您可以在[创建 API 密钥](#sign-in-without-an-api-key)或不创建 API 密钥的情况下登录。
 * **云提供商**：如果您的组织使用 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)，请在运行 `claude` 之前设置所需的环境变量，或在登录提示处选择 **3rd-party platform**，这会启动 Bedrock 和 Vertex AI 的交互式设置向导。无需浏览器登录。
-* **Cloud gateway**：如果您的组织运行自托管的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，请通过 `/login` 使用企业 SSO 登录。网关颁发的令牌是该会话的唯一凭据。
+* **Cloud gateway**：如果您的组织运行自托管的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，请通过 `/login` 或[从 VS Code](https://code.claude.com/docs/zh-CN/vs-code.md#sign-in-to-a-claude-apps-gateway) 使用企业 SSO 登录。网关颁发的令牌是该会话的唯一凭据。
 
 管理员可以指定开发人员使用的登录方式，并要求 claude.ai 登录必须属于特定组织；请参阅[将登录限制为您的组织](#restrict-login-to-your-organization)。
 

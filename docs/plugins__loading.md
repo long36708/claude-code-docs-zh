@@ -189,11 +189,11 @@ Claude Code 在这些终端会话中既不下载也不加载同步插件，即�
 
 ### 在项目设置中启用但未安装
 
-默认情况下，仅在项目的 `.claude/settings.json` 中启用的插件在您将其安装到您的机器上之前，不会在会话启动时加载。当市场位于您的机器上时，`/plugin` **Errors** 选项卡会显示 [`Plugin "<name>" is enabled in project settings but isn't installed here`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-is-enabled-in-project-settings-but-isnt-installed-here) 或 [`Plugin "<name>" not cached at <path>`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-not-cached-at)。
+默认情况下，仅在项目的 `.claude/settings.json` 中启用的插件在您将其安装到您的机器上之前，不会在会话启动时加载。如果会话启动时市场已位于您的机器上，`/plugin` **Errors** 选项卡会显示一行以 [`isn't installed here`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-is-enabled-in-project-settings-but-isnt-installed-here) 结尾的内容。
 
 > [!NOTE]
 >
-> 如果该选项卡未显示上述任一消息，请在安装之前[添加市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace)。您可以在 `.claude/settings.json` 的 `extraKnownMarketplaces` 设置中找到其源，或询问您的维护者。
+> 如果市场尚未位于您的机器上，请在安装之前[添加市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace)。您可以在 `.claude/settings.json` 的 `extraKnownMarketplaces` 设置中找到其源，或询问您的维护者。
 
 要进行安装，请在项目中的 shell 里运行以下命令，并使用该插件在 `enabledPlugins` 中的键：
 
@@ -229,7 +229,7 @@ Claude Code 在一个插件根目录下保存插件文件和状态记录，该�
 | `synced/` | Claude Code [从您的 claude.ai 账户同步的](#synced-plugins)插件 |
 | `.trash/` | claude.ai 同步删除的插件，例如在您在 claude.ai 上关闭一个或停止同步后 |
 | `installed_plugins.json` 和 `known_marketplaces.json` | Claude Code 已安装的内容和已获取的市场的记录，在[检查插件达到的阶段](#check-which-stage-a-plugin-reached)下描述。[托管在 claude.ai 上的市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-from-claude-ai)改为记录在 `known_marketplaces_claudeai.json` 中 |
-| `flagged-plugins.json` | Claude Code 卸载的插件，因为其市场将其除名。它们出现在 `/plugin` 的 **Flagged** 部分；请参阅[托管市场](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md) |
+| `flagged-plugins.json` | 因其市场将其除名而被 Claude Code 标记为已移除的插件；请参阅[托管市场](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md) |
 | `installed_plugins.set-aside.<date>.<hash>.json` 和 `installed_plugins.unreadable.<date>.<hash>.kept` | Claude Code 在删除任何版本的 Claude Code 都无法使用的安装记录或重建不可读的 `installed_plugins.json` 之前保留的日期副本。请参阅[恢复说明](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#installed-plugins-json-could-not-be-read-and-was-rebuilt)。它们按照 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays) 计划老化 |
 
 因为 `${CLAUDE_PLUGIN_ROOT}` 指向版本目录，插件的根路径随每个版本更改。改为在 `${CLAUDE_PLUGIN_DATA}` 中保留插件的持久文件。
@@ -389,10 +389,10 @@ Claude Code 在以下情况下跳过 `name@marketplace` 安装之前的刷新：
 市场是否自动更新遵循首先设置的以下内容：
 
 1. **其 `extraKnownMarketplaces` 条目中的 `autoUpdate`** 在设置文件中
-2. **其 `known_marketplaces.json` 条目中的 `autoUpdate`**，`/plugin` **Marketplaces** 下的 **Enable auto-update** 切换写入。当设置文件也在 `extraKnownMarketplaces` 下声明市场时，切换也将 `autoUpdate` 写入该设置条目
+2. **其 `known_marketplaces.json` 条目中的 `autoUpdate`**，由 `/plugin` **Marketplaces** 下的自动更新开关写入。当您的用户、项目或本地设置也在 `extraKnownMarketplaces` 下声明该市场时，该开关也会将 `autoUpdate` 写入那里
 3. **默认值**：对于 Anthropic 的官方市场（如 `claude-plugins-official`）打开，对于 `knowledge-work-plugins` 和 `first-party-plugins` 关闭，对于[从 claude.ai 添加的市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-from-claude-ai)打开，对于每个其他市场关闭
 
-如果您设置 `DISABLE_UPDATES=1`、`DISABLE_AUTOUPDATER=1` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`，整个传递关闭，**Enable auto-update** 切换被隐藏，除非您也设置 `FORCE_AUTOUPDATE_PLUGINS=1`。[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md)涵盖每个变量的更广泛影响。
+如果您设置 `DISABLE_UPDATES=1`、`DISABLE_AUTOUPDATER=1` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`，整个自动更新流程都会关闭，自动更新开关也会被隐藏，除非您也设置 `FORCE_AUTOUPDATE_PLUGINS=1`。[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md)涵盖每个变量的更广泛影响。
 
 自动更新也跳过其市场条目声明 `headersHelper` 的插件。[拒绝命令而不是询问的安装和更新](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md#installs-and-updates-that-refuse-the-command-instead-of-asking)解释何时这样的插件出现在 `/plugin` **Errors** 选项卡中以及如何从那里更新它。
 

@@ -412,7 +412,7 @@ claude mcp login "claude.ai Slack" --no-browser
 /mcp reconnect claude.ai Slack
 ```
 
-在终端中，Claude Code 会输出 `Successfully reconnected to claude.ai Slack`。在移动应用或网页端，回复为 `Reconnected "claude.ai Slack".`
+在终端中，Claude Code 会提示已重新连接到 `claude.ai Slack`。在移动应用或网页端，回复为 `Reconnected "claude.ai Slack".`
 
 ## 故障排除
 

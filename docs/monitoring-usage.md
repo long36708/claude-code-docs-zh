@@ -128,6 +128,7 @@ Claude Code 不会删除您在托管设置中自己设置的每信号变量，�
 | `OTEL_LOG_MANAGED_SETTINGS` | 将脱敏后的托管设置和脱敏前设置的 SHA-256 摘要添加到[托管设置解析](#managed-settings-resolved-event)事件（默认值：禁用）。项目或本地设置中的值不会将其打开。需要 Claude Code v2.1.274 或更高版本 | `1` 启用 |
 | `OTEL_LOG_RAW_API_BODIES` | 将完整的 Anthropic Messages API 请求和响应 JSON 作为 `api_request_body` / `api_response_body` 日志事件发出（默认值：禁用）。正文包括整个对话历史记录。启用此选项意味着同意 `OTEL_LOG_USER_PROMPTS`、`OTEL_LOG_TOOL_DETAILS` 和 `OTEL_LOG_TOOL_CONTENT` 会揭示的所有内容 | `1` 表示在内容限制处截断的内联正文（默认值 60 KB），或 `file:<dir>` 表示磁盘上的未截断正文，事件中有 `body_ref` 指针 |
 | `CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH` | 内容限制：内容承载属性（如模型响应、工具内容、系统提示词和原始 API 正文）的最大长度，包括截断标记，以 UTF-16 代码单位为单位（默认值：61440，即 60 KB）。默认值针对将属性值上限设为 64 KB 的后端进行了调整；仅当您的后端接受更大的值时才提高它，或降低它以减少遥测量。当设置了 OpenTelemetry SDK 属性限制 `OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT` 或其日志记录和跨度变体之一且其值更低时，Claude Code 在该较小的值处截断，以便 `[TRUNCATED ...]` 标记保持在 SDK 限制内 | `262144` |
+| `OTEL_RESOURCE_INCLUDE_HOST` | 将机器的名称和 ID 添加到指标、事件和跟踪的资源属性中（默认值：禁用）。请参阅[识别会话运行所在的机器](#identify-the-machine-a-session-ran-on)。需要 Claude Code v2.1.326 或更高版本 | `1` 启用 |
 | `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` | 指标时间性偏好（默认值：`delta`）。如果您的后端期望累积时间性，请设置为 `cumulative` | `delta`、`cumulative` |
 | `CLAUDE_CODE_OTEL_HEADERS_HELPER_DEBOUNCE_MS` | 刷新动态标头的间隔（默认值：1740000ms / 29 分钟） | `900000` |
 
@@ -158,6 +159,41 @@ Claude Code 不会删除您在托管设置中自己设置的每信号变量，�
 | `OTEL_METRICS_INCLUDE_REPOSITORY` | 在指标和事件上包含 `vcs.*` [存储库身份属性](#repository-attributes)。需要 Claude Code v2.1.269 或更高版本 | `false` | `true` |
 
 较低的基数通常意味着更好的性能和更低的存储成本，但分析的数据粒度较低。
+
+### 识别会话运行所在的机器
+
+要查看每个会话在哪台机器上运行，请在 Claude Code v2.1.326 或更高版本上设置 `OTEL_RESOURCE_INCLUDE_HOST=1`。请在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)或用户设置的 `env` 下设置它，或者在您启动 `claude` 的 shell 中设置，而不要在[项目或本地设置](https://code.claude.com/docs/zh-CN/settings-reference.md#variables-claude-code-ignores-in-env)中设置。
+
+以下示例在设置文件中设置它：
+
+```json theme={null}
+{
+  "env": {
+    "OTEL_RESOURCE_INCLUDE_HOST": "1"
+  }
+}
+```
+
+随后，属性 `host.name` 和 `host.id` 会出现在指标、事件和跟踪的资源块中，而不会出现在指标数据点上：
+
+* `host.name`：机器的主机名
+* `host.id`：操作系统的机器 ID，未经哈希处理。在 Linux 上为 `/etc/machine-id` 的内容，在 macOS 上为 `IOPlatformUUID`，在 Windows 上为 `MachineGuid` 注册表值。当 Claude Code 无法读取机器 ID 时会省略该属性，例如在镜像没有机器 ID 的容器中。
+
+这两个属性指明的都是 Claude Code 运行所在的机器。在 Desktop SSH 会话中，这是远程机器，因此请在远程机器上设置该变量：请参阅[将遥测归因到 Desktop SSH 会话](#attribute-telemetry-to-desktop-ssh-sessions)。在容器中，`host.name` 是容器自身的主机名，因此要指明运行该容器的机器，请在 [`OTEL_RESOURCE_ATTRIBUTES`](#multi-team-organization-support) 中自行声明名称。
+
+#### 排查缺失的主机属性
+
+如果缺少 `host.name` 和 `host.id`，请检查您在何处、何时设置了 `OTEL_RESOURCE_INCLUDE_HOST`，以及会话是由什么启动的。然后检查您的导出器和端点变量，以及您的后端如何显示资源属性：
+
+* **会话的 Claude Code 版本低于 v2.1.326**：请更新它
+* **您仅在项目或本地设置中设置了该变量**：请在托管设置、用户设置或您的 shell 中设置它。运行 `/status` 查看 Claude Code 忽略了哪些变量。
+* **该变量在托管设置或用户设置文件中为 `0`**：如果您[在 shell 中或在优先级较低的文件中](https://code.claude.com/docs/zh-CN/settings-reference.md#how-env-values-interact-with-your-shell)设置了 `1`，`0` 仍然生效。请修改 `0`；如果它位于托管设置中，请询问您的管理员。
+* **您在会话启动后才设置该变量**：请启动新会话，因为 Claude Code 仅在启动时读取一次该变量
+* **会话由桌面应用启动**：本地会话会从您的 shell 配置文件中获取部分变量，但不包括此变量，因此请在托管设置或用户设置中设置它。对于 Desktop SSH 会话，请在远程机器上设置：请参阅[将遥测归因到 Desktop SSH 会话](#attribute-telemetry-to-desktop-ssh-sessions)。
+* **会话是 Anthropic 托管环境中的云端会话**：这些属性不会在那里添加。要区分云端会话，请参阅[将遥测归因到云端会话](#attribute-telemetry-to-cloud-sessions)。
+* **任何导出器变量中列出了 `console`**：从 `OTEL_METRICS_EXPORTER`、`OTEL_LOGS_EXPORTER` 和 `OTEL_TRACES_EXPORTER` 中删除 `console`，属性就会到达您的其他导出器
+* **按信号的端点变量（例如 `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`）不是 URL**：将裸地址 `10.0.0.1:4317` 写成 URL，例如 `http://10.0.0.1:4317`
+* **您的指标后端不显示资源属性**：使用 `prometheus` 导出器时，请查找 `target_info` 指标的 `host_name` 和 `host_id` 标签。否则，请查看事件和跟踪的资源块，或者在 [`OTEL_RESOURCE_ATTRIBUTES`](#multi-team-organization-support) 中自行声明名称，该名称默认也会出现在指标数据点上。
 
 ### Traces（测试版）
 
@@ -450,7 +486,11 @@ Claude Code 将这些值作为属性附加到每个指标数据点和事件记�
 
 ### 将遥测归因到 Desktop SSH 会话
 
-要查看 [Desktop SSH 会话](https://code.claude.com/docs/zh-CN/desktop.md#ssh-sessions)在哪台远程机器上运行，请在自定义属性中为每台机器命名。指标和事件不会指明会话运行所在的机器。
+要查看 [Desktop SSH 会话](https://code.claude.com/docs/zh-CN/desktop.md#ssh-sessions)在哪台远程机器上运行，请设置 [`OTEL_RESOURCE_INCLUDE_HOST=1`](#identify-the-machine-a-session-ran-on)，或者[在自定义属性中为每台机器命名](#name-each-remote-machine-in-a-custom-attribute)。如果您需要名称出现在指标数据点上，请选择自定义属性：使用 `OTEL_RESOURCE_INCLUDE_HOST=1` 时，`host.name` 仅出现在资源块中。
+
+请在远程机器上、在[会话读取的托管设置文件](https://code.claude.com/docs/zh-CN/desktop.md#managed-settings)中启用遥测的 `env` 块里设置 `OTEL_RESOURCE_INCLUDE_HOST`。[会话运行的 Claude Code 副本](https://code.claude.com/docs/zh-CN/desktop.md#files-and-processes-on-the-remote-machine)必须是 v2.1.326 或更高版本。如果 `host.name` 和 `host.id` 没有到达，请参阅[排查缺失的主机属性](#troubleshoot-missing-host-attributes)。
+
+#### 在自定义属性中为每台远程机器命名
 
 在每台远程机器上，将 [`OTEL_RESOURCE_ATTRIBUTES`](#multi-team-organization-support) 添加到[会话读取的托管设置文件](https://code.claude.com/docs/zh-CN/desktop.md#managed-settings)中启用遥测的 `env` 块。在每台机器的文件中写出名称。Claude Code 不会展开该值，因此 `host.name=$(hostname)` 会按这些字符原样到达。
 
@@ -469,9 +509,9 @@ Claude Code 将这些值作为属性附加到每个指标数据点和事件记�
 }
 ```
 
-当没有其他来源设置该变量时，`host.name` 会出现在资源块中，适用于 Desktop SSH 会话以及该机器上的 CLI。有关自定义属性还会出现在哪些位置，请参阅[多团队组织支持](#multi-team-organization-support)。
+`host.name` 会出现在资源块中，并且默认也会出现在指标数据点和事件上。Desktop SSH 会话和该机器上的 CLI 都会发送它。要使其不出现在数据点上，请参阅[多团队组织支持](#multi-team-organization-support)。
 
-如果名称没有到达，请检查是否存在以下原因之一：
+如果您在 `OTEL_RESOURCE_ATTRIBUTES` 中设置的名称没有到达，请检查是否存在以下原因之一：
 
 * **您在运行 Desktop 的计算机上设置了它**：Desktop 不会将您在那里设置的值传递给 SSH 会话
 * **您在 `/etc/profile` 或其他只有登录 shell 才会读取的文件中导出了它**：从登录 shell 运行 `claude` 时名称会到达，但在 Desktop SSH 会话中不会。Desktop 不通过登录 shell 启动 Claude Code。请改为在远程机器上的[托管设置文件](https://code.claude.com/docs/zh-CN/desktop.md#managed-settings)中的 `env` 下设置该变量。
@@ -1541,7 +1581,7 @@ Claude Code 已停止发送 `claude_code.safety_event`：
 * `managed_settings.helper.applied`：辅助程序自身的输出用作托管设置时为 `"output"`，否则为 `"none"`
 * `managed_settings.helper.entry`：Claude Code 选择了 [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper) 时为 `"policyHelper"`。未选择辅助程序时不存在
 * `managed_settings.helper.path`：辅助程序配置的 [`path`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper-path)。只要 Claude Code 选择了辅助程序即存在，无论是否设置了 `OTEL_LOG_MANAGED_SETTINGS`
-* `managed_settings.resolved_sha256`（当 `OTEL_LOG_MANAGED_SETTINGS=1` 时）：脱敏前已解析托管设置的 SHA-256，序列化为键按递归排序且不含空白的 JSON。摘要相同的机器运行相同的策略。Claude Code 仅在选择启用时发送摘要，因为较短的策略可以通过对猜测值进行哈希来还原。没有解析出托管设置时不存在，在 `refused` 事件中也不存在
+* `managed_settings.resolved_sha256`（当 `OTEL_LOG_MANAGED_SETTINGS=1` 时）：脱敏前解析出的托管设置的 SHA-256，以键递归排序且无空白的 JSON 形式序列化。摘要相同的机器解析出了相同的托管设置。该事件仅在选择启用时才携带摘要，因为较短的策略可以通过对猜测值进行哈希来还原。当没有解析出托管设置时以及在 `refused` 事件中不存在
 * `managed_settings.settings`（当 `OTEL_LOG_MANAGED_SETTINGS=1` 时）：以 JSON 字符串形式表示的已解析托管设置的名称和结构，其中的值已脱敏。在 `refused` 事件中不存在。Claude Code 根据其设置 schema 构建该值：
 
   * schema 声明的设置名称会被导出，schema 未声明的键会被省略
@@ -1794,6 +1834,7 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
 * `os.type`：操作系统类型（例如，`linux`、`darwin`、`windows`）
 * `os.version`：操作系统版本字符串
 * `host.arch`：主机架构（例如，`amd64`、`arm64`）
+* `host.name`、`host.id`：机器的名称和 ID，默认关闭。请参阅[识别会话运行所在的机器](#identify-the-machine-a-session-ran-on)。
 * `wsl.version`：WSL 版本号（仅在 Windows Subsystem for Linux 上运行时出现）
 * 仪表名称：`com.anthropic.claude_code`
 
@@ -1839,6 +1880,7 @@ Claude Code 仅发出原始事件流。异常检测、基线化、跨会话关�
   * 使用 `=file:<dir>` 时，Claude Code 将未截断的主体写入该目录下的 `.request.json` 和 `.response.json` 文件，事件携带 `body_ref` 路径而不是内联主体。使用日志收集器或 sidecar 传输目录，而不是通过遥测流
 
     对于每个成功的响应，Claude Code 还会在该目录中的 `index.jsonl` 中追加一行，将响应文件链接到生成它的请求文件以及它成为的记录消息。每行不包含任何消息内容，[API 响应主体事件](#api-response-body-event)部分列出了其字段。索引文件需要 Claude Code v2.1.274 或更高版本
+* 默认情况下不包含机器的名称和 ID。要将它们作为 `host.name` 和 `host.id` 包含在内，请设置 [`OTEL_RESOURCE_INCLUDE_HOST=1`](#identify-the-machine-a-session-ran-on)。主机名通常包含人名，而 `host.id` 是该机器的持久标识符。如果您在托管设置中设置此变量，请告知使用这些机器的人员，因为 Claude Code 不会向他们显示任何通知。
 
 ## 在 Amazon Bedrock 上监控 Claude Code
 

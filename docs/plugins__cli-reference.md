@@ -857,7 +857,7 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当您
 | :- | :- | :- |
 | `/plugin` | | 在 **Discover** 选项卡上打开面板。`/plugin` 后的任何无法识别的第一个单词也这样做 |
 | `/plugin help` | `/plugin --help`、`/plugin -h` | 显示 `/plugin` 子命令的使用列表 |
-| `/plugin list [--enabled\|--disabled]` | `ls` | 内联打印您从市场安装的插件，带有版本、作用域和状态。过滤标志仅显示该状态。启用状态尚未应用的插件标记为 `— run /reload-plugins to apply` |
+| `/plugin list [--enabled\|--disabled]` | `ls` | 内联打印您从市场安装的插件，带有版本、作用域和状态。过滤标志仅显示该状态。启用状态尚未应用的插件标记为 `run /reload-plugins to apply` |
 | `/plugin install` | `i` | 打开 **Discover** 选项卡 |
 | `/plugin install <plugin>` | `i` | 在 **Discover** 选项卡中打开 plugin 的详细信息。使用 `name@marketplace`，在该市场的列表中打开它们 |
 | `/plugin install <source>` | `i` | 当目标是路径、URL 或 `owner/repo` 时报告 [marketplace not found](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#marketplace-not-found) 错误并不安装任何内容，即使是您已经添加的源。要从源安装，请参阅 [在一个命令中添加市场和安装](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace-and-install-in-one-command) |
@@ -876,7 +876,7 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当您
 | `/plugin marketplace update [name]` | `market update` | 打开 **Marketplaces** 选项卡。使用名称，在那里刷新该市场 |
 | `/plugin marketplace remove [name]` | `market remove`、`market rm`、`marketplace rm` | 打开 **Marketplaces** 选项卡。使用名称，在那里删除该市场 |
 
-如果您在 `/plugin enable`、`disable`、`uninstall` 或 `configure` 中命名当前项目中未安装的 plugin，Claude Code 打印 `Plugin "<plugin>" is not installed in this project` 而不是操作。
+如果您在 `/plugin enable`、`disable`、`uninstall` 或 `configure` 中指定的插件不在 **Installed** 选项卡上，Claude Code 会打印一条以 `installed in this project` 结尾的消息。
 
 ## /reload-plugins
 
