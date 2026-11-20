@@ -504,6 +504,18 @@ Marketplace team-tools is added but ignored. Its location is on a network drive,
 
 在 v2.1.286 之前，无论原因是什么，`claude plugin list` 都将此类市场报告为 `Marketplace <name> not found`，而 `/plugin` **Errors** 选项卡将其报告为 `Marketplace "<name>" is registered but was refused (see the debug log)`。原因仅出现在调试日志中。在 v2.1.286 中，原因和修复句子使用了不同的措辞，例如 `Its recorded location is network-shaped or unclassifiable (never probed)`。
 
+### `Marketplace "<name>", which managed settings declare, stands from another source and cannot be taken back while its declared source is unreachable`
+
+Claude Code 尚未用您的组织声明的市场替换您的市场，因为它无法访问声明的源。
+
+要让 Claude Code 替换您的市场，请恢复您对声明的源的访问，然后启动新的交互式会话。如果您不知道声明的源是什么，请询问您的管理员。
+
+### `The list of installed plugins (installed_plugins.json) could not be read, so marketplace "<name>", which managed settings declare, cannot be taken back from another source`
+
+在 Claude Code 用您的组织声明的市场替换您的市场之前，它会读取 [`installed_plugins.json`](https://code.claude.com/docs/zh-CN/plugins/loading#find-plugins-on-disk)，而该读取失败了。
+
+在您的 shell 中运行 `claude plugin list`。如果它报告[此版本的 Claude Code 无法读取的记录](#installed-plugins-json-holds-a-record-this-version-cannot-read)，请按照该条目的步骤操作。否则，请使 `~/.claude/plugins/installed_plugins.json` 重新变为可读，例如修复其 JSON 或从您自己的备份中恢复它。完成任一修复后，启动新的交互式会话，以便 Claude Code 可以替换您的市场。
+
 ### `Plugin <name> has a corrupt manifest file` 或 `has an invalid manifest file`
 
 Claude Code 获取了插件，然后无法读取其 `.claude-plugin/plugin.json`。在 shell 中，此行中的 `<name>` 可以是临时目录名称；`Failed to install plugin "<name>@<marketplace>"` 前缀携带插件的真实名称。措辞说明哪个检查失败：

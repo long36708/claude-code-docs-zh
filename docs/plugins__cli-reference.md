@@ -27,7 +27,7 @@
 所有子命令共用以下退出码、插件参数和作用域值：
 
 * **退出码**：成功时为 `0`，失败时为 `1`。`validate` 额外使用退出码 `2` 表示意外错误，`eval` 额外使用[其章节](#plugin-eval)中列出的退出码。
-* **插件参数**：`<plugin>` 参数是插件的 `name` 或 `name@marketplace`。当两个市场提供同名插件时，请使用限定形式。`configure` 只接受限定形式。
+* **插件参数**：`<plugin>` 参数是插件的 `name` 或 `name@marketplace`。当两个市场提供同名插件时，请使用限定形式。`configure` 和 `restore-set-aside` 只接受限定形式。
 * **作用域**：`--scope` 接受 `user`、`project` 或 `local`，用于指定命令写入的设置文件。`update` 还接受 `managed`。
 
 在终端中，成功行会省略 `Successfully`，例如 `Installed plugin:`。当 stdout 或 stderr 不是终端时，会保留 `Successfully`。
@@ -419,6 +419,22 @@ Claude Code 会根据选项声明的类型验证每个值，并打印 `Configura
 
 有关捆绑 MCP 服务器的设置，请参阅 [`plugin install --config`](#plugin-install) 或 `/plugin` 中的 **Configure** 项。
 
+### plugin restore-set-aside
+
+恢复或删除当您的组织将某个插件市场替换为同名市场时 Claude Code 搁置的[选项和密钥](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#user-configuration)。需要 Claude Code v2.1.321 或更高版本。
+
+恢复它们后，以该 `name@marketplace` id 安装的任何插件都可以读取它们，包括来自替换市场的插件。否则，可以让它们保持搁置状态，或传入 `--discard` 删除它们。如果该 id 已为某个选项保存了值，恢复时可能会保留该值并丢弃搁置的值。
+
+```bash theme={null}
+claude plugin restore-set-aside <plugin>@<marketplace> [options]
+```
+
+| 标志 | 描述 |
+| :- | :- |
+| `--discard` | 删除搁置的选项和密钥，而不是恢复它们 |
+
+请传入插件完整的 `name@marketplace` id，可从 `claude plugin list` 在不带 `--json` 时打印的备注中复制。如果 `restore-set-aside` 打印 `No options or secrets are set aside for <plugin>.`，请检查您是否传入了完整 id，因为裸 `name` 不会匹配任何内容。
+
 ### plugin prune
 
 移除不再被任何已安装插件需要的自动安装的[依赖](https://code.claude.com/docs/zh-CN/plugins/dependencies.md)。该命令绝不会移除您自己安装的插件。`autoremove` 是 `prune` 的别名。
@@ -633,7 +649,7 @@ Claude Code 不会跟随您指定的目录内的符号链接。其行为取决�
 
 * **插件根目录下的 `SKILL.md`**：当您针对插件目录运行 `claude plugin validate` 时，Claude Code 不会检查插件根目录下的 `SKILL.md`
 * **插件根目录下的 `CLAUDE.md`**：在插件运行中，Claude Code 还会对插件根目录下的 `CLAUDE.md` 发出警告
-* **市场运行中的插件文件**：从市场目录运行时，Claude Code 不会打开市场所列出的、位于其他目录中的插件的 skill、Agent、命令或 hook 文件，也不会打开它们捆绑的 MCP 服务器文件。如需查找这些文件中的错误，请验证每个插件目录
+* **市场运行中的插件文件**：从市场目录运行时，Claude Code 不会打开市场所列出的、位于其他目录中的插件的 skill、Agent 或命令文件，也不会打开它们捆绑的 MCP 服务器文件。如需查找这些文件中的错误，请验证每个插件目录
 
 #### 验证清单文件
 
@@ -852,7 +868,7 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当您
 
 `<plugin>` 是 plugin `name` 或 `name@marketplace`。
 
-下表列出了各命令的会话形式。shell 子命令 `init`、`update`、`details`、`prune`、`eval`、`eval init` 和 `test` 没有会话形式。
+下表列出了各命令的会话形式。shell 子命令 `init`、`update`、`details`、`restore-set-aside`、`prune`、`eval`、`eval init` 和 `test` 没有会话形式。
 
 | 命令 | 别名 | 它做什么 |
 | :- | :- | :- |

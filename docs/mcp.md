@@ -324,7 +324,7 @@ Claude Code 会对以下配置问题发出警告。每个条目都说明了 Clau
 
 启用工具搜索后，当某个服务器在 Claude 工作期间完成连接时，Claude Code 会在同一轮次中 Claude 的下一次请求里向 Claude 列出该服务器的工具名称。Claude 随后无需等待您的下一条消息，即可搜索并调用这些工具。
 
-恢复会话后，Claude 可能会在某个工具的 MCP 服务器仍在连接时调用已保存对话中的该工具。当服务器处于首次连接尝试期间，Claude Code 会将该调用保持最多 10 秒，并在工具可用后运行它。如果服务器未能及时连接，或者它已经在[失败尝试后重试](#automatic-reconnection)，该调用会以 `No such tool available` [工具错误](https://code.claude.com/docs/zh-CN/errors.md#no-such-tool-available)失败。
+恢复会话后，Claude 可以在某工具的 MCP 服务器仍在连接时调用已保存对话中的该工具。当服务器处于首次连接尝试期间时，Claude Code 会将调用最多保留 10 秒，并在工具可用后立即运行。如果服务器未能及时连接，该调用会以 `No such tool available` [工具错误](https://code.claude.com/docs/zh-CN/errors.md#no-such-tool-available)失败。
 
 ### 禁用服务器而不移除它
 
@@ -395,8 +395,8 @@ Claude Code 首先会以指数退避方式尝试重新连接断开的远程服�
 * **在 [`claude -p`](https://code.claude.com/docs/zh-CN/headless) 运行和 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话中**：Claude Code 会进行同样的五次尝试，但没有 `/mcp` 面板来显示它们。如果五次全部失败，运行会在没有该服务器工具的情况下继续：
   * **发生暂时性错误（例如 5xx 响应或超时）后**：Claude Code 会在后台持续重试 HTTP 或 SSE 服务器。重试最长持续约半小时，对于某些服务器则约一天，当某次重试连接成功时，该服务器的工具会再次变得可用。
 
-    在此之前，Agent SDK 会话会报告[状态](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling) `failed`，您的代码可以[重新连接该服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。要在 `claude -p` 中重新连接它，请重新开始运行。
-  * **当服务器[需要您重新登录](#authenticate-with-remote-mcp-servers)时**：Claude Code 会停止重试，Agent SDK 会话会将服务器状态报告为 `needs-auth`。在 shell 中使用 [`claude mcp login <name>`](#authenticate-from-the-command-line) 登录。然后重新开始运行，或者在 Agent SDK 会话中改为[重新连接该服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。
+    在此之前，Agent SDK 会话会报告[状态](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling) `failed`，您的代码可以[重新连接该服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。若要在 `claude -p` 中重新连接它，请重新开始运行。
+  * **当服务器[需要您重新登录](#authenticate-with-remote-mcp-servers)时**：Agent SDK 会话会将该服务器的状态报告为 `needs-auth`。如果 `claude mcp list` 显示了该服务器，请在 shell 中使用 [`claude mcp login <name>`](#authenticate-from-the-command-line) 登录。然后重新开始运行，或从您的 Agent SDK 代码中[重新连接该服务器](https://code.claude.com/docs/zh-CN/agent-sdk/mcp.md#error-handling)。
 
 #### 首次连接失败
 

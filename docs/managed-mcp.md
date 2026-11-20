@@ -123,9 +123,9 @@ Claude Code 支持一系列限制级别。每个模式使用以下一个或多�
 
 要确认文件生效，请在托管机器上运行两项检查：
 
-1. `claude mcp list` 仅显示 `managed-mcp.json` 中的服务器，加上你通过 `managedMcpServers` 提供的任何服务器。另外两个结果意味着出现了问题：
+1. `claude mcp list` 仅显示 `managed-mcp.json` 中的服务器，加上您通过 `managedMcpServers` 提供的任何服务器。另外两个结果意味着出现了问题：
    * 如果用户自己的服务器仍然出现，Claude Code 没有读取该文件，因此请检查其路径和父目录的权限。
-   * 如果文件的服务器没有出现，且 `MCP config diagnostics` 部分将企业配置标记为解析失败，Claude Code 无法读取或解析该文件。修复该部分命名的错误，然后让用户重新启动 Claude Code。
+   * 如果文件的服务器没有出现，且 `MCP config diagnostics` 部分列出了企业配置的错误，请修复这些错误，然后让用户重新启动 Claude Code。
 2. `claude mcp add --transport http test https://example.com/mcp` 失败，显示 `Cannot add MCP server: enterprise MCP configuration is active and has exclusive control over MCP servers`。URL 不需要是真实服务器，因为策略检查在联系任何内容之前拒绝该命令。
 
 ### 完全禁用 MCP

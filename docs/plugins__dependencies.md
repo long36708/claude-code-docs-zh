@@ -190,7 +190,7 @@ Claude Code 永远不会自己安装具有 `command` 源的依赖，所以用户
 当用户安装声明 `{ "name": "secrets-vault", "version": "~2.1.0" }` 的 plugin 时，依赖从满足 `~2.1.0` 的最高 `secrets-vault--v` 标签安装在托管 `secrets-vault` 的存储库上。当没有标签满足范围时，安装要么失败，要么使用市场的当前副本：
 
 * **具有自身存储库的 plugin**：安装失败，消息包含 `Dependency "secrets-vault@your-marketplace" has no git tag satisfying`。
-* **由相对路径引用的 plugin**：安装改为使用市场的当前副本，约束在 plugin 加载时被检查。如果该副本在范围之外，依赖的 plugin 保持禁用，`claude plugin list` 显示 `Requires "secrets-vault@your-marketplace" ~2.1.0, installed 3.0.0`。
+* **由相对路径引用的 plugin**：安装改为使用市场的当前副本，约束在 plugin 加载时被检查。如果该副本在范围之外，依赖方插件保持禁用，`claude plugin list` 显示 `Requires "secrets-vault@your-marketplace" ~2.1.0, installed 3.0.0`。
 
 对于市场通过相对路径引用的插件，当您添加为本地文件夹路径的市场所在文件夹是 git 仓库时，该市场也会针对该文件夹的 git 标签解析约束。不是 git 仓库的本地文件夹没有标签，所以 Claude Code 改为从文件夹的当前内容安装依赖。
 

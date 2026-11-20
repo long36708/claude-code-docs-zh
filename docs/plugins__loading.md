@@ -39,7 +39,7 @@
 插件在会话启动时从 `installed_plugins.json` 和缓存加载，不使用网络。会话启动后，Claude Code 在后台检查声明的市场：
 
 * **设置声明但 `known_marketplaces.json` 缺少的市场**：Claude Code 克隆它，然后重新加载插件并下载未缓存的已启用插件
-* **声明的市场其源在设置中更改**：Claude Code 从新源重新获取它并显示 `Plugins changed. Run /reload-plugins to activate.`
+* **声明的市场其源在设置中更改**：Claude Code 从新源重新获取它
 
 既未被任何路径获取且没有可用缓存目录的已启用插件会在 `/plugin` **Errors** 选项卡中显示 `Plugin "<name>" not cached at <path>`。有关修复，请参阅[`Plugin "<name>" not cached at <path>`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#plugin-not-cached-at)。
 

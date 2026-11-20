@@ -342,6 +342,8 @@
 | `Cannot add marketplace "<name>": Claude Code cannot install plugins from a marketplace with this name` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#cannot-install-plugins-from-a-marketplace-with-this-name) |
 | `Cannot add marketplace "<name>": Claude Code reserves this name and cannot register a marketplace under it` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#claude-code-reserves-this-name) |
 | `Marketplace "<name>" is added but ignored` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#marketplace-is-added-but-ignored) |
+| `Marketplace "<name>", which managed settings declare, stands from another source and cannot be taken back while its declared source is unreachable` | [插件故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#marketplace-cannot-be-taken-back-while-its-declared-source-is-unreachable) |
+| `The list of installed plugins (installed_plugins.json) could not be read, so marketplace "<name>", which managed settings declare, cannot be taken back from another source` | [插件故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#installed-plugins-could-not-be-read-so-marketplace-cannot-be-taken-back) |
 | `Marketplace "<name>" is registered but was refused (see the debug log)` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#marketplace-is-added-but-ignored) |
 | `references ${user_config.*} in a shell-form command` | [Plugin 错误](#plugin-command-references-user-config) |
 | `Monitor "<name>" from plugin <plugin> references ${user_config.*} in its command` | [Plugin 错误](#plugin-command-references-user-config) |
@@ -1172,7 +1174,7 @@ Invalid API key · Fix external API key
 
 ### 您的 apiKeyHelper 脚本运行失败
 
-Claude Code 运行了您的 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 设置中的命令，但没有得到密钥。没有密钥时，请求会携带一个占位凭据到达 API，API 会以 `401` 拒绝它。终端中的 `Authentication` 面板会显示发生了以下哪种情况：
+Claude Code 运行了您 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 设置中的命令，但没有获得密钥。没有密钥时，请求会携带占位凭据到达 API，API 会以 `401` 拒绝它。终端中的面板会显示发生了以下哪种情况：
 
 * 命令以错误退出或超时
 * 命令没有向 stdout 输出任何内容
@@ -1194,7 +1196,6 @@ Your apiKeyHelper script is failing · This usually means you need to re-authent
 * 如果命令报告会话已过期，请向您的凭据提供方重新进行身份验证，例如重新登录您的 SSO 或密钥保管库
 * 修正命令，使其只向 stdout 输出密钥（一个由可打印 ASCII 字符组成、最多 16,384 个字符的单一令牌），并以退出码 0 退出。请参阅[使用 apiKeyHelper 轮换凭据](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#rotate-credentials-with-apikeyhelper)了解可用的设置方式。
 * 运行 `/status` 查看失败情况，并确认 `apiKeyHelper` 是当前生效的凭据来源。`apiKeyHelper` 行会显示 `Failing` 以及上一次失败的详细信息，例如退出码和命令的错误输出，并会在下一次成功运行后消失。在 v2.1.274 之前，`/status` 只显示凭据来源，不显示失败情况。
-* 每次命令失败时，其退出码和错误输出也会显示在终端的 `Authentication` 面板中。在 v2.1.212 之前，该面板的标题为 `Cloud authentication`。
 
 ### Claude Code didn't send your claude.ai login
 
@@ -1585,7 +1586,7 @@ Your account or API key may still be in the config file. Run claude auth logout.
 
 **解决方法：**
 
-* 在 shell 中运行 `claude auth logout` 再次尝试保存。保存成功后，该命令会输出 `Successfully logged out from your Anthropic account.`
+* 在 shell 中运行 `claude auth logout`，再次尝试保存
 
 ### Couldn't start the local listener that receives the browser sign-in
 
@@ -2320,8 +2321,6 @@ The cloud environments service returned an empty response (HTTP 200 with no body
 The cloud environments service returned a response in an unexpected format (HTTP 200 with a non-JSON body). This is usually temporary — try again in a moment.
 The cloud environments service returned a response in an unexpected format (HTTP 200 without a usable environments list). This is usually temporary — try again in a moment.
 ```
-
-服务器接受了请求，但应答的正文不是环境列表：为空、不是 JSON，或者是不含该列表的 JSON。这种情况通常伴随服务端故障出现，并会自行恢复。根据请求该列表的使用入口，Claude Code 可能会添加前缀，例如在 `/remote-env` 对话框中显示 `couldn't list environments:`。
 
 **解决方法：**
 
@@ -6675,11 +6674,6 @@ sandbox.filesystem.allowRead is ignored — managed settings set allowManagedRea
 ### Sandbox mask files left behind at write-deny paths
 
 `claude doctor` 和 `/status` 中的此警告会列出掩码文件：位于[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)拒绝写入的路径上的 0 字节只读占位文件。在 Linux 和 WSL2 上启用沙箱隔离且开启文件系统隔离时会出现此警告。当包含这些文件的项目中没有打开任何 Claude Code 会话时，请从 shell 中删除它们。
-
-沙箱会在沙箱化命令运行时创建占位文件，并在命令结束时将其删除。在以下情况下，占位文件会残留：
-
-* 会话在命令结束前被终止，例如被 SIGKILL 终止
-* 您在沙箱化命令仍在运行时退出了会话，例如后台运行的命令
 
 在 `claude doctor` 中，警告为：
 

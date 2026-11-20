@@ -101,7 +101,7 @@ Worktree 是一个新的检出，因此请在那里初始化您的开发环境�
 
 当会话在 worktree 中被隔离时，Claude Code 会阻止下面的检查定义的工具调用。无论您是使用 `--worktree` 启动会话、Claude 使用 `EnterWorktree` 进入 worktree，还是恢复 worktree 会话，相同的规则都适用。
 
-相同的强制措施涵盖 Claude 从隔离会话生成的每个子代理。它适用于会话是交互式还是在[后台](https://code.claude.com/docs/zh-CN/agent-view.md#how-file-edits-are-isolated)运行。[在自己的 worktree 中运行的子代理](#isolate-subagents-with-worktrees)进行相同的检查。它们的版本历史在[写入子代理文件](https://code.claude.com/docs/zh-CN/sub-agents.md#write-subagent-files)下。
+相同的强制措施涵盖 Claude 从隔离会话生成的每个子代理。它适用于会话是交互式还是在[后台](https://code.claude.com/docs/zh-CN/agent-view.md#how-file-edits-are-isolated)运行。[在自己的 worktree 中运行的子代理](#isolate-subagents-with-worktrees)进行相同的检查。
 
 Claude Code 应用四个检查：
 

@@ -301,8 +301,8 @@ Claude Code 在以 `claudeai-` 开头的本地名称下注册市场，该名称�
 
 当您为此存储库的 `.claude/settings.json` 启用的插件选择 **Uninstall** 时，无论是从 **Installed** 选项卡还是使用 `/plugin uninstall`，Claude Code 都会询问是为您禁用它还是为所有人卸载它：
 
-* **Disable for me**：按 **y**。Claude Code 在您的 `.claude/settings.local.json` 中为插件写入 `false` 并为项目保留它已安装。
-* **Uninstall for everyone**：按 **u**。Claude Code 从共享的 `.claude/settings.json` 中删除插件。
+* **Disable for me**：Claude Code 在您的 `.claude/settings.local.json` 中为插件写入 `false`，并为项目保留其已安装状态。
+* **Uninstall for everyone**：Claude Code 从共享的 `.claude/settings.json` 中删除插件。
 
 ### See what an installed plugin adds to your sessions
 

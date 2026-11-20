@@ -129,7 +129,7 @@ claude plugin validate ./my-plugin
 | [`version`](#version) | String | 版本字符串。设置它会将用户保持在该版本，直到您更改它 |
 | `description` | String | plugin 提供的内容的简短说明 |
 | `author` | Object | `name`（必需），加上可选的 `email` 和 `url` |
-| `homepage` | String | 文档 URL。必须解析为 URL，否则 plugin 加载失败 |
+| `homepage` | String | 文档 URL。必须能解析为 URL |
 | `repository` | String | 源代码库 URL。未验证 |
 | `license` | String | SPDX 标识符，如 `MIT` 或 `Apache-2.0` |
 | `keywords` | Array of strings | 发现标签 |
@@ -139,7 +139,7 @@ claude plugin validate ./my-plugin
 | [`supportUrl`](#directory-listing-fields) | String | 插件在 Anthropic 目录中的列表所用的支持链接。Claude Code 不读取它 |
 | [`privacyPolicyUrl`](#directory-listing-fields) | String | 插件在 Anthropic 目录中的列表所用的隐私政策链接。Claude Code 不读取它 |
 | [`termsOfServiceUrl`](#directory-listing-fields) | String | 插件在 Anthropic 目录中的列表所用的服务条款链接。Claude Code 不读取它 |
-| [`defaultEnabled`](#defaultenabled) | Boolean | 当用户未设置时 plugin 是否在启用时启动。默认为 `true` |
+| [`defaultEnabled`](#defaultenabled) | Boolean | 当用户未设置时 plugin 一开始是否处于启用状态。默认为 `true` |
 | `engines` | Object | 插件适用的 Claude Code 版本，以 `claude-code` 键下的 [semver 范围](https://github.com/npm/node-semver#ranges)表示，例如 `"engines": { "claude-code": ">=2.1.400" }`。需要 Claude Code v2.1.323 或更高版本。若要让插件在 v2.0.15 至 v2.1.75 上正常工作，请省略 `engines`。这些版本在 manifest 包含该字段时会以 `Unrecognized key` 错误拒绝该 manifest |
 | [`dependencies`](#dependencies) | Array of strings or objects | 必须为此 plugin 启用的 plugin |
 | `network` | Object | 您的插件所访问的主机，例如 `"network": { "hosts": ["api.example.com"] }`，采用 [`sandbox.network.allowedDomains`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 语法。`claude plugin validate` 会列出这些主机。该字段不会允许或阻止任何主机。需要 Claude Code v2.1.328 或更高版本 |
@@ -204,7 +204,7 @@ Claude Code 在其下命名空间每个组件，因此 plugin `deploy-tools` 中
 
 ### `defaultEnabled`
 
-当用户未在 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 中设置时，plugin 是否在启用时启动。默认为 `true`。启用的 plugin 依赖的 plugin 无论如何都会启用启动。marketplace 条目中的相同字段覆盖此字段。
+当用户未在 [`enabledPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#enabledplugins) 中设置时，plugin 一开始是否处于启用状态。默认为 `true`。启用的 plugin 所依赖的 plugin 无论如何一开始都会处于启用状态。marketplace 条目中的相同字段覆盖此字段。
 
 一旦用户的 `enabledPlugins` 条目被写入，它在 plugin 更新中持续存在，因此在后续版本中更改 `defaultEnabled` 不会更改现有用户的设置。
 

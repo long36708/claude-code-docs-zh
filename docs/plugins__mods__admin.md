@@ -154,7 +154,7 @@ Mod 可以做的比插件的其他部分更多，因为它在 Claude Code 内运
 | 市场允许列表 | 来自您允许的市场的 mod，或来自任何带有 `--plugin-dir` 的目录的 mod。Claude 在会话期间编写的 mod 仅在允许列表[包含 `skills-dir`](https://code.claude.com/docs/zh-CN/plugins/org#keep-skills-directory-plugins-loading) 时加载。 |
 | 市场允许列表和 `disableSideloadFlags` | 来自您允许的市场的 mod |
 
-无论采用上述哪种控制，用户还可以加载[从 claude.ai 同步](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)的插件中的 mod，以及[技能目录插件](https://code.claude.com/docs/zh-CN/plugins/org.md#keep-skills-directory-plugins-loading)中的 mod，除非您的允许列表中未包含 `skills-dir`。[为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)列出了插件加载的每种方式以及控制每种方式的设置。
+无论采用上述哪种控制，用户还可以加载[从 claude.ai 同步](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)的插件中的 mod，以及[技能目录插件](https://code.claude.com/docs/zh-CN/plugins/org.md#keep-skills-directory-plugins-loading)中的 mod（后者在您的允许列表中未包含 `skills-dir` 时除外）。[为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)列出了插件加载的每种方式以及控制每种方式的设置。
 
 要在用户安装市场中的 mods 之前检查它们，请参阅[查看 mod 可以执行的操作](#review-what-a-mod-can-do)。要在您完成此操作之前排除用户的 mods，请参阅[停止用户安装的 mods 加载](#stop-user-installed-mods-from-loading)。
 
