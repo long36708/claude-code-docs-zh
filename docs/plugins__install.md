@@ -177,7 +177,7 @@
 claude plugin install formatter@your-org --scope project
 ```
 
-命令完成时打印 `Successfully installed plugin: formatter@your-org (scope: project)`。
+在终端中，命令完成时打印 `Installed plugin: formatter@your-org (scope: project)`。
 
 某些插件通过运行其市场命名的命令来安装，称为 [`command` source](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)。Claude Code 向您显示该命令并要求您在运行前接受它。脚本没有人来回答该提示，因此在那里传递 `--yes` 以接受它。
 
@@ -232,7 +232,7 @@ claude plugin install deploy-helper --marketplace your-org/plugins
 
 shell 命令添加市场时没有确认步骤。您已从该来源添加的市场会被重用。新市场会经过与 `claude plugin marketplace add` 相同的 [organization policy checks](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install) 后添加，并且即使您传递 `--scope project`，也会在您的用户设置中声明。
 
-如果您尚未添加该市场，该命令会打印 `Successfully added marketplace: <name> (declared in user settings)`，然后[安装插件](#install-from-your-shell)。
+如果您尚未添加该市场，您的终端会显示 `Added marketplace: <name> (declared in user settings)`，然后该命令会[安装插件](#install-from-your-shell)。
 
 ### Add a private marketplace
 

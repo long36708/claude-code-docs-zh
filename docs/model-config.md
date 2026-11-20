@@ -443,7 +443,7 @@ Claude Console 没有模型限制控制。没有 Claude Enterprise 计划的组�
 * Haiku 模型始终可用，无法禁用，因此每个成员至少保留一个可用模型。
 * 访问更改在约一分钟内对新请求生效；`/model` 选择器在下次会话启动时反映它。
 
-两个限制一起适用：仅当模型由 `availableModels` 允许且不受组织限制时，模型才可选择。组织限制仅到达 Anthropic API 和[LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)部署上的会话；在任何其他提供商上，改为使用 `availableModels`。
+两个限制一起适用：仅当模型由 `availableModels` 允许且不受组织限制时，模型才可选择。组织限制仅到达 Anthropic API 和[LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)部署上的会话；使用[网关凭据](https://code.claude.com/docs/zh-CN/llm-gateway#subscriptions-and-gateways)时或在任何其他提供商上，改为使用 `availableModels`。
 
 ## 组织默认模型
 
@@ -485,6 +485,8 @@ Claude Enterprise 计划上的组织管理员可以为每个自定义角色按�
 * 超过限制的级别不会在 `/effort` 选择器中提供，使用 `--effort` 或 `/effort` 指定更高级别时会改为以限制级别运行。如果您使用高于限制的 `--effort` 启动纯文本 `--print` 运行，stderr 上的警告会指出请求的级别和实际应用的级别。在交互式会话中、使用 `json` 或 `stream-json` 输出时，或在后台 Agent 中，该警告会改为写入[调试日志](https://code.claude.com/docs/zh-CN/errors.md#configuration-warnings)。
 * 限制是按模型的，因此切换模型可能会改变哪些级别可用。
 * 当您的多个角色授予相同的模型时，最不严格的限制适用。
+* 如果您看到 `Your organization limits effort for <model>` 并且需要更高的级别，请联系组织管理员提高限制，然后重启 Claude Code。
+* 如果请求失败并显示 `API Error: 400 Invalid effort level`，请更新到 v2.1.314 或更高版本并重启。如果仍然失败，请从 [`CLAUDE_CODE_EXTRA_BODY`](https://code.claude.com/docs/zh-CN/env-vars#variables) 中删除所有 `output_config.effort` 键。
 
 工作量限制与[组织模型限制](#organization-model-restrictions)一起交付，并到达相同的会话。
 
@@ -763,7 +765,7 @@ skill 的 `effort` 在其运行所在的轮次结束前一直适用；使用 `co
 
 #### 子代理和队友的 effort 级别
 
-在主对话的模型上，没有自己 `effort` 的[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-an-effort-level)或[队友](https://code.claude.com/docs/zh-CN/agent-teams.md#specify-teammates-and-models)以您在会话中选择或使用 `--effort` 设置的级别运行。在其他模型上，该级别不适用。要选择子代理的级别，请在其定义中设置 `effort`。
+在主对话的模型上，[未设置其他级别](https://code.claude.com/docs/zh-CN/sub-agents.md#when-a-subagent-has-no-effort-field-or-parameter)的[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-an-effort-level)或[队友](https://code.claude.com/docs/zh-CN/agent-teams.md#specify-teammates-and-models)以您在会话中选择或使用 `--effort` 设置的级别运行。在其他模型上，该级别不适用。要选择子代理的级别，请在其定义中设置 `effort`。
 
 #### 检查您设置的 effort 级别
 

@@ -170,7 +170,7 @@ Contact sales
 
 ### 配置安全策略
 
-安全团队可以配置托管权限，定义 Claude Code 允许和不允许做什么，这不能被本地配置覆盖。[了解更多](https://code.claude.com/docs/zh-CN/security.md)。
+安全团队可以配置托管权限，定义 Claude Code 允许和不允许做什么。[了解更多](https://code.claude.com/docs/zh-CN/security.md)。
 
 要限制托管机器可以使用的这些部署选项，请在托管设置中设置 [`allowedProviders`](https://code.claude.com/docs/zh-CN/settings-reference#allowedproviders)。例如，`["bedrock"]` 仅允许 Amazon Bedrock；同时启用 Mantle 端点的 Bedrock 队列也列出 `"mantle"`。该条目说明哪些端点变量还需要托管 `env` 固定。需要 Claude Code v2.1.285 或更高版本。
 

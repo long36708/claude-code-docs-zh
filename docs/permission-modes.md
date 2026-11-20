@@ -16,14 +16,14 @@
 
 | 模式 | 无需询问即可运行的内容 | 最适合 |
 | :- | :- | :- |
-| `default` | 仅读取 | 自己审查每项操作，敏感工作 |
+| `default` | 工作目录内的文件读取以及其他 [无需批准的操作](https://code.claude.com/docs/zh-CN/tools-reference.md)，例如启动子代理 | 敏感工作，不熟悉的代码 |
 | [`acceptEdits`](#auto-approve-file-edits-with-acceptedits-mode) | 读取、文件编辑和常见文件系统命令（`mkdir`、`touch`、`mv`、`cp` 等） | 迭代您正在审查的代码 |
 | [`plan`](#analyze-before-you-edit-with-plan-mode) | 读取，加上当 [auto 模式](#eliminate-prompts-with-auto-mode) 可用时分类器批准的命令 | 在更改代码库之前探索它 |
 | [`auto`](#eliminate-prompts-with-auto-mode) | 一切，带有后台安全检查 | 长任务，减少提示疲劳 |
 | [`dontAsk`](#allow-only-pre-approved-tools-with-dontask-mode) | 工作目录内的文件读取和预批准的工具；任何会提示的内容都被拒绝，但您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍可批准其中的部分调用 | 锁定的 CI 和脚本 |
 | [`bypassPermissions`](#skip-all-checks-with-bypasspermissions-mode) | 一切 | 仅限隔离容器和虚拟机 |
 
-审查每项操作的模式在 CLI 中名为 **Manual**，在 `claude --help` 中、在 VS Code 和 JetBrains 扩展中以及在桌面应用中也是如此。其配置值是 `default`，这是 hook 和 SDK 集成使用的。CLI 在您输入值的任何地方接受 `manual` 作为别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。
+CLI 在您输入值的任何地方接受 `manual` 作为 `default` 的别名，例如 `claude --permission-mode manual` 或 `"defaultMode": "manual"`。
 
 每种模式对写入 [受保护路径](#protected-paths) 都有各自的规则。
 
@@ -51,7 +51,7 @@ Claude Code 也不会自动批准被标记为 `could not fully check your permis
 
 | 您想要 | 起步方式 | 所需隔离 | 说明 |
 | :- | :- | :- | :- |
-| 亲自审查每个操作 | 手动模式：`claude --permission-mode default` | 无 | 敏感工作、不熟悉的代码 |
+| 亲自回应权限提示 | 手动模式：`claude --permission-mode default` | 无 | 敏感工作、不熟悉的代码 |
 | 在本地迭代，减少提示，且不使用分类器 | 手动模式加上处于[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes)的 Bash 沙箱：`claude --permission-mode default`，然后运行 `/sandbox` 并选择自动允许 | 内置 Bash 沙箱，适用于 macOS、Linux 和 WSL2 | 拒绝规则仍然适用，指定了命令的询问规则（例如 `Bash(git push *)`）仍会提示。[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#auto-allow-mode)介绍了其他可能触发提示的命令。若要改为通过设置文件启用沙箱，请将 [`sandbox.enabled`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-enabled) 和 [`sandbox.autoAllowBashIfSandboxed`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-autoallowbashifsandboxed) 设为 `true` |
 | 在进行任何更改之前先探索 | `claude --permission-mode plan` | 无 | 在您[批准计划](#review-and-approve-a-plan)之前，Claude Code 会阻止编辑 |
 | 在自动模式下免干预工作 | `claude --permission-mode auto`，即 v2.1.283 或更高版本的[内置起始权限模式](#which-mode-a-session-starts-in) | 无；沙箱或容器可提供纵深防御 | 需要[受支持的模型](#eliminate-prompts-with-auto-mode)，并且您的组织可以[关闭自动模式](#eliminate-prompts-with-auto-mode) |
@@ -618,7 +618,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >
 > 在执行会丢弃未提交工作的命令（例如 `git reset --hard` 或 `rm -rf`）之前，Claude Code 还可以自行运行 `git status`，并向分类器显示是否存在已暂存、已修改或未跟踪的工作。即使仓库的 git 配置设置了 `status.showUntrackedFiles=no`，Claude Code 也会在该检查中报告未跟踪的文件。
 >
-> 在[服务器端分类器审查](#server-side-classifier-review)下，`git reset --hard` 在干净的工作树上也可能被阻止，因为除非自动模式最近阻止过某个操作，否则 Claude Code 可能会跳过 `git status`。阻止发生后，分类器可以看到干净的状态，并允许 Claude 重试。
+> 在[服务器端分类器审查](#server-side-classifier-review)下，`git reset --hard` 在干净的工作树上也可能被阻止。阻止发生后，分类器可以看到干净的状态，并允许 Claude 重试。
 >
 > 在 Claude Code 自身发送的分类器请求中，分类器可以看到用户消息、除只读查询（例如文件读取和搜索）以外的工具调用，以及您的 CLAUDE.md 内容。工具结果会从这些请求中剥离，因此文件或网页中的恶意内容无法直接操纵分类器。
 >
@@ -646,18 +646,23 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 ## 使用 dontAsk 模式仅允许预先批准的工具
 
-如果您设置 `dontAsk` 模式，Claude Code 会自动拒绝所有原本会提示您的工具调用，不过您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍然可以批准其中部分调用。要查看 mod 可以批准哪些调用，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。
+如果您设置 `dontAsk` 模式，Claude Code 会自动拒绝所有原本会提示您的工具调用，不过您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍然可以批准其中部分调用。要查看 mod 可以批准哪些调用，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。不要依赖 `dontAsk` 来阻止 [mod 自身发起的工具调用](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#mods-api-methods)。
 
-Claude 仍然运行在 Manual 模式下不需要批准的操作，例如您工作目录内的文件读取和[只读 Bash 命令](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)。与您的 `permissions.allow` 规则匹配的操作以及由 [PreToolUse hook](https://code.claude.com/docs/zh-CN/permissions.md#extend-permissions-with-hooks) 批准的调用也会运行。在 CI 管道或受限环境中使用此模式，您可以预先定义 Claude 可以执行的操作；会话永远不会等待输入。在此模式下，状态栏显示 `⏵⏵ don't ask on`。
+Claude 仍然运行在 Manual 模式下不需要批准的操作，例如您工作目录内的文件读取和[只读 Bash 命令](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)。与您的 `permissions.allow` 规则匹配的操作以及由 [PreToolUse hook](https://code.claude.com/docs/zh-CN/permissions.md#extend-permissions-with-hooks) 批准的调用也会运行。在 CI 管道或受限环境中使用此模式，您可以预先定义 Claude 可以执行的操作。在此模式下，状态栏显示 `⏵⏵ don't ask on`。
 
-Claude Code 拒绝与您的显式 [`ask` 规则](https://code.claude.com/docs/zh-CN/permissions#manage-permissions)匹配的调用，而不是提示。它还拒绝内置的 `AskUserQuestion` 工具，即使您的 allow 规则与其匹配，以及您的组织[设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具在该设置到达 Claude Code 的会话中。它以相同的方式拒绝标记为 [`_meta["anthropic/requiresUserInteraction"]`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具，因为其批准卡需要此模式永远不会收集的答案。
+以下调用在原本会显示提示的情况下会被拒绝：
+
+* **您的 `ask` 规则**：Claude Code 拒绝与您的显式 [`ask` 规则](https://code.claude.com/docs/zh-CN/permissions#manage-permissions)匹配的调用。
+* **`AskUserQuestion`**：Claude Code 拒绝此内置工具，即使您的 allow 规则与其匹配。
+* **[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具**：在该设置到达 Claude Code 的会话中，这些工具调用会被拒绝。
+* **标记为 [`_meta["anthropic/requiresUserInteraction"]`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具**：这些工具调用会被拒绝，因为其批准卡需要此模式无法收集的答案。
 
 allow 规则或 `PreToolUse` hook 无法批准以下操作：
 
 * 可识别的 `rm` 和 `rmdir` [关键路径](#critical-paths)移除操作，例如 `rm -rf /` 和 `rm -rf ~`
 * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)进行的读取
 
-[网络上的 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)上的云会话忽略 `defaultMode: "dontAsk"`；有关详细信息，请参阅 [bypassPermissions](#skip-all-checks-with-bypasspermissions-mode)。
+[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)会忽略 `defaultMode: "dontAsk"`。有关详细信息，请参阅 [bypassPermissions](#skip-all-checks-with-bypasspermissions-mode)。
 
 在启动时使用标志设置它：
 

@@ -52,7 +52,7 @@
 * Agent：使用 [`--agent`](https://code.claude.com/docs/zh-CN/sub-agents#invoke-subagents-explicitly) 或 `agent` 设置启动的会话继续作为该 Agent 运行，保持其工具限制和模型。在恢复时传递 `--agent` 以选择不同的 Agent；关于任一情况下的系统提示词，请参阅[恢复对话中的系统提示词标志](https://code.claude.com/docs/zh-CN/cli-reference.md#system-prompt-flags-in-resumed-conversations)。Claude Code 在两个地方查找 Agent：会话的原始目录（前提是您已[信任该工作区](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)），然后是您恢复时所在的目录，因此项目范围的 Agent 在您从另一个目录恢复时仍会加载。如果 Claude Code 在任一位置都找不到该 Agent，会话会以默认工具恢复并显示[指明该 Agent 的警告](https://code.claude.com/docs/zh-CN/errors.md#session-agent-no-longer-available)。
 * 权限模式：如果您从终端使用 `claude --continue`、`claude --resume <session-id>` 或 `claude --resume <name>`（当名称与一个会话匹配时）恢复，且不带 `-p`，Claude Code 会恢复会话所在的权限模式，[恢复时的权限模式](#permission-mode-on-resume)中的情况除外，该部分也涵盖会话选择器、`/resume` 和使用 `claude -p` 恢复。传递 `--permission-mode` 或 `--dangerously-skip-permissions` 以覆盖恢复的模式。
 * 活跃目标：会话结束时仍然活跃的[目标](https://code.claude.com/docs/zh-CN/goal.md#resume-with-an-active-goal)会延续；其轮次计数、计时器和 token 支出基线会重置。
-* 会话范围的定时任务：[未过期的任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#limitations)会被恢复。后台 Bash 和监视任务不会。
+* 会话范围的定时任务：会被恢复，但有[例外情况](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#limitations)。后台 Bash 和监视任务不会被恢复。
 * 后台工作：随上一个进程结束的[后台子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)、后台 Bash 命令或[工作流](https://code.claude.com/docs/zh-CN/workflows.md)，会在恢复的会话记录中显示为未完成的注记。Claude Code 不会因这些注记启动轮次；Claude 会随您的下一个提示词读取它们。
 
 #### 恢复时需要再次传递的标志
@@ -68,6 +68,7 @@
 * **目录**：`--add-dir`，如 `claude --continue --add-dir ../shared`。对于使用 `/add-dir` 添加的目录，也请使用 `--add-dir`。
 * **额外设置**：`--settings`
 * **备用模型**：`--fallback-model`
+* **工具访问**：`--tools`、`--allowedTools`、`--disallowedTools`
 
 关于 `--system-prompt` 和 `--append-system-prompt`，请参阅[恢复对话中的系统提示词标志](https://code.claude.com/docs/zh-CN/cli-reference.md#system-prompt-flags-in-resumed-conversations)。
 
@@ -186,22 +187,18 @@ Claude Code 将使用 [`claude -p`](https://code.claude.com/docs/zh-CN/headless)
 | 快捷键 | 操作 |
 | :- | :- |
 | `↑` / `↓` 或 `k` / `j` | 在会话之间导航 |
-| `→` / `←` | 展开或折叠分组的会话 |
 | `Enter` | 恢复突出显示的会话 |
-| `1` 到 `9` | 恢复列表中该位置的会话 |
 | `Space` | 预览会话内容。在不将其捕获为粘贴的终端上也可以使用 `Ctrl+V` |
 | `Ctrl+R` | 重命名突出显示的会话 |
-| `/` 或除 `Space`、`j`、`k` 或数字外的任何可打印字符 | 进入搜索模式并过滤会话。粘贴 GitHub、GitHub Enterprise、GitLab 或 Bitbucket 拉取或合并请求 URL 以查找创建它的会话 |
+| `/` 或除 `Space`、`j` 或 `k` 外的任何可打印字符 | 进入搜索模式并过滤会话。粘贴 GitHub、GitHub Enterprise、GitLab 或 Bitbucket 拉取或合并请求 URL 以查找创建它的会话 |
 | `Ctrl+A` | 显示此计算机上所有项目的会话。再次按下以返回到当前存储库 |
 | `Ctrl+W` | 显示当前存储库所有 worktrees 的会话。再次按下以返回到当前 worktree。仅在多 worktree 存储库中显示 |
 | `Ctrl+B` | 过滤到当前 git 分支的会话。再次按下以显示所有分支 |
 | `Esc` | 退出会话选择器或搜索模式 |
 
-每行显示会话名称（如果已设置），否则显示 AI 生成的会话标题、对话摘要或第一个提示词，以及自上次活动以来的时间、git 分支和文件大小。
+每个会话的行以下列各项中第一个存在的项作为标签：您设置的名称、AI 生成的会话标题、对话摘要或您的某个提示词。
 
-使用 `/branch` 或 `--fork-session` 创建的会话会获得自己的会话 ID 并显示为单独的行。当选择器为同一会话找到多个条目时，它会将它们分组在单个行下。按 `→` 展开一个组。
-
-如果 Claude Code 无法从 `claude --resume` 选择器加载您选择的会话，它会打印 [`Failed to resume the conversation`](https://code.claude.com/docs/zh-CN/errors#failed-to-resume-the-conversation) 并显示重试命令，然后以代码 1 退出。从会话内的 `/resume` 选择器，Claude Code 会报告失败，您当前的对话会继续运行。
+使用 `/branch` 或 `--fork-session` 创建的会话会获得自己的会话 ID 并显示为单独的行。
 
 ## 分支会话
 

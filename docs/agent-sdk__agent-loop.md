@@ -169,11 +169,11 @@ SDK 包含与 Claude Code 相同的工具：
 
 Claude 根据任务确定调用哪些工具，但您控制这些调用是否被允许执行。使用以下选项可以自动批准工具、阻止工具以及设置权限模式：
 
-* **`allowed_tools` / `allowedTools`** 自动批准列出的工具。允许工具列表中包含 `["Read", "Glob", "Grep"]` 的只读 Agent 会运行这些工具而不提示，但从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)读取的情况除外。未列出的工具仍然可用，对它们的调用如果需要批准会转到权限模式和 `canUseTool`。
+* **`allowed_tools` / `allowedTools`** 自动批准列出的工具。允许工具列表中包含 `["Read", "Glob", "Grep"]` 的 Agent 会运行这些工具而不提示，但存在例外情况，例如从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)读取。未列出的工具仍然可用，对它们的调用如果需要批准会转到权限模式和 `canUseTool`。
 * **`disallowed_tools` / `disallowedTools`** 阻止列出的工具，无论其他设置如何。有关在工具运行前检查规则的顺序，请参阅 [权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)。
 * **`permission_mode` / `permissionMode`** 控制你想要多少人工监督。SDK 按固定顺序评估活跃模式以及你的允许和拒绝规则，详见 [权限如何被评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。有关可用模式，请参阅 [权限模式](#permission-mode)。
 
-你也可以使用 `"Bash(npm *)"` 之类的规则来限制单个工具，以仅允许特定命令。有关完整规则语法，请参阅 [权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)。
+您也可以使用 `"Bash(npm *)"` 之类的规则来限定单个工具，以自动批准特定命令。有关完整规则语法，请参阅 [权限](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)。
 
 当工具被拒绝时，Claude 接收拒绝消息作为工具结果，通常尝试不同的方法或报告它无法继续。
 

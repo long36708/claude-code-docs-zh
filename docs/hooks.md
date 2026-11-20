@@ -812,7 +812,7 @@ hook 打印到 stdout 的内容可能会改变结果。例如，当 `PreToolUse`
 | :- | :- | :- | :- |
 | 通过 [schema 验证](#json-output)的 JSON 对象 | 成功。字段生效 | 阻止错误。Claude Code 仍读取字段，但即使您返回 `"allow"` 或 `continue: false`，`PreToolUse` 调用仍保持被阻止。对于其他事件，请参阅[退出码 2](#exit-code-2) | 成功。Claude Code 忽略退出码，仅由字段决定。对于[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)，该运行则算作失败 |
 | [无法解析](#exit-code-0)或未通过 schema 验证的 JSON | 非阻止错误。通知带有解析或验证消息 | 阻止错误。您的 stderr 作为原因 | 非阻止错误。通知带有解析或验证消息 |
-| [纯文本](#exit-code-0)或无输出 | 成功 | 阻止错误。您的 stderr 作为原因 | 非阻止错误。通知带有您的 stderr 的第一行 |
+| [纯文本](#exit-code-0)或无输出 | 成功 | 阻止错误。您的 stderr 作为原因 | 非阻止错误 |
 
 某些事件有自己的规则：
 
@@ -1035,7 +1035,7 @@ blocking because Git Bash wasn't found, so only exit code 0 or 2 counts as this 
 | :- | :- | :- |
 | `PreToolUse` | 是 | 阻止工具调用 |
 | `PermissionRequest` | 否 | 此事件不接受退出码 2，权限流程保持不变。改为通过 [`decision` 对象](#permissionrequest-decision-control)拒绝 |
-| `UserPromptSubmit` | 是 | 阻止提示词，使其永远不会到达 Claude。请参阅[被阻止的提示词留下什么](#what-a-blocked-prompt-leaves-behind) |
+| `UserPromptSubmit` | 是 | 阻止提示词。请参阅[被阻止的提示词留下什么](#what-a-blocked-prompt-leaves-behind) |
 | `UserPromptExpansion` | 是 | 阻止扩展 |
 | `Stop` | 是 | 防止 Claude 停止，继续对话 |
 | `SubagentStop` | 是 | 防止子代理停止 |
@@ -1577,7 +1577,7 @@ hook 可能恰好在您中断的同一时刻阻止该提示词。此时提示词
 
 | 字段 | 说明 |
 | :- | :- |
-| `decision` | `"block"` 会在提示词传达给 Claude 之前将其拦下。省略则允许提示词继续 |
+| `decision` | `"block"` 拒绝该提示词。省略则允许提示词继续 |
 | `reason` | 当 `decision` 为 `"block"` 时向用户显示。不会添加到上下文中，但在 v2.1.328 之前 hook 阻止 [Code Mode 输出](https://code.claude.com/docs/zh-CN/code-mode.md#code-output-withheld-by-a-hook)时除外 |
 | `additionalContext` | 与所提交的提示词一起添加到 Claude 上下文中的字符串。请参阅[为 Claude 添加上下文](#add-context-for-claude) |
 | `sessionTitle` | 设置会话标题。用于根据提示词内容自动命名会话 |
@@ -1600,9 +1600,9 @@ hook 可能恰好在您中断的同一时刻阻止该提示词。此时提示词
 
 #### 被阻止的提示词会留下什么
 
-被阻止的提示词永远不会传达给 Claude，但其文本并不会在所有地方被移除。默认情况下，显示给用户的阻止消息以 `Original prompt:` 结尾，后跟所提交的文本，并且 Claude Code 会将该消息写入磁盘上的会话记录文件。要在消息中省略该文本，请在 `hookSpecificOutput` 中打印带有 `"suppressOriginalPrompt": true` 的 JSON。无论 hook 是通过 `decision: "block"` 还是以退出码 2 退出来阻止，此方法都有效。
+默认情况下，向用户显示的阻止消息以 `Original prompt:` 和已提交的提示词结尾。要在消息中省略提示词，请在 `hookSpecificOutput` 中打印带有 `"suppressOriginalPrompt": true` 的 JSON，无论 hook 是通过 `decision: "block"` 还是以退出码 2 退出来阻止。
 
-`suppressOriginalPrompt` 只改变阻止消息。所提交的文本仍可能出现在本地文件中，例如会话记录和您的提示词历史，因此阻止 hook 并不是防止机密写入磁盘的方法。要限制或删除这些文件，请参阅[明文存储](https://code.claude.com/docs/zh-CN/claude-directory.md#plaintext-storage)和[清除本地数据](https://code.claude.com/docs/zh-CN/claude-directory.md#clear-local-data)。
+无论哪种方式，提示词仍可能出现在本地文件中，例如会话记录和您的提示词历史记录。阻止型 hook 并不是防止机密写入磁盘的方法。要限制或删除这些文件，请参阅[明文存储](https://code.claude.com/docs/zh-CN/claude-directory.md#plaintext-storage)和[清除本地数据](https://code.claude.com/docs/zh-CN/claude-directory.md#clear-local-data)。
 
 ### UserPromptExpansion
 
@@ -1976,7 +1976,7 @@ Windows 上的 `Write` 调用会传递：
 | `modelsUsed` | array | `["claude-sonnet-4-5", "claude-haiku-4-5"]` | 按顺序使用的模型，连续重复项会被合并；仅在运行中途切换了模型时设置 |
 | `totalTokens` | number | `12450` | 子代理最后一次 API 请求的 token 数：输入、输出和缓存 token 的总和。这不是整个运行的总数 |
 | `totalDurationMs` | number | `48211` | 子代理运行的实际耗时 |
-| `totalToolUseCount` | number | `7` | 子代理进行的工具调用次数 |
+| `totalToolUseCount` | number | `7` | 子代理进行的工具调用次数，不包括 `SubagentHandback` |
 | `usage` | object | `{"input_tokens": 8320, ...}` | 最后一次 API 请求按类型划分的 token 明细：`input_tokens`、`output_tokens`、`cache_creation_input_tokens`、`cache_read_input_tokens` |
 
 在 Claude Code v2.1.271 或更高版本中，使用 [`SubagentHandback`](https://code.claude.com/docs/zh-CN/tools-reference) 工具（Claude Code 在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下提供）运行的子代理会通过该工具提交报告，而不是以文本形式返回。此时其 `completed` 结果的 `content` 字段携带的是关于该移交的简短说明，而不是报告本身。要读取报告，请在 `SubagentHandback` 上匹配 `PreToolUse` 或 `PostToolUse` hook，并读取 `tool_input.message`。
@@ -2867,7 +2867,7 @@ Claude Code 设有连续 8 次继续的上限：在 stop hook 连续八次让轮
 | `type` | 友好的任务类型标签，例如 `shell`、`subagent`、`monitor`、`workflow`、`teammate`、`cloud session` 或 `MCP task`。每个标签标识创建该任务的 Claude Code 功能。对于无法识别的类型，回退为原始判别值 |
 | `status` | 当前任务状态 |
 | `description` | 自由文本描述，上限为 1000 个字符，被截断时字符串中带有 `… [+N chars]` 标记 |
-| `command` | shell 命令行，上限为 1000 个字符。仅存在于 `shell` 任务中 |
+| `command` | shell 命令行，上限 1000 个字符。仅对 `shell` 任务和运行命令的 `monitor` 任务存在 |
 | `agent_type` | 子代理类型名称。仅存在于 `subagent` 任务中 |
 | `server` | MCP 服务器名称。仅存在于 `monitor` 和 `MCP task` 任务中 |
 | `tool` | MCP 工具名称。仅存在于 `monitor` 和 `MCP task` 任务中 |
@@ -3338,7 +3338,7 @@ Claude Code 会拒绝包含 `.` 或 `..` 片段的绝对路径，以及任何经
 
 当子代理或工作流 Agent 完成时，Claude Code 会保留您的 WorktreeCreate hook 为其创建的 worktree，并且不会运行您的 WorktreeRemove hook。工作完成后，请自行删除这些 worktree。
 
-对于 `claude remote-control` 的清理，Claude Code 会在不提示您的情况下运行您的 hook。除非调用传入 [`discard_changes: true`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#exitworktree)，否则 `ExitWorktree` 会拒绝删除由 hook 创建的 worktree。
+当 `claude remote-control` 清理 worktree 时，您的 hook 会在没有提示的情况下运行。如果您要求 Claude 删除由 hook 创建的 worktree，除非 Claude 传入 [`discard_changes: true`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#exitworktree)，否则 `ExitWorktree` 会拒绝。
 
 Claude Code 使用 git 查找已更改或未跟踪的文件，因此对于不是 git 检出或不在 git 检出内的 worktree，即使目录中有未提交的工作，它也找不到任何文件。请在 WorktreeRemove hook 删除任何内容之前检查此类工作。
 
@@ -3939,7 +3939,7 @@ ElicitationResult hook 可以让用户的响应通过、更改其值或阻止它
 | 让响应通过 | 无输出，退出码为 0 | 用户的响应，未更改 |
 | 更改提交的值 | `"action": "accept"`，并在 `content` 中提供新值 | `accept` 以及您的 `content`，取代用户的值 |
 | 阻止响应 | `"action": "decline"` | `decline`，不包含用户的值 |
-| 取消请求 | `"action": "cancel"` | `cancel`，以及用户提交的值。要隐去这些值，请返回 `"decline"` |
+| 取消请求 | `"action": "cancel"` | `cancel`。要扣留用户提交的值，请返回 `"decline"` |
 
 此输出更改了 [ElicitationResult 输入](#elicitationresult-input)中所示的响应，因此在用户提交 `alice` 的地方，服务器收到的是 `alice@example.com`：
 

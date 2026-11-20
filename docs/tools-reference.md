@@ -24,35 +24,42 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `Artifact` | 将 HTML 或 Markdown 文件作为 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 发布到 claude.ai：一个私有的交互式页面。您可以通过公开链接共享它，或在 Team 和 Enterprise 计划上在您的组织内共享，其中公开共享需要所有者[启用它](https://code.claude.com/docs/zh-CN/artifacts.md#control-public-sharing)。需要 Pro、Max、Ultra、Team 或 Enterprise 计划和 `/login` 身份验证；请参阅[可用性](https://code.claude.com/docs/zh-CN/artifacts.md#availability) | 是 |
 | `AskUserQuestion` | 提出多选问题以收集要求或澄清歧义。问题默认保持打开状态，直到您回答。请参阅 [AskUserQuestion 工具行为](#askuserquestion-tool-behavior) | 否 |
 | `Bash` | 在您的环境中执行 shell 命令。请参阅 [Bash 工具行为](#bash-tool-behavior) | 是 |
-| `CronCreate` | 在当前会话中安排重复或一次性提示词。任务的范围是会话级别，在 `--resume` 或 `--continue` 时恢复（如果未过期）。请参阅[会话级定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md) | 否 |
+| `CronCreate` | 在当前会话中安排重复或一次性提示词。请参阅[会话级定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md) | 否 |
 | `CronDelete` | 按 ID 取消会话级定时任务 | 否 |
 | `CronList` | 列出所有会话级定时任务 | 否 |
 | `Edit` | 对特定文件进行有针对性的编辑。请参阅 [Edit 工具行为](#edit-tool-behavior) | 是 |
 | `EndConversation` | 结束会话，在持续滥用输入的罕见情况下，或当您要求 Claude 结束会话并随后确认时使用。请参阅 [EndConversation 工具行为](#endconversation-tool-behavior) | 否 |
 | `EnterPlanMode` | 切换到计划模式以在编码前设计方法 | 否 |
-| `EnterWorktree` | 创建一个隔离的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 并切换到它，或切换到现有的 worktree。请参阅 [EnterWorktree 工具行为](#enterworktree-tool-behavior) | 是 |
+| `EnterWorktree` | 创建一个隔离的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 并切换到它，或切换到现有的 worktree。请参阅 [EnterWorktree 工具行为](#enterworktree-tool-behavior) | 部分 worktree |
 | `ExitPlanMode` | 呈现计划以供批准并退出计划模式 | 是 |
 | `ExitWorktree` | 退出 worktree 会话并返回到原始目录。不适用于已在自己的工作目录中运行的子代理，例如 [`isolation: worktree`](https://code.claude.com/docs/zh-CN/sub-agents#supported-frontmatter-fields)。一旦启用 [`permissions.blockWritesOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockwritesoutsideworkingdirectories)，该工具将被移除或拒绝 | 否 |
 | `Glob` | 基于模式匹配查找文件。在 macOS、Linux 和 WSL 上默认不存在。请参阅 [Glob 工具行为](#glob-tool-behavior) | 否 |
 | `Grep` | 在文件内容中搜索模式。在 macOS、Linux 和 WSL 上默认不存在。请参阅 [Grep 工具行为](#grep-tool-behavior) | 否 |
 | `ListAgents` | 列出 Claude 可以使用 `SendMessage` 向其发送消息的 Agent：会话中的子代理、[agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友、您的其他本地 Claude Code 会话，以及当此会话连接到 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 时，您的[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)和您在其他机器上的 Remote Control 会话。支持 `/list-agents` 命令。请参阅[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)。需要 Claude Code v2.1.224 或更高版本，仅在[启用跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#availability)的会话中出现。队友行和显示此会话自己名称的第一行需要 v2.1.239 或更高版本 | 否 |
 | `ListMcpResourcesTool` | 列出连接的 [MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)公开的资源，不包括 [MCP Apps UI 资源](https://code.claude.com/docs/zh-CN/mcp.md#reference-mcp-resources)，这些是主机应用程序要呈现的页面 | 否 |
+| `ListPlugins` | 列出[为您的 claude.ai 账户启用的插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)。需要[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)或[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)。在[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)上不可用 | 否 |
+| `ListSkills` | 列出[为您的 claude.ai 账户启用的 skill](https://code.claude.com/docs/zh-CN/skills.md#how-synced-skills-behave)。在与 `ListPlugins` 相同的会话中可用 | 否 |
 | `LSP` | 通过语言服务器的代码智能：跳转到定义、查找引用、报告类型错误和警告。请参阅 [LSP 工具行为](#lsp-tool-behavior) | 否 |
 | `Monitor` | 在后台运行命令并将每个输出行反馈给 Claude，以便它可以在对话过程中对日志条目、文件更改或轮询状态做出反应。还可以打开 WebSocket 并将每条传入消息视为事件。请参阅 [Monitor 工具](#monitor-tool) | 是 |
 | `NotebookEdit` | 修改 Jupyter notebook 单元格。请参阅 [NotebookEdit 工具行为](#notebookedit-tool-behavior) | 是 |
 | `PowerShell` | 本地执行 PowerShell 命令。请参阅 [PowerShell 工具](#powershell-tool)了解可用性 | 是 |
+| `propose_skills` | 显示一张建议 skill 的卡片，供您审查并保存到您的 claude.ai 账户。在某些云端会话中可用，例如云端 [Cowork](https://claude.com/docs/cowork/overview) 会话 | 否 |
 | `PushNotification` | 从本地会话发送桌面通知，并在使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 时或在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中发送手机推送。推送传递通过 Anthropic 托管的基础设施运行，无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
 | `Read` | 读取文件的内容。请参阅 [Read 工具行为](#read-tool-behavior) | 否 |
 | `ReadMcpResourceTool` | 按 URI 读取特定 MCP 资源 | 否 |
 | `RemoteTrigger` | 在 claude.ai 上创建、更新、运行和列出[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)（以前称为 Routine）。支持 `/schedule` 命令。[`RemoteTrigger` 输入参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#remotetrigger)记录了每个操作和删除该工具的组织策略。云端定时任务位于 claude.ai 上，需要 Pro、Max、Ultra、Team 或 Enterprise 计划。因此，此工具无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
 | `ReportFindings` | 将代码审查发现报告为结构化列表，每个发现都有文件、摘要和失败场景，以便 Claude Code 可以呈现它们而不是将其打印为文本。当活跃的代码审查指令要求它这样做时，Claude 会调用它。发现还可以携带可选的 `category` 段，例如 `correctness` 或 `test-coverage`，显示在呈现列表中的文件位置旁边 | 否 |
 | `ScheduleWakeup` | 重新安排[自定步调 `/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)的下一次迭代。Claude 在每次迭代结束时调用此工具以选择下一次运行的时间，在一分钟到一小时之间；您不直接调用它。要改为结束循环，Claude 使用 `stop: true` 调用它，这会取消待处理的唤醒。待处理的唤醒出现在 [Stop hook 输入](https://code.claude.com/docs/zh-CN/hooks.md#stop-input)中的 `session_crons` 中 | 否 |
+| `SearchPlugins` | 搜索您的 claude.ai 插件目录。在与 `ListPlugins` 相同的会话中可用 | 否 |
+| `SearchSkills` | 搜索 claude.ai skill。在与 `ListPlugins` 相同的会话中可用 | 否 |
 | `SendFeedback` | 起草关于 Claude Code 的反馈报告，涵盖产品问题或 Claude 在会话中的自身行为，并将其排队在您的机器上供您审查。Claude Code 在您选择发送草稿之前不会发送任何内容。请参阅 [SendFeedback 工具行为](#sendfeedback-tool-behavior)。需要 Claude Code v2.1.238 或更高版本 | 否 |
 | `SendMessage` | 向另一个 Agent 发送消息：[agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友、[通过 Agent ID 或名称恢复的子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#resume-subagents)，或您的其他 Claude Code 会话之一，无论在此机器上还是其他机器上。向其他会话发送消息需要 Claude Code v2.1.224 或更高版本。[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)涵盖 Claude 可以到达的会话、[消息到达时的样子](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#what-a-message-looks-like)以及[Claude 如何在另一个会话空闲时获得通知](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#get-a-notice-when-another-session-goes-idle)。Claude 可以包含可选的 `summary` 输入，通常为 5-10 个单词，Claude Code 显示为单行预览。当 Claude 在[纯文本消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#limitations)上省略它时，Claude Code 使用消息的第一行作为摘要。Claude Code 使用省略号截断长于 200 个字符的摘要 | 否 |
 | `SendUserFile` | 从会话向您发送文件，带有可选标题，以便生成的报告、图表、屏幕截图或构建产物到达您的设备，而不仅仅在会话记录中提及。可选的 `display` 输入控制呈现方式：`render` 在客户端中内联打开文件，`attach` 仅显示下载卡，未设置时客户端按文件类型决定。在连接 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 客户端或在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中时可用。传递通过 Anthropic 托管的基础设施运行，因此该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用 | 否 |
 | `ShareOnboardingGuide` | 上传 `ONBOARDING.md` 并返回队友可以在 Claude Code 中打开的共享链接。在编写指南后从 `/team-onboarding` 调用。适用于 Team 和 Enterprise 计划上的 claude.ai 订阅者 | 是 |
 | `Skill` | 在主对话中执行[skill](https://code.claude.com/docs/zh-CN/skills.md#control-who-invokes-a-skill)。对于设置了 `allowed-tools`、`disallowed-tools` 或 `hooks` 的 skill，可能会提示 | 部分 skill |
 | `SubagentHandback` | 将子代理的最终报告传递给接收该子代理结果的任何对话。仅在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中提供，给 Agent 工具在本地运行的子代理，除了[分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，并在终端 CLI、IDE 扩展、云端会话和 Agent SDK 中可用；分类器在传递报告前审查它。需要 Claude Code v2.1.271 或更高版本 | 否 |
+| `SuggestPluginInstall` | 显示一张您可以添加的[建议插件卡片](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#plugin-suggestions-in-the-conversation)。在与 `ListPlugins` 相同的会话中可用 | 否 |
+| `SuggestSkills` | 显示一张您可以添加的 claude.ai skill 卡片。在与 `ListPlugins` 相同的会话中可用 | 否 |
 | `TaskCreate` | 在任务列表中创建新任务。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TaskGet` | 检索特定任务的完整详细信息。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
 | `TaskList` | 列出所有任务及其当前状态。仅在[任务工具可用性](#task-tool-availability)下列出的模型上默认提供，在其他模型上当您选择加入时提供 | 否 |
@@ -108,7 +115,7 @@ Agent tool 在单独的上下文窗口中生成一个子代理。子代理自主
 非 fork 子代理可以使用哪些 tools 取决于 [subagent definition](https://code.claude.com/docs/zh-CN/sub-agents.md) 中的 `tools` 和 `disallowedTools` 字段：
 
 * **两个字段都未设置**：子代理继承每个 [tool available to subagents](https://code.claude.com/docs/zh-CN/sub-agents.md#available-tools)。
-* **仅 `tools`**：子代理仅获得列出的 tools。
+* **仅 `tools`**：子代理获得列出的 tools。启用 [`memory`](https://code.claude.com/docs/zh-CN/sub-agents#enable-persistent-memory) 后，它还会获得 Read、Write 和 Edit。
 * **仅 `disallowedTools`**：子代理获得除列出的 tools 之外的每个父 tool。
 * **两者都设置**：`disallowedTools` 优先。同时列在两者中的 tool 被移除。
 

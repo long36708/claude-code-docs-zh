@@ -208,7 +208,7 @@ Read the comments on https://claude.ai/code/artifact/5fbea6f3-... and make the c
 * **在 `/tasks` 中停止任务**：Claude 停止回复该工件，直到您要求它在那里恢复回复。重新发布工件不会再次启动回复，当您稍后恢复会话时，停止仍然适用。
 * **在 3 秒内按两次 `Ctrl+X Ctrl+K`**：[停止每个运行的后台子代理](https://code.claude.com/docs/zh-CN/interactive-mode.md#general-controls)的和弦也会停止 Claude 为会话的其余部分回复每个工件。要求 Claude 恢复回复不会撤销此停止。
 
-由 Claude Code 自行启动的监视可能会在 Artifact 数小时无活动后结束。要重新启动监视，请再次发布该 Artifact 或要求 Claude 监视它。
+由 Claude Code 自行启动的监视可能会在 Artifact 数小时无活动后结束。您会看到 `Stopped watching Artifact: <name> (idle)`。要重新启动监视，请再次发布该 Artifact 或要求 Claude 监视它。如果您看到的是 `(made room for a newer watch)` 而不是 `(idle)`，说明您的会话已达到 25 个监视的上限。再次发布即可重新启动该监视。
 
 如果传递评论的服务变得不可用或停止响应，Claude Code 会尝试重新连接一段时间，然后停止监视您的会话正在监视的每个工件。
 
@@ -423,7 +423,7 @@ Team 和 Enterprise 计划的所有者可以在 [claude.ai 管理设置](https:/
 
 在 Team 和 Enterprise 计划中，公开共享默认处于关闭状态。要允许成员将 Artifact 发布到任何人无需登录即可查看的公开链接，请前往 [**Organization settings > Artifacts**](https://claude.ai/admin-settings/artifacts)，然后打开 **Artifacts** 开关下方的 **External sharing**。重新关闭该选项会阻止通过现有公开链接进行访问，但不会更改各个 Artifact 的受众；如果您重新启用该选项，访问将恢复。
 
-### 设置保留策略
+### 在 Enterprise 计划中设置保留策略
 
 要设置 Artifact 在被自动删除之前的保留时长，请前往 [**Organization settings > Data and privacy**](https://claude.ai/admin-settings/data-privacy-controls)。您可以分别为仍仅对作者私有的 Artifact 和已被共享的 Artifact 设置不同的保留期限。
 

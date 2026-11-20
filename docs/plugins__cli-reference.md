@@ -30,6 +30,8 @@
 * **插件参数**：`<plugin>` 参数是插件的 `name` 或 `name@marketplace`。当两个市场提供同名插件时，请使用限定形式。`configure` 只接受限定形式。
 * **作用域**：`--scope` 接受 `user`、`project` 或 `local`，用于指定命令写入的设置文件。`update` 还接受 `managed`。
 
+在终端中，成功行会省略 `Successfully`，例如 `Installed plugin:`。当 stdout 或 stderr 不是终端时，会保留 `Successfully`。
+
 ### plugin init
 
 在 `~/.claude/skills/<name>/` 下生成一个新插件的脚手架。除非您的管理员已[阻止 skills 目录插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#skills-directory-plugins-blocked-by-managed-settings)，否则它会在您的下一个会话中以 `<name>@skills-dir` 的形式加载，无需安装步骤。
@@ -850,12 +852,11 @@ Claude Code 打印 `Successfully updated marketplace: your-marketplace`。当您
 
 `<plugin>` 是 plugin `name` 或 `name@marketplace`。
 
-下表列出每个会话形式。shell 子命令 `init`、`update`、`details`、`prune`、`eval`、`eval init` 和 `test` 没有会话形式。
+下表列出了各命令的会话形式。shell 子命令 `init`、`update`、`details`、`prune`、`eval`、`eval init` 和 `test` 没有会话形式。
 
 | 命令 | 别名 | 它做什么 |
 | :- | :- | :- |
-| `/plugin` | | 在 **Discover** 选项卡上打开面板。`/plugin` 后的任何无法识别的第一个单词也这样做 |
-| `/plugin help` | `/plugin --help`、`/plugin -h` | 显示 `/plugin` 子命令的使用列表 |
+| `/plugin` | | 在 **Discover** 选项卡上打开面板 |
 | `/plugin list [--enabled\|--disabled]` | `ls` | 内联打印您从市场安装的插件，带有版本、作用域和状态。过滤标志仅显示该状态。启用状态尚未应用的插件标记为 `run /reload-plugins to apply` |
 | `/plugin install` | `i` | 打开 **Discover** 选项卡 |
 | `/plugin install <plugin>` | `i` | 在 **Discover** 选项卡中打开 plugin 的详细信息。使用 `name@marketplace`，在该市场的列表中打开它们 |

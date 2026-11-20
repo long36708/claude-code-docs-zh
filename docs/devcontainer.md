@@ -112,7 +112,7 @@ Claude Code 功能在基础镜像未提供 Node.js 时会自行安装。如果�
 
 开发容器是应用组织策略的便利场所，因为相同的镜像和配置在每个工程师的机器上运行。
 
-Claude Code 在 Linux 上读取 `/etc/claude-code/managed-settings.json` 并在[设置层次结构](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)中以最高优先级应用它，因此那里的值会覆盖工程师在 `~/.claude` 或项目的 `.claude/` 目录中设置的任何内容。从您的 Dockerfile 复制文件到位：
+Claude Code 在 Linux 上读取 `/etc/claude-code/managed-settings.json` 并在[设置层次结构](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)中以最高优先级应用它。从您的 Dockerfile 复制文件到位：
 
 ```dockerfile Dockerfile theme={null}
 RUN mkdir -p /etc/claude-code

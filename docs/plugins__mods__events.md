@@ -87,7 +87,7 @@ on('tool.call', { tool: /^mcp__github__/ }, hook)
 
 `hook` 为 Bash、Edit 或 Write 调用各运行一次，为名称以 `mcp__github__` 开头的工具调用运行一次。对任何其他工具（如 Read）的调用都不匹配这三个中的任何一个，因此 `hook` 不会为它运行。
 
-事件名称可以是通配符。`'classic.*'` 匹配每个[设置 hook 事件](#hook-the-settings-hook-events)。`'*'` 匹配除[遥测事件](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#telemetry)之外的每个事件，遥测事件需使用其自身的名称和 `{ to: 'collector' }` 过滤器。
+事件名称可以是通配符。`'classic.*'` 匹配每个[设置 hook 事件](#hook-the-settings-hook-events)。`'*'` 匹配大多数事件，但不匹配[遥测事件](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#telemetry)，遥测事件需使用其自身的名称和 `{ to: 'collector' }` 过滤器。
 
 为每个 matcher 注册一次事件。如果你为 `session.start` 调用 `on` 两次而没有 matcher，模块将无法加载，错误为 `on("session.start") is registered twice without a matcher`。将你的 mod 在会话启动时执行的所有操作放在一个 hook 中。
 

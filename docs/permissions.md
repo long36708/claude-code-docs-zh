@@ -16,7 +16,7 @@ Claude Code 使用分层权限系统来平衡功能和安全性。该表显示�
 | :- | :- | :- | :- |
 | 只读 | 文件读取、Grep | 否，在[工作目录和其他目录](#working-directories)内 | 不适用 |
 | Bash 命令 | Shell 执行 | 是，除了内置的[只读命令](#read-only-commands)集合 | 每个项目目录和命令永久有效 |
-| 文件修改 | Edit/Write 文件 | 是 | 直到会话结束 |
+| 文件修改 | Edit/Write 文件 | 是，但 Claude Code 自身的计划文件和[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)文件等除外 | 直到会话结束 |
 | Web 获取 | WebFetch | 是，除了内置的[预批准文档域](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)集合 | 每个项目目录和域永久有效 |
 | Web 搜索 | WebSearch | 是 | 每个项目目录永久有效 |
 
@@ -73,7 +73,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 
 | 模式 | 描述 |
 | :- | :- |
-| `default` | 在首次使用每个工具时提示权限。在 CLI、VS Code 和 JetBrains 扩展以及桌面应用中标记为 Manual，Claude Code 接受 `manual` 作为别名 |
+| `default` | 在大多数编辑、shell 命令和网络请求之前进行提示。在 CLI、VS Code 和 JetBrains 扩展以及桌面应用中标记为 Manual，Claude Code 接受 `manual` 作为别名 |
 | `acceptEdits` | 自动接受工作目录或 `additionalDirectories` 中路径的文件编辑和常见文件系统命令，例如 `mkdir`、`touch`、`mv` 和 `cp` |
 | `plan` | Claude 读取文件并运行只读 shell 命令来探索，但不编辑您的源文件；在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)可用的情况下，分类器批准的命令也会运行。在 CLI 和 VS Code 扩展中标记为 Plan |
 | `auto` | 无需常规提示即可运行；在 shell 命令和网络请求等操作运行之前，后台[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)会检查它们是否与您的请求一致 |
@@ -138,10 +138,19 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 * 模型省略的参数永远不会被匹配，因此 `Agent(model:*)` 不匹配留下 `model` 未设置的调用
 * 该值与 Claude 发送的文字输入进行比较，在任何规范化之前。`Agent(model:opus)` 匹配别名 `opus` 但不匹配完整模型 ID
 * 一个 `Skill(skill:<name>)` 拒绝规则改为[在其任何名称下匹配技能](https://code.claude.com/docs/zh-CN/skills.md#restrict-claude%E2%80%99s-skill-access)，例如其别名或显示名称
-* 使用 [`--verbose`](https://code.claude.com/docs/zh-CN/cli-reference) 运行以查看每个工具调用中的确切参数名称和值
 * 冒号周围的空格被忽略
 
 您不能以这种方式匹配工具的主要内容字段：Bash 和 PowerShell 的 `command`、Read、Edit 和 Write 的 `file_path`、Grep 和 Glob 的 `path`、NotebookEdit 的 `notebook_path` 和 WebFetch 的 `url`。像 `Bash(command:rm *)` 这样的规则可以通过复合命令绕过，因此 Claude Code 会忽略它并在启动时发出警告。改用 `Bash(rm *)`、`Read(./path)` 或 `WebFetch(domain:host)`。
+
+#### 检查 Claude 发送的参数
+
+要查看 Claude 发送给工具的参数名称和值，请在 shell 中使用 [`stream-json` 输出](https://code.claude.com/docs/zh-CN/headless#stream-responses)运行 `claude -p`，并提供一个需要调用该工具的提示词。此示例请求一个使用 Opus 的子代理，Claude 会通过 Agent 工具启动它：
+
+```bash theme={null}
+claude -p "Use a subagent on Opus to list the test files" --output-format stream-json --verbose
+```
+
+在输出中，找到 `name` 为您要检查的工具（本例中为 `Agent`）的 `tool_use` 块。其 `input` 包含参数名称和值。
 
 ### 通配符模式
 
@@ -656,6 +665,8 @@ PreToolUse hook 决定不会绕过权限规则。Claude Code 评估 deny 和 ask
 * **[`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)**：mod 可以批准仅会被该模式拒绝的调用。
 
 请参见[决定是否信任模块](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#decide-whether-to-trust-a-mod)，或如果您部署托管设置，请参见[为您的组织管理模块](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)。
+
+不要依赖权限规则来阻止[mod 自身发起的工具调用](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#mods-api-methods)。
 
 对于[需要用户交互的工具](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)，例如 `AskUserQuestion` 或标记为 `requiresUserInteraction` 的 MCP 工具，mod 的 `tool.check` 批准不会跳过提示。需要 Claude Code v2.1.292 或更高版本。标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具在 hook 返回 `"allow"` 时也仍然会提示，从[网络路径](#network-paths)进行的读取，以及在该设置到达 Claude Code 的会话中[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具也是如此。
 

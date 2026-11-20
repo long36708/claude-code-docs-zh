@@ -152,7 +152,7 @@ Read every Markdown file in this project and list the links that point to local 
 
 代码中的每个工具调用都会以该工具的常用名称（例如 `Bash` 或 [MCP 工具的名称](https://code.claude.com/docs/zh-CN/permissions.md#mcp)）经过您的 `deny` 和 `ask` [权限规则](https://code.claude.com/docs/zh-CN/permissions.md)以及 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse)。除了规则和 hook 之外，在自动模式下，分类器会审查代码；在会进行询问的模式下，您需要回复提示：
 
-* **[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)**：分类器会在每段代码运行之前对其进行审查，而不是审查每个工具调用。它看不到运行时计算出的值，例如从搜索输出中获取的路径，因此对于必须加以控制的调用，请保留规则或 hook。当[先前的代码仍在运行而新代码开始运行时，您仍可能收到提示](#permission-prompt-with-a-countdown)
+* **[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)**：分类器会在每段代码运行之前对其进行审查，而不是审查每个工具调用。它看不到运行时计算出的值，例如从搜索输出中获取的路径，因此对于必须加以控制的调用，请保留规则或 hook。对于某些调用，您仍可能[收到提示](#permission-prompt-with-a-countdown)，例如在分类器多次阻止后由您亲自批准的代码中的调用
 * **其他[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)**：对于在该模式下会提示您的每个工具调用，您都会收到提示
 
 如果您有一个允许或阻止 shell 命令的 `PreToolUse` hook，请让它检查命令的每个部分，就像 [Bash 规则所做的那样](https://code.claude.com/docs/zh-CN/permissions.md#compound-commands)。在 Code Mode 中，在名为 `app` 的文件夹中执行的 `git push` 可能会以 `cd 'app' && git push` 的形式到达您的 hook。
@@ -200,6 +200,12 @@ Read every Markdown file in this project and list the links that point to local 
 * **No 或 `Esc`**：代码停止，已完成的调用所做的更改保持不变
 * **No 并附加[评论](https://code.claude.com/docs/zh-CN/permissions.md#add-a-comment-when-you-answer-a-permission-prompt)**：该调用被拒绝，代码可以继续执行其其他调用
 
+### 使用沙箱限制 shell 命令
+
+您的[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)设置适用于代码所运行的 shell 命令。JavaScript 本身及其文件、网络和 MCP 工具调用在[沙箱之外](https://code.claude.com/docs/zh-CN/sandboxing.md#what-runs-outside-the-sandbox)运行。如需同时隔离 JavaScript 和这些调用，请在[容器或虚拟机](https://code.claude.com/docs/zh-CN/sandbox-environments.md)中运行 Claude Code。
+
+如需在代码请求以非沙箱方式运行命令时仍将这些命令保留在沙箱中，请开启[严格沙箱模式](https://code.claude.com/docs/zh-CN/sandboxing.md#turn-off-the-retry-with-strict-sandbox-mode)。在自动模式下，分类器会审查发出该请求的代码，而该命令不会单独接受审查。
+
 ### 长时间运行的代码
 
 当代码运行耗时较长的构建或测试时，Claude 要么等待它完成，要么让它在后台继续运行：
@@ -222,7 +228,11 @@ Read every Markdown file in this project and list the links that point to local 
 
 ### 使用 hook 检查代码输出
 
-如需在 Claude 读取代码返回的内容之前对其进行检查或脱敏，请编写一个匹配 `REPL`（运行代码的工具）的 [`PostToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#posttooluse)。从 `tool_response` 中读取输出，其中包含如下字段：
+如需在 Claude 读取代码返回的内容之前对其进行检查或脱敏，请编写一个匹配 `REPL`（运行代码的工具）的 [`PostToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#posttooluse)。同一个 hook 也会在[后台代码](#long-running-code)完成时以及代码抛出错误时运行。
+
+#### 在 hook 中读取代码输出
+
+在您的 `PostToolUse` hook 中，从 `tool_response` 中读取输出，其中包含如下字段：
 
 ```json theme={null}
 {
@@ -233,6 +243,8 @@ Read every Markdown file in this project and list the links that point to local 
   "toolsUsed": ["Bash"]
 }
 ```
+
+#### 对代码输出进行脱敏
 
 如需隐藏部分输出，请将修改后的 `tool_response` 副本作为 [`updatedToolOutput`](https://code.claude.com/docs/zh-CN/hooks#posttooluse-decision-control) 返回，并按以下方式构建该副本：
 
@@ -257,15 +269,22 @@ Read every Markdown file in this project and list the links that point to local 
 }
 ```
 
-如需测试该 hook，请将一个它应当隐藏的值放入文件中，然后让 Claude 读取并引用该文件。输入路径时不要加 `@`，并检查 Claude 的回复是否显示了您的替换文本。
+如需测试该 hook，请创建一个包含您的 hook 会脱敏的值的文件。然后启动一个 Code Mode 会话，让 Claude 读取并引用该文件。输入路径时不要加 `@`，并检查 Claude 的回复是否显示了您的替换文本。
 
-在依赖该 hook 之前，请针对以下情况做好规划：
+> [!WARNING]
+>
+> 不要依赖此 hook 来隐藏被拒绝的工具调用输入中的值，例如 Bash 命令。`refusedCalls` 字段可能会重复该输入，而 Claude 会原样读取它。
 
-* **后台代码和失败的代码**：对两者使用同一个 `PostToolUse` hook。它会在[后台代码](#long-running-code)完成时以及代码抛出错误时运行
-* **阻止**：即使您的 hook 进行了阻止，也要返回 `updatedToolOutput`。如果不返回，Claude 仍会读取输出
-* **hook 失败**：当您的检查遇到错误时，请返回一个在您脱敏的字段中填入占位文本的副本。如果 hook 崩溃、超时或输出无效的 JSON，Claude 会获得原始输出
-* **被拒绝的调用**：不要依赖此 hook 来隐藏被拒绝的工具调用输入中的值，例如 Bash 命令。`refusedCalls` 字段可能会重复该输入，而 Claude 会原样读取它
-* **`UserPromptSubmit` 检查**：如果您在 [`UserPromptSubmit` hook](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit) 中检查代码输出，请将该检查移至您的 `PostToolUse` hook。在 v2.1.328 或更高版本中，`UserPromptSubmit` hook 不会接收代码输出，即使管理员在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置了它们也是如此
+#### 在 hook 进行阻止或遇到错误时进行脱敏
+
+即使您的 hook 进行了阻止或遇到错误，也要将修改后的 `tool_response` 副本作为 `updatedToolOutput` 返回：
+
+* **您的 hook 进行阻止**：在与 [`"decision": "block"`](https://code.claude.com/docs/zh-CN/hooks#posttooluse-decision-control) 相同的 JSON 中输出[脱敏后的副本](#redact-code-output)。如果没有该副本，Claude 仍会读取原始输出
+* **您的 hook 遇到错误**：捕获该错误，并输出一个在您脱敏的字段中填入占位文本的副本。如果 hook 崩溃、超时或输出无效的 JSON，Claude 会获得原始输出
+
+#### 从 `UserPromptSubmit` hook 迁移检查
+
+如果您在 [`UserPromptSubmit` hook](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit) 中检查代码输出，请将该检查移至您的 `PostToolUse` hook。在 v2.1.328 或更高版本中，`UserPromptSubmit` hook 不会接收代码输出，即使管理员在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中设置了它们也是如此。
 
 ## 故障排除
 
@@ -293,13 +312,15 @@ Read every Markdown file in this project and list the links that point to local 
 
 ### 带倒计时的权限提示
 
-在自动模式下，如果先前的代码仍在运行时 Claude 又启动了新代码，先前的代码将失去分类器审查。随后，Claude Code 会就先前代码中剩余的、需要审查的调用询问您。在未连接 IDE 的情况下，提示会显示倒计时：
+在自动模式下，如果您在[分类器多次阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#when-auto-mode-falls-back)后自行批准代码，系统可能会就该代码以及仍在运行的先前代码中的工具调用询问您。在未连接 IDE 的情况下，提示可能会显示倒计时：
 
 ```text theme={null}
 Claude Code will automatically block this request in 1:59, to avoid holding up an unattended session
 ```
 
 请在倒计时结束前作答。否则该调用将被拒绝，并且之后本应显示倒计时的调用将在不提示的情况下被拒绝。如需再次看到这些提示，请向 Claude 发送一条消息。
+
+在 v2.1.327 之前，在 Claude 启动新代码后，即使分类器允许了新代码，您也可能会被询问正在运行的代码中剩余的调用。如需减少此类提示，请将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.327 或更高版本。
 
 ### 工具调用被 hook 拒绝
 
@@ -312,7 +333,7 @@ Claude Code will automatically block this request in 1:59, to avoid holding up a
 
 ### 代码输出被 hook 拦截
 
-如果在本应显示代码输出的位置出现 `UserPromptSubmit operation blocked by hook`，则表示您的 [`UserPromptSubmit`](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit) hook 将该输出作为提示词接收并阻止了它。如果 Claude 只报告了该 hook 的原因，请让它引用其收到的消息。
+如果您预期看到代码输出，却在 Claude 的回复中看到 `UserPromptSubmit operation blocked by hook`，则表示您的 [`UserPromptSubmit`](https://code.claude.com/docs/zh-CN/hooks#userpromptsubmit) hook 将该输出作为提示词接收并阻止了它。如果 Claude 只报告了该 hook 的原因，请让它引用其收到的消息。
 
 在 v2.1.328 或更高版本中，`UserPromptSubmit` hook 不会接收代码输出。如需在更早的版本上让输出通过，请更新 Claude Code 或修改该 hook：
 

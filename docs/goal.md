@@ -22,7 +22,7 @@
 | 方法 | 下一个回合何时开始 | 停止条件 |
 | :- | :- | :- |
 | `/goal` | 前一个回合完成时，或在交互式会话中，[空闲检查](#background-work-defers-evaluation)或[自动重试](#other-errors-retry-or-pause-the-goal)到期时 | 模型确认条件已满足或判断其不可能，或回合因[你必须修复的错误](#errors-you-have-to-fix-clear-the-goal)而失败，或你运行[`/goal clear`](#clear-a-goal) |
-| [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop) | 时间间隔过去时 | 你停止它，或 Claude 决定工作完成 |
+| [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks#run-a-prompt-repeatedly-with-%2Floop) | 时间间隔过去时 | 您停止它，或[循环自行结束](https://code.claude.com/docs/zh-CN/scheduled-tasks.md#stop-a-loop) |
 | [Stop hook](https://code.claude.com/docs/zh-CN/hooks-guide.md#prompt-based-hooks) | 前一个回合完成时 | 你自己的脚本或提示决定 |
 
 `/goal` 和 Stop hook 都在每个回合后触发。`/goal` 是一个会话范围的快捷方式：你输入一个条件，它仅在当前会话中活跃。Stop hook 存在于你的设置文件中，适用于其范围内的每个会话，可以运行脚本进行确定性检查或运行提示进行模型评估的检查。

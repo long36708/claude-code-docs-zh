@@ -18,7 +18,7 @@ Agent SDK 生成并监督一个 `claude` CLI 子进程，该子进程拥有一�
 
 ![请求流：从客户端到您的应用，应用在容器内通过 stdio 生成 claude CLI 子进程；子进程写入本地磁盘并通过 HTTPS 调用 api.anthropic.com](https://mintcdn.com/claude-code/ikqp3_70mqIahteV/images/agent-sdk/hosting-subprocess.svg?fit=max\&auto=format\&n=ikqp3_70mqIahteV\&q=85\&s=9dac857ca9d3b1410c3734900c386004)
 
-一个代理会话映射到一个子进程。运行 N 个并发会话意味着 N 个子进程，每个都有自己的进程树和记录文件。默认情况下，它们都继承您应用程序的工作目录。当会话需要单独的文件系统时，在每个会话的 `query()` 调用选项中传递不同的 `cwd`：
+一个 Agent 会话映射到一个子进程。运行 N 个并发会话意味着 N 个子进程，每个都有自己的进程树和会话记录文件。默认情况下，它们都继承您应用程序的工作目录。当会话需要单独的工作目录时，在每个会话的 `query()` 调用选项中传递不同的 `cwd`：
 
 ```typescript TypeScript theme={null}
 import { query } from "@anthropic-ai/claude-agent-sdk";

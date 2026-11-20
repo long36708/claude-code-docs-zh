@@ -34,9 +34,9 @@ Claude Code 在成功时以代码 0 退出，在运行失败时以非零代码�
 
 ### 使用 bare 模式更快启动
 
-添加 `--bare` 可以跳过 hook、skill、自定义命令、[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)、已安装的插件、MCP 服务器、自动记忆和 CLAUDE.md 的自动发现，从而减少启动时间。如果不使用它，`claude -p` 会像交互式会话一样发现并加载这些内容，包括在工作目录或 `~/.claude` 中配置的任何内容。
+添加 `--bare` 可跳过自动发现您的 hook、skill、自定义命令、[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)、已安装的插件、MCP 服务器、自动记忆和 CLAUDE.md，从而缩短启动时间。如果不使用该选项，`claude -p` 会像交互式会话一样发现并加载这些内容，包括在工作目录或 `~/.claude` 中配置的任何内容。
 
-bare 模式适用于需要在每台机器上获得相同结果的 CI 和脚本。队友的 `~/.claude` 中的 hook 或项目的 `.mcp.json` 中的 MCP 服务器不会运行，因为 bare 模式从不读取它们。您用 `--add-dir` 指定的目录是一个部分例外：bare 模式会从其 `.claude/skills/` 文件夹加载 skill，但仍然跳过其 `.claude/commands/` 和 `.claude/agents/` 文件夹。[来自其他目录的 Skills](https://code.claude.com/docs/zh-CN/skills.md#skills-from-additional-directories) 介绍了哪些内容会加载、哪些不会加载。
+在 bare 模式下，Claude Code 仍会读取设置文件及其 [权限规则](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder)，但 `~/.claude/settings.json` 中的 hook 或项目的 `.mcp.json` 中的 MCP 服务器不会运行。您用 `--add-dir` 指定的目录是一个特例：bare 模式会从其 `.claude/skills/` 文件夹加载 skill，但仍然跳过其 `.claude/commands/` 和 `.claude/agents/` 文件夹。[来自其他目录的 Skills](https://code.claude.com/docs/zh-CN/skills.md#skills-from-additional-directories) 介绍了哪些内容会加载、哪些不会加载。
 
 如果不使用 `--bare`，`-p` 会话会运行项目的 `.claude/settings.json` 中的 hook 并连接其 `.mcp.json` 中的服务器，即使在您从未信任过的文件夹中也是如此。`-p` 会话不会显示工作区信任对话框，也不会显示逐个服务器的批准提示。[在您信任文件夹之前运行的内容](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 介绍了 `-p` 下每种仓库内容以及如何将其排除在外。
 

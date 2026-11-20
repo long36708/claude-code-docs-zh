@@ -234,6 +234,8 @@ Claude Code 提供两种沙箱模式。在这两种模式下，沙箱都会强�
 * **针对该参数的询问规则**：为 `Bash(dangerouslyDisableSandbox:true)` 添加[询问规则](https://code.claude.com/docs/zh-CN/permissions.md#match-by-input-parameter)，即可在 Bash 重试时收到提示。在自动模式和 `bypassPermissions` 模式下您也会收到提示，并且该规则优先于匹配的允许规则
 * **[`permissions.blockReadsOutsideWorkingDirectories`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-blockreadsoutsideworkingdirectories)**：[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)介绍了在启用该设置时会提示的重试
 
+如果您使用 Code Mode，自动模式下的重试方式有所不同。请参阅[使用沙箱限制 shell 命令](https://code.claude.com/docs/zh-CN/code-mode.md#limit-shell-commands-with-the-sandbox)。
+
 当命令因 [`Sandbox is required` 消息](#commands-refused-with-sandbox-is-required)而被拒绝时，Claude Code 会忽略 `dangerouslyDisableSandbox` 参数，并同样拒绝该重试。
 
 #### 使用严格沙箱模式关闭重试
@@ -446,7 +448,7 @@ Claude Code 会合并会话所加载的每个[设置作用域](https://code.clau
 掩码需要满足以下条件：
 
 * **TLS 终止**：代理在请求内容中替换为真实值，因此它必须能够看到请求内容。请设置 [`network.tlsTerminate`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-tlsterminate)，使代理自行终止 TLS。如果不设置，掩码会失败，但不会暴露任何内容：命令仍然只能看到哨兵值，但哨兵值会原样到达服务器，导致身份验证失败。要检查此错误配置，请在终端中运行 `claude doctor`，并查看是否有 `TLS termination is unavailable` 警告。
-* **允许的目标**：每个 `mask` 条目可以列出 `injectHosts`，即允许真实值到达的主机。代理只在[域名允许列表](#network-isolation)所允许的连接上注入凭据，因此每个 `injectHosts` 主机还必须能够通过 `network.allowedDomains` 访问。对于没有 `injectHosts` 的 `mask` 条目，代理会在发往 `network.allowedDomains` 中每个主机的请求中替换为真实值。
+* **允许的目标**：每个 `mask` 条目可以列出 `injectHosts`，即允许真实值到达的主机。代理只在[域名允许列表](#network-isolation)所允许的连接上注入凭据，因此每个 `injectHosts` 主机还必须能够通过 `network.allowedDomains` 访问。对于大多数没有 `injectHosts` 的 `mask` 条目，代理会在发往 `network.allowedDomains` 中每个主机的请求中替换为真实值。
 * **受信任的设置作用域**：掩码会授权代理将您的真实凭据发送到某处，因此 Claude Code 只接受来自用户设置、托管设置和 `--settings` 标志的 `mask` 条目、`network.tlsTerminate`、[`credentials.allowPlaintextInject`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-credentials-allowplaintextinject)、`awsPairs` 和 `sigv4`。它会忽略仓库的 `.claude/settings.json` 或 `.claude/settings.local.json` 中的这些设置。当您的管理员通过服务器托管设置下发 `mask` 条目、`network.tlsTerminate` 或 `credentials.allowPlaintextInject` 时，它们属于[需要批准的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#security-approval-dialogs)。
 
 #### 掩码环境变量
@@ -484,7 +486,7 @@ Claude Code 会合并会话所加载的每个[设置作用域](https://code.clau
 
 #### 重新签名 AWS 请求
 
-AWS 请求携带基于请求内容的 SigV4 签名，因此请同时对 `AWS_ACCESS_KEY_ID` 和 `AWS_SECRET_ACCESS_KEY` 进行掩码。代理通过访问密钥的[哨兵值](#mask-credentials)识别 SigV4 请求，并使用真实值对请求重新签名，这需要 Claude Code v2.1.221 或更高版本。如果仅对私有密钥进行掩码，请求会使用代理无法识别的占位符签名，因此它们会在 AWS 处失败。
+AWS 请求携带基于请求内容的 SigV4 签名，因此请同时对 `AWS_ACCESS_KEY_ID` 和 `AWS_SECRET_ACCESS_KEY` 进行掩码。代理通过访问密钥的[哨兵值](#mask-credentials)识别 SigV4 请求。使用真实值对请求重新签名需要 Claude Code v2.1.221 或更高版本。如果仅对私有密钥进行掩码，请求会使用代理无法识别的占位符签名，因此它们会在 AWS 处失败。
 
 当您对常规的 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 变量的整个值进行掩码时，Claude Code 会自动将它们关联为一个凭据。如果您的 AWS 凭据存储在其他名称的变量中，请使用 [`credentials.awsPairs`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-credentials-awspairs) 对它们进行分组，这需要 Claude Code v2.1.224 或更高版本。
 

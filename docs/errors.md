@@ -99,6 +99,7 @@
 | `Your account does not have access to Claude. Please login again or contact your administrator.` | [身份验证](#oauth-token-revoked-or-expired) |
 | `API Error: 401 Invalid authentication credentials` | [身份验证](#api-error-401-invalid-authentication-credentials) |
 | `Login expired · Please run /login` | [身份验证](#login-expired) |
+| `Warning: this sign-in` | [检查已存储的登录何时结束](https://code.claude.com/docs/zh-CN/authentication.md#check-when-a-stored-login-ends) |
 | `The browser can't return the sign-in to Claude Code automatically` | [身份验证](#couldnt-start-the-local-sign-in-listener) |
 | `Couldn't start the local listener that receives the browser sign-in. Try again.` | [身份验证](#couldnt-start-the-local-sign-in-listener) |
 | `Failed to start OAuth callback server` | [身份验证](#failed-to-start-oauth-callback-server) |
@@ -111,6 +112,7 @@
 | `Login reached its time limit · Please run /login` / `Failed to authenticate: this login reached its time limit` | [身份验证](#login-expired) |
 | `Failed to authenticate: your claude.ai login expired` | [登录过期之后](https://code.claude.com/docs/zh-CN/authentication.md#after-the-login-expires) |
 | `claude.ai login ended · usage now billed to` / `Warning: the claude.ai login on this machine has ended` | [登录过期之后](https://code.claude.com/docs/zh-CN/authentication.md#after-the-login-expires) |
+| `The refresh token in CLAUDE_CODE_OAUTH_REFRESH_TOKEN was used for this attempt` | 修复其上方打印的拒绝原因，然后将 [`CLAUDE_CODE_OAUTH_REFRESH_TOKEN`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为新的令牌。 |
 | `Could not refresh your login because another Claude Code process is refreshing it` | [身份验证](#could-not-refresh-your-login) |
 | `Failed to refresh OAuth token: another Claude Code process is refreshing it or exited mid-refresh` | [身份验证](#could-not-refresh-your-login) |
 | `Could not refresh your login: the disk that holds the Claude Code config directory (~/.claude by default), or your disk quota on it, is full` | [身份验证](#could-not-refresh-your-login-disk-full) |
@@ -163,10 +165,11 @@
 | `403` 并带有 `x-deny-reason: host_not_allowed`，出现在云端会话或云端定时任务中 | [网络](#host-not-allowed-in-a-cloud-session) |
 | `proxy refused the connection` | [网络](#the-proxy-refused-the-connection) |
 | `403` with `GitHub GraphQL is not available from Claude Code sessions` in a cloud session | [GitHub proxy](https://code.claude.com/docs/zh-CN/cloud-environments.md#github-proxy) |
+| 带有 `In this cloud session a host fails to resolve like this` 的 `ENOTFOUND` | [网络](#host-not-allowed-in-a-cloud-session) |
 | `The cloud environments service returned an empty response` / `The cloud environments service returned a response in an unexpected format` | [网络](#the-cloud-environments-service-returned-an-empty-or-unexpected-response) |
 | `Failed to fetch session from Sessions API: Failed to fetch session logs` | [网络](#failed-to-fetch-session-from-sessions-api) |
 | `Couldn't load the history of cloud session` | [网络](#couldnt-load-the-history-of-cloud-session) |
-| `Couldn't reconnect to your Remote Control session` | [网络](#couldnt-reconnect-to-your-remote-control-session) |
+| `Couldn't reconnect to your Remote Control session` | [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#couldnt-reconnect-to-your-remote-control-session) |
 | `N sessions ended while this machine was offline — the environment was cleaned up on the server and can't be resumed.` | [网络](#sessions-ended-while-this-machine-was-offline) |
 | `Couldn't share the transcript.` | [网络](#couldnt-share-the-transcript) |
 | `Couldn't send feedback` | [网络](#couldnt-send-feedback) |
@@ -214,6 +217,7 @@
 | `thinking.type.enabled is not supported for this model` | [请求错误](#thinking-type-enabled-is-not-supported-for-this-model) |
 | `Effort '<level>' isn't available with thinking turned off on this model` | [请求错误](#effort-isnt-available-with-thinking-turned-off) |
 | `effort '<level>' is not supported when thinking is disabled` | [请求错误](#effort-isnt-available-with-thinking-turned-off) |
+| `API Error: 400 Invalid effort level` / `Your organization limits effort for <model>, so Claude Code is using '<level>' instead of '<level>'` | [组织 effort 限制](https://code.claude.com/docs/zh-CN/model-config.md#organization-effort-limits) |
 | `max_tokens must be greater than thinking.budget_tokens` | [请求错误](#thinking-budget-exceeds-output-limit) |
 | `Claude's response exceeded the ... output token maximum` | [请求错误](#response-exceeded-the-output-token-maximum) |
 | `API Error: 400 due to tool use concurrency issues` | [请求错误](#tool-use-or-thinking-block-mismatch) |
@@ -358,6 +362,7 @@
 | `"<plugin>" was not uninstalled: it is still switched on in <file>` | [Plugin 错误](#plugin-was-not-uninstalled) |
 | `"<plugin>" was not uninstalled: <file> is there and could not be read` | [Plugin 错误](#plugin-was-not-uninstalled) |
 | `Plugin "<plugin>" was not uninstalled: installed_plugins.json` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#installed-plugins-json-holds-a-record-this-version-cannot-read) |
+| `was updated or removed, so this hook did not run` | [插件故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-directory-does-not-exist) |
 | `Plugin directory does not exist: <path>` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-directory-does-not-exist) |
 | `Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)` | [Plugin 错误](#skipping-connection-recent-failure-cached) |
 | `is not added on this machine, so your organization's marketplace policy keeps its plugins off` | [添加市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace) |
@@ -393,6 +398,7 @@
 | `cannot be handed to a teammate intact` | [工具错误](#command-line-deny-rule-cannot-be-handed-to-a-teammate) |
 | `Message too large for cross-session delivery` | [工具错误](#message-too-large-for-cross-session-delivery) |
 | `Too many messages to this session just now` | [工具错误](#too-many-messages-to-this-session-just-now) |
+| `Held a message from <sender>` / `Dropped the held message from <sender> without delivering it` | [控制传入消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#control-inbound-messages)；对于 `claude -p`，参见[非交互式会话](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#non-interactive-sessions) |
 | `Cross-session message was dropped at the recipient session's inbox` | [工具错误](#cross-session-message-dropped-at-the-inbox) |
 | `Refusing to send: reply target is a symlink` / `Refusing to send: cannot vet reply target` | [工具错误](#refusing-to-send-a-cross-session-message) |
 | `Refusing to read <path>: its symlink resolution changed after permission was checked (<reason>)` / `Refusing to search <path>: its symlink resolution changed after permission was checked` | [工具错误](#refusing-after-a-symlink-changed) |
@@ -412,6 +418,7 @@
 | `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary` | [工具错误](#file-is-not-valid-utf-8) |
 | `git is not installed on this Mac. To install it, run xcode-select --install, then try again.` | [工具错误](#git-is-not-installed-on-this-mac) |
 | `Refusing to apply edits to <path>: a hook is configured for file edits in this session` | [工具错误](#a-hook-is-configured-for-file-edits) |
+| `blocking because onFailure is "block"` | [hook 失败时阻止操作](https://code.claude.com/docs/zh-CN/hooks.md#block-the-action-when-a-hook-fails) |
 | `the source file is not valid UTF-8 text` / `the source file is not valid UTF-16 text` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `the source file has the replacement character U+FFFD` | [工具错误](#the-source-file-is-not-valid-utf-8-text) |
 | `Not published: that file is on a network share` | [工具错误](#not-published-that-file-is-on-a-network-share) |
@@ -665,7 +672,8 @@ Request timed out
 
 * 如果每个请求都以此消息失败，且您将 `API_TIMEOUT_MS` 设置为了 `0`，请检查 `claude --version`。如果版本早于 v2.1.305，请更新 Claude Code 或设置一个正值。
 * 重试请求
-* 如果是缓慢的网络或代理导致，请按照[自动重试](#automatic-retries)中的说明提高 `API_TIMEOUT_MS`
+* 如果消息在 `Request timed out` 之后还有内容并指出了某个[环境变量](https://code.claude.com/docs/zh-CN/env-vars.md#set-environment-variables)，请按照消息的说明操作。`No data arrived` 表示[响应体空闲超时](https://code.claude.com/docs/zh-CN/network-config.md#streaming-idle-watchdogs)结束了该请求。
+* 如果网络或代理较慢且版本早于 v2.1.328，请提高 [`API_TIMEOUT_MS`](#tune-retry-behavior)。如果请求仍然超时，请[更新到 v2.1.328 或更高版本](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)，并设置下一条超时消息中指出的任何变量。如果您无法更新，请将 [`API_FORCE_IDLE_TIMEOUT`](https://code.claude.com/docs/zh-CN/env-vars) 设置为 `0`。
 * 如果超时频繁且您的网络状况良好，请参阅下面的[网络和连接错误](#network-and-connection-errors)
 
 ### No response from API
@@ -2352,19 +2360,7 @@ Couldn't load the history of cloud session session_01HJKLMNOPQRSTUVWXYZ. Check i
 
 ### Couldn't reconnect to your Remote Control session
 
-```text theme={null}
-Couldn't reconnect to your Remote Control session. Retry, or start a fresh session without --resume.
-```
-
-使用 `claude --resume` 或 `claude --continue` 恢复时，会重新连接到该对话中记录的 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 会话。此消息表示重新连接由于可能是暂时性的原因（例如网络中断或服务器错误）而失败，因此 Claude Code 无法确认远程会话是否仍然存在。您的本地会话会在没有 Remote Control 的情况下继续运行。
-
-**解决方法：**
-
-* 运行 `/remote-control` 重试连接
-* 使用 `claude --remote-control` 启动新会话，以创建新的 Remote Control 会话
-* 有关其他 Remote Control 启动消息，请参阅 [Remote Control 故障排除](https://code.claude.com/docs/zh-CN/remote-control.md#troubleshooting)
-
-如果服务器改为报告之前的会话已不存在，您不会看到此消息。Claude Code 会启动一个新会话来代替它，或者显示 [`Previous session is unavailable — run /remote-control to start a new one`](https://code.claude.com/docs/zh-CN/remote-control#previous-session-is-unavailable)。
+有关原因和修复方法，请参阅 [Remote Control 故障排除中的此消息](https://code.claude.com/docs/zh-CN/remote-control.md#couldnt-reconnect-to-your-remote-control-session)。
 
 ### Sessions ended while this machine was offline
 
@@ -4449,19 +4445,7 @@ Output styles are saved to local settings (.claude/settings.local.json), which t
 
 ### Marketplace is registered from an untrusted source
 
-该市场以一个[保留给 Anthropic 官方市场](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#marketplace-file)的名称注册，但其注册来源并不是 `anthropics` 的 GitHub 仓库。Claude Code 每次加载或刷新市场时都会重新检查保留名称，因此该市场以及从中安装的插件将停止加载。在 v2.1.205 之前，在其名称成为保留名称之前注册的条目仍会继续加载。
-
-```text theme={null}
-Marketplace "claude-community" is registered from an untrusted source: The name 'claude-community' is reserved for official Anthropic marketplaces. Only repositories from 'github.com/anthropics/' can use this name. To fix it, remove the marketplace and re-add it from the official source.
-```
-
-对于来源不是 GitHub 仓库或 Git URL 的市场（例如本地目录），中间那句话会改为 `can only be used with GitHub sources from the 'anthropics' organization`。`claude plugin marketplace add` 会执行相同的检查，并以 `Failed to add marketplace:` 加上同样的保留名称说明来拒绝保留名称。
-
-**解决方法：**
-
-* 如果该市场已经注册，请运行 `claude plugin marketplace remove <name>`，然后从官方的 `github.com/anthropics` 仓库重新添加
-* 如果您发布的第三方市场在该名称成为保留名称之前就已使用它，请为市场重命名，并请用户从您的来源重新添加
-* 请参阅[市场 schema](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#marketplace-file) 下的保留名称列表
+有关原因和解决方法，请参阅[插件故障排除中的此消息](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#marketplace-is-registered-from-an-untrusted-source)。
 
 ### 市场名称是某个保留名称的另一种拼写
 
@@ -4551,21 +4535,7 @@ headersHelper for MCP server 'internal-api' references ${user_config.*}. The sub
 
 ### Plugin archive integrity check failed
 
-该插件的市场条目使用了带 `sha256` 固定值的 [`archive` 来源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#archive-plugin-source)，而下载文件的摘要与该固定值不匹配。Claude Code 会拒绝安装，因此插件缓存中不会有任何更改。不匹配可能有三个原因：
-
-* 作者计算固定值之后，URL 上的文件发生了变化
-* 作者在市场条目中输入了错误的摘要
-* 该 URL 提供的文件与作者固定的文件不同
-
-```text theme={null}
-Plugin archive integrity check failed for https://artifacts.example.com/claude-plugins/my-plugin.zip: expected sha256 6bfa50e3d2e00c052b46abe51fff89346ac803e45771f76dcf6df1ab74cca5e1, got ac52220c0914ef8ca6a602e4a7362f88d30fb021110f72a6d15b68c3fe7df2b7. The archive was not installed. Verify the sha256 in the marketplace entry, or that the URL serves the intended file.
-```
-
-**解决方法：**
-
-* 如果您是该插件的发布者，请重新计算该 URL 所提供的确切文件的摘要，例如使用 `shasum -a 256 my-plugin.zip`，或在 PowerShell 中使用 `Get-FileHash -Algorithm SHA256 my-plugin.zip`，然后更新市场条目中的 `sha256`
-* 如果您是安装该插件的用户，请运行 `/plugin marketplace update <name>` 刷新目录，以防该条目已被更正，然后重试安装
-* 如果刷新后摘要仍不一致，请在安装前询问市场所有者他们固定的是哪个文件
+有关原因和解决方法，请参阅[插件故障排除中的此消息](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-archive-integrity-check-failed)。
 
 ### Path escapes plugin directory
 

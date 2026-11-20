@@ -56,7 +56,7 @@
 | 在 Windows 上，安装命令打印脚本文本，但没有任何内容安装 | [运行完整的安装命令](#wrong-install-command-on-windows) |
 | `App unavailable in region` | Claude Code 在您的国家/地区不可用。请参阅[支持的国家/地区](https://www.anthropic.com/supported-countries)。 |
 | `unable to get local issuer certificate` | [配置企业 CA 证书](#tls-or-ssl-connection-errors) |
-| `OAuth error` 或 `403 Forbidden` | [修复身份验证](#login-and-authentication) |
+| `OAuth error`、`That doesn't look like the full code` 或 `403 Forbidden` | [修复身份验证](#login-and-authentication) |
 | `Claude Code access has not been granted for this account` | [获取包含 Claude Code 的角色](#claude-code-access-has-not-been-granted-for-this-account) |
 | 设置期间 `Unable to connect to Anthropic services` | 请参阅[错误参考](https://code.claude.com/docs/zh-CN/errors.md#unable-to-connect-to-anthropic-services)中的 Unable to connect to Anthropic services |
 | `Could not load the default credentials` 或 `Could not load credentials from any providers` | [Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 凭据](#bedrock-agent-platform-or-foundry-credentials-not-loading) |
@@ -815,7 +815,7 @@ Claude Code needs roughly 512MB of free memory to install. Free up memory, then 
 
 **解决方案：**
 
-1. **在运行安装程序之前设置工作目录**。从 `/` 运行时，安装程序扫描整个文件系统，这会导致过度的内存使用。设置 `WORKDIR` 将扫描限制在小目录：
+1. **在运行安装程序之前设置工作目录**：
    ```dockerfile theme={null}
    WORKDIR /tmp
    RUN curl -fsSL https://claude.ai/install.sh | bash
@@ -1146,7 +1146,9 @@ npm install -g @anthropic-ai/claude-code@latest
 
 如果浏览器在登录期间不会自动打开，按 `c` 将 OAuth URL 复制到您的剪贴板，然后手动将其粘贴到浏览器中。当 URL 在狭窄或 SSH 终端中跨行换行且无法直接点击时，这也有效。
 
-### OAuth 错误：无效代码
+### That doesn't look like the full code
+
+如果您看到 `That doesn't look like the full code`，请从浏览器复制完整的登录代码（包括中间的 `#`），然后重新粘贴。
 
 如果您看到 `OAuth error: Invalid code. Please make sure the full code was copied`，登录代码已过期或在复制粘贴期间被截断。
 

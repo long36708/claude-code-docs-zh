@@ -341,7 +341,7 @@ Claude Code 删除下面路径中的文件，一旦它们的年龄超过 [`clean
 Claude Code 在这些情况下跳过基于年龄的扫描：
 
 * **Bare mode**：当您使用 [`--bare`](https://code.claude.com/docs/zh-CN/headless#start-faster-with-bare-mode) 运行 `claude -p` 时，Claude Code 不会在该会话中运行扫描。
-* **暂停扫描**：如果 Claude Code 无法安全地确定保留期，它会暂停扫描；[`retention_sweep` 事件](https://code.claude.com/docs/zh-CN/monitoring-usage#retention-sweep-event)列出每个暂停它的配置。当原因是无法读取或解析的设置文件，或者在设置了 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 的情况下存在设置错误时，`/status` 会显示警告，直到您修复该原因。
+* **暂停扫描**：如果 Claude Code 无法安全地确定保留期，它会暂停扫描；[`retention_sweep` 事件](https://code.claude.com/docs/zh-CN/monitoring-usage#retention-sweep-event)会报告原因。当原因是无法读取或解析的设置文件，或者在设置了 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 的情况下存在设置错误时，`/status` 会显示警告，直到您修复该原因。
 
 当[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)提供 `cleanupPeriodDays` 时，即使较低优先级的设置文件存在错误，Claude Code 也会以托管值运行扫描。
 

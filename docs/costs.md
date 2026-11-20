@@ -187,13 +187,13 @@ Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同
 
 ### Claude Console
 
-API 组织通过[工作区](https://platform.claude.com/docs/en/build-with-claude/workspaces)管理 Claude Code 支出。您可以针对 Claude Code 的总支出[设置工作区支出限制](https://platform.claude.com/docs/en/build-with-claude/workspaces#workspace-limits)，并在 Console 中[查看成本和用量报告](https://platform.claude.com/docs/en/build-with-claude/workspaces#usage-and-cost-tracking)。
+API 组织通过[工作区](https://platform.claude.com/docs/en/build-with-claude/workspaces)管理 Claude Code 支出。您可以在 Console 中[设置工作区支出限制](https://platform.claude.com/docs/en/build-with-claude/workspaces#workspace-limits)并[查看成本和用量报告](https://platform.claude.com/docs/en/build-with-claude/workspaces#usage-and-cost-tracking)。
 
 > [!NOTE]
 >
-> 当您首次使用 Claude Console 账户对 Claude Code 进行身份验证时，系统会自动为您创建一个名为"Claude Code"的工作区。该工作区为您组织中所有 Claude Code 用量提供集中的成本跟踪和管理。您无法为该工作区创建 API 密钥；它专门用于 Claude Code 的身份验证和使用。
+> 当某位成员首次登录、Claude Code 为其[创建 API 密钥](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)时，系统会在您的 Console 组织中自动创建一个名为"Claude Code"的工作区。您无法自行为该工作区创建 API 密钥；它专门用于 Claude Code 的身份验证和使用。
 >
-> 对于具有自定义速率限制的组织，该工作区中的 Claude Code 流量会计入您组织的整体 API 速率限制。您可以在 Claude Console 中该工作区的 Limits 页面上设置[工作区速率限制](https://platform.claude.com/docs/en/api/rate-limits#setting-lower-limits-for-workspaces)，以限制 Claude Code 的占用份额并保护其他生产工作负载。
+> 对于具有自定义速率限制的组织，该工作区中的 Claude Code 流量会计入您组织的整体 API 速率限制。您可以在 Claude Console 的 [Rate limits 页面](https://platform.claude.com/usage/limits)上设置[该工作区的速率限制](https://platform.claude.com/docs/en/api/rate-limits#setting-lower-limits-for-workspaces)，以限制该工作区的占用份额并保护其他生产工作负载。
 
 对于按用户报告，[Console 仪表板](https://platform.claude.com/claude-code)显示每位成员的支出和已接受的代码行数，[Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) 则可通过 [Admin API 密钥](https://platform.claude.com/settings/admin-keys)以编程方式返回每日按用户指标。请参阅[面向 API 客户的分析](https://code.claude.com/docs/zh-CN/analytics.md#access-analytics-for-api-customers)。
 

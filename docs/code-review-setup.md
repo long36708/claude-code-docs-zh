@@ -47,7 +47,7 @@
 
 **4. 选择仓库**
 
-选择需要审查的仓库，然后点击 **Continue**。添加仓库需要您连接的 GitHub 账户对该仓库拥有写入权限。您可以稍后[添加更多仓库](#add-more-repositories)。
+选择需要审查的仓库，然后点击用于添加它们的按钮；例如选择了两个仓库时，该按钮显示为 **Add 2 repositories**。添加仓库需要您连接的 GitHub 账户对该仓库拥有写入权限。您可以稍后[添加更多仓库](#add-more-repositories)。
 
 **5. 点击 Finish**
 
@@ -124,7 +124,7 @@
 
 ### 添加更多仓库
 
-要在设置完成后添加仓库，请点击 **Code review** 部分中 **Repositories** 表上方的 **Add**。**Add a repository** 对话框随即打开。选择仓库并点击 **Continue**。
+要在设置完成后添加仓库，请点击 **Code review** 部分中 **Repositories** 表上方的 **Add**。**Add a repository** 对话框随即打开。选择仓库并点击添加按钮；例如选择了两个仓库时，该按钮显示为 **Add 2 repositories**。
 
 * **某个仓库未列出**：请参阅[某个仓库未在 Add a repository 中列出](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md#a-repository-isn’t-listed-in-add-a-repository)。
 * **您希望包含某个 GitHub 组织中的所有仓库**：请[覆盖整个组织](#cover-a-whole-github-organization)，而不是逐个选择仓库

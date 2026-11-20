@@ -29,7 +29,7 @@ Agent Skills 通过专业能力扩展 Claude，Claude 会在相关时自动调�
 
 ## 在 Agent SDK 中使用 skill
 
-在 `query()` 上设置 `skills` 选项以控制会话中 Claude 可以调用哪些 skill。省略时，发现的 skill 启用且 Skill 工具可用，与 CLI 行为匹配。传递 `"all"` 以让 Claude 调用每个发现的 skill，传递 skill 名称列表以仅允许那些，或传递 `[]` 以让 Claude 不调用任何 skill。
+在 `query()` 上设置 `skills` 选项以控制 Claude 在主对话中可以调用哪些 skill。省略时，发现的 skill 启用且 Skill 工具可用，与 CLI 行为匹配。传递 `"all"` 以让 Claude 调用每个发现的 skill，传递 skill 名称列表以仅允许那些，或传递 `[]` 以让 Claude 不调用任何 skill。
 
 例如，要让 Claude 仅调用两个命名的 skill：
 
@@ -43,7 +43,7 @@ const options = { skills: ["pdf", "docx"] };
 
 ### 在会话中设置 skill
 
-当您设置 `skills` 时，SDK 自动将 Skill 工具添加到 `allowedTools`。如果您还传递显式 `tools` 列表，请在该列表中包含 `"Skill"`，以便 Claude 可以调用 skill。
+当您设置 `skills` 时，SDK 会自动将您启用的 skill 添加到 `allowedTools`。如果您还传递显式 `tools` 列表，请在该列表中包含 `"Skill"`，以便 Claude 可以调用 skill。
 
 配置后，Claude 自动从文件系统发现 skill 并在与用户请求相关时调用它们。
 
@@ -105,7 +105,7 @@ for await (const message of query({
 
 该列表仅接受确切的 skill 名称。如果一个条目不能作为确切名称工作，`query()` 会在会话开始前拒绝该列表。请参阅 [Invalid skill name error](#invalid-skill-name-error) 了解名称规则和每个 SDK 引发的错误。
 
-模型看不到未列出的 skill，Skill 工具会拒绝它们，而它们的文件保留在磁盘上，可通过 Read 和 Bash 访问。限制列表不会限制 [按名称分派](#dispatch-commands-by-name)。
+模型看不到未列出的 skill，Skill 工具会拒绝它们，而它们的文件保留在磁盘上，可通过 Read 和 Bash 访问。限制列表不会限制子代理或[按名称分派](#dispatch-commands-by-name)。
 
 要让 Claude 调用每个发现的 skill，传递 `skills: "all"` 而不是通配符。
 

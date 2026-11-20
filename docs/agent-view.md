@@ -225,7 +225,7 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 * 带有预定义选项的问题：面板按编号列出选项。在回复输入框为空时，按某个选项的编号将其填入，然后按 `Enter` 发送，或者改为输入您自己的答案
 * 没有预定义选项的问题：输入您的答案。当空输入框显示建议的回复时，按 `Tab` 将其填入，并可在发送前编辑
-* 权限提示或其他对话框，例如[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)提示或 MCP 服务器的[输入请求](https://code.claude.com/docs/zh-CN/mcp.md#respond-to-mcp-elicitation-requests)：回复并不会回答它。您的回复会在队列中等待。要回答该对话框，请用 `→` 附加
+* 权限提示或其他对话框，例如[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)提示或 MCP 服务器的[输入请求](https://code.claude.com/docs/zh-CN/mcp.md#respond-to-mcp-elicitation-requests)：回复并不会回答它。要回答该对话框，请在回复输入框为空时用 `→` 附加
 
 当 [`PermissionRequest`](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 或 [`PreToolUse`](https://code.claude.com/docs/zh-CN/hooks#pretooluse) hook 针对会话正在询问的调用返回了 Claude Code 无法验证的输出时，该行会在待处理请求的文本之前显示 hook 事件以及 `hook output invalid:` 和验证错误。对于以其他方式失败的 hook，该行会说明 hook 失败。会话仍在等待同一个请求。
 
@@ -263,7 +263,7 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 在前台运行的会话中（即您在终端中启动、而非从 agent view 附加的会话），在空提示符上按 `←` 会将其转入后台并打开 agent view，同时选中该会话的行，因此您无需离开终端即可切换会话。对于已附加的会话，同样按一次即可分离。
 
-如果您在删除提示符中最后的文本或浏览提示历史后立即按 `←`，Claude Code 会要求您确认：第一次按下显示 `Press ← again to open agents`（在已附加的会话中显示 `Press ← again to go back to agents`），第二次按下才会切换。
+如果您在删除提示符中最后的文本或浏览提示历史后立即按 `←`，Claude Code 会要求您确认。再按一次 `←` 即可切换。
 
 用 `←` 将会话转入后台后：
 

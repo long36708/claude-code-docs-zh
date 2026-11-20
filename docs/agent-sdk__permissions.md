@@ -6,7 +6,7 @@
 
 > 使用权限模式、hooks 和声明式允许/拒绝规则来控制您的代理如何使用工具。
 
-Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用权限模式和规则来定义自动允许的内容，以及使用 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input) 在运行时处理其他所有情况。
+Claude Agent SDK 提供权限控制来管理 Claude 如何使用工具。使用权限模式和规则来定义自动允许的内容，并使用 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input) 处理仍需批准的调用。
 
 ## 权限如何被评估
 

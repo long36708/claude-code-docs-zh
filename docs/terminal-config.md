@@ -53,7 +53,7 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 >
 > 打开"设置"→"配置文件"→"键盘"并勾选"Use Option as Meta Key"。
 >
-> 如果您接受了 Claude Code 的首次运行终端设置提示，这已经完成。该提示为您运行 `/terminal-setup`，它启用 Option 作为 Meta 并在您的 Apple Terminal 配置文件中关闭可听见的铃声。
+> `/terminal-setup` 和首次运行终端设置提示仅在 macOS 26 及更早版本上启用此设置。两者还会关闭您的配置文件的可听见的铃声。
 >
 > 在[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)中，`/terminal-setup` 保持铃声设置不变，以便终端铃声保持可听见。如果较早的运行关闭了铃声，请在"设置"→"描述文件"→"高级"→"可听见的铃声"下将其重新打开。
 

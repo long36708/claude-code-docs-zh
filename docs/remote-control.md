@@ -202,8 +202,8 @@ Remote Control 会话处于活动状态后，您可以通过以下几种方式�
 
 除非开启了自动连接，否则只有在您显式运行 `claude remote-control`、`claude --remote-control` 或 `/remote-control` 时，Remote Control 才会激活。要为每个交互式会话开启自动连接，请在 Claude Code 中运行 `/config` 并设置 **Enable Remote Control for all sessions**。该开关有三个值：
 
-* **`true`**：交互式会话启动时自动连接。
-* **`false`**：关闭自动连接，但[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中的 `true` 优先级更高，因为 Claude Code 会将此选择保存到您的用户设置中。项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中的 `false` 即使在托管设置为 `true` 时也会关闭自动连接。
+* **`on`**：交互式会话启动时自动连接。
+* **`off`**：关闭自动连接，但[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中的 `true` 优先级更高，因为 Claude Code 会将此选择保存到您的用户设置中。项目或本地设置（`.claude/settings.json`、`.claude/settings.local.json`）中的 `false` 即使在托管设置为 `true` 时也会关闭自动连接。
 * **`default`**：清除您的选择，如果您的组织设置了管理员默认值，则遵循该默认值，否则遵循 Claude Code 的当前默认值。如果您设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK`，请参阅[设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 时的自动连接](#auto-connect-with-disable-telemetry-or-do-not-track)。
 
 VS Code 扩展和 Desktop 应用也有自动连接开关：
@@ -223,8 +223,8 @@ VS Code 扩展和 Desktop 应用也有自动连接开关：
 
 在仅设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 的情况下开启自动连接之前，请确认您的 Claude Code 版本满足[这些变量的要求](#requirements)。然后检查您的组织是否要求 [Trusted Devices](#trusted-devices)：
 
-* **不要求**：在 `/config` 中将 **Enable Remote Control for all sessions** 设为 `true`。
-* **要求**：设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 时无法使用 Remote Control。请取消设置这两个变量中您设置的那个。如果您的会话仍未自动连接，请在 `/config` 中将 **Enable Remote Control for all sessions** 设为 `true`。
+* **不要求**：在 `/config` 中开启 **Enable Remote Control for all sessions**。
+* **要求**：设置了 `DISABLE_TELEMETRY` 或 `DO_NOT_TRACK` 时无法使用 Remote Control。请取消设置这两个变量中您设置的那个。如果您的会话仍未自动连接，请在 `/config` 中开启 **Enable Remote Control for all sessions**。
 
 ### 停止服务器后恢复会话
 
@@ -536,7 +536,15 @@ claude --remote-control --debug-file claude-debug.log
 
 当您使用 `claude --resume` 或 `claude --continue` 恢复对话时，Claude Code 会重新连接到该对话中记录的 Remote Control 会话。此消息意味着重新连接因可能是临时的原因（例如网络中断或服务器错误）而失败，因此 Claude Code 无法确认远程会话是否仍然存在。
 
+完整消息如下所示：
+
+```text theme={null}
+Couldn't reconnect to your Remote Control session. Retry, or start a fresh session without --resume.
+```
+
 运行 `/remote-control` 以重试连接，或使用 `claude --remote-control` 启动新会话以创建新的 Remote Control 会话。您的本地会话在此期间继续运行而不使用 Remote Control。
+
+如果服务器报告之前的会话已不存在，您不会看到此消息。Claude Code 会启动一个新会话来取代它，或显示 [`Previous session is unavailable — run /remote-control to start a new one`](#previous-session-is-unavailable)。
 
 ### "Previous session is unavailable — run /remote-control to start a new one"
 

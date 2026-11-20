@@ -1414,7 +1414,7 @@ Connectors 来自 claude.ai 仅在您的活跃 [身份验证方法](https://code
 您的组织可以在 [claude.ai connectors](https://claude.com/docs/connectors) 上设置每个工具的控制。Claude Code 在启动时读取这些设置并在本地强制执行它们，除了桌面应用的 [本地和 SSH 会话](#how-connectors-reach-claude-code)。在那里，桌面应用在传入 connector 之前扣留 `blocked` 工具，`ask` 设置不会到达 Claude Code，因此它将会话的普通 [权限规则](https://code.claude.com/docs/zh-CN/permissions.md) 应用于这些工具，而不是在每次调用时提示。在 Claude Code 自身获取 connectors 的会话中，运行 `/mcp` 以查看哪个设置适用于 connector 上的每个工具。
 
 * **工具设置为 `ask`**：Claude 每次调用该工具时，Claude Code 都会提示，原因为 `Your organization requires approval for this tool`。即使在 `acceptEdits`、`auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)中，该提示也会出现。在终端中，您无法保存您的选择。匹配的[允许规则](https://code.claude.com/docs/zh-CN/permissions.md)不会跳过该提示。在 `dontAsk` 模式中，或在没有任何方式回应提示的 `-p` 运行中，Claude Code 会改为拒绝该调用。
-* **工具设置为 `blocked`**：Claude Code 在 Claude 看到该工具之前将其过滤掉，因此它从不出现在 Claude 的工具列表中。在 Claude Code 自身获取连接器的会话中，`/mcp` 工具列表仍然显示该工具，并标记为 `turned off by your organization`。
+* **工具设置为 `blocked`**：Claude Code 在 Claude 看到该工具之前将其过滤掉，因此它不会出现在 Claude 的工具列表中。在 Claude Code 自行获取连接器的会话中，`/mcp` 工具列表仍然显示该工具，并标记为 `turned off by your organization`。
 
 桌面应用和 claude.ai 聊天应用相同的 `blocked` 设置，因此 Claude 也无法在那里使用被阻止的工具，您无法从桌面应用的会话中扣留工具，同时在聊天中保持其可用。桌面应用跳过其所有工具都被阻止的 connector。
 

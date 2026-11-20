@@ -12,7 +12,7 @@ Agent SDK 会话从设置文件、环境变量和启动时传递的 `options` �
 
 ## 将选项传递给会话
 
-每个 `query()` 调用都接受一个选项对象：TypeScript 中的 `Options`，Python 中的 `ClaudeAgentOptions`。每个字段都是可选的，使用无选项启动的会话以 SDK 的默认值运行。下面的示例配置了一个只读会话，用于总结项目的开放 TODO。对中读作 TypeScript / Python，其中拼写不同：
+每个 `query()` 调用都接受一个选项对象：TypeScript 中的 `Options`，Python 中的 `ClaudeAgentOptions`。每个字段都是可选的，使用无选项启动的会话以 SDK 的默认值运行。下面的示例配置了一个会话，用于总结项目的开放 TODO。成对的名称读作 TypeScript / Python：
 
 * **`model`**：选择模型
 * **`allowedTools` / `allowed_tools`**：预先批准只读工具列表
@@ -69,7 +69,7 @@ asyncio.run(main())
 设置文件提供超出选项对象的配置。两个选项控制它们的加载方式：
 
 * **`settingSources` / `setting_sources`**：控制加载哪些文件系统源：用户、项目和本地。设置文件和 CLAUDE.md 文件通过这些源到达。
-* **`settings`**：加载设置文件路径或任一语言的内联 JSON 字符串，TypeScript 也接受设置对象。无论你传递什么形式，都会覆盖用户、项目和本地文件系统设置；只有托管策略设置排名更高。参考文档在 TypeScript 的[设置优先级](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#settings-precedence)和 Python 的[设置优先级](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#settings-precedence)下记录了完整的优先级顺序。
+* **`settings`**：加载设置文件路径或任一语言的内联 JSON 字符串，TypeScript 也接受设置对象。您传递的权限规则和大多数其他列表会[添加到](https://code.claude.com/docs/zh-CN/settings.md#lists-merge-instead-of-overriding)用户、项目和本地设置文件中的对应项。对于大多数单个值，Claude Code 会优先采用您传递的值，而不是这些文件中的值；只有托管策略设置排名更高。请参阅 [TypeScript](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#settings-precedence) 和 [Python](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#settings-precedence) 的完整优先级顺序。
 
 传递 `[]` 以禁用用户、项目和本地设置。有关更多信息，请参阅[在 SDK 中使用 Claude Code 功能](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features.md)。
 

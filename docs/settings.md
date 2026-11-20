@@ -56,7 +56,7 @@ A cloud session
 
 * **托管**：由您的组织部署。您无需创建或编辑它。
 * **共享项目**：已经使用 Claude Code 的项目可能已提交了该文件。如果没有，请在项目文件夹中的 `.claude/settings.json` 创建它。
-* **用户**和**项目本地**：您可以自行创建，也可以让 Claude Code 创建。当您第一次在 `/config` 菜单中更改存储在用户设置中的选项（例如主题）时，它会写入 `~/.claude/settings.json`；当您第一次在权限提示上给予常设批准（例如对 Bash 命令选择"Yes, and don't ask again"）时，它会写入 `.claude/settings.local.json`。少数 `/config` 选项（包括 **Show tips**）会保存到 `.claude/settings.local.json`，而不是用户文件。
+* **用户**和**项目本地**：您可以自行创建，也可以让 Claude Code 创建。当您保存用户设置（例如主题）时，它会写入 `~/.claude/settings.json`。当您在权限提示上给予常设批准（例如对 Bash 命令选择"Yes, and don't ask again"）时，它会写入 `.claude/settings.local.json`。
 
 > [!NOTE]
 >
@@ -118,7 +118,7 @@ Claude Code 的系统提示未发布。要给 Claude 常设指令，使用 [`CLA
 在 Claude Code 内运行 `/config` 并打开**配置**选项卡。它列出了一小组个人选项，如主题、编辑器模式和详细输出，而不是每个设置键。选择一个选项来更改它；Claude Code 为您保存它：
 
 * **大多数选项**：`~/.claude/settings.json`
-* **一些选项，如显示提示**：`.claude/settings.local.json`
+* **输出样式**：`.claude/settings.local.json`
 * **[全局配置选项](https://code.claude.com/docs/zh-CN/settings-reference.md#global-config-settings)**：`~/.claude.json`
 
 要设置一个选项而不使用菜单，传递 `key=value`，例如 `/config verbose=true`。

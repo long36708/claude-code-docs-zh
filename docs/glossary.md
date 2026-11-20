@@ -65,7 +65,7 @@ Claude 根据您的更正和偏好为自己编写的笔记，按 git 存储库�
 
 ### Bare mode
 
-使用 `--bare`，Claude Code 启动时不加载 hooks、skills、custom commands、subagents、installed plugins、MCP servers、auto memory 或 CLAUDE.md，除了您通过 `--add-dir` 传递的目录中的 skills。建议用于 CI 和脚本调用，其中您需要在每台机器上获得相同的结果。
+使用 `--bare` 时，Claude Code 启动时不加载您的 hook、skill、自定义命令、子代理、已安装的插件、MCP 服务器、自动记忆或 CLAUDE.md，但通过 `--add-dir` 传入的目录中的 skill 除外。建议用于 CI 和脚本调用。
 
 了解更多：[使用 bare mode 更快启动](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode)
 

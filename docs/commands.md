@@ -153,7 +153,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/tasks` | 查看和管理当前会话中的后台工作，包括已完成的子代理。也可作为 `/bashes` 使用 |
 | `/team-onboarding` | 根据您的 Claude Code 使用历史生成团队入门指南。Claude 会分析您过去 30 天的会话、命令和 MCP 服务器使用情况，并生成一份 markdown 指南，队友可以将其作为第一条消息粘贴以快速完成设置。对于 Team 和 Enterprise 套餐的 claude.ai 订阅者，还会返回一个分享链接，队友可以直接在 Claude Code 中打开 |
 | `/teleport` | 将[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#from-cloud-to-terminal)拉取到此终端。打开选择器，然后获取分支和对话。也可作为 `/tp` 使用。需要 claude.ai 订阅 |
-| `/terminal-setup` | 在 VS Code、Cursor、Devin Desktop、Alacritty 或 Zed 中[安装用于换行的 Shift+Enter 快捷键](https://code.claude.com/docs/zh-CN/terminal-config.md#enter-multiline-prompts)。在 Apple Terminal 中，则改为[启用 Option+Enter 换行并关闭提示音](https://code.claude.com/docs/zh-CN/terminal-config.md#enable-option-key-shortcuts-on-macos)。在 iTerm2 中，[开启剪贴板访问，使 `/copy` 能够正常工作](https://code.claude.com/docs/zh-CN/terminal-config#enable-option-key-shortcuts-on-macos) |
+| `/terminal-setup` | 在 VS Code、Cursor、Devin Desktop、Alacritty 或 Zed 中[安装用于换行的 Shift+Enter 快捷键](https://code.claude.com/docs/zh-CN/terminal-config.md#enter-multiline-prompts)。在 Apple Terminal 中，则改为[关闭提示音](https://code.claude.com/docs/zh-CN/terminal-config.md#enable-option-key-shortcuts-on-macos)。在 iTerm2 中，[开启剪贴板访问，使 `/copy` 能够正常工作](https://code.claude.com/docs/zh-CN/terminal-config#enable-option-key-shortcuts-on-macos) |
 | `/theme` | 更改颜色主题。包括与终端浅色或深色背景匹配的 `auto` 选项、浅色和深色变体、色盲友好（daltonized）主题、使用终端调色板的 ANSI 主题，以及来自 `~/.claude/themes/` 或插件的任何[自定义主题](https://code.claude.com/docs/zh-CN/terminal-config.md#create-a-custom-theme)。选择 **New custom theme…** 可创建一个主题 |
 | `/tui [classic\|fullscreen]` | 设置终端 UI 渲染器并重新启动到该渲染器。`fullscreen` 会启用[无闪烁备用屏幕渲染器](https://code.claude.com/docs/zh-CN/fullscreen.md)。`default`，或 在 v2.1.327 或更高版本中的 `classic`，会选择经典渲染器。不带参数时，输出当前活动的渲染器 |
 | `/ultraplan <prompt>` | 已移除。请改用[计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)。以前会将规划任务发送到[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，以便在浏览器中审阅 |
@@ -175,7 +175,7 @@ Claude Code 在你输入时过滤 `/` 菜单。下面的每个要点涵盖了你
 
 * **高亮显示**：Claude Code 仅当 `/` 后面的字母与命令的名称或别名匹配时才高亮显示顶部建议，匹配可以从名称的开头或名称内的某个单词开始，忽略 `:`、`_` 和 `-` 分隔符。输入 `/adddir` 会高亮显示 `/add-dir`，输入 `/new` 会通过其别名高亮显示 `/clear`。按 `Enter` 运行高亮显示的建议。这些高亮显示规则需要 Claude Code v2.1.236 或更高版本。
 * **打字错误后**：Claude Code 不高亮显示任何内容。接近的匹配项保持列出，你可以用 `Tab` 或箭头键选择一个，但 `Enter` 会按原样提交你的文本并报告[未知命令](https://code.claude.com/docs/zh-CN/errors.md#unknown-command)。
-* **你无法使用的命令**：Claude Code 将它们排除在菜单之外。当没有任何内容匹配时，Claude Code 显示 `No commands match "/name"`。大多数不可用的命令在你提交时会返回[未知命令](https://code.claude.com/docs/zh-CN/errors.md#unknown-command)；少数几个，例如[`/schedule` 在 Console API 密钥上](https://code.claude.com/docs/zh-CN/routines#schedule-returns-unknown-command)，会改为返回自己的可用性消息。当你的组织的策略禁用某些命令时，这些命令也会返回自己的消息。
+* **您无法使用的命令**：Claude Code 将其中大多数命令排除在菜单之外。当没有任何内容匹配时，Claude Code 显示 `No commands match "/name"`。如果您提交了不可用的命令，您会看到[未知命令](https://code.claude.com/docs/zh-CN/errors.md#unknown-command)，或者一条说明该命令为何不可用的消息。
 * **隐藏命令**：Claude Code 故意将一些可用命令（例如 `/heapdump`）排除在菜单之外。部分名称永远不会将隐藏命令带入菜单：如果部分匹配不到任何可见内容，Claude Code 会显示相同的不匹配消息。Claude Code 仅在你输入完整名称后才列出该命令，提交完整名称会运行它。
 
 ## MCP prompts

@@ -1479,7 +1479,7 @@ Claude Code 已停止发送 `claude_code.safety_event`：
 * `is_built_in`：该子代理是否为内置 Agent 类型
 * `is_async`：该子代理是否在[后台](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)运行
 * `total_tokens`：子代理最后一个 API 请求的 token 占用量：即该单个请求的输入、缓存创建、缓存读取和输出 token，大致相当于子代理完成时的上下文大小。并非整个运行过程的总和
-* `total_tool_uses`：子代理在整个运行过程中进行的工具调用次数
+* `total_tool_uses`：子代理在整个运行过程中进行的工具调用次数，不包括 [`SubagentHandback`](https://code.claude.com/docs/zh-CN/tools-reference)
 * `duration_ms`：运行时间（毫秒）
 * `model`：子代理被解析为运行的模型
 * `final_model`：生成子代理最终响应的模型；在运行中途发生切换（例如回退）后，它会与 `model` 不同
@@ -1513,7 +1513,7 @@ Claude Code 已停止发送 `claude_code.safety_event`：
 读取 `result` 以了解扫描是否已运行：
 
 * `"complete"`：扫描已运行，事件包含其计数
-* `"skipped"`：Claude Code 无法安全地确定保留期，因此暂停了扫描，事件不包含计数。如果 `skip_reason` 为 `"settings_unknowable"` 或 `"settings_invalid_key_set"`，请修复该机器上 `/status` 报告的设置错误，以便之后的会话可以运行扫描
+* `"skipped"`：Claude Code 无法安全地确定保留期，因此暂停了清理，事件不携带计数。如果 `skip_reason` 为 `"settings_unknowable"` 或 `"settings_invalid_key_set"`，请修复该机器上 `/status` 报告的所有设置错误，以便后续会话可以运行清理
 
 当[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)设置了 `cleanupPeriodDays` 时，托管值会固定保留期，即使较低优先级作用域中的设置文件损坏或无效，扫描也会运行。
 
@@ -1529,10 +1529,10 @@ Claude Code 已停止发送 `claude_code.safety_event`：
 * `period_days`：扫描开始时使用的保留期（以天为单位）：合并设置中的 `cleanupPeriodDays`，并应用 [`settings.read` hook](https://code.claude.com/docs/zh-CN/plugins/mods/events#settings-read-hook) 所做的任何更改。如果这使该键未设置，则为 `30`。在 skipped 事件中，为扫描本应使用的值，根据 Claude Code 能够读取的设置来源计算得出
 * `used_default`：当 `period_days` 回退到 `30` 时为 `"true"`，否则为 `"false"`。在 complete 事件中，`"true"` 表示应用了 30 天默认值
 * `skip_reason`：Claude Code 暂停清理的原因。仅当 `result` 为 `"skipped"` 时存在：
-  * `"user_source_disabled"`：用户设置被排除（例如通过 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 标志或 SDK 的 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 选项），且没有启用的来源提供 `cleanupPeriodDays`
-  * `"settings_unknowable"`：某个设置文件无法读取或解析，因此 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 可能被设置为 Claude Code 看不到的值
-  * `"settings_invalid_key_set"`：设置存在验证错误，且显式设置了 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays`，因此回退到默认值可能会违背该设置删除或保留文件
-  * `"remote_settings_unknowable"`：第三方部署上 Claude Desktop 的 Code 选项卡中的某个会话请求了[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)。它没有收到可用的响应，因此 `cleanupPeriodDays` 可能被设置为 Claude Code 看不到的值
+  * `"user_source_disabled"`：用户设置被排除（例如通过 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 标志或 SDK 的 [`settingSources`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) 选项），并且没有任何已启用的来源提供 `cleanupPeriodDays`
+  * `"settings_unknowable"`：某个设置来源无法读取或解析，因此 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays` 可能被设置为 Claude Code 无法看到的值
+  * `"settings_invalid_key_set"`：设置存在验证错误，并且显式设置了 `cleanupPeriodDays` 或 `desktopSessionCleanupPeriodDays`，因此回退到默认值可能会违背该设置删除或保留文件
+  * `"remote_settings_unknowable"`：第三方部署上 Claude Desktop 的 Code 标签页中的会话请求了[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)。它未收到可用的响应，因此 `cleanupPeriodDays` 可能被设置为 Claude Code 无法看到的值
 * `transcripts_deleted`：清理删除的会话记录数量，即顶层的 `~/.claude/projects/*/*.jsonl` 文件
 * `transcripts_exempted_desktop`：已超过保留期限、但清理根据 [Claude Desktop 和 Cowork 规则](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)予以保留的会话记录数量。这些不计入 `files_past_cutoff`。需要 Claude Code v2.1.248 或更高版本
 * `session_files_deleted`：会话文件清理删除的文件数量：会话记录加上每个会话的配套文件，例如附属文件、录制文件和工具结果

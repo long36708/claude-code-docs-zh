@@ -200,7 +200,7 @@ exit 0
 
 在执行脚本的机器上使用专用自动化用户帐户交互式运行一次 `claude auth login`。Claude Code 在 macOS 上将令牌存储在 OS 密钥链中，或在 Linux 和 Windows 上存储在 `~/.claude/.credentials.json` 中。在 macOS 主机上，其密钥链无法写入（如 SSH 会话中的典型情况，其中登录密钥链保持锁定），Claude Code 也将令牌存储在 `~/.claude/.credentials.json` 中。请参阅[凭证管理](https://code.claude.com/docs/zh-CN/authentication.md#credential-management)。
 
-CLI 在每次调用时自动刷新短期访问令牌，但基础刷新令牌授予从初始登录起限制为 30 天，因此每 30 天在该主机上交互式重新运行一次 `claude auth login`。
+CLI 会自动刷新短期访问令牌，但基础刷新令牌授予从初始登录起限制为 30 天。请在该登录的[最早结束日期](https://code.claude.com/docs/zh-CN/authentication.md#check-when-a-stored-login-ends)之前，在该主机上交互式重新运行 `claude auth login`。
 
 ### 临时 CI 运行器
 

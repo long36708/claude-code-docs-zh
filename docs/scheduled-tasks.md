@@ -129,7 +129,9 @@ quiet, say so in one line.
 * **[自定节奏的循环](#let-claude-choose-the-interval)**：在循环等待下一次迭代时，在空输入框中按 `Esc` 即可停止它。在 Claude 空闲时，您也可以按 `Ctrl+C` 停止它，但在[您已附加到的后台会话](#detach-without-stopping-a-loop)中除外。`Pending wakeup cancelled` 通知会确认该循环不会再次触发。
 * **[固定间隔的循环](#run-on-a-fixed-interval)**：要停止 `/loop 5m` 之类的循环，请让 Claude 取消它，例如 `cancel the deploy check loop`。`Esc` 和 `Ctrl+C` 无法停止它，也无法停止任何您[通过直接询问 Claude 安排的任务](#manage-scheduled-tasks)。未取消的循环会在[七天后](#seven-day-expiry)结束。
 
-在[自定节奏模式](#let-claude-choose-the-interval)下，Claude 也可以在任务完成后自行结束循环。Claude 会使用 `stop: true` 调用 [`ScheduleWakeup` 工具](https://code.claude.com/docs/zh-CN/tools-reference)，从而立即取消待处理的唤醒。如果某次迭代结束时既没有重新安排也没有停止，Claude Code 会在大约 20 分钟后安排一次备用唤醒，如果该次迭代也没有重新安排，则结束循环。
+在[自定节奏模式](#let-claude-choose-the-interval)下，Claude 也可以在任务完成后自行结束循环。Claude 会使用 `stop: true` 调用 [`ScheduleWakeup` 工具](https://code.claude.com/docs/zh-CN/tools-reference)，从而立即取消待处理的唤醒。
+
+当某次迭代结束而 Claude 没有安排下一次迭代时，自定节奏的循环也可能会停止。如需在大约 20 分钟后额外运行一次迭代，请参阅 [`CLAUDE_CODE_LOOP_KEEPALIVE`](https://code.claude.com/docs/zh-CN/env-vars#variables)。
 
 #### 分离而不停止循环
 
@@ -238,7 +240,7 @@ cancel the deploy check job
 * 任务仅在 Claude Code 运行且空闲时触发。关闭终端或让会话退出会停止它们触发。[将会话放在后台](https://code.claude.com/docs/zh-CN/agent-view.md#from-inside-a-session)会将 `/loop` 任务转移到后台会话，该会话继续运行而无需终端。
 * 没有错过触发的追赶。如果任务的计划时间在 Claude 忙于长时间运行的请求时经过，它会在 Claude 变为空闲时触发一次，而不是每个错过的间隔触发一次。
 * 在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#from-inside-a-session)中，如果[自定步调的循环](#let-claude-choose-the-interval)的下一次唤醒到期时会话进程未在运行（例如发生崩溃之后），该循环会停止。当进程再次启动时，会话记录会显示一条[说明该唤醒不会触发的通知](https://code.claude.com/docs/zh-CN/errors.md#restarted-after-its-next-loop-wakeup-was-due)。要继续该循环，请[回复该会话](https://code.claude.com/docs/zh-CN/agent-view.md#peek-and-reply)并要求 Claude 保持其运行。
-* 当您使用 `claude --resume` 或 `claude --continue` 恢复会话时，Claude Code 会恢复使用 `CronCreate` 调度的任务，除了已[过期](#seven-day-expiry)的重复任务和计划时间已经过去的一次性任务。[自定步调的 `/loop`](#let-claude-choose-the-interval)不会被恢复，因此请再次运行 `/loop` 以重新启动它。
+* 当您使用 `claude --resume` 或 `claude --continue` 恢复会话时，Claude Code 会恢复使用 `CronCreate` 调度的任务，除了已[过期](#seven-day-expiry)的重复任务和计划时间已经过去的一次性任务。如果您在轮次之间通过选择 `Exit and stop tasks` 退出，也会丢失会话范围的任务。[自定步调的 `/loop`](#let-claude-choose-the-interval)也不会被恢复。要重新启动未恢复的循环，请再次运行 `/loop`。
 * 恢复的重复任务不会为会话未运行期间错过的运行而触发。其下一次运行是您恢复后第一个到期的运行，并且[抖动](#jitter)适用于该次运行。
 * 当您使用 `claude --resume` 或 `claude --continue` 恢复时，Claude Code 不会重新启动会话结束时正在运行的后台 Bash 命令和监视器。如果您仍然需要其中某一个，请让 Claude 重新启动它。
 * 当[功能标志获取关闭](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)时，Claude Code 会将您要求在会话间保留的任务存储在项目的 `.claude/scheduled_tasks.json` 文件中。当 `.claude` 目录或该文件是符号链接时，Claude Code 会返回错误而不是调度任务。保存的任务仅在您创建它的项目文件夹中运行。如果您将文件复制到另一个文件夹（例如新的 worktree），那里的会话会列出复制的任务但不会运行它们，因此请在该文件夹中再次创建任务。

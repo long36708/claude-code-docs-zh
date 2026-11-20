@@ -282,6 +282,7 @@ Claude Desktop 应用中的 [Cowork](https://claude.com/docs/cowork/overview) �
 * **本地管理员权限**：作为机器上的管理员的开发人员可以编辑托管源本身，这就是为什么 MDM 工具可以按计划重新部署配置文件或文件，以及为什么 HKLM 注册表和 macOS 托管首选项域存在。
 * **服务器管理的缓存**：服务器管理的设置来自 Anthropic 的服务器，对本地缓存的编辑 [仅持续到下一次成功获取](https://code.claude.com/docs/zh-CN/server-managed-settings.md#security-considerations)。
 * **其他工具**：托管设置仅绑定 Claude Code。从另一个工具调用 API 的开发人员不在它们下。
+* **允许规则和允许列表**：开发人员可以向 `permissions.allow` 和 `allowedMcpServers` 等列表 [添加条目](https://code.claude.com/docs/zh-CN/settings.md#lists-merge-instead-of-overriding)，因此在列表有对应的 [`allowManaged*Only` 键](#managed-only-settings) 时请部署该键。使用 [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly) 时，还需将您依赖的拒绝规则和询问规则也移入托管设置。
 
 ## 检查策略是否生效
 

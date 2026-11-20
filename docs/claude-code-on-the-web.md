@@ -448,8 +448,6 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 
 在 shell 中运行 [`claude auth login`](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands) 以使用您的 claude.ai 账户登录，然后重试该命令。在正在运行的会话中，`/login` 的作用相同。如果错误中提到的是您的提供商，请参阅[错误表](#errors-when-sending-to-a-cloud-session)：云端会话无法通过第三方提供商使用。
 
-在 v2.1.274 至 v2.1.289 版本中，登录消息为 `Claude Code cloud sessions require authentication with a Claude.ai account. API key authentication is not sufficient. Please run /login to authenticate, or check your authentication status with /status.`
-
 ### 分支不在 GitHub 上
 
 当 `claude --cloud` 打印以 `Branch <name> is not on GitHub` 开头的一行时，云端会话仍会启动，但不是从您的分支启动。该行会指出会话改为从何处启动：您分支历史中一个已推送的提交，或仓库的默认分支。仅存在于您本机上的提交以及未提交的更改不会出现在会话中。

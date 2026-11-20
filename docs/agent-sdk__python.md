@@ -912,7 +912,7 @@ class ClaudeAgentOptions:
 | `plugins` | `list[SdkPluginConfig]` | `[]` | 从本地路径加载自定义插件。见 [插件](https://code.claude.com/docs/zh-CN/agent-sdk/plugins.md) 了解详情 |
 | `sandbox` | [`SandboxSettings`](#sandboxsettings) ` \| None` | `None` | 以编程方式配置沙箱行为。见 [沙箱设置](#sandboxsettings) 了解详情 |
 | `setting_sources` | `list[SettingSource] \| None` | `None`（CLI 默认值：所有源） | 控制加载哪些文件系统设置。传递 `[]` 以禁用用户、项目和本地设置。如果设置了 `skills` 而未设置此字段，则仅加载用户和项目源。显式设置 `setting_sources` 以保留本地设置。端点托管策略始终会加载；当会话使用组织凭据在[符合条件的配置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)上进行身份验证时，会获取服务器托管设置。有关无论此选项如何都会读取的输入，见 [settingSources 不控制什么](https://code.claude.com/docs/zh-CN/agent-sdk/claude-code-features.md#what-settingsources-does-not-control) |
-| `skills` | `list[str] \| Literal["all"] \| None` | `None` | 会话可用的 skill。传递 `"all"` 以启用每个发现的 skill，或传递 skill 名称列表。仅传递精确名称。SDK 在启动 Claude Code 进程之前会以 `ValueError` 拒绝格式错误和通配符形式的名称；此检查需要 Python Agent SDK 0.2.129 或更高版本。设置时，SDK 会自动将 Skill 工具添加到 `allowed_tools`。如果您也传递 `tools`，请在该列表中包含 `"Skill"`。见 [Skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md) |
+| `skills` | `list[str] \| Literal["all"] \| None` | `None` | 限制主 Agent 的 skill。传递 `"all"` 以启用每个发现的 skill，或传递 skill 名称列表。仅传递精确名称。SDK 在启动 Claude Code 进程之前会以 `ValueError` 拒绝格式错误和通配符形式的名称；此检查需要 Python Agent SDK 0.2.129 或更高版本。如果您也传递 `tools`，请在该列表中包含 `"Skill"`。见 [Skills](https://code.claude.com/docs/zh-CN/agent-sdk/skills.md) |
 | `max_thinking_tokens` | `int \| None` | `None` | *已弃用* - 思考块的最大 token 数。改用 `thinking` |
 | `thinking` | [`ThinkingConfig`](#thinkingconfig) ` \| None` | `None` | 控制扩展思考行为。优先于 `max_thinking_tokens` |
 | `effort` | [`EffortLevel`](#effortlevel) ` \| None` | `None` | 思考深度的 effort 级别。见 [调整 effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level) |
@@ -1123,7 +1123,7 @@ asyncio.run(main())
 2. 项目设置（`.claude/settings.json`）
 3. 用户设置（`~/.claude/settings.json`）
 
-编程选项（如 `agents`、`allowed_tools` 和 `settings`）覆盖用户、项目和本地文件系统设置。托管策略设置优先于编程选项。
+您在 `allowed_tools` 或 `settings` 中传递的权限规则会[添加到](https://code.claude.com/docs/zh-CN/settings.md#lists-merge-instead-of-overriding)这些文件的规则中。对于大多数单值设置项，Claude Code 会采用 `settings` 中的值，而不是这些文件中的值。托管策略设置优先于大多数编程选项。
 
 ### `AgentDefinition`
 
@@ -1176,7 +1176,7 @@ PermissionMode = Literal[
     "default",  # Standard permission behavior
     "acceptEdits",  # Auto-accept file edits
     "plan",  # Planning mode - Claude explores and plans
-    "dontAsk",  # Deny anything not pre-approved instead of prompting
+    "dontAsk",  # Deny calls that would otherwise prompt
     "bypassPermissions",  # Bypass permission checks; explicit ask rules still prompt (use with caution)
     "auto",  # A model classifier reviews actions such as shell commands and network requests
 ]
@@ -2628,7 +2628,7 @@ asyncio.run(main())
     ],
     "resolvedModel": str | None,  # 子代理启动时使用的模型
     "modelsUsed": list[str] | None,  # 按顺序使用的模型，连续重复项已合并
-    "totalToolUseCount": int,  # Agent 进行的工具调用次数
+    "totalToolUseCount": int,  # Agent 进行的工具调用次数，不包括 SubagentHandback 调用
     "totalDurationMs": int,  # 执行时长（毫秒）
     "totalTokens": int,  # 来自最后一次 API 请求的 token 数，而非整个运行过程
     "usage": {  # token 使用统计

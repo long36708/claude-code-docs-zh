@@ -491,11 +491,13 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 
 ### `/schedule` 返回 "Unknown command"
 
-当某项要求未满足时，CLI 会隐藏 `/schedule`：您输入时命令菜单会显示 `No commands match "/schedule"`。提交该命令会返回 `Unknown command: /schedule`，但下文注明会给出不同回复的情况除外。
+如果您在某项要求未满足时提交 `/schedule`，会看到 `Unknown command: /schedule`，或一条说明该命令为何不可用的消息。
 
 原因通常是以下之一：
 
-* 您使用 Console API 密钥、[Anthropic profile 或联合凭据](https://code.claude.com/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials)，或者 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 等云提供商进行身份验证。`/schedule` 需要使用 claude.ai 订阅登录。使用 Console API 密钥或 profile 且启用了功能标志获取时，提交 `/schedule` 会改为显示 `/schedule is available with Claude for Enterprise — ask your admin about migrating from API-key access`。使用云提供商登录时，您仍会看到 `Unknown command: /schedule`。如果您的 shell 中设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，或者 `settings.json` 中设置了 `apiKeyHelper`，请先将其移除，因为它们优先于 claude.ai 登录。profile 或联合凭据同样具有优先级，因此也请将其关闭
+* 您使用 Console API 密钥、[Anthropic profile 或联合凭据](https://code.claude.com/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials)，或者 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 等云提供商进行身份验证。`/schedule` 需要使用 claude.ai 订阅登录。使用 Console API 密钥或 profile 且启用了功能标志获取时，提交 `/schedule` 会显示 `/schedule is available with Claude for Enterprise — ask your admin about migrating from API-key access`。
+
+  如果您的 shell 中设置了 `ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`，或者 `settings.json` 中设置了 `apiKeyHelper`，请将其移除，因为它优先于 claude.ai 登录。如果您使用 profile 或联合凭据，也请将其关闭
 * 您已完全退出登录，没有 API 密钥或其他凭据。启用功能标志获取时，提交 `/schedule` 会显示 `/schedule requires a claude.ai subscription. Run /login to sign in with your claude.ai account.` 在 v2.1.268 之前，已退出登录的会话会显示与 Console API 密钥相同的 Claude for Enterprise 消息
 * 您处于云端会话中，此时提交 `/schedule` 会回复该命令在该环境中不可用。请改为在 [Web UI](https://claude.ai/code/routines) 中管理定时任务
 * 您组织的策略禁用了定时任务所需的[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)。在这种情况下，提交 `/schedule` 会改为回复 [`Cloud sessions are disabled by your organization's policy`](https://code.claude.com/docs/zh-CN/errors#cloud-sessions-are-disabled-by-your-organizations-policy)。在 v2.1.268 之前，它会返回 `Unknown command: /schedule`

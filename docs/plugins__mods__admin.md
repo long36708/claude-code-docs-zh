@@ -41,7 +41,7 @@
 
 * **用户带来的任何 mod 都不会运行其 hook**：这包括用户安装的插件中的 mod、使用 `--plugin-dir` 加载的 mod，以及[Claude 在会话期间编写的](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod) mod
 * **您组织的 mod 仍然运行**：[计为您组织的](#install-your-organizations-mods) mod 不会被检查。所有其他 mod 都计为用户的 mod，并会被拒绝。这包括您的组织为其成员在 claude.ai 上启用的 mod。如果没有任何 mod 计为您组织的，则所有已安装的 mod 都不会运行其 hook。
-* **用户无法撤销它**：守卫仅从托管设置读取该选项，因此用户、项目或本地设置文件中的相同条目，或使用 `--settings` 传递的文件中的条目都不会改变任何内容
+* **Claude Code 会忽略其他设置文件中的该选项**：如果有人在用户、项目、本地或 `--settings` 文件中设置了该选项，您设置的值仍然适用
 * **文件或 MDM 策略涵盖每个提供商**：当您以文件形式或通过 MDM 提供该选项时，它在 Amazon Bedrock、Google Cloud 的 Agent Platform 和 Microsoft Foundry 上的工作方式相同。对于从 claude.ai 管理控制台进行的交付，请参阅[平台可用性](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)
 * **用户的其他自定义保持工作**：他们[设置文件中的 hook](https://code.claude.com/docs/zh-CN/hooks.md) 和插件 `hooks/hooks.json` 中的 hook、状态栏以及 `/goal` 均不受影响
 * **内置 mod 继续运行**：内置于 Claude Code 的 mod，例如 `AGENTS.md` 支持，各有[自己的开关](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#mods-built-into-claude-code)
@@ -154,7 +154,7 @@ Mod 可以做的比插件的其他部分更多，因为它在 Claude Code 内运
 | 市场允许列表 | 来自您允许的市场的 mod，或来自任何带有 `--plugin-dir` 的目录的 mod。Claude 在会话期间编写的 mod 仅在允许列表[包含 `skills-dir`](https://code.claude.com/docs/zh-CN/plugins/org#keep-skills-directory-plugins-loading) 时加载。 |
 | 市场允许列表和 `disableSideloadFlags` | 来自您允许的市场的 mod |
 
-[为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)列出了插件加载的每种方式以及控制每种方式的设置。
+无论采用上述哪种控制，用户还可以加载[从 claude.ai 同步](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)的插件中的 mod，以及[技能目录插件](https://code.claude.com/docs/zh-CN/plugins/org.md#keep-skills-directory-plugins-loading)中的 mod，除非您的允许列表中未包含 `skills-dir`。[为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)列出了插件加载的每种方式以及控制每种方式的设置。
 
 要在用户安装市场中的 mods 之前检查它们，请参阅[查看 mod 可以执行的操作](#review-what-a-mod-can-do)。要在您完成此操作之前排除用户的 mods，请参阅[停止用户安装的 mods 加载](#stop-user-installed-mods-from-loading)。
 
@@ -203,7 +203,7 @@ Mod 策略的范围从根本没有已安装的 mod 到用户选择的任何 mod�
 | 没有已安装的 mod 运行，设置 hook 保持不变 | 设置 [`allowManagedModsOnly`](#set-options-on-the-built-in-guard) 并且不部署您自己的 mod |
 | 没有已安装的 mod，也根本没有 hook，包括您的托管 hook | 将 `disableAllHooks` 设置为 `true` |
 | 仅您组织的 mod | 设置守卫的 [`allowManagedModsOnly` 选项](#stop-user-installed-mods-from-loading)，并[安装您的 mod](#install-your-organizations-mods) 以便它们计为您的 |
-| 来自您批准的市场的任何 mod | 保持您的[市场限制](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)，并将 `disableSideloadFlags` 设置为 `true` |
+| 来自您在 claude.ai 之外批准的市场的任何 mod | 设置不含 `skills-dir` 的[市场允许列表](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install)，将 `disableSideloadFlags` 设置为 `true`，并将 [`syncClaudeAiPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#syncclaudeaiplugins) 设置为 `false` |
 | 任何 mod，由您自己的 mod 检查其他 mod | [安装您的 mod](#install-your-organizations-mods)，并在 `prependPlugins` 中将它与 `sec-default@builtin` 一起列出 |
 
 每个设置的作用：
@@ -278,8 +278,8 @@ mod 就是插件，因此您[为组织管理插件](https://code.claude.com/docs
 这些规则决定选项是否生效：
 
 * **id 在这里只有一种形式**：Claude Code 仅在 `cc-plugin-sec-default@builtin` 下读取选项。`prependPlugins` 也接受 `sec-default@builtin`，而 `pluginConfigs` 不接受。
-* **仅托管设置有效**：用户、项目或本地设置文件中的相同条目，或使用 `--settings` 传递的文件中的相同条目，既不会设置选项，也不会放宽选项
-* **守卫必须加载**：如果您设置了 `prependPlugins`，请[在列表中指定守卫](#install-your-organizations-mods)。守卫未加载时，两个选项都不适用。
+* **Claude Code 会忽略其他设置文件中的选项**：用户、项目或本地设置文件中的相同条目，或使用 `--settings` 传递的文件中的相同条目，既不会设置选项，也不会放宽选项
+* **guard 必须加载**：如果您设置了 `prependPlugins`，请[在列表中指定该 guard](#install-your-organizations-mods)。在 guard 未加载的情况下，任何选项都不会生效。
 * **守卫以失败即关闭方式运行**：如果守卫无法读取托管设置，它会在加载时拒绝每个用户的 mod。如果它无法针对用户的 mod 所批准的调用检查拒绝规则，它会拒绝该调用。
 
 [来自内置守卫的消息](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#messages-from-the-built-in-guard)是任一选项生效时您的用户看到的内容。

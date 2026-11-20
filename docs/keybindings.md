@@ -213,7 +213,7 @@ Claude Code 支持可自定义的快捷键。运行 `/keybindings` 来创建或�
 | `historySearch:execute` | Enter | 执行所选命令 |
 | `historySearch:cycleScope` | Ctrl+S | 循环切换作用域：会话、项目、全部 |
 
-`historySearch:next`、`historySearch:accept`、`historySearch:cancel` 和 `historySearch:execute` 的默认值适用于经典渲染器中的内联历史搜索，该搜索始终搜索所有项目中的提示词。`historySearch:cycleScope` 仅在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)中生效，此时 `Ctrl+R` 会改为打开搜索对话框，`Ctrl+S` 用于循环切换其作用域。该对话框的其他按键是固定的，无法重新绑定：`Enter` 或 `Tab` 会将高亮的匹配项放入提示词输入框，`Esc` 则取消。
+`historySearch:accept`、`historySearch:cancel` 和 `historySearch:execute` 仅在经典渲染器的内联搜索中生效。该搜索涵盖所有项目中的提示词。`historySearch:cycleScope` 仅在[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)中生效，此时 `Ctrl+R` 会改为打开搜索对话框，`Ctrl+S` 用于循环切换其作用域。在该对话框中，`Enter` 或 `Tab` 会将高亮的匹配项放入提示词输入框，`Esc` 则取消。
 
 ### 任务操作
 

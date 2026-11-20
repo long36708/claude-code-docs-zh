@@ -367,7 +367,7 @@ skill 目录插件是用户在 `~/.claude/skills/` 或项目的 `.claude/skills/
 
 > [!NOTE]
 >
-> 在云端会话的对话中，无论您是否设置了 `pluginSuggestionMarketplaces`，Claude 都可以建议插件。要关闭这些建议，请参阅[关闭插件建议](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#turn-off-plugin-suggestions)。
+> 在云端会话的对话中或桌面应用的 Code 标签页中，无论您是否设置了 `pluginSuggestionMarketplaces`，Claude 都可以建议插件。要关闭这些建议，请参阅[关闭插件建议](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#turn-off-plugin-suggestions)。
 
 ## 审计和审查
 

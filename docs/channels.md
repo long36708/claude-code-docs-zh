@@ -278,7 +278,7 @@ what's in my working directory?
 
 ## 安全性
 
-每个批准的 channel 插件都维护一个发送者允许列表：只有您添加的 ID 可以推送消息，其他所有人都会被静默丢弃。
+Telegram、Discord 和 iMessage 频道插件会根据发送者允许列表检查私信。只有在您将其他人添加到该列表后，他们的私信才会到达您的会话。
 
 Telegram 和 Discord 通过配对来引导列表：
 

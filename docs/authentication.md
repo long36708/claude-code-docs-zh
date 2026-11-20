@@ -229,9 +229,21 @@ Claude Code 安全地管理您的身份验证凭证：
 
 `apiKeyHelper`、`ANTHROPIC_API_KEY` 和 `ANTHROPIC_AUTH_TOKEN` 适用于 CLI 和包装它的表面，包括 VS Code 扩展、Agent SDK 和 GitHub Actions。Claude Desktop 和云会话不会调用 `apiKeyHelper` 或读取这些环境变量：它们使用 OAuth，除了运行[第三方推理配置](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md#desktop-app)的桌面会话外，这些会话使用该配置的凭证进行身份验证。
 
+### 检查存储的登录何时结束
+
+要查看您正在使用的 claude.ai 登录何时结束，请在 shell 中运行 `claude auth status --text`。在 Claude Code v2.1.318 或更高版本中，查找以 `Sign-in` 开头的行：
+
+```text theme={null}
+Sign-in ends: between 2026-11-20 and 2026-11-23 (2026-11-23T17:04:11.000Z)
+```
+
+请在较早的日期之前，使用 `/login` 或 `claude auth login` 在浏览器中重新登录。使用 Claude Code 不会延长登录。如果该行显示 `any day now` 或 `may have ended`，请立即登录。对于其他凭据，或在日期未知时，不会显示该行。
+
+当较晚的日期距今不足 10 天时，以文本输出运行的 `claude -p` 会在 stderr 上打印 `Warning: this sign-in`，因此请在较早的日期之前重新登录。
+
 ### 续期即将过期的登录
 
-当您使用 `/login` 创建的登录在过期前三天内时，Claude Code 会在启动时显示警告：`Your login expires in 3 days · run /login to renew`。
+从您登录的[两个结束日期](#check-when-a-stored-login-ends)中较早的那个开始，Claude Code 会在启动时显示警告：`Your login expires in 3 days · run /login to renew`。
 
 运行 `/login` 以续期。该警告仅在 claude.ai 登录是活跃凭据时出现。
 

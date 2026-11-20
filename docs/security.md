@@ -58,7 +58,7 @@
 ### 其他保护措施
 
 * **网络请求批准**：在手动模式下，进行网络请求的大多数工具默认需要用户批准
-* **网页摘要**：对于大多数获取操作，WebFetch 会针对页面运行一次单独的模型调用，Claude 接收的是该调用的回答，而不是原始页面。请参阅 [WebFetch 工具行为](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)
+* **网页摘要**：对于大多数 WebFetch 获取操作，会由一次单独的模型调用读取页面，Claude 接收的是该调用的回答，而不是原始页面。请参阅 [WebFetch 工具行为](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)
 * **信任验证**：在交互式会话中，当您在尚未信任的文件夹中启动 Claude Code 时，它会显示工作区信任对话框。项目 `.mcp.json` 中的服务器有其单独的批准提示，[项目作用域](https://code.claude.com/docs/zh-CN/mcp.md#project-scope) 列出了跳过该提示的会话
   * 注意：`-p` 会话不会显示上述任何一种提示。[信任文件夹之前会运行什么](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 列出了仓库中的文件在此情况下可以运行的内容
   * 注意：当您直接在主目录中启动 Claude Code 时，信任接受仅在当前会话期间保持，不会写入磁盘，因此提示在每次启动时都会重新出现。没有设置可以持久化它。请从项目子目录启动 Claude Code，其中信任接受按目录保存

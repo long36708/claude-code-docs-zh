@@ -397,7 +397,7 @@ Show me the data from @github:repos/owner/repo/issues
 | [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md) | 云端，默认由 Anthropic 管理 | 即使您的计算机关闭也应该运行的任务。也可以在 API 调用或 GitHub 事件上触发，除了计划。在 [claude.ai/code/routines](https://claude.ai/code/routines) 配置。 |
 | [桌面计划任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md) | 您的机器，通过桌面应用 | 需要直接访问本地文件、工具或未提交更改的任务。 |
 | [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) | 您的 CI 管道 | 与存储库事件（如打开的 PR）相关的任务，或应该与工作流配置一起存在的 cron 计划。 |
-| [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) | 当前 CLI 会话 | 会话打开时的快速轮询。`--resume` 和 `--continue` 恢复未过期的固定间隔循环。 |
+| [`/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks) | 当前 CLI 会话 | 会话打开时的快速轮询。 |
 
 > [!TIP]
 >

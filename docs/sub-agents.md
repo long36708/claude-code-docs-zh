@@ -136,7 +136,7 @@ Use the code-improver agent to suggest improvements in this project
 
 Claude 委托给您的新子代理，它扫描代码库并返回改进建议。在会话记录中，委托显示为工具调用行，显示子代理的名称后跟简短的任务描述，例如 `code-improver(Suggest code improvements)`。
 
-如果 Claude 找不到新的子代理，请重新启动 Claude Code 并重试。这仅在会话开始前 `~/.claude/agents/` 不存在时发生，因为运行中的会话不会检测到新创建的 `agents` 目录。
+如果 Claude 找不到新的子代理，请重新启动 Claude Code 并重试。
 
 现在您有了一个子代理，可以在您机器上的任何项目中使用它来分析代码库并建议改进。
 
@@ -245,9 +245,8 @@ JSON 中的每个顶层键都是一个 Agent 的名称，其值是该 Agent 的�
 >
 > Claude Code 会监视 `~/.claude/agents/` 和 `.claude/agents/`。当您在磁盘上添加或编辑子代理文件，或让 Claude 为您编写一个时，Claude Code 会在几秒钟内检测到更改，下一次委派将使用更新后的定义，无需重启。
 >
-> 以下三种情况仍需要重启：
+> 某些情况仍需要重启：
 >
-> * 监视器只覆盖会话启动时已存在的目录，因此在新的 `agents` 目录中创建某个作用域的第一个 Agent 文件后，需要重启才能加载它。
 > * Claude Code 不会监视通过 `--add-dir` 或 `/add-dir` 添加的目录中的 `.claude/agents/`，因此在那里添加或编辑子代理后，需要重启才能加载更改。
 > * 使用 `--disable-slash-commands` 启动的会话完全不会监视这些目录。
 
@@ -263,7 +262,7 @@ You are a code reviewer. When invoked, analyze the code and provide
 specific, actionable feedback on quality, security, and best practices.
 ```
 
-frontmatter 定义子代理的元数据和配置。正文成为指导子代理行为的系统提示词。子代理只接收此系统提示词以及基本的环境详细信息（如工作目录），而不接收 Claude Code 的系统提示词。
+frontmatter 定义子代理的元数据和配置。正文将成为指导子代理行为的系统提示词。子代理接收的是此系统提示词以及工作目录等基本环境信息，而不是 Claude Code 系统提示词。
 
 在[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下，传入 [`--append-subagent-system-prompt`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 可将您的文本追加到每个子代理（包括嵌套子代理）的系统提示词末尾，但[分叉子代理](#fork-the-current-conversation)除外，它复用对话自身的提示词。需要 Claude Code v2.1.205 或更高版本。如果您的文本太长而无法在命令行中传入，请将其保存到文件中，并改用 `--append-subagent-system-prompt-file` 传入路径。文件标志需要 Claude Code v2.1.261 或更高版本。
 
@@ -432,7 +431,13 @@ experimental:
 
 #### 当子代理没有 `effort` 字段或参数时
 
-在主对话的模型上，子代理以您在会话中选择的级别运行，例如通过 `/effort` 选择或通过 `--effort` 设置的级别。在其他模型上，[该级别不适用](https://code.claude.com/docs/zh-CN/model-config.md#effort-level-of-subagents-and-teammates)。若要选择其级别，请设置 `effort` 字段。
+除分叉、分叉 skill 或[队友](#subagent-names)之外的子代理，会以以下适用于它的第一项所指定的级别运行：
+
+1. `CLAUDE_CODE_EFFORT_LEVEL` 中的级别（如果您设置了）
+2. 为[生成它的子代理](#let-subagents-spawn-their-own-subagents)设置的 `effort`，或仅为当前轮次设置的级别，例如 [skill 的 `effort`](https://code.claude.com/docs/zh-CN/skills#frontmatter-reference)
+3. [`CLAUDE_CODE_SUBAGENT_EFFORT`](https://code.claude.com/docs/zh-CN/env-vars#variables) 中的级别（如果您设置了）
+
+如果以上均不适用，在主对话的模型上运行的子代理会以您在会话中选择的级别运行，例如通过 `/effort` 选择或通过 `--effort` 设置的级别。在其他模型上，[该级别不适用](https://code.claude.com/docs/zh-CN/model-config.md#effort-level-of-subagents-and-teammates)。若要选择其级别，请设置 `effort` 字段。
 
 ### 控制子代理的能力
 
@@ -449,11 +454,14 @@ experimental:
 * `EndConversation`，它只能结束主对话；请参阅 [EndConversation 工具行为](https://code.claude.com/docs/zh-CN/tools-reference.md#endconversation-tool-behavior)
 * `EnterPlanMode`
 * `ExitPlanMode`，除非子代理的 [`permissionMode`](#permission-modes) 为 `plan`
+* `propose_skills`
 * `ScheduleWakeup`
 * `WaitForMcpServers`
 * `Workflow`
 
-第二个过滤器适用于在后台运行的子代理。除了 `Agent` 和 `ExitPlanMode`（无论子代理在何处运行，都遵循第一个过滤器的条件）之外，后台子代理保留所有 MCP 工具，但只保留以下内置工具：`Read`、`Grep`、`Glob`、`LSP`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage` 和 `Artifact`，对于通过 [`SubagentHandback`](https://code.claude.com/docs/zh-CN/tools-reference) 报告的子代理，还保留该工具。Claude Code 会从后台子代理中移除所有其他内置工具，无论是继承的还是列在 `tools` 字段中的，因此同一定义在前台和后台可能解析为不同的工具。除非移除后 `tools` 列表[解析结果为空](https://code.claude.com/docs/zh-CN/errors.md#agent-would-be-spawned-with-zero-tools)，否则移除操作不会报告错误。
+第二个过滤器适用于在后台运行的子代理。无论子代理在何处运行，`Agent` 和 `ExitPlanMode` 都遵循第一个过滤器的条件。后台子代理保留所有 MCP 工具，如果它通过 [`SubagentHandback`](https://code.claude.com/docs/zh-CN/tools-reference) 报告，还会保留该工具。它还保留 `Read`、`Grep`、`Glob`、`LSP`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage`、`Artifact`、`ListPlugins`、`ListSkills`、`SearchPlugins` 和 `SearchSkills`。
+
+不要在后台子代理中依赖其他内置工具：Claude Code 会移除其中的大多数，无论是继承的还是列在 `tools` 字段中的。除非移除后 `tools` 列表[解析结果为空](https://code.claude.com/docs/zh-CN/errors.md#agent-would-be-spawned-with-zero-tools)，否则移除操作不会报告错误。
 
 在 v2.1.280 之前，后台子代理无法使用 `LSP`。
 
@@ -979,7 +987,9 @@ Claude Code 会以两种方式之一从输入框下方的子代理面板中清�
 * 当子代理成功完成时，Claude Code 会立即移除其所在行，并在页脚显示 `/tasks to see subagents` 30 秒（[屏幕阅读器模式](https://code.claude.com/docs/zh-CN/accessibility.md)下除外）。在这 30 秒内，运行 [`/tasks`](https://code.claude.com/docs/zh-CN/commands) 并在该子代理上按 `Enter` 即可打开其会话记录。在 v2.1.232 之前，Claude Code 会在子代理完成后将该行保留 30 秒（与失败的子代理相同），且不显示页脚提示。
 * 当子代理失败或被您停止时，Claude Code 会将其所在行保留 30 秒。要更早清除该行，请选中它并按 `x`。
 
-已完成的后台子代理会继续列在 [`/tasks`](https://code.claude.com/docs/zh-CN/commands) 中，标记为已完成并排在正在运行的工作下方，持续时间与页脚提示相同，为 30 秒。子代理完成时，其详情视图保持打开。失败或被您停止的子代理会从列表中移除。在 v2.1.208 之前，已完成的子代理会在完成的那一刻离开列表，其详情视图也会关闭。
+已完成的后台子代理会继续列在 [`/tasks`](https://code.claude.com/docs/zh-CN/commands) 中，标记为已完成并排在正在运行的工作下方，持续 30 秒；如果您向其发送过消息，则持续更久。子代理完成时，其详情视图保持打开。失败或被您停止的子代理会从列表中移除。在 v2.1.208 之前，已完成的子代理会在完成的那一刻离开列表，其详情视图也会关闭。
+
+您可以重新打开某些已离开列表的子代理的会话记录。在终端中运行 `/tasks`。如果打开了详情视图，请按其标注为 `go back` 的键。然后打开 **Earlier in this session** 行，并在某个子代理上按 `Enter`。需要 Claude Code v2.1.319 或更高版本。
 
 ### 子代理名称
 
@@ -1144,7 +1154,7 @@ Use the code-reviewer subagent to find performance issues, then use the optimize
 恢复的子代理会保留其完整的对话历史，包括之前所有的工具调用、结果和推理。如果该子代理生成过[自己的后台子代理](#let-subagents-spawn-their-own-subagents)，该历史还包括这些后台子代理在其运行期间交付的结果。在 v2.1.304 之前，如果 Claude 在子代理刚完成时就向其发送消息或恢复它，该子代理可能会遗忘其最近的工作。
 
 * 子代理完成时，Claude 会收到其 Agent ID。
-* 内置的 Explore 和 Plan Agent 是一次性的，不返回 Agent ID，因此 Claude 无法恢复它们。需要继续工作时，请使用 `general-purpose` 或自定义子代理。
+* 对于您之后还要继续的工作，请使用 `general-purpose` 或自定义子代理。内置的 Explore 和 Plan Agent 完成时可能不会向 Claude 提供可用于恢复它们的 ID。
 * 当子代理因达到 [`maxTurns`](#supported-frontmatter-fields) 限制而停止时，Claude Code 会将返回的输出标记为部分结果，Claude 可以恢复该子代理以继续其工作。
 
 Claude 使用 `SendMessage` 工具，以 Agent 的 ID 或名称作为 `to` 字段来恢复它。`SendMessage` 不要求启用 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md)；只有 `shutdown_request` 和 `plan_approval_response` 等结构化团队协议消息才需要。除了子代理和队友之外，在启用了跨会话消息的会话中，Claude 还可以使用同一工具向[您的其他 Claude Code 会话](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)发送消息，无论它们在本机还是[其他机器上](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#message-sessions-on-other-machines)。

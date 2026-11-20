@@ -415,7 +415,7 @@ options: {
 
 要试用该策略，请将[调用自定义工具](#call-a-custom-tool)脚本中的`options`替换为本示例的`options`，然后在终端中运行该脚本。脚本会打印`Approval requested for mcp__weather__get_temperature`，随后输出Claude关于温度的回答。有关完整脚本，请参阅[TypeScript参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#mcpsdkserverconfigwithinstance)。
 
-如果您使用`auto`或`plan`[权限模式](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#permission-modes)，请在工具的[注解](#add-tool-annotations)中设置`destructiveHint: true`，以便对该工具的调用仍能到达您的回调。否则，[自动模式分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)可能会在[TypeScript参考中列出的条件](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#permission-modes-that-can-approve-an-always_ask-call)下批准某些`always_ask`调用，而被其批准的调用不会到达您的回调。请显式设置该提示，因为对于`always_ask`调用，未设置的`destructiveHint`会被视为`false`，而不是默认为`true`。
+如果您使用`auto`或`plan`[权限模式](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#permission-modes)，请在工具的[注解](#add-tool-annotations)中设置`destructiveHint: true`，以防止[自动模式分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)代替您的回调批准调用。否则，该分类器可能会在[TypeScript参考中列出的条件](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#permission-modes-that-can-approve-an-always_ask-call)下批准某些`always_ask`调用。请显式设置该提示，因为对于`always_ask`调用，未设置的`destructiveHint`会被视为`false`，而不是默认为`true`。
 
 ## 处理错误
 

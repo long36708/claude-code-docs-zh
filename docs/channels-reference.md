@@ -431,7 +431,7 @@ await mcp.notification({ ... })
 
 根据发送者的身份而不是聊天或房间身份进行门控：示例中的 `message.from.id`，而不是 `message.chat.id`。在群组聊天中，这些不同，根据房间进行门控会让已列入允许列表的群组中的任何人向会话注入消息。
 
-[Telegram](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/telegram) 和 [Discord](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/discord) 频道以相同的方式在发送者允许列表上进行门控。它们通过[配对](https://code.claude.com/docs/zh-CN/channels.md#security)引导列表。有关完整配对流程，请参阅任一实现。[iMessage](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/imessage) 频道采用不同的方法：它在启动时从 Messages 数据库检测用户自己的地址，并自动让它们通过，其他发送者通过句柄添加。
+[Telegram](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/telegram) 和 [Discord](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/discord) 频道以相同的方式根据发送者允许列表对私信进行门控。它们通过[配对](https://code.claude.com/docs/zh-CN/channels.md#security)引导列表。有关完整配对流程，请参阅任一实现。[iMessage](https://github.com/anthropics/claude-plugins-official/tree/main/external_plugins/imessage) 频道采用不同的方法：它在启动时从 Messages 数据库检测用户自己的地址，并自动让它们通过，其他发送者通过句柄添加。
 
 ## 中继权限提示
 

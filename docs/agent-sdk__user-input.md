@@ -46,14 +46,14 @@ const options = { canUseTool: handleToolRequest };
 
 回调在两种情况下触发：
 
-1. **工具需要批准**：Claude 想要使用不被[权限规则](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md)或权限模式自动批准的工具。检查 `tool_name` 以获取工具（例如 `"Bash"`、`"Write"`）。
+1. **工具需要批准**：Claude 发起了一个尚未被[权限流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)批准或拒绝的调用。检查 `tool_name` 以获取工具（例如 `"Bash"`、`"Write"`）。
 2. **Claude 提出问题**：Claude 调用 `AskUserQuestion` 工具。检查 `tool_name == "AskUserQuestion"` 是否成立，以便对其进行不同的处理。如果指定了 `tools` 数组，则需要包含 `AskUserQuestion` 才能使其生效。有关更多信息，请参阅[处理澄清问题](#handle-clarifying-questions)。
 
 > [!WARNING]
 >
 > **较早的步骤可能会在 `canUseTool` 运行之前允许或拒绝调用。** [权限评估流程](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)会在您的回调之前检查拒绝规则、权限模式和允许规则。
 >
-> 若要对已被规则或权限模式允许的调用运行您的检查，请使用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)，它会针对这些调用运行，并且可以允许、拒绝或修改它们。
+> 若要检查不经过您的回调就运行的调用（例如在您的[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)中读取文件），请使用 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks)，它可以允许、拒绝或修改这些调用。
 
 您还可以使用 [`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/agent-sdk/hooks#available-hooks) 在 Claude 等待批准时发送外部通知（Slack、电子邮件、推送）。
 

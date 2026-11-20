@@ -174,7 +174,7 @@ Hooks 使用与 `settings.json` 中相同的格式。
 
 ### 设置优先级
 
-服务器托管设置和[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)都位于 Claude Code [设置层级结构](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)中的最高层级。您在此处设置的键优先于用户自己的设置文件或 `--settings` 值中的同名键，[托管设置优先级的例外情况](https://code.claude.com/docs/zh-CN/settings.md#exceptions-to-managed-settings-precedence)除外。
+服务器托管设置和[端点托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)都位于 Claude Code [设置层级结构](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)中的最高层级。您在此处设置的键优先于用户自己的设置文件或 `--settings` 值中的同名键，[托管设置优先级的例外情况](https://code.claude.com/docs/zh-CN/settings.md#exceptions-to-managed-settings-precedence)除外。用户的允许规则会[与您的规则合并](https://code.claude.com/docs/zh-CN/settings.md#lists-merge-instead-of-overriding)。要锁定该列表，请参阅[开发者可以更改的内容](https://code.claude.com/docs/zh-CN/managed-settings.md#what-a-developer-can-change)。
 
 在托管层级内，Claude Code 默认使用第一个提供至少一个策略键的来源，先检查服务器托管设置，再检查端点托管设置，[下文所述的例外键](#per-key-exceptions-across-managed-sources)除外。[Claude Code 如何组合托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#precedence-within-the-managed-tier)介绍了完整的排序规则、控制键的特殊处理，以及应用所有来源的可选启用方式。
 
