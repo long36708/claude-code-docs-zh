@@ -187,7 +187,9 @@ Claude Code 会发送您的 hook 传给 `next` 的字符串，并使用您随之
 
 ## 在后台运行工作
 
-超越一个事件的工作，例如每分钟检查一次，在您从 `session.start` 启动的计时器上运行。hook 本身为一个事件运行，其自身运行时间有[时间限制](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)。在 `next` 或 mods API 调用上花费的时间不计算，除了 `$.clock.sleep`。`$.clock.every` 和 `$.clock.after` 代替 `setInterval` 和 `setTimeout`，延迟以毫秒为单位：`$.clock.after(5000, fn)` 在五秒后调用 `fn` 一次。每个都返回一个带有 `cancel()` 方法的计时器，`await $.clock.now()` 给出以毫秒为单位的时间。
+持续时间超过单个事件的工作（例如每分钟检查一次某项内容）运行在您从 `session.start` 启动的计时器上。hook 本身为一个事件运行，其自身运行时间有[时间限制](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)。
+
+`$.clock.every` 和 `$.clock.after` 代替 `setInterval` 和 `setTimeout`，延迟以毫秒为单位并作为第一个参数：`$.clock.after(5000, fn)` 在五秒后调用 `fn` 一次。每个都返回一个带有 `cancel()` 方法的计时器，`await $.clock.now()` 给出以毫秒为单位的时间。
 
 此 hook 每分钟查找一次拉取请求的检查，并在提示下显示结果。`summarize` 是您自己的函数，将命令的 JSON 输出转换为几个单词：
 
@@ -421,10 +423,11 @@ mod 通过 mods API 访问文件系统、进程和网络，具有与运行 Claud
 | `$.settings` | `read()` 解析为合并成一个对象的全部设置。传入 `{ source }` 或 `{ key }` 时，它改为解析为[单个来源的设置或单个键的值](#read-one-source-or-one-key)。 |
 | `$.session` | `messages()` 将会话记录作为 `{ role, text, toolUses }` 列表返回。还有工作目录、模型等。[`usage()`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods) 返回上下文窗口使用和计划限制。 |
 | `$.mcp` | `call` 连接的 MCP 服务器上的工具 |
+| `$.wasm` | `compile('./engine.wasm')` 将最大 64 MiB 的文件转换为可传给 `WebAssembly.instantiate` 的模块。将路径写为文字字符串，相对于调用文件。需要 Claude Code v2.1.326 或更高版本。 |
 
 文件、进程和请求有一些自己的规则：
 
-* **路径**：相对路径相对于会话的工作目录进行解析，或相对于 hook 正在处理其事件的子代理的工作目录进行解析
+* **路径**：在 `$.fs` 和 `$.process` 中，相对路径相对于会话的工作目录进行解析，或相对于 hook 正在处理其事件的子代理的工作目录进行解析
 * **`$.fs.list`**：将一个目录的条目作为 `{ name, kind, size, isLink }` 返回，不进行递归
 * **`$.process.run`**：接受参数列表，不使用 shell。它解析为 `{ exitCode, stdout, stderr }`，无论退出码如何。如果程序无法启动或在超时时仍在运行，它会拒绝，默认为 30 秒，因此将其包装在 `try` 和 `catch` 中。
 * **`$.http.fetch`**：最多跟随五次重定向。当重定向到不同的源时，它只保留您设置的 `accept`、`accept-language`、`content-type` 和 `user-agent` 请求头，并丢弃其余请求头，因此依赖其他请求头（如 `Authorization`）的请求在该重定向之后可能会失败。[限制](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)中列出了它的超时时间和体大小。

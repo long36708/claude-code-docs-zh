@@ -11,6 +11,8 @@
 > [!NOTE]
 >
 > 服务器管理的设置可供 [Claude for Teams](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_teams#team-&-enterprise) 和 [Claude for Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_enterprise) 客户使用。
+>
+> 如果您在 claude.ai 的 **Organization settings > Desktop 3P** 下设置了提供商或网关，请改为按照 [Enterprise Admin Console 指南](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code)操作。
 
 ## 要求
 
@@ -178,7 +180,9 @@ Hooks 使用与 `settings.json` 中相同的格式。
 
 在托管层级内，Claude Code 默认使用第一个提供至少一个策略键的来源，先检查服务器托管设置，再检查端点托管设置，[下文所述的例外键](#per-key-exceptions-across-managed-sources)除外。[Claude Code 如何组合托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#precedence-within-the-managed-tier)介绍了完整的排序规则、控制键的特殊处理，以及应用所有来源的可选启用方式。
 
-如果所选来源是一个 MDM 策略或托管设置文件，且其 [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper) 提供托管设置，则该 helper 的输出将取代该来源，成为本次运行唯一的托管配置。当服务器托管设置提供策略键时，Claude Code 不会参考在 MDM 或基于文件的设置中配置的 `policyHelper`。
+#### 当端点托管设置接管时
+
+如果所选来源是一个 MDM 策略或托管设置文件，且其 `policyHelper` 提供托管设置，请参阅[该 helper 的输出会取代哪些内容](https://code.claude.com/docs/zh-CN/settings-reference.md#write-the-helper-output)。当服务器托管设置提供策略键时，Claude Code 不会参考在 MDM 或基于文件的设置中配置的 `policyHelper`。
 
 如果后续的获取发现服务器托管设置已被移除，Claude Code 会立即运行该 helper，而不是等到下次启动时。[`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper) 条目介绍了该运行失败时会发生什么。
 
@@ -196,6 +200,7 @@ Hooks 使用与 `settings.json` 中相同的格式。
   * **与凭据配对的路由**：将路由变量与仅限所选来源的凭据键（例如 `apiKeyHelper` 或 `otelHeadersHelper`）配对的来源，只有在赢得该槽位时才会贡献这些路由变量。
 * **`allowedProviders`**：机器上设置的列表与服务器托管列表按照[其条目的作用域说明](https://code.claude.com/docs/zh-CN/settings-reference.md#allowedproviders)进行组合。需要 Claude Code v2.1.285 或更高版本
 * **第一方登录键**：[`forceLoginOrgUUID`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginorguuid) 以及 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 的 `"claudeai"` 和 `"console"` 值。如果您还部署了 MDM 策略或托管设置文件，请在其中以及在 claude.ai 的服务器托管设置中同时设置这些键，直到每个客户端都运行 v2.1.299 或更高版本。有关之后应在何处设置这些键以及哪个来源的值生效，请参阅[哪个托管来源提供登录键](https://code.claude.com/docs/zh-CN/managed-settings.md#which-managed-source-supplies-login-keys)。
+* **`enforceAnthropicSignIn`**：[其条目的作用域说明](https://code.claude.com/docs/zh-CN/settings-reference.md#enforceanthropicsignin)说明了由哪些来源提供该键
 * **网关登录键**：Claude Code 从不从服务器托管设置中读取 [`forceLoginGatewayUrl`](https://code.claude.com/docs/zh-CN/settings-reference#forcelogingatewayurl)、[`gatewayInternalNetworks`](https://code.claude.com/docs/zh-CN/settings-reference#gatewayinternalnetworks) 或 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值，因此那里的值既不会生效，也不会遮蔽在 MDM 策略或托管设置文件中设置的值。[`managedSourcesBehavior` 条目](https://code.claude.com/docs/zh-CN/settings-reference#managedsourcesbehavior)说明了由机器上的哪个管理员来源提供这些键。
 
 #### 当机器的 `apiKeyHelper` 未生效时
@@ -310,8 +315,6 @@ Claude Code 会将大多数设置更新应用到正在运行的会话中，无�
 
 在后续启动时，Claude Code 会从缓存的设置中读取服务器下发的值，因此该设置在新会话首次获取之前就已生效。要在不依赖缓存副本的情况下保持该设置生效，请同时在端点托管来源中设置此键。
 
-当 [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper) 提供托管设置时，对于 Claude Code 在启动后读取的键，其输出会取代所有其他托管来源。有关 Claude Code 从哪些来源读取此键，请参阅[其设置条目](https://code.claude.com/docs/zh-CN/settings-reference.md#forceremotesettingsrefresh)。`policyHelper` 条目说明了 Claude Code 从哪些来源读取该 helper 以及它何时运行。
-
 设置获取还会发送 `Cache-Control: no-cache` 标头，以防止中间 HTTP 代理返回过期的响应。
 
 在启用此设置之前，请确保您的网络策略允许连接到 `api.anthropic.com`。如果该端点无法访问，CLI 会在启动时退出，用户将无法启动 Claude Code。
@@ -398,7 +401,7 @@ Claude Code 同样根据下发的值来决定 [`API_FORCE_IDLE_TIMEOUT`](https:/
 * 直接配置的 API 密钥
 * 一个 `user_oauth` [Anthropic 配置文件](https://code.claude.com/docs/zh-CN/authentication.md#anthropic-profiles-and-federation-credentials)，除非该配置文件设置了 Anthropic API 以外的 `base_url`。需要 Claude Code v2.1.257 或更高版本。
 
-由 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 脚本返回的密钥和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭证都不会触发设置获取。
+由 [`apiKeyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#apikeyhelper) 脚本返回的密钥和 [Workload Identity Federation](https://platform.claude.com/docs/en/manage-claude/workload-identity-federation) 凭据都不会触发设置获取。如果您在 Enterprise Admin Console 中设置提供商或网关，请参阅[控制台设置何时适用](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority)。
 
 会话接收的是其身份验证所用凭据所属组织的托管设置。来自 [Claude Console](https://platform.claude.com) 的 API 密钥属于创建它的 Console 组织，该组织与您的 claude.ai Team 或 Enterprise 组织是相互独立的组织。因此，您在 claude.ai Admin Settings 中配置的设置不会到达使用该密钥进行身份验证的会话，例如使用您公司 Console API 密钥的 CI 作业。要将这些设置应用于该作业，请使用以下选项之一。OAuth 令牌选项不适用于使用 [`--bare`](https://code.claude.com/docs/zh-CN/headless#start-faster-with-bare-mode) 运行的作业，因为 bare 模式不会读取 `CLAUDE_CODE_OAUTH_TOKEN`。
 

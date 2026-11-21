@@ -48,7 +48,7 @@ Claude Code 从您的会话发布到 claude.ai 上私有 URL 的实时交互式�
 
 ### Auto memory
 
-Claude 根据您的更正和偏好为自己编写的笔记，按 git 存储库存储在 `~/.claude/projects/` 下。同一存储库的所有 worktrees 共享一个 auto memory 目录。`MEMORY.md` 索引的前 200 行或 25 KB 在每个会话开始时加载。Auto memory 是 Claude 编写的对应物，与您编写的 [CLAUDE.md](#claude-md) 相对。
+Claude 根据您的更正和偏好为自己编写的笔记，按 git 仓库存储在 `~/.claude/projects/` 下。同一仓库的所有 worktree 共享一个自动记忆目录。在自动记忆开启时，`MEMORY.md` 索引的前 200 行或 25 KB 会在会话开始时加载。自动记忆是 Claude 编写的对应物，与您编写的 [CLAUDE.md](#claude-md) 相对。
 
 了解更多：[Auto memory](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)
 
@@ -143,7 +143,7 @@ Claude Code 读取项目范围配置的目录：settings、hooks、skills、suba
 
 ### Dispatch
 
-一个电话启动的任务路由器，当您从 Claude 移动应用发送编码任务时，在 Desktop 应用中生成 Claude Code 会话。您的提示自动路由到正确的工具。在 Pro、Max 和 Ultra 计划上可用。
+一个电话启动的任务路由器，当您从 Claude 移动应用发送编码任务时，在 Desktop 应用中生成 Claude Code 会话。您的提示词自动路由到正确的工具。不向新用户开放。
 
 了解更多：[来自 Dispatch 的会话](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)
 
@@ -348,7 +348,7 @@ Claude Code 作为 [harness](#agentic-harness) 添加到对话中的消息，为
 
 ### Teleport
 
-一个命令 `/teleport`，将云 Claude Code 会话拉入您的本地终端。Claude 获取分支、加载对话历史并从云会话的最后状态恢复。反向方向是 `--cloud`，它将本地任务发送到云上运行。
+一个命令 `/teleport`，将云端 Claude Code 会话拉入您的本地终端。反向方向是 `--cloud`，它将本地任务发送到云端运行。
 
 了解更多：[在终端中继续云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#from-cloud-to-terminal)
 

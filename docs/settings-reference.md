@@ -98,6 +98,7 @@
 | [`enabledMcpjsonServers`](#enabledmcpjsonservers) | 批准项目 [`.mcp.json`](https://code.claude.com/docs/zh-CN/mcp#project-server-approvals-and-workspace-trust) 中的特定服务器 | MCP | 任意文件 |
 | [`enabledPlugins`](#enabledplugins) | 按作用域开启或关闭单个[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md) | 插件与 skill | 任意文件 |
 | [`enableWorkflows`](#enableworkflows) | 相对于您套餐的默认值开启或关闭[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md) | hook 与自动化 | 任意文件 |
+| [`enforceAnthropicSignIn`](#enforceanthropicsignin) | 在 Anthropic 的 API 上要求使用 claude.ai 登录，或要求通过 Enterprise Admin Console 登录 | 身份验证与提供商 | 托管 |
 | [`enforceAvailableModels`](#enforceavailablemodels) | 使 [`/model` 的 Default 选项](https://code.claude.com/docs/zh-CN/model-config#enforce-the-allowlist-for-the-default-model)保持在您的 `availableModels` 允许列表范围内 | 模型与回复 | 任意文件 |
 | [`env`](#env) | 为每个会话及其子进程设置[环境变量](https://code.claude.com/docs/zh-CN/env-vars.md#in-settings-files) | 记忆与上下文 | 任意文件 |
 | [`externalEditorContext`](#externaleditorcontext) | 在您按 [Ctrl+G](https://code.claude.com/docs/zh-CN/interactive-mode.md#general-controls) 进行编辑时，以注释形式显示 Claude 的上一条回复 | 全局配置设置 | 全局配置 |
@@ -5286,6 +5287,23 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 与 [`awsAuthRefresh`](#awsauthrefresh) 不同，只要设置了此命令，Claude Code 就会始终运行它，而不会先检查环境凭据。请参阅[高级凭据配置](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#advanced-credential-configuration)。
 
+### `enforceAnthropicSignIn`
+
+要求在 Anthropic 的 API 上使用 claude.ai 登录，或使用 [Enterprise Admin Console](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code) 登录。仅当 [`forceLoginOrgUUID`](#forceloginorguuid) 指定了您的组织且您未设置 [`policyHelper`](#policyhelper) 时，Enterprise Admin Console 登录才算数。需要 Claude Code v2.1.329 或更高版本。
+
+该设置项还会阻止在云提供商或网关上运行的 Claude Desktop 会话，因此请先阅读[使用托管设置要求登录](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#require-the-sign-in-with-managed-settings)。
+
+* **作用域**：[`Managed`](#scopes)。请在托管设置文件中设置此项，这样即使在服务器托管设置之下它也会生效。如果机器还有 MDM 策略，请在该策略中设置。Claude Code 会忽略服务器托管设置、HKCU 和策略辅助程序输出中的此项。
+* **类型**：布尔值
+* **默认值**：未设置
+
+```json managed-settings.json theme={null}
+{
+  "forceLoginOrgUUID": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "enforceAnthropicSignIn": true
+}
+```
+
 ### `forceLoginMethod`
 
 限制用户可以使用哪种账户登录：`"claudeai"` 表示 claude.ai 登录，`"console"` 表示 Claude Console 登录。设置为 `"gateway"` 则将用户引导至 [cloud gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，而不是第一方登录。管理员在托管设置中设置此项，并与 [`forceLoginOrgUUID`](#forceloginorguuid) 搭配使用，使开发者的 claude.ai 登录限定在一个组织内。
@@ -5305,7 +5323,7 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 }
 ```
 
-每个第一方登录路径都会应用此限制，包括 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)、Agent SDK、`claude setup-token` 和 `/install-github-app`，但终端的交互式登录界面（通过 `/login` 或首次运行引导进入）除外，该界面会预先选择登录方式但不强制执行。在 v2.1.212 之前，只有终端登录会应用此限制。有关各登录路径、环境凭据和第三方提供商的处理方式，请参阅[将登录限制在您的组织内](https://code.claude.com/docs/zh-CN/authentication.md#restrict-login-to-your-organization)。
+所有第一方登录路径都会应用此限制，包括 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)、Agent SDK、`claude setup-token` 和 `/install-github-app`，但终端的交互式登录界面除外（通过 `/login` 或首次运行引导进入），该界面可以预先选择登录方式，但不会强制执行。在 v2.1.212 之前，只有终端登录会应用此限制。有关各登录路径、环境凭据和第三方提供商的处理方式，请参阅[将登录限制为您的组织](https://code.claude.com/docs/zh-CN/authentication.md#restrict-login-to-your-organization)。
 
 当机器上的托管来源设置了 `"gateway"` 时，Claude Code 不会使用遗留的登录、API 密钥或 `apiKeyHelper` 凭据。有关每种情况产生的消息，请参阅 [Administrator policy requires a Cloud gateway sign-in](https://code.claude.com/docs/zh-CN/errors.md#administrator-policy-requires-a-cloud-gateway-sign-in)。如果您通过 `CLAUDE_CODE_USE_BEDROCK` 或类似的环境变量选择了云提供商，则该会话不需要网关登录。在 v2.1.261 之前，Claude Code 会在这些机器上使用遗留的登录。
 
@@ -5329,7 +5347,9 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 
 ### `forceLoginOrgUUID`
 
-在托管来源中，要求 claude.ai 账户登录必须属于某一个 Anthropic 组织（以单个 UUID 给出），或属于多个组织中的任意一个（以数组给出）。在任何设置文件中，Claude Code 还会使用单个 UUID 在 claude.ai 或 Claude Console 登录期间预先选择该组织；对于数组则不预先选择任何组织。如果您在任何设置文件中设置了此项，Claude Code 还会在该文件适用的会话中停止提供[无密钥 Console 登录](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)，并改为创建 API 密钥。
+在托管来源中，要求 claude.ai 账户登录必须属于某一个 Anthropic 组织（以单个 UUID 给出），或属于多个组织中的任意一个（以数组给出）。在任何设置文件中，Claude Code 还会使用单个 UUID 在 claude.ai 或 Claude Console 登录期间预先选择该组织；对于数组则不预先选择任何组织。
+
+如果您在任何设置文件中设置了此项，Claude Code 会在该文件适用的会话中停止提供[无密钥 Console 登录](https://code.claude.com/docs/zh-CN/authentication.md#sign-in-without-an-api-key)。
 
 * **作用域**：[`Any file`](#scopes)。在非托管来源的设置文件中，Claude Code 不会检查登录所属的组织，单个 UUID 会在登录期间预先选择该组织。
 * **类型**：字符串（一个 UUID），或字符串数组（多个 UUID）
@@ -5722,6 +5742,7 @@ Claude Code 会缓存该值，并在以下情况下重新运行命令：
 * **[`modelOverrides`](#modeloverrides)**：与 `availableModels` 配对。Claude Code 从设置了 `modelOverrides` 的最高来源采用它，除非某个更高的来源设置了 `availableModels` 但未设置 `modelOverrides`。在这种情况下，它会忽略所有来源中的 `modelOverrides`。
 * **[`forceLoginGatewayUrl`](#forcelogingatewayurl)、[`gatewayInternalNetworks`](#gatewayinternalnetworks) 以及 [`forceLoginMethod`](#forceloginmethod) 的 `"gateway"` 值**：Claude Code 从不从服务器托管设置中读取这些项，因此其中的值既不会生效，也不会覆盖 MDM 策略或托管设置文件中设置的值。在计算机上的管理员来源中，仅由包含策略键的排名最高的来源提供这些项，无论是否同时存在服务器托管设置。
 * **[`forceLoginOrgUUID`](#forceloginorguuid) 以及 [`forceLoginMethod`](#forceloginmethod) 的 `"claudeai"` 和 `"console"` 值**：请在[哪个托管来源提供登录键](https://code.claude.com/docs/zh-CN/managed-settings.md#which-managed-source-supplies-login-keys)中查找适用的值，而不是在表中查找。
+* **[`enforceAnthropicSignIn`](#enforceanthropicsignin)**：其条目的作用域说明指出了由哪些来源提供此键。
 * **[`allowedProviders`](#allowedproviders)**：在应用表中的规则之后，计算机自身的列表仍会限制结果，如其条目的作用域说明所述。
 
 要确认计算机上合并了哪些来源，请运行 `/status` 并[查看 `Setting sources` 行](https://code.claude.com/docs/zh-CN/managed-settings#read-the-source-in-/status)。
@@ -5782,9 +5803,12 @@ Claude Code 在不带参数的情况下运行辅助程序，在其环境中设�
 }
 ```
 
-当辅助程序输出 `managedSettings` 时，该对象将成为本次运行唯一的托管设置来源：Claude Code 会忽略 MDM、文件和 HKCU 来源，仅从辅助程序的输出中读取[跨来源键](https://code.claude.com/docs/zh-CN/managed-settings.md#keys-read-from-every-admin-source)，并且从不合并[父级设置](https://code.claude.com/docs/zh-CN/managed-settings.md#parent-settings-from-embedding-hosts)。
+当辅助程序输出 `managedSettings` 时，该对象将成为本次运行的托管设置来源。Claude Code 从中读取[跨来源键](https://code.claude.com/docs/zh-CN/managed-settings.md#keys-read-from-every-admin-source)，并且不合并[父级设置](https://code.claude.com/docs/zh-CN/managed-settings.md#parent-settings-from-embedding-hosts)。它会忽略 MDM、文件和 HKCU 来源，但以下这类键除外：
 
-启动时的 `forceRemoteSettingsRefresh` 检查在辅助程序之前运行，并读取任何管理员来源。如果辅助程序以 `0` 退出，但输出的封装对象中省略了 `managedSettings`，则它不提供任何托管设置，其他来源照常生效。
+* **[`forceRemoteSettingsRefresh`](#forceremotesettingsrefresh)**：启动检查在辅助程序之前运行，并读取任何管理员来源
+* **[`enforceAnthropicSignIn`](#enforceanthropicsignin)**：Claude Code 从 MDM 策略或托管设置文件中读取此键
+
+如果辅助程序以 `0` 退出，但输出的封装对象中省略了 `managedSettings`，则它不提供任何托管设置，其他来源照常生效。
 
 #### 辅助程序失败
 

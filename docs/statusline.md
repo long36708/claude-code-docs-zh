@@ -346,7 +346,7 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 >
 > **可能为 `null` 的字段**：
 >
-> * `context_window.current_usage`：在会话中第一次 API 调用之前为 `null`，在 `/compact` 之后也会再次为 `null`，直到下一次 API 调用重新填充它
+> * `context_window.current_usage`：请参阅[上下文窗口字段](#context-window-fields)
 > * `context_window.used_percentage`、`context_window.remaining_percentage`：在会话早期可能为 `null`
 >
 > 在脚本中，请使用条件访问处理缺失字段，并使用备用默认值处理 null 值。
@@ -356,7 +356,7 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 `context_window` 对象描述来自最近一次 API 响应的实时上下文窗口。
 
 * **合计总数**（`total_input_tokens`、`total_output_tokens`）：当前上下文窗口中的 token。`total_input_tokens` 是 `input_tokens`、`cache_creation_input_tokens` 和 `cache_read_input_tokens` 之和；`total_output_tokens` 是最近一次响应的输出 token。在第一次 API 响应之前，两者均为 `0`。
-* **按组成部分的用量**（`current_usage`）：按类别拆分的相同 token 数。当您需要将缓存命中与新输入分开时，请使用此项。
+* **按组成部分的用量**（`current_usage`）：按类别拆分的相同 token 数。当您需要将缓存命中与新输入分开时，请使用此项。该对象在会话中第一次 API 调用之前为 `null`，在 `/compact` 之后直到下一次 API 调用之前为 `null` 或全部为零。请将这两种情况都视为空。
 
 `current_usage` 对象包含：
 
@@ -370,8 +370,6 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 `used_percentage` 字段仅根据输入 token 计算：`input_tokens + cache_creation_input_tokens + cache_read_input_tokens`。它不包括 `output_tokens`。
 
 如果您根据 `current_usage` 手动计算上下文百分比，请使用相同的仅输入公式，以与 `used_percentage` 保持一致。
-
-`current_usage` 对象在会话中第一次 API 调用之前为 `null`，并且在 `/compact` 之后会立即再次变为 `null`，直到下一次 API 调用重新填充它。
 
 ### 支出限额字段
 

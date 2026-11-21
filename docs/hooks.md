@@ -70,7 +70,7 @@ Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配�
 
 > [tab] macOS/Linux
 >
-> `matcher` 缩小到 Bash 工具调用和 [Monitor 命令](#match-monitor-commands)，`if` 条件进一步缩小到匹配 `rm *` 的 Bash 子命令，因此 `block-rm.sh` 仅在两个过滤器都匹配时生成：
+> `matcher` 缩小到 Bash 工具调用和 [Monitor 命令](#match-monitor-commands)，`if` 条件进一步缩小到匹配 `rm *` 的 Bash 子命令：
 >
 > ```json theme={null}
 > {
@@ -245,7 +245,7 @@ Hooks 在 JSON 设置文件中定义。配置有三个嵌套级别：
 | `.claude/settings.local.json` | 单个项目 | 否，当 Claude Code 保存设置时被 gitignored |
 | 托管策略设置 | 组织范围 | 是，由管理员控制 |
 | [Plugin](https://code.claude.com/docs/zh-CN/plugins/overview.md) `hooks/hooks.json` | 启用插件时 | 是，与插件捆绑 |
-| [Skill](https://code.claude.com/docs/zh-CN/skills.md) frontmatter | 调用技能后的会话其余部分。请参阅 [Skills 和代理中的 Hooks](#hooks-in-skills-and-agents) | 是，在技能文件中定义 |
+| [Skill](https://code.claude.com/docs/zh-CN/skills.md) frontmatter | 请参阅 [skill 和 Agent 中的 hook](#hooks-in-skills-and-agents) | 是，在 skill 文件中定义 |
 | [Subagent](https://code.claude.com/docs/zh-CN/sub-agents.md) frontmatter | 该子代理运行时 | 是，在子代理文件中定义 |
 
 [云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md) 不读取本地 `~/.claude/settings.json`。在 [自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#permissions-and-tool-approval) 中，Claude Code 还运行操作员从运行程序主机的 `~/.claude/` 中植入的 hooks，并在该文件属于 [Claude Code 应用的托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources) 时运行运行程序镜像的托管设置文件中的 hooks，默认情况下仅当服务器托管设置和 MDM 交付的 Claude Code 策略都不提供托管层时才运行。有关哪些设置文件和插件（以及哪些 hooks）到达云会话，请参阅 [从设置中继承的内容](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。
@@ -681,9 +681,9 @@ MCP tool "security_scan" on server "my_server" answered without its text, which 
 除了设置文件和插件外，hooks 可以直接在 [skills](https://code.claude.com/docs/zh-CN/skills.md) 和 [subagents](https://code.claude.com/docs/zh-CN/sub-agents.md) 中使用 frontmatter 定义，采用与基于设置的 hooks 相同的配置格式。Claude Code 保持它们注册多长时间取决于组件：
 
 * **Subagent hooks**：Claude Code 仅在该子代理运行时运行它们，并在其完成时删除它们。Claude Code 在此处将 `Stop` hook 转换为 `SubagentStop`，这是它在子代理完成时触发的事件。
-* **Skill hooks**：Claude Code 在您或 Claude 调用技能时注册它们，并为会话的其余部分保持运行它们，在技能自己的回合之后的回合上也是如此。要让 Claude Code 在第一次成功运行后删除 hook，改为在其上设置 [`once: true`](#common-fields)。
+* **Skill hook**：在您或 Claude 调用该 skill 之前，它们不会运行。当您退出，或通过 `/clear` 或 `/resume` 等命令离开对话时，它们会被删除。要更早删除某个 hook，请参阅 [`once`](#common-fields)。
 
-此技能定义了一个 `PreToolUse` hook，在每个 `Bash` 命令前运行安全验证脚本：
+此 skill 定义了一个匹配 `Bash` 并运行安全验证脚本的 `PreToolUse` hook：
 
 ```yaml theme={null}
 ---
@@ -700,7 +700,7 @@ hooks:
 
 Subagents 在其 YAML frontmatter 中使用相同的格式。
 
-项目技能中的 Frontmatter hooks 遵循与设置文件中的 hooks 相同的 [工作区信任规则](#workspace-trust)。Claude Code 在您或 Claude 调用技能时注册它们，包括在您未信任的文件夹中的 `-p` 运行。
+项目 skill 中的 frontmatter hook 遵循与 [设置文件中的 hook 相同的工作区信任规则](#workspace-trust)，因此它们可以在您未信任的文件夹中以 `-p` 运行。
 
 项目子代理中的 frontmatter hook 仅在您接受 Agent 文件所在文件夹的 [工作区信任对话框](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust) 后运行。`-p` 会话不算作接受。[在您信任文件夹前运行的内容](https://code.claude.com/docs/zh-CN/permissions.md#what-runs-before-you-trust-a-folder) 将此与设置文件规则进行比较，子代理页面列出了 [哪些作用域被豁免](https://code.claude.com/docs/zh-CN/sub-agents.md#hooks-in-subagent-frontmatter)。
 
@@ -994,7 +994,7 @@ Error: Cannot find module '/path/to/project/.claude/hooks/check-command.js'
 
 > [!NOTE]
 >
-> 如果您使用 Code Mode，`PreToolUse` 上的失败处理方式有所不同。请参阅[被 hook 拒绝的工具调用](https://code.claude.com/docs/zh-CN/code-mode.md#tool-call-refused-by-a-hook)。
+> 如果您使用 Code Mode，`PreToolUse` 上的超时处理方式有所不同。请参阅[被 hook 拒绝的工具调用](https://code.claude.com/docs/zh-CN/code-mode.md#tool-call-refused-by-a-hook)。
 
 #### 未安装 Git Bash 的 Windows 上失败的 hook
 
@@ -1229,7 +1229,7 @@ Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `
 * `PostToolUse`：`updatedToolOutput` 替换工具的结果。在 [Cowork](https://claude.com/docs/cowork/overview) 云端会话中，当工具为 `AskUserQuestion` 或 `ExitPlanMode` 时，Claude Code 会忽略 `updatedToolOutput`，Claude 读取的是原始回答或计划。请参阅 [PostToolUse 决策控制](#posttooluse-decision-control)
 * `UserPromptSubmit`：无法替换提示词；它仅在其旁边注入 `additionalContext`
 
-对于脱敏或转换用例，请在 `PreToolUse` 处拦截出站工具输入，在 `PostToolUse` 处拦截成功调用的结果。`PostToolUseFailure` 无法改写结果，因此失败命令的输出会原样到达 Claude。
+对于脱敏或转换用例，请在 `PreToolUse` 处拦截出站工具输入，在 `PostToolUse` 处拦截成功调用的结果。`PostToolUseFailure` 无法改写结果，因此无法对失败命令的输出进行脱敏。
 
 以下是每种模式的实际示例：
 
@@ -1786,7 +1786,7 @@ MessageDisplay hook 没有决策控制。它们无法阻止消息，也无法更
 
 ### PreToolUse
 
-在 Claude 创建工具参数之后、处理工具调用之前运行。匹配除 `EndConversation` 之外的任何工具名称：内置工具，如 `Bash`、`PowerShell`、`Edit`、`Write`、`Read`、`Glob`、`Grep`、`Agent`、`Workflow`、`WebFetch`、`WebSearch`、`AskUserQuestion` 和 `ExitPlanMode`，以及任何 [MCP 工具名称](#match-mcp-tools)。
+在 Claude 创建工具参数之后、处理工具调用之前运行。匹配除 `EndConversation` 之外的工具名称：内置工具，例如 `Bash`、`PowerShell`、`Edit`、`Write`、`Read`、`Glob`、`Grep`、`Agent`、`Workflow`、`WebFetch`、`WebSearch`、`AskUserQuestion` 和 `ExitPlanMode`，以及任何 [MCP 工具名称](#match-mcp-tools)。
 
 要在特定文件在磁盘上发生变化时运行 hook（无论由谁写入），请使用 [FileChanged](#filechanged)，而不是按名称匹配文件编辑工具。与 PreToolUse 不同，Claude Code 在变更之后运行 FileChanged hook，且它们没有决策控制，因此无法阻止写入。
 
@@ -2271,7 +2271,7 @@ hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 
 
 ### PostToolUse
 
-在工具成功完成后立即运行。
+在工具成功完成后立即运行。在主对话中，来自[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)的 `PostToolUse` hook 也会在某些失败的调用之后运行，因此请编写能同时处理这两种情况的 hook。
 
 按工具名称匹配，取值与 PreToolUse 相同。
 
@@ -2294,7 +2294,7 @@ hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 
 
 #### PostToolUse 输入
 
-`PostToolUse` hook 在工具已成功执行后触发。输入同时包含 `tool_input`（发送给工具的参数）和 `tool_response`（工具返回的结果）。两者的确切 schema 取决于具体工具。文件工具的 `tool_input` 路径格式与 [PreToolUse](#pretooluse-input) 相同：始终为绝对路径，并使用平台原生的分隔符，因此在 Windows 上为反斜杠。对于 MCP 工具，输入还会携带 [`mcp_server`](#pretooluse-input) 对象。
+输入同时包含 `tool_input`（发送给工具的参数）和 `tool_response`（工具返回的结果）。两者的确切 schema 取决于工具。对于失败的调用，`tool_response` 是字符串形式的错误文本。对于 MCP 工具，输入还包含 [`mcp_server`](#pretooluse-input) 对象。
 
 ```json theme={null}
 {

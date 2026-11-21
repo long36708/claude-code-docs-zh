@@ -173,7 +173,9 @@ Claude 委托给您的新子代理，它扫描代码库并返回改进建议。�
 
 Claude Code 会递归扫描 `.claude/agents/` 和 `~/.claude/agents/`，因此您可以将定义组织到子文件夹中，例如 `agents/review/` 或 `agents/research/`。子目录路径不影响子代理的识别或调用方式，因为其身份仅来自 `name` frontmatter 字段。
 
-请在整个目录树中保持 `name` 值唯一：如果同一个 `.claude/agents/` 目录（包括其子文件夹）下的两个文件声明了相同的名称，Claude Code 只会加载其中一个，具体由文件系统读取顺序决定，而不是由文档规定的优先级决定。在嵌套的项目目录之间，如上所述，离工作目录最近的定义优先。[`/doctor`](https://code.claude.com/docs/zh-CN/commands#all-commands) 设置检查会报告同一目录中同名的文件，并建议重命名或删除多余的文件，只保留一个。
+> [!NOTE]
+>
+> 请在各子文件夹之间保持 `name` 值唯一。如果同一个 `.claude/agents/` 目录下的两个文件声明了相同的名称，Claude Code 只会加载其中一个。[`/doctor`](https://code.claude.com/docs/zh-CN/commands#all-commands) 设置检查会报告同一目录中同名的文件，并建议重命名或删除多余的文件，只保留一个。
 
 插件的 `agents/` 目录也会被递归扫描。与项目和用户作用域不同，插件 `agents/` 目录中的子文件夹会成为[作用域标识符](#invoke-subagents-explicitly)的一部分：插件 `my-plugin` 中位于 `agents/review/security.md` 的文件注册为 `my-plugin:review:security`。
 
@@ -371,8 +373,6 @@ experimental:
 * 设置了 `model: inherit` 或没有 `model` 字段的子代理
 * 内置的 Explore、Plan 和 general-purpose 子代理
 * [分叉](#fork-the-current-conversation)
-
-在计划模式下，如果您将会话的模型设置为 [`opusplan`](https://code.claude.com/docs/zh-CN/model-config#opusplan-model-setting)，这些子代理会在 Opus 上运行；如果您将其设置为 `haiku`，则在 Sonnet 上运行。
 
 #### 检查子代理的模型
 

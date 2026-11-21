@@ -642,7 +642,7 @@ Claude Code 自己获取的连接器工具显示为 `mcp__claude_ai_<server>__<t
 
 ## 使用 hooks 扩展权限
 
-[Claude Code hooks](https://code.claude.com/docs/zh-CN/hooks-guide.md) 让您可以注册自定义 shell 命令，在运行时评估权限。当 Claude Code 进行工具调用时，PreToolUse hooks 在权限提示之前运行，适用于除了 [`EndConversation`](https://code.claude.com/docs/zh-CN/tools-reference#endconversation-tool-behavior) 之外的每个工具。hook 输出可以拒绝工具调用、强制提示或跳过提示以让调用继续。
+[Claude Code hooks](https://code.claude.com/docs/zh-CN/hooks-guide.md) 让您可以注册自定义 shell 命令，在运行时评估权限。PreToolUse hook 在权限提示之前运行。hook 输出可以拒绝工具调用、强制提示或跳过提示以让调用继续。[`EndConversation`](https://code.claude.com/docs/zh-CN/tools-reference#endconversation-tool-behavior) 调用会跳过 PreToolUse hook。
 
 ### 规则、hook 和 mod 之间的优先级
 
@@ -758,7 +758,7 @@ Claude Code 从当前工作目录及其父目录、您在 `~/.claude/` 的用户
 
 权限和[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)是互补的安全层：
 
-* **权限**控制 Claude Code 可以使用哪些工具以及它可以访问哪些文件或域。它们适用于 Bash、Read、Edit、WebFetch、MCP 和其他所有工具，除了 deny 或 ask 规则无法阻止 [`EndConversation`](https://code.claude.com/docs/zh-CN/tools-reference#endconversation-tool-behavior)，而任何其他工具仍然存在。
+* **权限**控制 Claude Code 可以使用哪些工具以及它可以访问哪些文件或域。它们适用于 Bash、Read、Edit、WebFetch、MCP 和其他工具。只要还有任何其他工具存在，deny 或 ask 规则就无法阻止 [`EndConversation`](https://code.claude.com/docs/zh-CN/tools-reference#endconversation-tool-behavior)。
 * **沙箱隔离**提供 OS 级别的强制执行，限制 shell 命令的文件系统和网络访问。它适用于 Bash、PowerShell 和 [Monitor](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool) 工具命令及其子进程。
 
 使用两者进行深度防御，因为即使提示注入绕过 Claude 的决策制定，沙箱限制仍然适用。来自沙箱设置和权限规则的路径和域被[合并到最终沙箱配置](https://code.claude.com/docs/zh-CN/sandboxing.md#permission-rules)中。

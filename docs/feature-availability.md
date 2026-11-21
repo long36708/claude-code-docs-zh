@@ -345,7 +345,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 | [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) | ✓ | ✓ | ✓ | Admin-enabled | Admin-enabled |
 | [Channels](https://code.claude.com/docs/zh-CN/channels.md) | ✓ | ✓ | ✓ | Admin-enabled | Admin-enabled |
 | [Computer use](https://code.claude.com/docs/zh-CN/computer-use.md) | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Dispatch ([Desktop](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)) | ✓ | ✓ | ✓ | ✗ | ✗ |
+| Dispatch ([Desktop](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)) | 不向新用户开放 | 不向新用户开放 | 不向新用户开放 | ✗ | ✗ |
 | [Code Review](https://code.claude.com/docs/zh-CN/code-review.md) | ✗ | ✗ | ✗ | ✓ | ✓ |
 | [Artifacts](https://code.claude.com/docs/zh-CN/artifacts.md) | ✓ | ✓ | ✓ | ✓ | ✓ |
 | [分析仪表板和贡献指标](https://code.claude.com/docs/zh-CN/analytics.md) | ✗ | ✗ | ✗ | ✓ | ✓ |

@@ -42,7 +42,7 @@ await edit(target, "maxAttempts: 3", "maxAttempts: 5");
 * **恢复会话**：只能在终端中、并且在 Code Mode 开启的情况下恢复 Code Mode 会话
 * **自动模式**：自动模式的分类器[审查的是代码，而不是每个工具调用](#permission-checks)
 * **长时间运行的代码**：除非[代码可以在后台运行](#long-running-code)，否则您需要等待代码运行完成，并且代码会在十分钟后停止
-* **Hook**：当 `PreToolUse` hook 无法运行或超时时，您可能会看到[工具调用被拒绝](#tool-call-refused-by-a-hook)
+* **Hook**：当 `PreToolUse` hook 未能完成时（例如超时后），您可能会看到[工具调用被拒绝](#tool-call-refused-by-a-hook)
 * **不可用的功能**：无法使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)、[Claude in Chrome](https://code.claude.com/docs/zh-CN/chrome.md) 或[计算机使用](https://code.claude.com/docs/zh-CN/computer-use.md)
 * **移动会话**：无法将会话移到 Desktop 应用，也无法将其转为[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，并且 `/fork` 无法启动后台副本
 
@@ -52,7 +52,7 @@ await edit(target, "maxAttempts: 3", "maxAttempts: 5");
 * **账户**：Claude 订阅或 Console 账户。无法通过网关、Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md) 使用 Code Mode
 * **组织**：您的组织未使用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)或[零数据保留](https://code.claude.com/docs/zh-CN/zero-data-retention.md)
 * **模型**：Claude Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 5.2
-* **使用入口**：终端中的交互式 `claude` 会话。Code Mode 不适用于 `-p`、Agent SDK、VS Code 面板、Desktop 应用或云端会话
+* **使用入口**：终端中的交互式 `claude` 会话。Code Mode 不适用于 VS Code 面板、Desktop 应用或云端会话
 * **Agent teams**：要在开启 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md) 的情况下使用 Code Mode，需要 v2.1.326 或更高版本。在默认的[进程内显示模式](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)下，队友以 Code Mode 运行；在分屏窗格中，队友则在不启用 Code Mode 的情况下启动
 * **安装**：Claude Code 的[原生构建版本](https://code.claude.com/docs/zh-CN/setup.md)
 * **Windows**：已安装 [Git for Windows](https://git-scm.com/downloads/win)
@@ -324,12 +324,15 @@ Claude Code will automatically block this request in 1:59, to avoid holding up a
 
 ### 工具调用被 hook 拒绝
 
-如果 Claude 报告工具调用被拒绝，请让它提供错误文本。以下错误表示 `PreToolUse` hook 未给出决定，即使未设置 [`onFailure`](https://code.claude.com/docs/zh-CN/hooks#block-the-action-when-a-hook-fails)，这也会拒绝该调用：
+如果 Claude 报告工具调用被拒绝，请让它提供错误文本。以下错误表示您的 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse) 未给出决定：
 
-* **`the hook failed`**：对于来自代码的调用，您的 hook 无法启动、被终止、以 126、127 或大于 128 的代码退出，或者返回了 HTTP 错误或无效输出。请修复该 hook
-* **`the hook did not finish`**：您的 hook 在处理来自代码的调用时超时，或者在 Claude 已在会话中运行过代码后，在处理任何其他工具调用时超时。请增大该 hook 的 [`timeout`](https://code.claude.com/docs/zh-CN/hooks#common-fields)
+* **`the hook did not finish`**：您的 hook 超时，或者您的 Agent hook 在未给出决定的情况下结束。发生超时后，请增大该 hook 的 [`timeout`](https://code.claude.com/docs/zh-CN/hooks#common-fields)。对于未给出决定的 Agent hook，请将检查移至 `command` hook。您可能会在来自代码的调用上看到此错误，也可能在 Claude 于会话中运行代码后的其他工具调用上看到此错误
+* **`the hook failed`**：对于来自代码的调用，您的 hook 无法启动、被终止、以 126、127 或大于 128 的代码退出，或者返回了 HTTP 错误或无效输出。请修复该 hook。您可能会在 v2.1.329 之前的版本中看到此错误。在更高版本中，此错误很少见：其中一个原因是在 Claude 运行代码后，[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)在会话期间被关闭
 
-如需在 `command` 或 `http` hook 失败或超时时允许调用继续进行，请在该 hook 上设置 `"onFailure": "continue"`。如果 `command` hook 以 1 等普通代码退出，调用会继续进行，除非您设置了 `"onFailure": "block"`。
+在 v2.1.329 或更高版本中，当发生 `the hook did not finish` 以外的 hook 失败后，来自代码的调用默认会继续运行。如需选择是否运行该调用，请使用 `command` 或 `http` hook，并在其上设置 [`onFailure`](https://code.claude.com/docs/zh-CN/hooks#block-the-action-when-a-hook-fails)：
+
+* **在超时或失败后阻止调用**：设置 `"onFailure": "block"`。对于用于把关调用的 hook，请这样设置
+* **在超时或失败后允许调用运行**：设置 `"onFailure": "continue"`
 
 ### 代码输出被 hook 拦截
 

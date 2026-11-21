@@ -108,7 +108,7 @@ claude --cloud "Add retry logic to the payment webhook handler"
 
 ### 将会话 Teleport 到您的终端
 
-使用 `claude --teleport` 将云会话拉入您的本地终端。Teleport 在获取分支和加载会话历史之前验证您在同一 GHES 存储库的检出中。有关详细信息，请参阅 [teleport 要求](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#teleport-requirements)。
+使用 `claude --teleport` 将云端会话拉入您的本地终端。Teleport 在加载会话历史之前验证您在同一 GHES 仓库的检出中。有关详细信息，请参阅 [teleport 要求](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#teleport-requirements)。
 
 ## GHES 上的插件市场
 

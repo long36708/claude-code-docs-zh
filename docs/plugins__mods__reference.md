@@ -56,6 +56,8 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | :- | :- | :- |
 | [`tool.call`](https://code.claude.com/docs/zh-CN/plugins/mods/events#guard-or-change-a-tool-call) | 工具即将运行 | `next(e)`、`{ deny: reason }` 或 `{ result }` |
 | [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/events#where-settings-hooks-run-in-the-order) | Claude Code 在 `tool.call` 和 `PreToolUse` hook 之后决定是否允许运行某个工具调用。`next(e)` 解析为规则、权限模式和这些 hook 得出的决定。 | `next(e)` 或 `{ decision }`，其中 `decision` 设为 `allow`、`ask` 或 `deny`，并可附带可选的 `reason` |
+| `tool.judge` | [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)即将就某个调用询问其分类器。需要 Claude Code v2.1.326 或更高版本。 | `next(e)` 或 `{ decision }` |
+| `tool.run` | 某个已允许的调用即将运行。需要 Claude Code v2.1.326 或更高版本。 | `next(e)`、`{ deny: reason }` 或 `{ result }` |
 | `tool.describe` | 每个工具一次，在其描述首次发送给 Claude 时。对于 MCP 工具，当 Claude 通过[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)加载它时会再触发一次，此时 `e.description` 设为 Claude 针对已加载工具读取的文本。 | `{ description }`，可选择将 `isDeferred` 设为 `true` 以将该工具置于工具搜索之后，或设为 `false` 以预先加载它。添加 [`breakPromptCache: true`](#break-prompt-cache) 可在下一轮次发送更改后的描述。 |
 
 #### `tool.check` 上的 Agent 和组织字段
@@ -151,6 +153,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | `session.append` | 对话保留的每一行一次，例如提示词、响应块、工具结果或通知，在存储之前触发 | 带有更改后 `message.content` 的 `next({ ...e, message })`，用于重写该行的文本块或其中 `tool_result` 块的 `content` |
 | `session.attach`, `session.detach` | 另一个应用连接到会话或从会话断开 | `next(e)` |
 | `session.measure` | 每个轮次之后，以及套餐限制的已用百分比发生变化时 | `next(e)` |
+| `session.stop` | 用户停止 Claude，例如在轮次进行中按 Esc。需要 Claude Code v2.1.326 或更高版本。 | `next(e)` |
 
 ### 子代理
 
@@ -189,8 +192,8 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 
 | 事件 | 触发时机 | hook 可以返回 |
 | :- | :- | :- |
-| [`plugin.register`](https://code.claude.com/docs/zh-CN/plugins/mods/admin#enforce-a-policy-with-a-mod-of-your-own) | hook 模块即将加载。`e.uses` 列出它的事件、mods API 调用、环境变量和状态，与 `claude plugin validate` 打印的内容一致。每个调用都不带 `$.` 前缀，如 `fs.read`。 | `{ refuse: reason }` |
-| `engine.create` | 正在为此 mod 构建 mods API | 更改后的 mods API，用于添加某个命名空间。`user` [层级](#the-hook-function)之外的 mod 还可以隐藏某个命名空间。 |
+| [`plugin.register`](https://code.claude.com/docs/zh-CN/plugins/mods/admin#enforce-a-policy-with-a-mod-of-your-own) | hook 模块即将加载，或者在 v2.1.326 或更高版本上，没有 hook 模块的插件即将加载。`e.uses` 列出该模块的事件、mods API 调用、环境变量和状态，与 `claude plugin validate` 打印的内容一致。每个调用都不带 `$.` 前缀，如 `fs.read`。 | `{ refuse: reason }`。在 v2.1.326 或更高版本上，拒绝会排除整个插件，而 `next({ ...e, provides: { ...e.provides, modules: [] } })` 仅排除其 hook 模块。更早的版本会忽略 `provides` 并加载该模块。 |
+| `engine.create` | 正在为此 mod 构建 mods API | 更改后的 mods API，用于添加某个命名空间。位于 `prepend` 或 `append` [层级](#the-hook-function)的 mod 还可以隐藏某个命名空间。 |
 
 当另一个 mod 的 hook 调用您在 `engine.create` 中添加的命名空间上的方法时，在该事件上的所有 hook 返回之前，您的方法发出的 `$` 调用都在该 hook 的上下文中运行。例如，相对路径基于该 hook 的工作目录解析，而当轮次正在等待该 hook 时，`$.prompt.submit` 会被拒绝。在此之后您的方法发出的调用将在您的 mod 自身的上下文中运行。
 
@@ -240,7 +243,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`$.model`](https://code.claude.com/docs/zh-CN/plugins/mods/api#call-a-model) | `complete`、`fork`、`classify` |
 | [`$.prompt`](https://code.claude.com/docs/zh-CN/plugins/mods/api#start-a-turn-from-a-background-job) | `submit`、`read`、`fill`、`suggest`、`compose`。Claude 读取来自 `submit({ text })` 的文本时，前面会有一句指明您的 mod 为发送者的话。`submit({ text, asUser: true })` 将文本作为用户自己的话发送，不带那句话。 |
 | `$.turn` | `abort` |
-| [`$.session`](https://code.claude.com/docs/zh-CN/plugins/mods/api#send-and-receive-messages-between-sessions) | `messages`、`cwd`、`root`、`model`、`turns`、`id`、`repo`、`surfaces`、`usage`、`version`、`compact`、`send`、`append`、`authorize`。`usage()` 返回 `{ startedAt, context, rateLimits, cost }`：`context` 包含 `tokens`、`window` 和 `percent`，`rateLimits` 是由 `{ kind, percentUsed, resetsAt }` 组成的列表。 |
+| [`$.session`](https://code.claude.com/docs/zh-CN/plugins/mods/api#send-and-receive-messages-between-sessions) | `messages`、`cwd`、`root`、`model`、`turns`、`id`、`repo`、`surfaces`、`usage`、`version`、`info`、`compact`、`send`、`append`、`authorize`。`info` 需要 Claude Code v2.1.326 或更高版本。`usage()` 返回 `{ startedAt, context, rateLimits, cost }`：`context` 包含 `tokens`、`window` 和 `percent`，`rateLimits` 是由 `{ kind, percentUsed, resetsAt }` 组成的列表。 |
 | `$.config` | `list`、`set` |
 | [`$.settings`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `read` |
 | [`$.env`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `get`、`set` |
@@ -249,8 +252,9 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`$.state`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#keep-a-value-in-\$-state) | 响应式状态：`get`、`set`，以及从 `claude-code` 导入的辅助函数 `atom`、`read`、`update`、`derive` 和 `memberOf` |
 | [`$.clock`](https://code.claude.com/docs/zh-CN/plugins/mods/api#run-work-in-the-background) | `now`、`sleep`、`after`、`every` |
 | [`$.http`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `fetch` |
-| [`$.process`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `run`、`spawn` |
+| [`$.process`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `run`、`spawn`、`hookEnv`。`hookEnv` 需要 Claude Code v2.1.326 或更高版本。 |
 | [`$.mcp`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `call`、`connect`。`connect(server)` 连接您自己的插件清单中列出的 MCP 服务器。 |
+| [`$.wasm`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `compile`。需要 Claude Code v2.1.326 或更高版本。 |
 | `$.audio` | `play`、`speak` |
 | `$.telemetry` | `log`、`mark`。仅当由 Claude Code 或内置 mod 发出调用时，才会发送记录。 |
 
@@ -278,6 +282,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | `InfoNotice` | `text`、`command` | 以 `notice:` 为前缀的通知 `text` | 终端 |
 | `SessionMode` | `modes` | 单一实例 | 终端、Desktop |
 | `PromptHint` | `isDraft`、`isWorking`、`hint` | 单一实例 | 终端、Desktop |
+| `AgentRow` | 该 Agent 的 [`$.agent.list()` 字段](https://code.claude.com/docs/zh-CN/plugins/mods/create#get-the-types-for-your-build)，外加 `rowIds`、`columns`、`body` 和 `isHidden` | Agent id | 终端以及 VS Code 的 [Focus 视图](https://code.claude.com/docs/zh-CN/vs-code.md#extension-settings)。需要 Claude Code 或该扩展的 v2.1.326 或更高版本。 |
 
 `e.viewport` 包含 `columns`、`rows` 和 `isFullscreen`。在终端和 Desktop 应用中，在应用测量其窗口之前，它不存在。在这两处，它的 `rows` 是整个窗口的高度，而不是您的窗格的高度。在 VS Code 扩展中，它始终存在。
 
@@ -401,11 +406,12 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | :- | :- |
 | 单个事件中 hook 自身的执行时间，不计入在 `next` 内或在除 `$.clock.sleep` 之外的 mods API 调用中花费的时间 | 10 秒；对于 `prompt.edit` hook 为 50 毫秒 |
 | `.catch` 处理程序的执行时间 | 1 秒 |
+| 单个事件中 `ui.render` 或 `plugin.register` hook 等待 mods API 调用的时间 | `ui.render` 为 30 秒。`plugin.register` 为 10 秒，不计入 `$.ui.ask`。`ui.render` 的限制和 `$.ui.ask` 的豁免需要 Claude Code v2.1.326 或更高版本。 |
 | 所有 `session.end` hook 合计 | 与 [SessionEnd hook 预算](https://code.claude.com/docs/zh-CN/hooks.md#sessionend-input)相同，除非您更改，否则为 1.5 秒，从您设置中的 `SessionEnd` hook 完成时开始计算 |
 | `$.process.run` 超时时间 | 默认 30 秒，最长 10 分钟 |
 | `$.process.run` 的 `stdout` 和 `stderr` | 各 4 MiB。当其中一项被截断时，`isStdoutTruncated` 或 `isStderrTruncated` 为 `true`。 |
 | `$.model.complete` `maxTokens` | 默认 1024，最多 64,000 或模型的输出上限 |
-| `$.fs.read` 和 `$.fs.write` | 单个文件 4 MiB |
+| `$.fs.read` 和 `$.fs.write` | 单个文件 4 MiB。在 v2.1.326 或更高版本中，可使用 `$.fs.read(path, { offset, length })` 分段读取更大的文件，两者均以字节为单位。 |
 | `$.http.fetch` 请求正文 | 4 MiB，按字符计算。正文更大的调用会被拒绝。 |
 | `$.http.fetch` 响应正文 | 4 MiB。`text` 保存前 4 MiB，其余部分不会被读取。当 `Content-Length` 标头声明的大小超出此限制时，该调用会改为被拒绝，拒绝原因以 `is over the 4194304-byte limit` 结尾，但经过所有重定向后的最后一个请求使用 `HEAD` 方法时除外。`HEAD` 例外需要 Claude Code v2.1.296 或更高版本。 |
 | 单次 `$.http.fetch` 调用（包括重定向和正文） | 30 秒 |
@@ -415,6 +421,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | `Code` 的 `language` 或 `path`、`Select` 选项的 `value`，或 `Client` 的 `module` | 10,000 个字符。如果其中任何一项超出此长度，返回它的 `ui.render` hook 会[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)。 |
 | `Link` 的 `href` | 2,048 个字符。如果超出此长度，返回它的 `ui.render` hook 会[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)。 |
 | 单个树的嵌套深度 | 根元素以下 32 层 |
+| 连同 prop 值一起计算的树的深度和大小 | Claude Code 会拒绝任何 `nested more than 100 lists and objects deep` 或 `more than 1000000 values once written out` 的内容。需要 Claude Code v2.1.326 或更高版本。 |
 | 单个树中的元素和文本子项 | 20,000 |
 | 单个树中的 `Raster` 单元格，即每个 `Raster` 的 `columns` 乘以其 `rows` | 262,144 |
 | 输入框上方堆叠的行 | 元素、`Raster` 单元格和 `Image` 字节数在这些行之间累加，并按单个树的限制计算 |
@@ -426,7 +433,7 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | 非用户主动打开的窗格 | 终端至少 144 列宽时放置；用户打开过一次后，110 列宽即可 |
 | 单个 mod 在一个对话中同时拥有的来自 `$.ui.place` 的行 | 500。达到此限制时，使用新 `id` 的调用会解析为 `{ isPlaced: false, reason: 'a plugin holds at most 500 placed rows' }`。 |
 | mods API 调用参数的嵌套深度 | 28,000 层。超过此深度，调用会被拒绝，消息以 `nesting deeper than 28000 levels is not supported` 结尾。需要 Claude Code v2.1.299 或更高版本。 |
-| 传递给 `next` 的已更改事件的嵌套深度，[异步生成器 hook](#events)（例如 `turn.step` 上的 hook）除外 | 28,000 层。超过此深度，`next` 会拒绝，消息以 `nesting deeper than 28000 levels is not supported` 结尾。需要 Claude Code v2.1.299 或更高版本。 |
+| 传递给 `next` 的已更改事件的嵌套深度，`ui.render` 和[异步生成器 hook](#events)（例如 `turn.step` 上的 hook）除外 | 28,000 层。超过此深度，`next` 会拒绝，消息以 `nesting deeper than 28000 levels is not supported` 结尾。需要 Claude Code v2.1.299 或更高版本。 |
 | hook 返回值的嵌套深度，`ui.render`、`ui.resolve` 和异步生成器 hook 除外 | 28,000 层。超过此深度，该 hook 的结果会被拒绝，[报告此问题的通知](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)中包含 `nesting deeper than 28000 levels is not supported`。需要 Claude Code v2.1.299 或更高版本。 |
 | 在 hook 模块的单个文件中相互嵌套的作用域（如函数、代码块和循环） | 2,000 |
 | 命令、工具、子代理类型和窗格名称，已放置行的 `id`，以及背景的 `scene` | 字母、数字、`_` 和 `-`，最多 64 个字符 |

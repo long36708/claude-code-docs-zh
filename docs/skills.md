@@ -161,8 +161,8 @@ skills 的保存位置决定了哪些会话会加载它。将其保存在主目�
 | :- | :- | :- |
 | Enterprise | `.claude/skills/<skill-name>/SKILL.md` 在 [托管设置目录](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms) | 您的组织部署它的所有机器上的所有用户 |
 | Personal | `~/.claude/skills/<skill-name>/SKILL.md` | 此机器上的所有项目，但不包括 [Cowork 或云会话](#skills-in-cowork-and-cloud-sessions) |
-| Project | `.claude/skills/<skill-name>/SKILL.md` | 此仓库中的会话，但不包括 [项目中的云端线程](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。提交它以便您的团队也能获得它 |
-| Nested | `<subdir>/.claude/skills/<skill-name>/SKILL.md` | 在 `<subdir>` 中或其下方启动的会话，但不包括项目中的云端线程。在这些线程之外，在其上方启动的会话会在 Claude 处理该处的文件时加载该 skill。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories) |
+| Project | `.claude/skills/<skill-name>/SKILL.md` | 此仓库中的会话。对于项目的云端线程，请查看 [哪些线程会加载它](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。提交它以便您的团队也能获得它 |
+| Nested | `<subdir>/.claude/skills/<skill-name>/SKILL.md` | 在 `<subdir>` 中或其下方启动的会话。在其上方启动的会话会在 Claude 处理该处的文件时加载该 skill。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories)。对于项目的云端线程，请查看 [哪些线程会加载它](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories) |
 | Additional directory | `.claude/skills/<skill-name>/SKILL.md` 在使用 `--add-dir` 传递的目录中 | 该会话。请参阅 [项目外的目录](#skills-from-additional-directories) |
 | Plugin | `<plugin>/skills/<skill-name>/SKILL.md` | 在 [插件](https://code.claude.com/docs/zh-CN/plugins/overview.md) 启用的任何位置，作为 `/plugin-name:skill-name` |
 | claude.ai account | 为您的 claude.ai 账户启用的 skills | Cowork 会话、云会话和使用该账户登录的终端会话。请参阅 [从 claude.ai 同步的 Skills](#how-synced-skills-behave) |
@@ -228,8 +228,8 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
 
 如果 skill 仅存在于您机器上的 `~/.claude/skills/` 中，当 [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md) 调用它时，Claude Code 会报告找不到该 skill。这是因为每次运行都作为新的云端会话启动。要在这些会话中使用个人 skill：
 
-* 对于 Cowork 会话、云端会话以及 [项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories) 中的云端线程，为您的 claude.ai 账户启用该 skill。在项目的云端线程中，提交到仓库 `.claude/skills/` 的 skill 不可用。[自托管环境中的某些会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled) 不会加载您账户的 skill。
-* 对于项目线程以外的云端会话，您可以改为将 skill 提交到仓库的 `.claude/skills/`。在仓库的 `.claude/settings.json` 中声明的插件和仅在您的用户设置中启用的插件 [不会在云端会话中加载](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。
+* 对于 Cowork 会话、云端会话以及 [项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories) 中的云端线程，为您的 claude.ai 账户启用该 skill。[自托管环境中的某些会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled) 不会加载您账户的 skill。
+* 对于云端会话，您可以改为将 skill 提交到仓库的 `.claude/skills/`。对于项目，请查看 [哪些线程会加载它](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。在仓库的 `.claude/settings.json` 中声明的插件和仅在您的用户设置中启用的插件 [不会在云端会话中加载](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。
 
 [Desktop 计划任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md) 在您的机器上本地运行，因此它们确实加载 `~/.claude/skills/`。
 
@@ -1225,7 +1225,7 @@ if __name__ == '__main__':
 
 如果 Claude 在其第一个响应中遵循 skill，但之后停止遵循它，请从与你的情况相匹配的以下任何一种情况开始：
 
-* **Claude 跳过了必须每次都成立的规则**：将规则移到 [hook](https://code.claude.com/docs/zh-CN/hooks-guide.md) 中。Claude Code 在其事件发生时每次都运行 hook，例如在每次文件编辑之前，无论 Claude 是否遵循 skill。要将规则与 skill 保持在一起，在 skill 的 [`hooks` frontmatter](https://code.claude.com/docs/zh-CN/hooks#hooks-in-skills-and-agents) 中定义 hook。该 hook 从 skill 被调用时开始应用，直到会话结束。
+* **Claude 跳过了必须每次都成立的规则**：将规则移到[设置文件](https://code.claude.com/docs/zh-CN/hooks.md#hook-locations)或插件的 `hooks/hooks.json` 中的 [hook](https://code.claude.com/docs/zh-CN/hooks-guide.md) 里。Claude Code 会在该 hook 的事件发生时运行它，例如在文件编辑之前，无论 Claude 是否在遵循 skill。
 * **Claude 跳过了应该有判断力地应用的指导**：措辞指导使其适用于整个任务，例如"在每次编辑后运行测试"而不是"运行测试"。Claude Code 在 skill 被调用时将 skill 的内容添加到对话中，并且 [不会在后续轮次重新读取文件](#skill-content-lifecycle)。
 * **对话被压缩了**：再次调用 skill 以恢复其完整内容。在 [压缩](https://code.claude.com/docs/zh-CN/how-claude-code-works.md#when-context-fills-up) 之后，Claude Code [只能保留被调用的 skill 的开始部分](#skill-content-lifecycle)，所以将最重要的说明放在 `SKILL.md` 的顶部。
 

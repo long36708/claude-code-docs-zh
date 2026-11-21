@@ -504,7 +504,7 @@ MCP 任务是由 MCP 服务器使用 [MCP tasks 扩展](https://modelcontextprot
 
 > [!NOTE]
 >
-> MCP 任务在 Claude Code CLI 中处于公开测试版阶段，需要 Claude Code v2.1.304 或更高版本。[调用成为 MCP 任务的条件](#requirements-for-mcp-tasks)列出了支持它的会话和服务器。
+> MCP 任务目前处于公测阶段，需要 Claude Code v2.1.304 或更高版本。[调用成为 MCP 任务的条件](#requirements-for-mcp-tasks)列出了可以使用该功能的会话和服务器。
 
 #### 停止 MCP 任务或获取其结果
 
@@ -545,7 +545,10 @@ MCP task <server task id> (<server>/<tool>) completed.
 * 服务器支持任务
 * 服务器是以[协议修订版 2026-07-28](#mcp-client-runtimes) 连接的 HTTP、stdio 或 claude.ai 连接器服务器。设置 [`MCP_SDK_GENERATION=v1` 或 `MCP_PROTOCOL_NEGOTIATION=legacy`](https://code.claude.com/docs/zh-CN/env-vars) 会排除这种情况
 * 会话[获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，因此不能是 Amazon Bedrock 等第三方提供商，也不能关闭遥测或标志获取
-* Anthropic 已为您这类会话启用 MCP 任务。在 v2.1.304 或更高版本上，这涵盖终端 CLI 会话、[Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话和 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 运行。其他使用入口（例如 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)和[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)）没有 MCP 任务
+* Anthropic 已为您这类会话开启 MCP 任务：
+  * 终端 CLI 会话、[Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话和 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 运行在 v2.1.304 或更高版本上可以使用
+  * [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)（包括您在桌面应用中打开的云端会话）只有在 Anthropic 已为您的账户或组织开启时才能使用。您无法通过设置开启它们或查看其状态
+  * 其他某些 Claude Code 使用入口，例如 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)以及[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)中的本地会话，无法使用
 * 调用来自主对话，而不是来自[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)
 * 会话是交互式的，或者 [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) 会话或读取 `--input-format stream-json` 的 `claude -p` 运行满足：
   * [`CLAUDE_AUTO_BACKGROUND_TASKS`](https://code.claude.com/docs/zh-CN/env-vars) 为 `1`
@@ -613,7 +616,7 @@ MCP task <server task id> (<server>/<tool>) completed.
   "createdAt": "2026-10-22T14:03:07Z",
   "lastUpdatedAt": "2026-10-22T14:03:07Z",
   "ttlMs": null,
-  "pollIntervalMs": 5000
+  "pollIntervalMs": 10000
 }
 ```
 
@@ -660,6 +663,15 @@ Claude Code 接受省略 `createdAt`、`lastUpdatedAt` 或 `ttlMs`，或将 `pol
 | JSON-RPC 错误 `-32602` | 被读取为未知任务 ID。对于后台任务，Claude Code 会持续询问最多五分钟，然后将结果作为未知报告给 Claude |
 | `tasks/cancel` | 例如在服务器已连接时 Claude 或用户停止任务时发送。退出时不发送 |
 | `tasks/result`、`tasks/list`、`notifications/tasks` | 不使用，因此请将结果放在您的 `tasks/get` 响应中 |
+
+#### 选择生存时间和轮询间隔
+
+请将已完成任务的结果保留至少一小时，如果可以的话更长。用户可以在远程服务器的任务运行期间退出，并在之后[恢复会话](#exit-clear-or-resume-while-an-mcp-task-runs)。只有当您的服务器仍保留该任务时，Claude 才能获得结果。
+
+请在您的 `tools/call` 应答和 `tasks/get` 响应中设置 `ttlMs` 和 `pollIntervalMs`（均以毫秒为单位）：
+
+* **`ttlMs`**：报告您的服务器保留该任务的时长，从任务创建时开始计算。发送您最长的运行时间加上保留结果的时间，例如对于 30 分钟的作业加一小时，发送 `5400000`。如果您的服务器无时间限制地保留任务，请发送 `null`
+* **`pollIntervalMs`**：对于运行时间超过一分钟的作业，发送 10000 到 30000，以减少您的服务器需要应答的状态检查次数。对于较短的作业，发送 2000，以便 Claude 更快获得结果
 
 ### 插件提供的 MCP 服务器
 

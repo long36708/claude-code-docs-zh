@@ -280,7 +280,7 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 
 > [!NOTE]
 >
-> 在此表列出的仓库配置中，[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)中的云端线程仅加载仓库根目录的 `CLAUDE.md`、`.claude/CLAUDE.md`，以及不[特定于路径](https://code.claude.com/docs/zh-CN/memory.md#path-specific-rules)的 `.claude/rules/` 文件。请参阅[线程从您的仓库中获取的内容](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。
+> 对于此表中的仓库配置，[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)中的云端线程加载得更少。它启动时不包含 `.mcp.json` 服务器，也不包含 `.claude/settings.json` 中的 hook 和权限规则，并且可能会跳过 skill、Agent 和命令。请参阅[线程从您的仓库中获取的内容](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。
 
 云端会话从您仓库的全新克隆开始。您提交到仓库的任何内容都可用。您只在自己机器上安装或配置的任何内容在会话中都不可用。您组织的策略通过[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)单独到达。
 

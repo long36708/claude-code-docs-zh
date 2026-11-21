@@ -175,7 +175,7 @@ claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"
 
 > [!NOTE]
 >
-> 评估令牌在为你的提供商配置的小型快速模型上计费，与主回合支出相比通常可以忽略不计。
+> 评估 token 在主轮次支出之外单独计费。
 
 ## 要求
 

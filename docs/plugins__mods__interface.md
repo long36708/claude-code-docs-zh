@@ -211,6 +211,7 @@ Claude Code 自己绘制大部分界面：消息、工具调用行、加载指�
 | `AskUserQuestion` | Claude 打开以向您提问的对话框 |
 | `Spinner`, `ToolProgress`, `TurnDuration` | 轮次的状态栏：Claude 工作时显示动画的行、正在运行的工具的实时进度行，以及结束轮次的行 |
 | `InfoNotice`, `SessionMode`, `PromptHint` | 徽标下方的状态栏、页脚中的模式标签，以及输入框下方的提示行 |
+| `AgentRow` | 子代理或队友在 Agent 面板中的行 |
 
 `Pane`、`AskUserQuestion`、`Spinner`、`UserMessage`、`AssistantMessage` 以及工具调用位置在终端、Desktop 应用和 VS Code 扩展中均有效。[渲染位置表](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites) 列出了其他每个位置在哪里触发。
 
@@ -531,7 +532,7 @@ export function register(on) {
 
 ## 从元素构建树
 
-`ui.render` hook 返回的是一个元素树：对要绘制的内容的描述，由相互嵌套的框、文本和控件组成。您描述绘制，Claude Code 会在用户打开的任一应用中呈现它：终端、桌面应用或 VS Code 扩展。
+`ui.render` hook 返回的是一个元素树：对要绘制的内容的描述，由相互嵌套的框、文本和控件组成。
 
 要获取元素，请在您的 hook 中调用 `$.ui.resolve(e)`，如 `const { Box, Text, Button } = $.ui.resolve(e)`。每个元素都是一个函数。您向它传递属性，并把放在其中的元素和字符串放在 `children` 中。
 

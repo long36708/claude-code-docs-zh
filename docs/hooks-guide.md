@@ -768,7 +768,7 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 
 #### 使用 `if` 字段按工具名称和参数过滤
 
-`if` 字段使用 [权限规则语法](https://code.claude.com/docs/zh-CN/permissions.md) 按工具名称和参数一起过滤 hooks，因此 hook 进程仅在工具调用匹配时生成。这超越了 `matcher`，它仅在工具名称级别按组过滤。
+`if` 字段使用 [权限规则语法](https://code.claude.com/docs/zh-CN/permissions.md) 按工具名称和参数一起过滤 hook。
 
 例如，这个配置仅在 Claude 使用 `git` 命令而不是所有 Bash 命令时运行 hook：
 
@@ -818,7 +818,7 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 | `.claude/settings.local.json` | 单个项目 | 否，gitignored 当 Claude Code 保存设置到它时 |
 | 托管策略设置 | 组织范围 | 是，管理员控制 |
 | [Plugin](https://code.claude.com/docs/zh-CN/plugins/overview.md) `hooks/hooks.json` | 启用插件时 | 是，与插件捆绑 |
-| [Skill](https://code.claude.com/docs/zh-CN/skills.md) frontmatter | 调用 skill 后的会话的其余部分。请参阅 [Skills 和 agents 中的 Hooks](https://code.claude.com/docs/zh-CN/hooks.md#hooks-in-skills-and-agents) | 是，在 skill 文件中定义 |
+| [Skill](https://code.claude.com/docs/zh-CN/skills.md) frontmatter | 请参阅 [skill 和 Agent 中的 hook](https://code.claude.com/docs/zh-CN/hooks.md#hooks-in-skills-and-agents) | 是，在 skill 文件中定义 |
 | [Subagent](https://code.claude.com/docs/zh-CN/sub-agents.md) frontmatter | 该 subagent 运行时 | 是，在 subagent 文件中定义 |
 
 在 Claude Code 中运行 [`/hooks`](https://code.claude.com/docs/zh-CN/hooks#the-%2Fhooks-menu) 以浏览所有按事件分组的配置 hooks。

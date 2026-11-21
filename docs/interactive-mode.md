@@ -748,7 +748,7 @@ Usage limit reached · limit resets 3:45pm
 Continuing automatically at 3:45pm · Esc to cancel
 ```
 
-这两行在这些文字之后都可能带有更多内容，例如第一行中的帮助链接，或第二行中的 `/usage-credits to continue now`。当等待自动开始时，对话中也会记录一行 `Usage limit reached · continuing automatically at 3:45pm · esc to cancel`。
+这两行在这些文字之后都可能带有更多内容，例如第一行中的帮助链接，或第二行中的 `/usage-credits to continue now`。
 
 保持会话打开。接下来发生的情况取决于等待如何结束：
 

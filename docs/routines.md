@@ -50,7 +50,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 您可以在 Web 端的 [claude.ai/code/routines](https://claude.ai/code/routines)、Desktop 应用或 CLI 中创建定时任务。这三个使用入口都写入同一个云端账户，因此您在其中一处创建的定时任务会立即显示在其他位置。在 Desktop 应用的 **Code** 标签页中，点击侧边栏中或侧边栏 **More** 菜单中的 **Scheduled**，然后点击 **New task**，并继续按照[从 Web 创建](#create-from-the-web)进行操作。
 
-定时任务作为完整的 Claude Code 云端会话自主运行。会话会运行 shell 命令、使用 [skill](https://code.claude.com/docs/zh-CN/skills.md)，并调用您包含的任何连接器。在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)的线程之外，这些 skill 包括提交到所克隆仓库中的 skill。创建任务时无需选择权限模式：有关运行何时会停下来等待您，请参阅[运行期间的权限提示](#permission-prompts-during-a-run)。
+定时任务作为完整的 Claude Code 云端会话自主运行。会话会运行 shell 命令、使用 [skill](https://code.claude.com/docs/zh-CN/skills.md)，并调用您包含的任何连接器。这些 skill 包括提交到所克隆仓库中的 skill。对于项目中的任务，请查看[哪些线程会加载它们](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。创建任务时无需选择权限模式：有关运行何时会停下来等待您，请参阅[运行期间的权限提示](#permission-prompts-during-a-run)。
 
 定时任务可以访问的内容由以下各项决定：
 

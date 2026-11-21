@@ -189,7 +189,7 @@ export function register(on) {
 * **用户输入答案**：`$.ui.ask` 解析为输入的文本。hook 会将其与 `Run it` 比较，因此任何其他文本都会拒绝该命令。
 * **无人回答**：当用户关闭问题或选择 **Chat about this** 时，以及在 `claude -p` 运行中，`$.ui.ask` 会 reject，因此 `catch` 块会将答案保留为 `Refuse`
 
-请将等待保持在诸如 `$.ui.ask` 之类的 mods API 调用内部，因为这段时间不计入 hook 的[时间限制](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)。等待您自己的 promise 所花费的时间则会计入。
+请将等待保持在 `$.ui.ask` 内部，因为这段时间不计入 hook 的[时间限制](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)。等待您自己的 promise 所花费的时间则会计入。
 
 Claude Code 会跳过超时的 hook，因此被暂缓的命令将会运行。若要改为拒绝该命令，请在 `on` 返回的注册对象上链式添加[一个 `.catch` 处理程序](#handle-a-hook-that-fails)。该处理程序与 hook 内部的 `catch` 块是分开的。
 

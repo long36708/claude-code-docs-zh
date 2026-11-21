@@ -26,8 +26,9 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 * **Claude Pro、Max 或 Ultra 订阅**：使用您的 claude.ai 账户登录。请在 [claude.com/pricing](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_pro_max) 订阅。
 * **Claude for Teams 或 Enterprise**：使用团队管理员邀请您加入的 claude.ai 账户登录。
 * **Claude Console**：使用您的 Console 凭据登录。您的管理员必须先[邀请您](#claude-console-authentication)。您可以在[创建 API 密钥](#sign-in-without-an-api-key)或不创建 API 密钥的情况下登录。
-* **云提供商**：如果您的组织使用 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)，请在运行 `claude` 之前设置所需的环境变量，或在登录提示处选择 **3rd-party platform**，这会启动 Bedrock 和 Vertex AI 的交互式设置向导。无需浏览器登录。
+* **云提供商**：如果您的组织使用 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)，请在运行 `claude` 之前设置所需的环境变量。您也可以在登录提示处选择 **3rd-party platform**，这会启动 Bedrock 和 Agent Platform 的交互式设置向导。
 * **Cloud gateway**：如果您的组织运行自托管的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，请通过 `/login` 或[从 VS Code](https://code.claude.com/docs/zh-CN/vs-code.md#sign-in-to-a-claude-apps-gateway) 使用企业 SSO 登录。网关颁发的令牌是该会话的唯一凭据。
+* **Enterprise Admin Console**：如果所有者已为您组织的提供商或网关[开启此登录方式](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#turn-on-sign-in-from-claude-code)，请在 shell 中运行 `claude auth login`，然后在浏览器中选择您的组织。要进行确认，请在终端中查找 `Signed in to the organization`。有关所需的 Claude Code 版本，请参阅[开始之前](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#before-you-start)。
 
 管理员可以指定开发人员使用的登录方式，并要求 claude.ai 登录必须属于特定组织；请参阅[将登录限制为您的组织](#restrict-login-to-your-organization)。
 
@@ -124,7 +125,7 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 
 实际上，配置文件存储的是 OAuth 登录，而 API 密钥是静态凭据。Claude Code 会自动刷新配置文件的登录；刷新失败时，请求会失败并显示 [配置文件登录已过期错误](https://code.claude.com/docs/zh-CN/errors.md#anthropic-profile-login-expired)，直到您再次登录。
 
-您不会在每台机器上都获得选择。Claude Code 在以下情况下会在不询问的情况下创建 API 密钥：
+在以下情况下，您不会看到无密钥选项：
 
 * 您针对云提供商运行，例如 [Amazon Bedrock、Google Cloud's Agent Platform 或 Microsoft Foundry](https://code.claude.com/docs/zh-CN/third-party-integrations.md) 或 [AWS 上的 Claude Platform](https://code.claude.com/docs/zh-CN/claude-platform-on-aws.md)
 * 任何设置文件设置 [`forceLoginOrgUUID`](#restrict-login-to-your-organization)，或将 `forceLoginMethod` 设置为 `"claudeai"`
@@ -171,11 +172,15 @@ alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-work claude'
 
 要求开发人员的 claude.ai 登录属于特定的 Anthropic 组织，请在 [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md) 中设置 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 和 [`forceLoginOrgUUID`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginorguuid)。将 `forceLoginOrgUUID` 设置为您的组织 ID，该 ID 显示在 [claude.ai 管理员设置](https://claude.ai/admin-settings/organization) 中，适用于 Claude for Teams 或 Enterprise 组织。Claude Code 会为任何其他组织的 claude.ai 登录报告错误，如果使用中的 claude.ai 凭证属于未列出的组织，则在启动时退出。
 
-对于 Claude Console 登录，当您将其设置为单个 Console 组织 ID（显示在 [platform.claude.com/settings/organization](https://platform.claude.com/settings/organization)）时，Claude Code 使用 `forceLoginOrgUUID` 在 Console 登录页面上预选组织。它不检查生成的 Console 凭证属于哪个组织，无论是在登录时还是在启动时。在您部署密钥之前使用 Console 账户登录的开发人员会保持登录状态，该保存的密钥在同时需要 [网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 登录的机器上被阻止，或在选择云提供商的会话中被阻止。
+如果您将 `forceLoginOrgUUID` 设置为单个 Console 组织 ID，Claude Code 会在 Claude Console 登录页面上预选该组织。您可以在 [platform.claude.com/settings/organization](https://platform.claude.com/settings/organization) 找到该 ID。
 
-如果您在任何设置文件中设置 `forceLoginOrgUUID`，Claude Code 会停止在该文件适用的会话中提供 [无密钥 Console 登录](#sign-in-without-an-api-key)，而是创建 API 密钥。要将开发人员定向到 claude.ai 登录，请将 `forceLoginMethod` 设置为 `"claudeai"`。
+> [!NOTE]
+>
+> 在启动时，Claude Code 不会检查已保存的 Console 凭据属于哪个组织。请勿依赖 `forceLoginOrgUUID` 来限制 Console 登录的组织。在您部署 `forceLoginMethod` 或 `forceLoginOrgUUID` 之后，已登录 Console 的开发人员会保持登录状态。不过，在同时要求 [网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 登录的机器上，或在选择了云提供商的会话中，已保存的 Console API 密钥会被阻止。
 
-在 Claude Code v2.1.212 或更高版本上，此处列出的每个登录路径都应用 `forceLoginMethod`。在终端的交互式登录屏幕上，通过 `/login` 或首次运行入门到达，Claude Code 预选 `claudeai` 或 `console` 方法而不强制执行，因此即使设置了 `forceLoginMethod` 为 `"claudeai"`，开发人员仍然可以在那里完成 Console 登录。
+如果您在任何设置文件中设置 `forceLoginOrgUUID`，Claude Code 会停止在该文件适用的会话中提供 [无密钥 Console 登录](#sign-in-without-an-api-key)。要改为将开发人员定向到 claude.ai 登录，请将 `forceLoginMethod` 设置为 `"claudeai"`。
+
+在 Claude Code v2.1.212 或更高版本上，此处列出的每个登录路径都应用 `forceLoginMethod`。在终端的交互式登录屏幕上（通过 `/login` 或首次运行入门到达），Claude Code 会预选 `claudeai` 或 `console` 方法。请勿依赖任一值来阻止该处的其他登录。
 
 这些路径在 `forceLoginOrgUUID` 上有所不同：
 
@@ -271,6 +276,8 @@ Sign-in ends: between 2026-11-20 and 2026-11-23 (2026-11-23T17:04:11.000Z)
 7. 来自 `/login` 的订阅 OAuth 凭据。这是 Claude Pro、Max、Ultra、Team 和 Enterprise 用户的默认设置。
 
 一个已签名的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 会话位于此列表之外：它是一个提供商选择，如 Amazon Bedrock 或 Google Cloud 的 Agent Platform，并且它优先于它们。当网关会话存在时，即使设置了 `CLAUDE_CODE_USE_BEDROCK`、`CLAUDE_CODE_USE_VERTEX` 或 `CLAUDE_CODE_USE_FOUNDRY`，CLI 也会使用网关令牌进行身份验证，上面的持有者令牌、API 密钥、`apiKeyHelper` 和配置文件等凭证源不会被使用。
+
+如果您的组织在 Enterprise Admin Console 中设置了您的提供商或网关，并且您[已登录该组织](#log-in-to-claude-code)，请改为参阅[您的请求去往何处](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#how-console-settings-reach-claude-code)。
 
 如果您的机器的[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)将 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 设置为 `"gateway"` 或设置 [`forceLoginGatewayUrl`](https://code.claude.com/docs/zh-CN/settings-reference#forcelogingatewayurl)，并且您没有通过 `CLAUDE_CODE_USE_BEDROCK` 或 `CLAUDE_CODE_USE_VERTEX` 等变量选择云提供商，您的会话仅使用网关登录。Claude Code 跳过其他凭证源并要求您使用 `/login` 登录。有关每个剩余凭证的情况，请参阅[管理员策略需要云网关登录](https://code.claude.com/docs/zh-CN/errors.md#administrator-policy-requires-a-cloud-gateway-sign-in)。需要 Claude Code v2.1.261 或更高版本，或在仅设置 `forceLoginGatewayUrl` 的机器上需要 v2.1.265 或更高版本。
 

@@ -51,6 +51,7 @@
 
 * **交付控制**：[`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper)、[`wslInheritsWindowsSettings`](https://code.claude.com/docs/zh-CN/settings-reference#wslinheritswindowssettings) 和 [`managedSourcesBehavior`](https://code.claude.com/docs/zh-CN/settings-reference#managedsourcesbehavior)
 * **网关登录密钥**：[`forceLoginGatewayUrl`](https://code.claude.com/docs/zh-CN/settings-reference#forcelogingatewayurl)、[`gatewayInternalNetworks`](https://code.claude.com/docs/zh-CN/settings-reference#gatewayinternalnetworks) 和 [`forceLoginMethod`](https://code.claude.com/docs/zh-CN/settings-reference#forceloginmethod) 的 `"gateway"` 值
+* **登录要求**：[`enforceAnthropicSignIn`](https://code.claude.com/docs/zh-CN/settings-reference#enforceanthropicsignin)
 
 使用托管设置文件或 MDM 配置文件时，其覆盖到的每个人都会获得同一个策略。要为一组开发者提供不同的策略，请将不同的文件或配置文件部署到该组。在 Enterprise 计划中，您还可以在服务器托管设置中[为每个组提供各自的配置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#give-groups-different-settings)。自托管 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)按 IdP 组交付托管设置。
 
@@ -121,6 +122,8 @@ Claude Code 首先合并 `managed-settings.json`，然后按字母顺序合并�
 * **[`modelPicker`](https://code.claude.com/docs/zh-CN/settings-reference#modelpicker)**：后面的阵容整体替换前面的阵容
 
 ## Claude Code 如何组合托管源
+
+如果您在 claude.ai 的 **Organization settings > Desktop 3P** 下设置提供商或网关，请先阅读企业管理控制台指南中的 [哪些设置优先](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority)。
 
 当您的组织向同一台机器交付多个托管源时，[`managedSourcesBehavior`](https://code.claude.com/docs/zh-CN/settings-reference#managedsourcesbehavior) 键决定 Claude Code 对其他源的处理方式：
 
@@ -227,7 +230,7 @@ Claude Code 按此顺序检查源，优先级最高的优先：
 
 [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-reference#policyhelper) 是您的 MDM 策略或托管设置文件命名的可执行文件，Claude Code 在启动时运行它来计算托管设置。当选定的源配置一个并且辅助程序发出 `managedSettings` 对象时，该输出改变 Claude Code 读取的内容：
 
-* **发出的 `managedSettings` 对象是会话的唯一托管设置**，包括对于 [它否则从每个管理员源读取的键](#keys-read-from-every-admin-source)，除了 [`forceRemoteSettingsRefresh`，它有自己的启动规则](https://code.claude.com/docs/zh-CN/settings-reference#forceremotesettingsrefresh)
+* **发出的 `managedSettings` 对象是会话的唯一托管设置**，包括对于 [它否则从每个管理员源读取的键](#keys-read-from-every-admin-source)，除了 [少数键](https://code.claude.com/docs/zh-CN/settings-reference.md#write-the-helper-output)
 
 对于哪些辅助程序运行失败，以及当一个失败时 Claude Code 做什么，请参阅 [辅助程序失败](https://code.claude.com/docs/zh-CN/settings-reference.md#helper-failures)。
 

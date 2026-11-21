@@ -811,8 +811,6 @@ Claude Code needs roughly 512MB of free memory to install. Free up memory, then 
 
 ### 在 Docker 中安装挂起
 
-在 Docker 容器中安装 Claude Code 时，以 root 身份安装到 `/` 可能会导致挂起。
-
 **解决方案：**
 
 1. **在运行安装程序之前设置工作目录**：

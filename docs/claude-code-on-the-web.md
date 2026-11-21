@@ -203,13 +203,13 @@ View: https://claude.ai/code/session_01HJKLMNOPQRSTUVWXYZ?from=cli&m=0
 
 使用以下任何方法将云会话拉入您的终端：
 
-* **使用 `--teleport`**：从命令行运行 `claude --teleport` 以获得交互式会话选择器，或 `claude --teleport <session-id>` 以直接恢复特定会话。如果您有未提交的更改，系统会提示您先隐藏它们。[`--resume`](https://code.claude.com/docs/zh-CN/sessions#resume-a-session) 从此机器的本地历史记录重新打开对话，不列出云端会话。
+* **使用 `--teleport`**：从命令行运行 `claude --teleport` 以获得交互式会话选择器，或 `claude --teleport <session-id>` 以直接恢复特定会话。[`--resume`](https://code.claude.com/docs/zh-CN/sessions#resume-a-session) 从此机器的本地历史记录重新打开对话，不列出云端会话。
 * **使用 `/teleport`**：在现有 CLI 会话内，运行 `/teleport` 或 `/tp` 以打开相同的会话选择器，无需重启 Claude Code。
 * **从 `/tasks`**：运行 `/tasks` 以查看您的后台会话，然后按 `t` 以 teleport 到其中一个。
 * **从 claude.ai/code**：从会话菜单中选择 **Open in > Terminal** 以复制可以粘贴到终端的命令。
 * **从云端会话内部**：键入 `/teleport`，Claude Code 会回复该会话的确切 `claude --teleport <session-id>` 命令，可直接从仓库的检出运行。
 
-当您 teleport 会话时，Claude 验证您在正确的仓库中，从云端会话获取并检出分支，并将对话加载到您的终端。
+当您 teleport 会话时，Claude 会验证您位于正确的仓库中，并将对话加载到您的终端。如需同时获取会话的分支，请查看[要求](#teleport-requirements)并运行 `claude --teleport`。
 
 > [!NOTE]
 >
@@ -219,13 +219,13 @@ View: https://claude.ai/code/session_01HJKLMNOPQRSTUVWXYZ?from=cli&m=0
 
 #### Teleport 要求
 
-Teleport 在恢复会话前检查这些要求。如果任何要求未满足，您会看到错误或被提示解决问题。
+在 teleport 会话之前，请检查以下要求。
 
 | 要求 | 详情 |
 | - | - |
-| 干净的 git 状态 | 您的工作目录必须没有未提交的更改。如果需要，Teleport 会提示您隐藏更改。 |
+| 干净的 git 状态 | 请先提交您的更改，或在 Teleport 提示时隐藏（stash）它们。 |
 | 正确的仓库 | 您必须从同一仓库的检出运行 `--teleport`，而不是 fork。如果您从不同仓库的检出运行它，Claude Code 会显示一个错误，指明会话的仓库和您的检出的仓库。如果 Claude Code 无法将您的远程解析为主机名，例如 SSH 主机别名如 `git@work:owner/repo.git`，它会要求您确认，并在远程的所有者和仓库名称与会话的仓库匹配时接受检出。 |
-| 分支可用 | 来自云会话的分支必须已推送到远程。Teleport 会自动获取并检出它。 |
+| 分支可用 | 来自云端会话的分支必须已推送到远程。如果 `claude --teleport` 打印 `was not checked out`，请停止 Claude 仍在您的检出中运行的所有命令，然后在您自己的终端中运行它打印的 git 命令。 |
 | 相同账户 | 您必须使用云会话中使用的相同 claude.ai 账户进行身份验证。 |
 
 当 teleport 获取会话的分支时，获取操作永远不会在您的终端中等待输入。如果 git 或 ssh 需要询问密码、密钥口令或确认新的 SSH 主机，获取就会失败，此时只有当您的本地克隆已包含该分支时，检出才能成功。对于两种 SSH 情况，请将您的密钥加载到 `ssh-agent` 中，并先手动运行一次 `git fetch` 以记录该主机。
@@ -299,7 +299,9 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 要改为更改自动压缩窗口，请在你的环境变量中设置 [`CLAUDE_CODE_AUTO_COMPACT_WINDOW`](https://code.claude.com/docs/zh-CN/env-vars)，或在变量未设置的会话中运行带有令牌计数的 [`/autocompact`](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 
-[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的工作方式与本地相同。Claude 可以使用 Agent 工具生成子代理，将研究或并行工作分流到单独的上下文窗口中，使主对话更轻量。在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)的线程之外，仓库 `.claude/agents/` 中定义的子代理会自动加载。
+#### 使用子代理和 agent team
+
+[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的工作方式与本地相同。Claude 可以使用 Agent 工具生成子代理，将研究或并行工作分流到单独的上下文窗口中，使主对话更轻量。仓库 `.claude/agents/` 中定义的子代理会自动加载。对于项目，请查看[哪些线程会加载它们](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。
 
 [Agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md) 默认关闭，但可以通过将 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 添加到你的[环境变量](https://code.claude.com/docs/zh-CN/cloud-environments.md#set-environment-variables)来启用。
 
@@ -475,6 +477,7 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 | `Attaching to an existing cloud session is not enabled for your account.` | 您在运行 `--cloud <session-id>` 时未带 `-p`。请使用 `claude -p "your message" --cloud <session-id>` 发送消息。 |
 | `Session not found: <id>` | 该 ID 或 URL 与您可以访问的任何会话都不匹配。请对照该会话的 claude.ai/code URL 进行检查。 |
 | `cloud session <id> is archived and cannot accept new messages` | 该会话已归档。请改为启动一个新会话。 |
+| `--fork-session can't fork a cloud session, so nothing was opened or sent.` | 要向现有的云端会话发送消息，请运行 `claude -p "your message" --cloud <session-id>`，且不带 `--fork-session`。 |
 
 ### 环境已过期
 

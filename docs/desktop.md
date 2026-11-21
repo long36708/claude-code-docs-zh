@@ -372,9 +372,9 @@ Computer use 让 Claude 能够打开您的应用、控制您的屏幕，并像�
 
 > [!NOTE]
 >
-> Computer use 是 macOS 和 Windows 上的研究预览版功能，需要 Pro、Max 或 Ultra 计划。Team 或 Enterprise 计划不提供此功能。Claude Desktop 应用必须处于运行状态。在 macOS 上，computer use 需要 macOS 14 或更高版本。
+> Code 标签页中的 computer use 可在 macOS 和 Windows 上使用，需要 Pro、Max 或 Ultra 计划。Team 或 Enterprise 计划不提供此功能。Claude Desktop 应用必须处于运行状态。在 macOS 上，computer use 需要 macOS 14 或更高版本。
 
-Computer use 默认处于关闭状态。在 Claude 能够控制您的屏幕之前，请先[在设置中启用它](#enable-computer-use)。在 macOS 上，您还需要授予辅助功能和屏幕录制权限。
+在让 Claude 控制您的屏幕之前，请先确认 computer use 已[在设置中启用](#enable-computer-use)。在 macOS 上，您还需要授予辅助功能和屏幕录制权限。
 
 在 macOS 上，computer use 还可以在后台运行：Claude 在您已批准的应用中工作，同时您可以继续自己的工作。
 
@@ -395,8 +395,6 @@ Claude 有多种方式与应用或服务交互，其中 computer use 的适用�
 [按应用划分的访问级别](#app-permissions)进一步强化了这一点：浏览器的权限上限为仅查看，终端和 IDE 的上限为仅点击，从而在 computer use 处于活动状态时仍引导 Claude 使用专用工具。屏幕控制仅保留给其他方式无法触及的对象，例如原生应用、硬件控制面板或没有 API 的专有工具。
 
 ### 启用 computer use
-
-Computer use 默认处于关闭状态。
 
 **1. 更新桌面应用**
 
@@ -439,7 +437,7 @@ Claude 首次需要使用某个应用时，您的会话中会出现一个权限�
 
 影响范围较广的应用（例如终端、Finder 或文件资源管理器，以及系统设置或设置）会在提示中显示额外警告，以便您了解批准它们意味着授予了什么权限。
 
-在设置中，您[启用 computer use](#enable-computer-use) 的 **Computer use** 部分包含以下选项：
+在设置中，您[启用计算机使用](#enable-computer-use)所在的 **Computer use** 部分包含以下选项：
 
 * **Denied apps**：将应用添加到此处即可直接拒绝，而无需提示。Claude 仍可能通过在已允许应用中的操作间接影响被拒绝的应用，但无法直接与被拒绝的应用交互。
 * **Unhide apps when Claude finishes**：当 computer use 未在后台运行时，Claude 会在工作期间隐藏您的其他窗口，以便只与已批准的应用交互。Claude 完成后，隐藏的窗口会恢复显示，除非您关闭此设置。
@@ -604,6 +602,10 @@ Claude Code 在跨会话时应用三项安全行为：
 要隐藏已显示在您其他设备上的会话，请在 Desktop 中将其存档。Desktop 也会存档该会话的 Remote Control 副本，使其从这些设备上的默认会话列表中移除。要在那里查看或删除它，请参阅[存档会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#archive-sessions)。
 
 ### 来自 Dispatch 的会话
+
+> [!NOTE]
+>
+> Dispatch 不向新用户开放。如果它未出现在您的 Claude 应用中，请参阅[离开终端时的其他工作方式](https://code.claude.com/docs/zh-CN/platforms.md#work-when-you-are-away-from-your-terminal)。
 
 [Dispatch](https://support.claude.com/en/articles/13947068) 是一个与 Claude 的持久对话，位于 [Cowork](https://claude.com/product/cowork) 中。您向 Dispatch 发送任务消息，由它决定如何处理。
 
@@ -2328,6 +2330,8 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 * **Windows**：点击 **Help**，然后点击 **About Claude**
 
 点击版本号将其复制到你的剪贴板。
+
+要在 Claude Desktop v4.29.0 或更高版本上更早获取新版本，请将 **Release channel** 设置为 **Latest**。前往 **Settings > This computer > System**，如果菜单中没有列出 **This computer**，则前往 **Settings > Desktop app**。有关该设置在何处可用以及切换回 **Stable** 时会出现什么情况，请参阅[选择发布渠道](https://support.claude.com/en/articles/10065433-install-claude-desktop#h_ac219b3bde)。
 
 #### Code 选项卡中的 Claude Code 版本
 

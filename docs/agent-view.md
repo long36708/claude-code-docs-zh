@@ -739,8 +739,6 @@ claude agents --permission-mode plan --model opus --effort high
 
 传递 `--restricted` 可使您从该视图分派的每个会话都以 [受限模式](https://code.claude.com/docs/zh-CN/cli-reference.md#cli-flags) 启动，如同每个会话都使用顶层 `--restricted` 标志启动一样。需要 Claude Code v2.1.248 或更高版本。
 
-当前生效的默认值会显示在分派输入框下方的页脚中。
-
 以 `bypassPermissions` 模式启动的后台会话需要有您 [接受绕过免责声明](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode) 的记录，因为该模式允许一个您未在观察的会话无需批准即可执行操作。如果您之前未接受过，将 `--dangerously-skip-permissions` 或 `--permission-mode bypassPermissions` 传递给 `claude agents` 会显示相同的免责声明，接受后会将 `bypassPermissions` 应用于您从该视图启动的会话。传递 `--allow-dangerously-skip-permissions` 同样会显示该免责声明，接受后会使 `bypassPermissions` 在这些会话的 `Shift+Tab` 循环中可用，但不会以该模式启动它们。
 
 #### 重新启动后保留的内容

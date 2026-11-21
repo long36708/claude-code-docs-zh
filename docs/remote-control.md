@@ -318,7 +318,7 @@ Remote Control 连接时，会话记录（包括您的消息、Claude 的响应�
 
 当您在进行本地工作中途，想要从另一台设备继续工作时，使用远程控制。当您想要在没有任何本地设置的情况下启动任务、处理您没有克隆的仓库，或并行运行多个任务时，使用云会话。[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)结合了两者：其线程在云中运行，当您在那里请求时，它使用远程控制来[在您的计算机上运行线程](https://code.claude.com/docs/zh-CN/claude-projects.md#run-a-thread-on-your-own-computer)。
 
-Claude Code 提供了多种方式在您不在终端时进行工作。它们在触发工作的方式、Claude 运行的位置以及所需的设置量方面有所不同。
+Claude Code 提供了多种方式在您不在终端时进行工作。它们在触发工作的方式、Claude 运行的位置以及所需的设置量方面有所不同。[Dispatch](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch) 不向新用户开放。
 
 | | 触发方式 | Claude 运行位置 | 设置 | 最适合 |
 | :- | :- | :- | :- | :- |

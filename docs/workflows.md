@@ -175,7 +175,7 @@ Ultracode 是 Claude Code 的一项设置，可为会话启用自动工作流编
 | 绕过权限 | Claude Code 不会提示您。运行立即开始 |
 | `claude -p`、Agent SDK | Claude Code 不会提示您 |
 
-在 `claude -p` 和 Agent SDK 中，Claude Code 从不显示此提示。它会对 Workflow 工具调用执行与会话其余部分相同的[权限评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)，因此拒绝规则、询问规则和 `dontAsk` 模式对启动的作用与对每个工具调用的作用相同。要允许工作流在这些运行中启动，请使用以下方式之一：
+在 `claude -p` 和 Agent SDK 中，Workflow 工具调用会经过与会话其余部分相同的[权限评估](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#how-permissions-are-evaluated)。拒绝规则、询问规则和 `dontAsk` 模式都适用于该调用。要允许工作流在这些运行中启动，请使用以下方式之一：
 
 * **权限规则**：将 `Workflow` 添加到允许规则中以批准所有工作流，或添加 `Workflow(<name>)` 以按名称批准某个已保存的工作流。
 * **自动权限模式**：在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下运行，分类器会审查该调用并可以批准它。
@@ -489,7 +489,7 @@ Claude Code 为每个工作流 Agent 选择模型的顺序与[为子代理选择
 
 工作流被禁用时：
 
-* `/workflows`、工作流命令以及 `/workflow-authoring` skill 不可用
+* `/workflows` 进度视图、工作流命令以及 `/workflow-authoring` skill 不可用
 * `ultracode` 关键字不再触发运行，并且 **Ultracode** 开关会从 `/effort` 中移除
 
 已在进行中的运行会继续进行。

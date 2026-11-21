@@ -120,6 +120,11 @@ Claude Code 会打印 `Successfully installed plugin: formatter@my-marketplace (
 
 其他字段（例如 `pluginId`、`scope` 和 `failureCode`）仅在适用时出现。
 
+有两个字段报告 [`command` 来源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)的运行情况。两者都需要 Claude Code v2.1.330 或更高版本：
+
+* `commandPrinted`：当安装成功且来源的命令向 stderr 写入了内容时为 `true`
+* `commandFailed`：当来源的命令以错误退出、被信号终止或超时时为 `true`
+
 `plugin uninstall`、`plugin update`、`plugin enable` 和 `plugin disable` 上的 `--json` 选项会打印相同的对象，并带有该子命令自己的字段。
 
 用法错误（例如无效的 `--scope`）不会打印结果行，而是以 `1` 退出，并在 stderr 上输出原因。
@@ -679,6 +684,9 @@ Claude Code 会打印它验证的文件、所有错误和警告及其路径，�
 * `manifest`：清单自身的结果，对于没有清单的运行为 `null`
 * `contents`：每个文件的结果，每项指出其 `file`，并带有 `errors`、`warnings` 和 `notes` 数组。没有错误、警告或备注的文件不会有条目，因此没有可报告内容时 `contents` 为空。对于[同时包含 `marketplace.json` 和 `plugin.json` 的目录](#validate-a-directory)，`manifest` 是 `marketplace.json` 的结果，`plugin.json` 的结果放在 `contents` 中
   * `gatingHooks`：每个可以拒绝操作的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) hook（例如 `tool.call` hook）是否有 [`.catch` 处理程序](https://code.claude.com/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)。每项给出 `module`、`pattern`、`hook` 和 `hasCatch`。需要 Claude Code v2.1.290 或更高版本
+  * `modules`：每个 hook 模块对应一项，带有 `hooks` 和 `uses` 等字段；当无法确定加载哪些代码时为 `null`。需要 Claude Code v2.1.326 或更高版本
+  * `wasm`：每个 hook 模块编译的 WebAssembly。需要 Claude Code v2.1.326 或更高版本
+* `provides`：按类型列出的插件组件，当本次运行无法列出它们时为 `null`。需要 Claude Code v2.1.326 或更高版本
 * `advice`：本次运行的[建议](#advice-on-the-readme)，每个条目以 `file` 指出 README，并带有 `message` 和可粘贴的 `installLine`。没有建议时为空。需要 Claude Code v2.1.295 或更高版本
 * `hosts`：`named` 主机，以及可能访问其他主机的 `unread` 插件部分。当本次运行无法列出它们时为 `null`。插件可能访问未列出的主机。需要 Claude Code v2.1.328 或更高版本
 

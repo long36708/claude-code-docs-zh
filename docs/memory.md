@@ -6,7 +6,7 @@
 
 > 使用 CLAUDE.md 或 AGENTS.md 文件为 Claude 提供持久指令，并让 Claude 通过自动记忆自动积累学习。
 
-每个 Claude Code 会话都以全新的上下文窗口开始。两种机制可以跨会话传递知识：
+每个 Claude Code 会话都以全新的上下文窗口开始。CLAUDE.md 文件和自动记忆可以跨会话传递知识：
 
 * **CLAUDE.md 文件**：您编写的指令，为 Claude 提供持久上下文。Claude 也可以读取仓库的 [`AGENTS.md` 文件](#agents-md)来代替 CLAUDE.md
 * **自动记忆**：Claude 根据您的更正和偏好自己编写的笔记
@@ -21,19 +21,19 @@
 
 ## CLAUDE.md 与自动记忆
 
-Claude Code 有两个互补的记忆系统。两者都在每次对话开始时加载。Claude 将它们视为上下文，而不是强制配置。要阻止某个操作，无论 Claude 决定什么，请改用 [PreToolUse hook](https://code.claude.com/docs/zh-CN/hooks-guide.md)。你的指令越具体和简洁，Claude 遵循它们的一致性就越高。
+当您想指导 Claude 的行为时，使用 CLAUDE.md 文件。自动记忆让 Claude 从您的更正中学习，无需手动操作。
 
 | | CLAUDE.md 文件 | 自动记忆 |
 | :- | :- | :- |
 | **谁编写** | 你 | Claude |
 | **包含内容** | 指令和规则 | 学习和模式 |
 | **范围** | 项目、用户或组织 | 每个存储库，跨 worktrees 共享 |
-| **加载到** | 每个会话 | 每个会话（前 200 行或 25KB） |
+| **加载到** | 每个会话 | [启用了自动记忆](#enable-or-disable-auto-memory)的会话，最多加载 [`MEMORY.md`](#how-it-works) 的前 200 行或 25KB |
 | **用于** | 编码标准、工作流、项目架构 | 你的偏好、你给 Claude 的更正、Claude 无法从代码中推导的项目上下文 |
 
-当你想指导 Claude 的行为时，使用 CLAUDE.md 文件。自动记忆让 Claude 从你的更正中学习，无需手动操作。
-
 Subagents 也可以维护自己的自动记忆。有关详细信息，请参阅 [subagent 配置](https://code.claude.com/docs/zh-CN/sub-agents.md#enable-persistent-memory)。
+
+Claude 将 CLAUDE.md 文件和自动记忆视为上下文，而不是强制执行的配置。要阻止某个操作，无论 Claude 决定什么，请改用 [PreToolUse hook](https://code.claude.com/docs/zh-CN/hooks-guide.md)。您的指令越具体和简洁，Claude 遵循它们的一致性就越高。
 
 ## CLAUDE.md 文件
 
@@ -533,7 +533,7 @@ Claude 不会每个会话都保存内容。它根据信息在未来对话中是�
 
 ```text theme={null}
 ~/.claude/projects/<project>/memory/
-├── MEMORY.md           # Index, one line per memory, loaded into every session
+├── MEMORY.md           # Index, one line per memory, loaded at session start
 ├── user_role.md        # One memory
 ├── feedback_testing.md # One memory
 └── ...                 # Any other topic files Claude creates
@@ -547,7 +547,7 @@ Claude Code 在 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/setting
 
 ### 它如何工作
 
-`MEMORY.md` 的前 200 行或前 25KB（以先到者为准）在每次对话开始时加载。超过该阈值的内容在会话开始时不加载。Claude 通过将详细笔记移到单独的主题文件中来保持 `MEMORY.md` 简洁。
+自动记忆开启时，`MEMORY.md` 的前 200 行或前 25KB（以先到者为准）在会话开始时加载。超过该阈值的内容在会话开始时不加载。Claude 通过将详细笔记移到单独的主题文件中来保持 `MEMORY.md` 简洁。
 
 Claude 写入 `MEMORY.md` 后，Claude Code 根据 200 行和 25KB 读取限制测量文件。如果文件接近限制，Claude Code 提醒 Claude 缩短它：每个条目保留一行，将详细信息移到主题文件，并合并或删除陈旧条目。如果文件超过限制，写入仍然成功，但 Claude Code 返回一个[错误告诉 Claude 重写索引](https://code.claude.com/docs/zh-CN/errors.md#memory-index-is-over-its-read-limit)，因为下次加载时超过限制的所有内容都会被丢弃。
 

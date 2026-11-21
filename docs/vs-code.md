@@ -181,8 +181,8 @@ Claude Code 还可以在其他编辑器和容器中运行：
 * **Claude 发送给您的文件**：当会话连接到 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#start-a-remote-control-session)，且 Claude 使用 [`SendUserFile` 工具](https://code.claude.com/docs/zh-CN/tools-reference)向您发送文件时，对话中会显示一行，例如 **Sent report.md, chart.png**。点击文件名即可在编辑器中打开。该行在 Focus view 中保持可见。需要 Claude Code v2.1.295 或更高版本。
 
   当文件路径指向某个网络主机时，该文件会显示为无法点击的完整路径，例如 `\\server\share\report.md`。Claude Code 不会为该文件提供链接，因为打开它会连接该主机，并且在 Windows 上[可能会将您的 Windows 凭据发送到该主机](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)。
-* **上下文指示器**：输入框会显示您已使用了多少 Claude 上下文窗口。Claude 会在需要时自动压缩，您也可以手动运行 `/compact`。
-* **提示缓存时钟**：上下文指示器旁边的时钟图标会估算对话的[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md)在过期前还剩多少时间。它从缓存的五分钟或一小时[生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime)开始倒计时，每次使用缓存的回复都会重新开始倒计时。除压缩外，[使缓存失效的操作](https://code.claude.com/docs/zh-CN/prompt-caching.md#actions-that-invalidate-the-cache)不会重置时钟，因此在您切换模型后它仍可能显示剩余的分钟数。
+* **上下文指示器**：当用量超过 [`contextUsageThreshold`](#extension-settings)（默认为 50%）时，输入框会显示您已使用了多少 Claude 上下文窗口。Claude 会在需要时自动压缩，您也可以手动运行 `/compact`。
+* **提示缓存时钟**：输入框中的时钟图标会估算对话的[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md)在过期前还剩多少时间。它从缓存的五分钟或一小时[生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#cache-lifetime)开始倒计时，每次使用缓存的回复都会重新开始倒计时。除压缩外，[使缓存失效的操作](https://code.claude.com/docs/zh-CN/prompt-caching.md#actions-that-invalidate-the-cache)不会重置时钟，因此在您切换模型后它仍可能显示剩余的分钟数。
   * 在倒计时结束之前，图标会显示剩余分钟数，例如 **12m**。
   * 倒计时结束后，分钟数会消失，图标变为红色（或您主题的错误颜色），直到下一条回复。此时缓存很可能已经过期，因此在缓存重建期间，您下一条消息得到的回复会更慢、成本更高。如果五分钟的生命周期总是在您发送消息之间耗尽，请参阅[自行选择 TTL](https://code.claude.com/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)。
   * 对话刚被[压缩](https://code.claude.com/docs/zh-CN/prompt-caching.md#compacting-the-conversation)后，图标同样会变为红色且不显示分钟数，直到下一条回复，因为缓存尚未覆盖压缩后的对话。
@@ -192,9 +192,9 @@ Claude Code 还可以在其他编辑器和容器中运行：
 
   地图还会在 Agent 下方列出会话的其他[后台任务](https://code.claude.com/docs/zh-CN/tools-reference.md#background-commands)，例如后台 shell 命令和[监视器](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)。点击某一行即可打开该任务的卡片，并在其中将其停止。
 
-  如果没有显示 Agent 计数（例如 Claude 启动了后台 shell 但没有子代理），要打开地图，请在输入框中输入 `/tasks`。地图中的后台任务和输入的 `/tasks` 需要 Claude Code v2.1.277 或更高版本。
+  如果没有显示 Agent 计数（例如 Claude 启动了后台 shell 但没有子代理），要打开地图，请在输入框中输入 `/tasks` 或 `/workflows`。地图中的后台任务和输入的 `/tasks` 需要 Claude Code v2.1.277 或更高版本。输入的 `/workflows` 需要 Claude Code v2.1.330 或更高版本。
 
-  在 Claude Code v2.1.286 或更高版本中，当您点击 **Stop** 或按 `Esc` 时，当前轮次会结束。后台 Agent 会继续运行，直到完成或您从地图中将其停止。
+  在 Claude Code v2.1.286 或更高版本中，当您停止 Claude 时，当前轮次会结束。后台 Agent 会继续运行，直到完成或您从地图中将其停止。
 * **扩展思考**：让 Claude 花更多时间推理复杂问题。要将其关闭或重新打开，请使用命令菜单（`/`）Model 部分中的 **Thinking** 开关。在[无法关闭思考](https://code.claude.com/docs/zh-CN/model-config.md#extended-thinking)的模型上，菜单中没有 **Thinking** 开关，思考会始终保持开启。
 
   仅显示标签（例如 `Thought for 12s`）的思考块不包含文本，点击时也不会展开。要查看思考摘要，请在 `~/.claude/settings.json` 中将 [`showThinkingSummaries`](https://code.claude.com/docs/zh-CN/settings-reference#showthinkingsummaries) 设置为 `true`，然后从命令面板运行 **Developer: Reload Window**。
@@ -375,6 +375,8 @@ VS Code 扩展支持检查点，它会跟踪 Claude 的文件编辑，并允许�
 * **Fork conversation from here**：从此消息开始一个新的对话分支，同时保留所有代码更改
 * **Rewind code to here**：将文件更改还原到对话中的此时间点，同时保留完整的对话历史记录
 * **Fork conversation and rewind code**：开始一个新的对话分支，并将文件更改还原到此时间点
+
+要从最新消息分叉，请在 Claude 完成回复后在输入框中输入 `/fork`。您附加的文本（例如 `/fork try the other approach` 中的文本）会以未发送状态留在分叉对话的输入框中。需要 Claude Code v2.1.330 或更高版本。
 
 有关检查点工作原理及其限制的完整详情，请参阅[检查点功能](https://code.claude.com/docs/zh-CN/checkpointing.md)。
 
@@ -669,7 +671,7 @@ Claude Code 使用 [NotebookEdit 工具](https://code.claude.com/docs/zh-CN/tool
 
 要打开命令面板，请在 Mac 上按 `Cmd+Shift+P`，在 Windows/Linux 上按 `Ctrl+Shift+P`。在其中输入"Claude Code"即可查看该扩展在命令面板中提供的命令。
 
-某些快捷键取决于当前哪个面板处于"焦点"状态（接收键盘输入）。当光标位于代码文件中时，编辑器处于焦点状态。当光标位于 Claude 的提示词输入框中时，Claude 处于焦点状态。使用 `Cmd+Esc` / `Ctrl+Esc` 在两者之间切换。
+某些快捷键取决于当前哪个面板处于"焦点"状态（接收键盘输入）。当光标位于代码文件中时，编辑器处于焦点状态。当光标位于 Claude 的提示词输入框中时，Claude 处于焦点状态。
 
 > [!NOTE]
 >
@@ -679,7 +681,7 @@ Claude Code 使用 [NotebookEdit 工具](https://code.claude.com/docs/zh-CN/tool
 | - | - | - |
 | Focus Input | `Cmd+Esc` (Mac) / `Ctrl+Esc` (Windows/Linux) | 在编辑器和 Claude 之间切换焦点 |
 | Focus last message | - | 将键盘焦点移至对话中的最新消息或正在等待的权限提示，以便您从该位置使用键盘或屏幕阅读器进行阅读。在[终端模式](#switch-to-terminal-mode)下不可用。需要 Claude Code v2.1.268 或更高版本 |
-| Open in Side Bar | - | 在侧边栏中打开 Claude |
+| Open in Side Bar | - | 在侧边栏中打开 Claude。要在 Claude Code v2.1.330 或更高版本中预先填充新对话，请将某个按键绑定到 `claude-vscode.sidebar.open`，并设置 `"args": { "prompt": "Review this file" }` |
 | Open in Terminal | - | 以终端模式打开 Claude |
 | Open in New Tab | `Cmd+Shift+Esc` (Mac) / `Ctrl+Shift+Esc` (Windows/Linux) | 以编辑器标签页的形式打开新对话 |
 | Open in New Window | - | 在单独的窗口中打开新对话 |
@@ -765,16 +767,19 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `useTerminal` | `false` | 以终端模式而非图形面板启动 Claude |
 | `initialPermissionMode` | - | 控制新对话的批准提示：`default`、`plan`、`acceptEdits` 或 `bypassPermissions`。`manual` 是 `default` 的别名，会选择模式指示器中标记为 **Manual** 的模式。未设置时，扩展会按照[切换权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)中所述选择起始权限模式。 |
 | `preferredLocation` | `panel` | Claude 的打开位置：`sidebar`（右侧）或 `panel`（新标签页） |
-| `lockEditorGroups` | `true` | [锁定 Claude 为其标签页启动的编辑器组](#choose-where-claude-lives)，这样在 Claude 标签页获得焦点时打开的文件会进入另一个编辑器组。关闭时，扩展永远不会锁定编辑器组。需要 Claude Code v2.1.274 或更高版本 |
+| `lockEditorGroups` | `true` | [锁定 Claude 为其标签页启动的编辑器组](#choose-where-claude-lives)，这样在 Claude 标签页获得焦点时打开的文件会进入另一个编辑器组。需要 Claude Code v2.1.274 或更高版本 |
 | `autosave` | `true` | 在 Read、Edit 和 Write 工具运行之前自动保存文件 |
 | `attachOpenFile` | `true` | 将编辑器中打开的文件添加到您的消息中，并在输入框中显示。关闭时，仅在您选中文本时才随之添加该文件。需要 Claude Code v2.1.271 或更高版本 |
 | `attachSelection` | `true` | 将您在编辑器中选中的文本添加到您的消息中，并在输入框中显示。关闭时，您仍然可以[将选区作为 @-mention 添加](#automatic-context-from-your-selection-and-open-file)。需要 Claude Code v2.1.300 或更高版本 |
 | `useCtrlEnterToSend` | `false` | 使用 Ctrl/Cmd+Enter 而非 Enter 发送提示词 |
 | `scrollToBottomOnSend` | `true` | 发送消息时将对话滚动到底部。关闭时，对话保持在您离开时的位置。需要 Claude Code v2.1.275 或更高版本 |
+| `pinPrompt` | `true` | 在您滚动浏览 Claude 的回复时，将您的消息固定在顶部。需要 Claude Code v2.1.330 或更高版本 |
 | `showMessageTimestamps` | `true` | 显示每条消息的发送时间。日期行标记日期变化的位置。需要 Claude Code v2.1.284 或更高版本。在 v2.1.290 之前，默认值为 `false` |
 | `spinnerVerbs` | `{"mode": "append", "verbs": []}` | 设置在轮次运行期间对话加载动画轮换显示的动词，使用与 CLI 的 [`spinnerVerbs`](https://code.claude.com/docs/zh-CN/settings-reference#spinnerverbs) 相同的 `mode` 和 `verbs` 字段。 |
+| `escapeStopsClaude` | `true` | 使用 `Esc` 在轮次进行中停止 Claude。关闭时，请改为点击 **Stop**。`Esc` 仍会关闭菜单，并拒绝权限请求和问题。需要 Claude Code v2.1.330 或更高版本 |
+| `contextUsageThreshold` | `50` | 当上下文使用量超过此百分比时显示上下文指示器。需要 Claude Code v2.1.330 或更高版本 |
 | `enableNewConversationShortcut` | `false` | 启用 Cmd/Ctrl+N 开始新对话 |
-| `enableReopenClosedSessionShortcut` | `true` | 使用 Cmd/Ctrl+Shift+T 重新打开最近关闭的 Claude 会话标签页。如果最后关闭的标签页不是 Claude 会话，该快捷键会改为运行 VS Code 常规的重新打开已关闭编辑器命令。 |
+| `enableReopenClosedSessionShortcut` | `true` | 使用 Cmd/Ctrl+Shift+T [重新打开最近关闭的 Claude 会话标签页](#vs-code-commands-and-shortcuts)。 |
 | `archiveInactiveSessions` | `14` | 会话在无活动达到此天数后[自动归档](#resume-past-conversations)：`1`、`2`、`7` 或 `14`。设置为 `0` 可关闭此功能。需要 Claude Code v2.1.265 或更高版本 |
 | `continueAfterReload` | `true` | 窗口重新加载后，Claude 会在恢复的会话中[继续被中断的步骤](#continue-conversations-after-a-reload)。需要 Claude Code v2.1.274 或更高版本 |
 | `hideOnboarding` | `false` | 隐藏入门清单（学士帽图标） |

@@ -67,7 +67,7 @@ Claude 根据您的提示和沿途学到的内容选择使用哪些工具。当�
 * **您的终端。** 您可以运行的任何命令：构建工具、git、包管理器、系统实用程序、脚本。如果您可以从命令行做到，Claude 也可以。
 * **您的 git 状态。** 当前分支、未提交的更改和最近的提交历史。
 * **您的 [CLAUDE.md](https://code.claude.com/docs/zh-CN/memory.md)。** 一个 markdown 文件，您可以在其中存储项目特定的说明、约定和 Claude 应该在每个会话中了解的上下文。如果您的仓库有用于其他编码 Agent 的 AGENTS.md，Claude [可以读取它](https://code.claude.com/docs/zh-CN/memory.md#agents-md)来代替 CLAUDE.md。
-* **[自动内存](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)。** Claude 在您工作时自动保存的学习内容，如您的偏好。MEMORY.md 的前 200 行或 25KB（以先到者为准）在每个会话开始时加载。
+* **[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)。** Claude 在您工作时自动保存的学习内容，如您的偏好。在自动记忆开启时，MEMORY.md 的前 200 行或 25KB（以先到者为准）会在会话开始时加载。
 * **您配置的扩展。** 用于外部服务的 [MCP servers](https://code.claude.com/docs/zh-CN/mcp.md)、用于工作流的 [skills](https://code.claude.com/docs/zh-CN/skills.md)、用于委派工作的 [subagents](https://code.claude.com/docs/zh-CN/sub-agents.md) 和用于浏览器交互的 [Claude in Chrome](https://code.claude.com/docs/zh-CN/chrome.md)。
 
 因为 Claude 看到您的整个项目，它可以跨越它工作。当您要求 Claude"修复身份验证错误"时，它搜索相关文件、读取多个文件以理解上下文、跨它们进行协调编辑、运行测试以验证修复，并在您要求时提交更改。这与只看到当前文件的内联代码助手不同。

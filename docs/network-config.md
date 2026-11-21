@@ -259,6 +259,8 @@ Claude Code 需要访问以下 URL。在代理配置和防火墙规则中将这�
 
 使用 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)、[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md) 或已登录的 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway)会话时，模型流量和身份验证转到您的提供商或网关，而不是 `api.anthropic.com`、`claude.ai` 或 `platform.claude.com`。WebFetch 工具仍会调用 `api.anthropic.com` 进行其[域名安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)，除非您在[设置](https://code.claude.com/docs/zh-CN/settings.md)中设置 `skipWebFetchPreflight: true`。
 
+如果您在 Enterprise Admin Console 中设置了提供商或网关，登录到您组织的开发人员还需要[这些 Anthropic 主机](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#before-you-start)。
+
 如果您的开发人员在通过 [`ANTHROPIC_BASE_URL`](https://code.claude.com/docs/zh-CN/llm-gateway-connect#set-the-base-url-and-credential) 设置的 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)后面使用[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md)，请确保通过您的代理可以访问 `api.anthropic.com`。当 Claude Code 发送快速模式可用性检查时，该检查会通过任何已配置的 HTTP 代理发送到该主机，而永远不会发送到网关。有关何时不发送该检查，以及在每种情况下恢复快速模式的变量，请参阅[在代理和 LLM 网关后面使用快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-behind-proxies-and-llm-gateways)。
 
 ### 组织 IP 白名单和代理出口

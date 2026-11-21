@@ -1085,6 +1085,7 @@ claude plugin install my-plugin@my-marketplace --config api_url=https://example.
 | `Path not found: <path>. The runtime loader will report this as a load failure.` | 清单中的组件路径不存在。 | 修复路径或创建目录。 |
 | `Path contains ".." which could be a path traversal attempt: <path>` | 组件路径超出了插件目录。 | 使用插件根目录内的路径。 |
 | `Path is a file; skills entries must be directories containing SKILL.md` | `skills` 条目指向 `SKILL.md` 而不是其目录。 | 指向父目录，对于根级 `SKILL.md` 则使用 `.`。 |
+| `differ only by letter case or Unicode form` 或 `Windows can open this path as another file` | 根据操作系统的不同，该路径可能会打开不同的文件。 | 按照消息所述更改名称或路径。 |
 | `No frontmatter block found` 或 `YAML frontmatter failed to parse: <error>` | skill、Agent 或 command 文件缺少 YAML frontmatter 或其无效。 | 在 `---` 分隔符之间添加或修复 frontmatter。在验证插件目录时报告。 |
 | `Plugin name "<name>" is reserved: it passes as one of Anthropic's own` | 插件的 `name` 是[保留名称](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#name)之一。 | 根据插件的功能重命名插件。 |
 | `Must be a version range such as ">=2.1.0"; got "<value>". It will be ignored at load time.` | Claude Code 无法将 `engines` 下的 `claude-code` 值读取为 semver 范围。 | 将该值设置为 Claude Code 版本范围，例如 `">=2.1.0"`。请参阅 [`engines` 字段](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#fields)。 |

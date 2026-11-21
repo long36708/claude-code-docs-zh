@@ -360,7 +360,9 @@ claude self-hosted-runner orchestrator \
    预热请求没有可失败的会话：编排器仅在本地记录非零退出，服务器在 `--expected-spawn-seconds` 租约到期后重新请求生成。
 4. **将 `--expected-spawn-seconds` 设置为至少您从生成请求到运行器注册的 p99 时间。** 从编排器收到生成请求时开始计算，并包括在您的平台上等待容量的时间以及启动时间。此值是服务器端租约，工作单也随之过期，因此工作负载耗时更长的运行器无法注册。所有编排器副本必须使用相同的值。
 
-hook 写入 stdout 或 stderr 的所有内容都出现在编排器的日志中，凭据会自动脱敏。如果会话保持排队，检查编排器的 `/healthz` 正文以获取队列计数，然后在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开您的环境的 **Activity** 标签：在那里展开失败的会话以获取其生成错误，并选择 **Retry** 以重新请求它。
+hook 的 stdout 和 stderr 会出现在编排器的日志中，因此请不要在其中写入任何密钥。
+
+如果会话保持排队，请检查编排器的 `/healthz` 正文以获取队列计数，然后在 [**Cloud environments** 管理页面](https://claude.ai/admin-settings/cloud-environments) 上打开您的环境的 **Activity** 标签。在那里展开失败的会话以查看其生成错误，并选择 **Retry** 以重新请求它。
 
 #### 修复保持 Queued 或显示 Failed 的重新打开的会话
 
