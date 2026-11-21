@@ -550,7 +550,7 @@ const options = {
 
 ### 跟踪子代理活动
 
-使用 `SubagentStop` hooks 监控子代理何时完成其工作。请参阅 [TypeScript](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#hookinput) 和 [Python](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#hookinput) SDK 参考中的完整输入类型。此示例在每次子代理完成时记录摘要：
+使用 `SubagentStop` hook 监控子代理何时完成其工作。请参阅 [TypeScript](https://code.claude.com/docs/zh-CN/agent-sdk/typescript.md#hookinput) 和 [Python](https://code.claude.com/docs/zh-CN/agent-sdk/python.md#hookinput) SDK 参考中的完整输入类型。此示例在子代理完成时记录摘要：
 
 ```python Python theme={null}
 async def subagent_tracker(input_data, tool_use_id, context):

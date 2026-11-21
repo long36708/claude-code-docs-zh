@@ -652,7 +652,7 @@ Claude Code 使用 [NotebookEdit 工具](https://code.claude.com/docs/zh-CN/tool
 
 #### 子代理下方缺少 Run in background 操作
 
-在 VS Code 中，子代理默认不显示此操作。要了解某个子代理为何不显示，请在 [Agent 地图](#use-the-prompt-box)中打开其卡片并查看 `Spawned by` 行：
+在 VS Code 中，默认情况下大多数子代理不显示此操作。要了解某个子代理为何不显示，请在 [Agent 地图](#use-the-prompt-box)中打开其卡片并查看 `Spawned by` 行：
 
 * **`Spawned by the main agent`**：该子代理是在后台启动的，因此 Claude 不会等待它，您无需执行任何操作。如需让 Claude 改为等待子代理，请参阅[让 Claude 等待子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#let-claude-wait-for-a-subagent)。
 * **`Spawned by` 后为另一个子代理的名称**：该操作仅对主 Agent 生成的子代理显示，而不会对另一个子代理所等待的[嵌套子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#let-subagents-spawn-their-own-subagents)显示。要提前结束嵌套子代理，请点击其卡片上的 **Stop agent**。等待中的子代理随后会在没有该结果的情况下继续运行。

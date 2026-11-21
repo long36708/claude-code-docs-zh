@@ -628,11 +628,15 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 > [accordion] 自动模式如何处理子代理
 >
-> 分类器会在三个时间点检查[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的工作：
+> 当 Claude 使用 Agent 工具启动[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)时，分类器会在三个时间点检查该子代理的工作：
 >
 > 1. 在子代理启动之前，会评估委派的任务描述，因此看起来危险的任务会在生成时被阻止。
 > 2. 在子代理运行期间，它的每个操作都会经过与父会话相同的[决策顺序](#how-the-classifier-evaluates-actions)，并使用相同的阻止和允许规则。子代理 frontmatter 中的任何 `permissionMode` 都会被忽略。
-> 3. 当子代理完成时，分类器会在父级读取报告之前审查其工作和最终报告。当分类器标记了子代理的工作或报告，或者独立的 API 安全检查拒绝了该审查时，报告仍会被送达，但会在前面附加安全警告。当分类器无法进行审查时，报告送达时会附带一条说明，提醒您在据此采取行动之前先核实子代理的工作。
+> 3. 当 [agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友以外的子代理完成时，分类器会在父级读取报告之前审查其工作和最终报告。
+>
+>    当分类器标记了子代理的工作或报告，或者独立的 API 安全检查拒绝了该审查时，报告仍会被送达，但会在前面附加安全警告。当分类器无法进行审查时，报告送达时会附带一条说明，提醒您在据此采取行动之前先核实子代理的工作。
+>
+> 对于 [`web-fetch` 子代理](https://code.claude.com/docs/zh-CN/tools-reference#web-fetch-subagent)，当您的 `WebFetch(domain:...)` allow 规则或[预先批准的域名](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)涵盖其任务中的每个 URL 时，Claude Code 可以跳过前两项检查。此时该子代理会以 [`dontAsk` 模式](#allow-only-pre-approved-tools-with-dontask-mode)启动，因此任何其他需要批准的获取请求都会被拒绝。第三项检查仍会运行。
 
 > [accordion] 成本和延迟
 >

@@ -110,7 +110,7 @@ Agent tool 在单独的上下文窗口中生成一个子代理。子代理自主
 * **Teammate**：启用 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md) 后，携带 `name` 的调用可以改为启动一个 [teammate](https://code.claude.com/docs/zh-CN/agent-teams.md#how-claude-starts-agent-teams)，它通过团队消息而不是返回结果来报告
 * **Fork**：在 [fork mode](https://code.claude.com/docs/zh-CN/sub-agents.md#turn-fork-mode-on-or-off) 打开的任何地方，该 tool 都可以启动一个 [forked subagent](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，它继承完整的父对话，而不是从头开始
 
-要限制子代理运行的轮数，请在 [subagent definition](https://code.claude.com/docs/zh-CN/sub-agents.md#supported-frontmatter-fields) 中设置 `maxTurns`。当子代理达到限制时，Claude Code 将返回的结果标记为部分输出，Claude 可以 [resume the subagent](https://code.claude.com/docs/zh-CN/sub-agents.md#resume-subagents) 来继续。
+要限制子代理运行的轮数，请在 [subagent definition](https://code.claude.com/docs/zh-CN/sub-agents.md#supported-frontmatter-fields) 中设置 `maxTurns`。
 
 非 fork 子代理可以使用哪些 tools 取决于 [subagent definition](https://code.claude.com/docs/zh-CN/sub-agents.md) 中的 `tools` 和 `disallowedTools` 字段：
 
@@ -219,7 +219,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 
 #### 移到后台的前台命令
 
-当前台命令在完成前达到其超时时，Claude Code 会将其移到后台而不是停止它，除非命令以 `sleep` 开头。移动的命令的[时间限制](#time-limit-for-background-commands)从移动时开始计算，前台子代理的移动命令仍然在该子代理的运行结束时停止。
+当前台命令在完成前达到其超时时，Claude Code 会将其移到后台而不是停止它，除非命令以 `sleep` 开头。
 
 设置 [`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`](https://code.claude.com/docs/zh-CN/env-vars#variables) 或在 [bare 模式](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode)下运行会禁用自动后台处理，因此达到超时的命令会改为停止。
 
@@ -390,8 +390,6 @@ Monitor 工具让 Claude 在后台监视某些内容，并在其发生变化时�
 * 连接到 WebSocket 源并在每条消息到达时报告
 
 对于大多数监视，Claude 会编写一个小脚本，在后台运行它，并在每行输出到达时接收。对于已经推送事件的服务器，Claude 可以打开 [WebSocket](#websocket-source) 而不是运行脚本。
-
-您可以在同一会话中继续工作，Claude 在事件到达时进行插入。
 
 每个 Claude 启动的监视都有一个截止时间：默认为 5 分钟，最多 30 分钟，在 [非交互式](https://code.claude.com/docs/zh-CN/headless.md) 运行中使用单个提示和 `-p` 时最多 10 分钟。
 
@@ -657,49 +655,122 @@ Task 跟踪工具 `TaskCreate`、`TaskGet`、`TaskUpdate`、`TaskList` 和 `Todo
 
 ## WebFetch 工具行为
 
-WebFetch 接收一个 URL 和一个描述要提取内容的提示词。它会获取页面，并在服务器返回 HTML 时将响应转换为 Markdown。对于大多数获取操作，它随后会在单独的模型调用中针对内容运行该提示词，Claude 接收到的是该调用的结果，而不是原始页面。转换步骤不可配置。
+Claude 使用 WebFetch 在网页上查找信息。URL 可以来自您，也可以来自 Claude，例如来自 [WebSearch](#websearch-tool-behavior) 的结果。对于大多数页面，Claude 看不到完整文本。它会针对页面提出一个问题，由单独的模型调用读取页面并返回答案。
 
-这使得 WebFetch 在设计上就是有损的。提取提示词决定了哪些内容会到达 Claude，因此如果结果表明页面没有提到某些内容，可能仅仅意味着提示词没有询问这一点。可以让 Claude 使用更具体的提示词重新获取，或通过 Bash 使用 `curl` 获取未经处理的页面。
+### 允许某个域名
 
-以下几种行为会影响 Claude 接收到的响应：
+终端和 VS Code 会话[默认以自动模式启动](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-session-starts-in)。在自动模式下，获取之前不会显示权限提示，但 `ask` 规则匹配的域名除外。此时由[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)审查获取操作，并且分类器可以阻止该操作。在 Manual 和 `acceptEdits` 模式下，Claude Code 会请求您的权限。
 
-* WebFetch 会在发出请求之前拒绝 `localhost` 以及任何不含点的主机名，例如单纯的内网名称。它返回的[错误](https://code.claude.com/docs/zh-CN/errors.md#webfetch-cannot-fetch-localhost)会告诉 Claude 改为通过 Bash 使用 `curl` 访问本地服务器。
-* HTTP URL 会自动升级为 HTTPS。
-* WebFetch 每次调用最多读取页面内容的 100,000 个字符。在 Claude Code v2.1.290 或更高版本中，对于较长的页面，结果会告诉 Claude 有多少内容未被读取，以便 Claude 获取下一部分。
-* WebFetch 默认将每个响应缓存 15 分钟，因此重复获取同一 URL 会很快返回。在 Claude Code v2.1.233 或更高版本中，可设置 [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 来更改 WebFetch 保留每个响应的时长。
-* 如果页面在五分钟内（包括 WebFetch 跟随的任何重定向）未完成下载，则会因截止时间错误而失败。在 Claude Code v2.1.268 或更高版本中，可设置 [`CLAUDE_CODE_WEBFETCH_DEADLINE_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables) 来更改该限制，或将其设为 `0` 以移除限制。
-* 当 URL 重定向到不同的主机时，WebFetch 不会跟随重定向，而是返回一个文本结果，其中列出原始 URL 和重定向目标。Claude 随后会通过第二次 WebFetch 调用获取新的 URL。
-* 当提取步骤遇到 API 过载时，Claude Code 会以退避方式重试；如果获取仍然失败，则返回错误结果。
+要预先批准某个域名，请在[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中添加允许规则，或在权限提示提供该选项时选择 **Yes, and don't ask again for `<domain>`**。以下示例允许 `example.com`：
 
-在 Manual 和 `acceptEdits` [权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)下，WebFetch 会在获取之前进行提示，但您的[权限规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)已允许或拒绝的域名，以及一组内置的、无需提示即可获取的预先批准文档域名除外。无论您的规则允许什么，获取操作都会先通过 [WebFetch 域名安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)；该部分介绍了检查会发送的内容以及跳过检查的设置。提示提供三个选项：
+```json theme={null}
+{
+  "permissions": {
+    "allow": ["WebFetch(domain:example.com)"]
+  }
+}
+```
 
-* **Yes**：仅批准本次获取。下一次 WebFetch 调用会再次提示，即使是同一域名。
-* **Yes, and don't ask again for `<domain>`**：批准本次获取，并将该域名的 `WebFetch(domain:...)` 允许规则保存到该仓库的 `.claude/settings.local.json` 中。请参阅[已保存的批准如何持久保留](https://code.claude.com/docs/zh-CN/permissions.md#permission-system)。当您的组织设置了 [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/permissions#managed-only-settings) 时，Claude Code 会隐藏此选项。
-* **No, and tell Claude what to do differently**：拒绝本次获取。
+要进行确认，请在会话中运行 `/permissions`。对话框会列出该规则。选择该规则即可查看它来自哪个设置。
 
-要预先允许某个域名而无需提示，请添加类似 `WebFetch(domain:example.com)` 的允许规则；`WebFetch(domain:*)` 允许所有域名。`auto` 和 `bypassPermissions` [权限模式](https://code.claude.com/docs/zh-CN/permissions.md#permission-modes)会跳过提示，但显式 `ask` 规则匹配的域名除外。
+| 要允许 | 使用此规则 |
+| :- | :- |
+| 单个域名 | `WebFetch(domain:example.com)` |
+| 其子域名 | `WebFetch(domain:*.example.com)` |
+| 所有网站 | `WebFetch` 或 `WebFetch(domain:*)`。请参阅[两者的区别](https://code.claude.com/docs/zh-CN/permissions.md#allow-or-deny-every-fetch)。 |
 
-`deny`、`ask` 或 `allow` 中的显式 `WebFetch(domain:...)` 规则优先于预先批准的集合，因此您可以阻止某个预先批准的域名，或要求对其进行提示。
+有了 `domain:` 允许规则，[沙箱中的 Bash 命令](https://code.claude.com/docs/zh-CN/sandboxing.md#network-isolation)也可以访问该域名，除非[沙箱锁定](https://code.claude.com/docs/zh-CN/sandboxing.md#keep-developers-from-widening-the-policy)使沙箱忽略该规则。
 
-当 URL 是 claude.ai [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 链接时，Claude Code 还可能请求批准以读取该 Artifact 本身。有关会请求批准的情况，请参阅[读取与您共享的 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you)。
+### 阻止网站或关闭 WebFetch
+
+| 要 | 请执行以下操作 |
+| :- | :- |
+| 阻止某个域名 | 将该域名的 `WebFetch(domain:...)` 规则添加到 `deny` |
+| 要求对某个域名进行提示 | 将该域名的 `WebFetch(domain:...)` 规则添加到 `ask` |
+| 关闭 WebFetch | 将 `WebFetch` 添加到 `deny`，或将 [`CLAUDE_CODE_DISABLE_WEB_FETCH`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1` |
+| 为您的组织执行上述任一操作 | 将规则放入[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md) |
+
+在沙箱之外，如果允许使用 Bash，Claude 仍然可以使用 `curl`、`wget` 或其他工具访问任何 URL。请参阅[特定于工具的权限规则](https://code.claude.com/docs/zh-CN/permissions.md#tool-specific-permission-rules)。
+
+### 当获取触发提示、失败或缺少 WebFetch 时
+
+Claude 的回复可能会遗漏页面上 Claude 未询问的任何内容。在终端中，按 `Ctrl+O` 可查看 Claude 提出的问题以及它收到的答案。
+
+| 您注意到的情况 | 处理方法 |
+| :- | :- |
+| Claude 说页面没有涵盖您知道其中存在的内容 | 让 Claude 重新获取该页面，并告诉它要查找什么。如需原始页面，请让它通过 Bash 工具对该 URL 运行 `curl`。 |
+| Claude 遗漏了长页面的结尾部分，或说页面的一部分未被读取 | 让 Claude 获取页面的下一部分。这需要 Claude Code v2.1.290 或更高版本。[`web-fetch` 子代理](#web-fetch-subagent)会完整读取最多约 48,000 个字符的页面，而 Claude 调用 WebFetch 时，WebFetch 会读取前 100,000 个字符。 |
+| Claude 描述的是页面最近更改之前的样子 | WebFetch 会在 15 分钟内重复使用页面的副本。要更改该时长，请设置 [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)。 |
+| Claude 说下载超时 | 下载在五分钟后会失败。要更改该限制，请设置 [`CLAUDE_CODE_WEBFETCH_DEADLINE_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)。 |
+| Claude 报告重定向并就此停止 | 让 Claude 获取新的 URL。当重定向对主机的更改不仅仅是添加或删除 `www.` 时，WebFetch 会返回新的 URL，而不返回页面内容。 |
+| Claude 无法获取本地或内网服务器 | WebFetch [拒绝 `localhost`](https://code.claude.com/docs/zh-CN/errors#webfetch-cannot-fetch-localhost) 以及任何其他不含点的主机名。让 Claude 通过 Bash 工具使用 `curl` 访问该服务器。 |
+| 在云端会话中，Claude 说网络阻止了该域名 | 在云端会话中仅有允许规则是不够的。还需将该域名[添加](https://code.claude.com/docs/zh-CN/cloud-environments.md#allow-specific-domains)到云环境的网络访问中。 |
+| 在自动模式下，获取被阻止且您没有看到提示 | 为该域名添加允许规则。如果是分类器阻止了获取，您也可以在终端中打开 `/permissions`，并在 **Recently blocked** 选项卡下[批准该获取](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)，以便 Claude 重试。 |
+| 在 `claude -p` 或 Agent SDK 中，获取被拒绝 | 这些运行[以 Manual 模式启动](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-non-interactive-run-starts-in)，需要批准的调用会被拒绝。请添加允许规则或以自动模式启动。 |
+| 您已允许的域名获取失败 | 该 URL 还必须通过 [WebFetch 域名安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)，除非您使用 [`skipWebFetchPreflight`](https://code.claude.com/docs/zh-CN/settings-reference#skipwebfetchpreflight) 关闭该检查。请参阅 [WebFetch 域名安全检查失败](https://code.claude.com/docs/zh-CN/errors.md#webfetch-domain-safety-check-failed)。 |
+| 您自己设置文件中的规则不起作用 | 如果您的组织设置了 [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)，Claude Code 会忽略该规则。请让管理员将其添加到托管设置中。 |
+| 将域名添加到沙箱的 [`allowedDomains`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 后仍继续出现提示 | WebFetch 不读取该列表，因此请添加 WebFetch 允许规则 |
+| 您未允许的域名没有出现提示 | 对于一组内置的预先批准文档域名，以及在 `auto` 和 `bypassPermissions` 模式下，Claude Code 会跳过提示。如果仍要求提示，请为该域名添加 `ask` 规则。沙箱中的 Bash 命令不会继承预先批准的集合。 |
+| claude.ai Artifact 链接又带来了一个提示 | 请参阅[读取与您共享的 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) |
+| Claude 无法获取任何页面 | 在会话中运行 `/status`。如果 `Organization configuration` 行列出了 `HIPAA`，则 WebFetch 已关闭：请参阅[开发者在 Claude Code 中看到的内容](https://code.claude.com/docs/zh-CN/hipaa-setup.md#what-developers-see-in-claude-code)。如果 `Organization policy` 行报告策略未加载并提到了 web fetch，请按照该行给出的任何修复方法操作。一旦允许 WebFetch 的策略加载完成，WebFetch 就会恢复可用，无需重启。 |
+
+### web-fetch 子代理
+
+`web-fetch` 是 Claude Code 内置的[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#built-in-subagents)，负责为 Claude 读取网页。当 Claude 需要某个页面时，它会调用 [Agent 工具](#agent-tool-behavior)，将 URL 和关于该页面的问题传给 `web-fetch`。该子代理调用 WebFetch、读取页面，并将答案发送给 Claude。
+
+当您在 Claude Code v2.1.287 或更高版本上使用 claude.ai 账户登录时，您的会话可以使用该子代理。如果没有该子代理，Claude 会自行调用 WebFetch，并由 Claude Code 用于[后台任务](https://code.claude.com/docs/zh-CN/model-config.md#environment-variables)的模型读取页面。在以下等配置中，该子代理处于关闭状态：
+
+* 您已[关闭该子代理](#turn-off-the-web-fetch-subagent)
+* 您在 Claude Code v2.1.330 或更高版本上通过 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)连接
+* Claude Code [不获取功能标志](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，例如在 Amazon Bedrock 上或设置了 `DISABLE_TELEMETRY` 时
+
+以下迹象表示页面是由该子代理获取的：
+
+* **终端**：权限提示的标题为 `Fetch · from the web-fetch agent`。以 `Received` 开头的行只显示大小，例如 `Received 87 bytes`。
+* **VS Code**：获取操作显示为 **Agent** 行
+* **桌面应用或 claude.ai/code**：获取操作显示为可打开子代理窗格的行
+* **`claude -p` 或 Agent SDK**：在 [`system/init` 事件](https://code.claude.com/docs/zh-CN/headless#read-session-metadata)中，`agents` 列出了 `web-fetch`，而 `tools` 未列出 `WebFetch`
+
+#### web-fetch 子代理运行在哪个模型上
+
+默认情况下，`web-fetch` 子代理运行在 `haiku` [模型别名](https://code.claude.com/docs/zh-CN/model-config.md#model-aliases)所指向的模型上。如果该子代理无法使用该模型，例如您的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表未包含该模型，它会运行在与启动它的对话相同的模型上。要自行选择模型，请[让所有子代理运行在同一个模型上](https://code.claude.com/docs/zh-CN/sub-agents.md#run-every-subagent-on-one-model)。
+
+#### web-fetch 子代理与规则、hook 和 CLAUDE.md
+
+您的 `WebFetch` [权限规则](https://code.claude.com/docs/zh-CN/permissions.md#webfetch)适用于 `web-fetch` 子代理获取的页面，匹配 `WebFetch` 的 `PreToolUse` 和 `PostToolUse` [hook](https://code.claude.com/docs/zh-CN/hooks.md) 也同样适用。
+
+| 如果您依赖 | 使用子代理时 | 处理方法 |
+| :- | :- | :- |
+| 关于获取哪些页面的 CLAUDE.md 指令 | 子代理启动时不带您的 CLAUDE.md 文件，包括您组织的托管 CLAUDE.md | 使用 `WebFetch` 权限规则限制获取 |
+| `SubagentStart` 或 `SubagentStop` hook | 只有在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中定义的 hook 会为此子代理运行 | 在任何其他设置文件中，使用匹配 `WebFetch` 的 `PreToolUse` 或 `PostToolUse` hook |
+| 解析 `WebFetch` 结果的 `PostToolUse` hook | 结果是页面文本。当 Claude 自行调用 WebFetch 时，结果是对 Claude 问题的回答。 | 在 hook 中同时处理页面文本和回答 |
+| 阻止 `Agent` 调用的 `PreToolUse` hook | Claude 使用 `Agent` 工具启动子代理，因此页面不会被获取 | [关闭该子代理](#turn-off-the-web-fetch-subagent) |
+
+#### 关闭 web-fetch 子代理
+
+当您的配置依赖于 Claude 自行调用 WebFetch 时，例如当 `PreToolUse` hook 阻止所有 `Agent` 调用时，请关闭 `web-fetch` 子代理。将此[拒绝规则](https://code.claude.com/docs/zh-CN/sub-agents.md#disable-specific-subagents)添加到[设置文件](https://code.claude.com/docs/zh-CN/settings.md)中，或添加到托管设置中以覆盖您的组织：
+
+```json theme={null}
+{
+  "permissions": {
+    "deny": ["Agent(web-fetch)"]
+  }
+}
+```
+
+要进行确认，请启动新会话，让 Claude 获取一个页面，并检查是否未出现[子代理的迹象](#web-fetch-subagent)。在 `system/init` 事件中，`tools` 会再次列出 `WebFetch`，而 `agents` 仍会列出 `web-fetch`。
+
+如果您的组织设置了 [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)，Claude Code 会忽略您自己设置文件中的拒绝规则，因此请让管理员将其添加到托管设置中。
+
+### 识别对您网站的 WebFetch 请求
 
 WebFetch 会设置以 `Claude-User` 开头的 `User-Agent` 标头，以及优先选择 Markdown 而非 HTML 的 `Accept` 标头，以便支持内容协商的服务器可以直接返回 Markdown。
-
-沙箱中的命令不会继承 WebFetch 内置的预先批准文档域名集合。要让沙箱中的命令无需提示即可访问某个域名，请将该域名添加到 [`allowedDomains`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-alloweddomains)，或使用 `WebFetch(domain:...)` 规则允许它，[沙箱也会遵循](https://code.claude.com/docs/zh-CN/sandboxing.md#network-isolation)该规则。反过来，WebFetch 从不读取沙箱允许列表，因此将域名添加到沙箱或组织网络允许列表并不会阻止 WebFetch 对其进行提示。
-
-### WebFetch 可用性
-
-在 Claude Code v2.1.285 或更高版本中，将 [`CLAUDE_CODE_DISABLE_WEB_FETCH`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1` 即可关闭 WebFetch。
-
-如果您使用 Team 或 Enterprise claude.ai 账户登录，并且未通过 [LLM 网关](https://code.claude.com/docs/zh-CN/llm-gateway)连接，WebFetch 还取决于您组织的策略，Claude Code 会在会话启动时从 `api.anthropic.com` 请求该策略。对于 Claude Code 无法确定其套餐的会话，例如在其他应用提供的 claude.ai 令牌下运行的会话，情况也是如此。
-
-如果会话中缺少 WebFetch，请在会话中运行 `/status`。如果其 `Organization policy` 行报告策略未加载，并在等待该策略的功能中列出了 web fetch，则表示 Claude Code 在确认您的组织允许 WebFetch 之前会暂不提供该工具。在会话之外，`claude doctor` 会自行发出请求并打印相同的行。一旦允许 WebFetch 的策略加载完成，该工具就会恢复可用，无需重启。
 
 ## WebSearch 工具行为
 
 WebSearch 针对 Anthropic 的[网络搜索](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool)后端运行查询，并返回结果标题和 URL。它不会获取结果页面。要读取 Claude 在搜索结果中找到的页面，它会跟进使用 [WebFetch](#webfetch-tool-behavior)。
 
-该工具每次调用最多可以发出八个后端搜索，在返回结果之前在内部优化搜索。Claude 可以使用 `allowed_domains` 限制结果范围以仅包含某些主机，或使用 `blocked_domains` 排除它们。这两个列表不能在单次调用中组合。
+该工具每次调用最多可以发出八个后端搜索。Claude 可以使用 `allowed_domains` 限制结果范围以仅包含某些主机，或使用 `blocked_domains` 排除它们。这两个列表不能在单次调用中组合。
 
 当搜索请求命中过载的 API 时，Claude Code 会使用退避策略重试；仍然失败的调用会返回错误结果。
 

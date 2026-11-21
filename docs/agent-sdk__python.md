@@ -3134,7 +3134,7 @@ Grep 在每种输出模式下都返回这种 dict 形状。存在哪些可选键
     "bytes": int,  # 获取内容的大小（字节）
     "code": int,  # HTTP 响应码
     "codeText": str,  # HTTP 响应码文本
-    "result": str,  # 将提示词应用于内容后得到的处理结果
+    "result": str,  # 对提示词的回答，或页面文本
     "durationMs": int,  # 获取和处理内容所用的时间（毫秒）
     "url": str,  # 被获取的 URL
 }
