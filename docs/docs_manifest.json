@@ -9,8 +9,8 @@
     "admin-setup.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/admin-setup",
       "original_md_url": "https://code.claude.com/docs/zh-CN/admin-setup.md",
-      "hash": "d59df09b545d308a67792d504540cea0939ac80c741b07b22ea70a56e81265b9",
-      "last_updated": "2026-11-18T01:44:03.413095"
+      "hash": "89cf3401d37e1cfb9acd77e115435d9ec8db97a9f43cbda29f45e52fb1e0a7e5",
+      "last_updated": "2026-11-21T00:53:17.153097"
     },
     "advisor.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/advisor",
@@ -303,8 +303,8 @@
     "claude-apps-gateway.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-apps-gateway",
       "original_md_url": "https://code.claude.com/docs/zh-CN/claude-apps-gateway.md",
-      "hash": "22f465557b7fcb93a7ed74a894b7f81c6f8bffe8a00f0fde9ef4c6ce3eae636c",
-      "last_updated": "2026-11-19T03:44:13.450551"
+      "hash": "aa0dde6989fcbadf78d807d915a64c00697d2983b3b3853045ab67001c6adea9",
+      "last_updated": "2026-11-21T00:54:01.500417"
     },
     "claude-apps-gateway-config.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-apps-gateway-config",
@@ -363,8 +363,8 @@
     "claude-projects.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-projects",
       "original_md_url": "https://code.claude.com/docs/zh-CN/claude-projects.md",
-      "hash": "0defe6ec27a0c444b3849faff2809a6b0bf5ed97857a8c6c36c8823b82a5b4ec",
-      "last_updated": "2026-11-17T04:40:46.933842"
+      "hash": "005b8b48fe7cadc407257224a880c67b4675e73aab4906a056933237d4f62be3",
+      "last_updated": "2026-11-21T00:54:10.446341"
     },
     "claude-security.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-security",
@@ -789,8 +789,8 @@
     "permissions.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/permissions",
       "original_md_url": "https://code.claude.com/docs/zh-CN/permissions.md",
-      "hash": "fcb8c25f66201d8dab59571384d426008f9593e816dd853a3b6fc4d1123c8109",
-      "last_updated": "2026-11-20T08:49:07.085480"
+      "hash": "48720589ff3c5bff25163d27c33bc125390b12589a7628f6a2923f72e1bcfcd5",
+      "last_updated": "2026-11-21T00:55:18.069083"
     },
     "platforms.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/platforms",
@@ -999,8 +999,8 @@
     "quickstart.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/quickstart",
       "original_md_url": "https://code.claude.com/docs/zh-CN/quickstart.md",
-      "hash": "3700d4888cf1fdbb904a60eeceba714459606df82d0bd190dae76463a5f6b543",
-      "last_updated": "2026-11-20T08:49:26.059456"
+      "hash": "eeb6c2abd0f41311af9dc3e5fd15dcbc13bf0f260c592cb2f9151d29a3f8cb65",
+      "last_updated": "2026-11-21T00:55:55.517226"
     },
     "remote-control.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/remote-control",
@@ -1119,8 +1119,8 @@
     "setup.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/setup",
       "original_md_url": "https://code.claude.com/docs/zh-CN/setup.md",
-      "hash": "64fb612f5e651c65b16489e706a36cbe02ace024e0016ced317e3dc621543af1",
-      "last_updated": "2026-11-18T01:46:16.394019"
+      "hash": "b8fdbf27317d2ce08189b29f1e6a1ad7845fe710b988ef698c35953d5fe2df82",
+      "last_updated": "2026-11-21T00:56:11.996291"
     },
     "skills.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/skills",
@@ -1221,21 +1221,21 @@
     "ide-integrations.md": {
       "original_url": "https://code.claude.com/docs/en/ide-integrations",
       "original_md_url": "https://code.claude.com/docs/en/ide-integrations.md",
-      "hash": "4a47d98cfa9a9e76561c8f027682fcc6313802444bd27f11fd408197ac535c55",
-      "last_updated": "2026-11-19T03:46:05.136245",
+      "hash": "d67253bf9a9384b8426123e9f57a7fe5b95b5fdfcdb534a5971999590896f110",
+      "last_updated": "2026-11-21T00:56:30.688316",
       "fallback_to_english": true
     },
     "changelog.md": {
       "original_url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
       "original_raw_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-      "hash": "0c9f6b4dbd5d5ec7cd9f68730561e621620fe45925116d94fc22e4e14e1cb84d",
-      "last_updated": "2026-11-19T23:10:23.739512",
+      "hash": "b547b93af776858efdec16acc445e4166351b018b9970cb66ac7ce580ecdd23d",
+      "last_updated": "2026-11-21T00:56:31.217060",
       "source": "claude-code-repository"
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-20T18:44:24.929409",
-    "fetch_duration_seconds": 163.30507,
+    "last_fetch_completed": "2026-11-21T00:56:31.217090",
+    "fetch_duration_seconds": 195.312076,
     "total_pages_discovered": 203,
     "pages_fetched_successfully": 205,
     "pages_failed": 0,
@@ -1245,7 +1245,7 @@
     "total_files": 205,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-20T18:44:24.929433",
+  "last_updated": "2026-11-21T00:56:31.217107",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

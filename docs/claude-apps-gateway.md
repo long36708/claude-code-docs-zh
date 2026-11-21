@@ -397,7 +397,7 @@ Claude Code 会根据一个限制性键的允许列表过滤父设置，但某�
 Claude Code 会以精简形式转发父进程提供的 [`sandbox.credentials`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-credentials) 条目：
 
 * **`deny` 条目**：仅转发其 `path` 或 `name` 以及模式。
-* **使用 [`mode: mask`](https://code.claude.com/docs/zh-CN/sandboxing#mask-credential-files) 的文件条目**：仅以哨兵形式转发，作为 `injectHosts` 为空列表的整文件掩码，因此在任何平台上，代理都不会为父进程提供的条目替换真实值。所有结构化掩码字段也会被丢弃，因此父进程提供的提取模式无法取代其他来源为同一路径设置的更严格掩码。
+* **使用 [`mode: mask`](https://code.claude.com/docs/zh-CN/sandboxing#mask-credential-files) 的文件条目**：仅以哨兵形式转发，作为 `injectHosts` 为空列表的整文件掩码，因此在任何平台上，代理都不会针对父进程提供的条目将哨兵替换为真实值。所有结构化掩码字段也会被丢弃，因此父进程提供的提取模式无法取代其他来源为同一路径设置的更严格掩码。
 * **使用 `mode: mask` 的 `envVars` 条目**：不转发。`deny` 是父通道通过 `envVars` 条目可以表达的唯一限制。
 * **[`awsPairs` 和 `sigv4`](https://code.claude.com/docs/zh-CN/sandboxing#re-sign-aws-requests)**：仅以限制形式转发。对于 `sigv4`，只保留 `deny` 值，只要父进程定义了 `sigv4` 块，就会将全部三种请求形式 `streaming`、`presigned` 和 `sigv4a` 固定为 `deny`。`awsPairs` 中的配对绝不会以可重新签名的形式转发；指明某个常规 AWS 变量的配对会被替换为一个无效条目，该条目会继续抑制 `AWS_ACCESS_KEY_ID`、`AWS_SECRET_ACCESS_KEY` 和 `AWS_SESSION_TOKEN` 的自动配对。
 

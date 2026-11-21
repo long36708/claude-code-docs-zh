@@ -15,10 +15,10 @@ Claude Code 使用分层权限系统来平衡功能和安全性。该表显示�
 | 工具类型 | 示例 | 需要批准 | "是，不再询问"行为 |
 | :- | :- | :- | :- |
 | 只读 | 文件读取、Grep | 否，在[工作目录和其他目录](#working-directories)内 | 不适用 |
-| Bash 命令 | Shell 执行 | 是，除了内置的[只读命令](#read-only-commands)集合 | 每个项目目录和命令永久有效 |
+| Bash 命令 | Shell 执行 | 是，除了内置的[只读命令](#read-only-commands)集合 | 每个仓库和命令永久有效 |
 | 文件修改 | Edit/Write 文件 | 是，但 Claude Code 自身的计划文件和[自动记忆](https://code.claude.com/docs/zh-CN/memory.md#auto-memory)文件等除外 | 直到会话结束 |
-| Web 获取 | WebFetch | 是，除了内置的[预批准文档域](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)集合 | 每个项目目录和域永久有效 |
-| Web 搜索 | WebSearch | 是 | 每个项目目录永久有效 |
+| Web 获取 | WebFetch | 是，除了内置的[预批准文档域](https://code.claude.com/docs/zh-CN/tools-reference.md#webfetch-tool-behavior)集合 | 每个仓库和域永久有效 |
+| Web 搜索 | WebSearch | 是 | 每个仓库永久有效 |
 
 权限提示会显示 Claude 即将执行的操作，然后列出您的选项。以下示例是手动模式会话中 Bash 命令的提示：
 
@@ -26,7 +26,7 @@ Claude Code 使用分层权限系统来平衡功能和安全性。该表显示�
 
 第三个选项 **是，并切换到自动模式**，[并非在每个提示中都会出现](https://code.claude.com/docs/zh-CN/permission-modes.md#switch-permission-modes)。
 
-当您选择"是，不再询问"且批准永久保存时（例如对于 Bash 命令或 WebFetch 域），Claude Code 会将规则保存到 git 项目根目录的 `.claude/settings.local.json`，通过[工作树](https://code.claude.com/docs/zh-CN/worktrees.md)解析到主检出。该规则适用于该项目中的未来会话，包括在子目录和工作树中启动的会话。文件修改批准不会保存到文件中：如表所示，它仅持续到会话结束。在某些情况下，例如在 git 项目外或在 Windows 上，Claude Code 不使用项目根目录；[Claude Code 查找每个文件的位置](https://code.claude.com/docs/zh-CN/settings.md#where-claude-code-looks-for-each-file)列出了这些情况以及它保存规则的位置。
+当您选择"是，不再询问"且批准永久保存时（例如对于 Bash 命令或 WebFetch 域），Claude Code 会将规则保存到 git 仓库根目录的 `.claude/settings.local.json`，通过[工作树](https://code.claude.com/docs/zh-CN/worktrees.md)解析到主检出。该规则适用于该仓库中任何位置的未来会话，包括在子目录和工作树中启动的会话。文件修改批准不会保存到文件中：如表所示，它仅持续到会话结束。在某些情况下，例如在 git 仓库外或在 Windows 上，Claude Code 不使用仓库根目录；[Claude Code 查找每个文件的位置](https://code.claude.com/docs/zh-CN/settings.md#where-claude-code-looks-for-each-file)列出了这些情况以及它保存规则的位置。
 
 有时权限提示仅提供一次性批准，没有"不再询问"选项，也没有允许操作在会话的其余部分进行的选项。Claude Code 仅在提示可以向您显示它们允许的所有内容时才提供这些选项，因此您从提示保存的规则仅涵盖其选项命名的内容。当提示仅提供一次性批准时，批准该操作一次，或在 [`/permissions`](#manage-permissions) 中自己添加规则。要停止针对以 `watch` 等 exec 包装器开头的命令的提示，或针对带有 `-delete` 等操作的 `find` 命令的提示，请参阅 [Exec 包装器和 `find` 操作](#exec-wrappers-and-find-actions)。
 

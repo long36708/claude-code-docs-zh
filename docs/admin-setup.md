@@ -131,16 +131,50 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 在 Team 和 Enterprise 计划中，[**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 的 GitHub 部分列出了通过 [Claude GitHub App](https://github.com/apps/claude) 关联到您 Claude 组织的 GitHub 组织和个人账户。Claude Code、[Claude Tag](https://claude.com/docs/claude-tag/admins/configure-github) 和 Claude Security 共享该列表。打开此页面需要您在 Claude 组织中拥有[所有者角色](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control)。管理员角色无法打开此页面。
 
-可以通过 Git 提供商页面关联账户，也可以通过将 GitHub 连接到 Claude 来关联账户：
+默认情况下，可以通过 Git 提供商页面关联账户，也可以通过将 GitHub 连接到 Claude 来关联账户：
 
 * **所有者连接**：所有者在该部分点击 **Connect**，或在已连接账户后点击 **Add organization**，然后在 GitHub 组织上安装 Claude GitHub App。以这种方式关联组织，需要一位同时拥有该 GitHub 组织的您 Claude 组织的所有者。
 * **成员连接**：当成员将其 GitHub 账户连接到 Claude 时（例如在[设置云端会话](https://code.claude.com/docs/zh-CN/web-quickstart.md#connect-github)时），Claude 会关联该成员所拥有且已安装 Claude GitHub App 的 GitHub 账户。这可能包括其个人账户以及其拥有的 GitHub 组织。
 
-标记为 **Not linked** 的行来自您自己的 GitHub 登录。它是您在 GitHub 上可以看到且已安装 Claude GitHub App 的账户。
+标记为 **Not linked** 的行可能来自您自己的 GitHub 登录。它是您在 GitHub 上可以看到且已安装 Claude GitHub App 的账户。
 
-若要将某个账户与您的 Claude 组织取消关联，请打开该行的菜单并选择 **Unlink from this workspace**。取消关联后，Claude GitHub App 仍会保留在 GitHub 上，并且下次该账户的任一所有者将 GitHub 连接到 Claude 时，该账户会再次被关联。若要防止其再次被关联，请在 GitHub 上从该账户卸载 Claude GitHub App。
+若要将某个账户与您的 Claude 组织取消关联，请打开该行的菜单并选择 **Unlink from this workspace**。Claude GitHub App 仍会保留在 GitHub 上。除非您[限制可以关联哪些账户](#limit-which-github-accounts-can-be-linked)，否则下次该账户的任一所有者将 GitHub 连接到 Claude 时，该账户会再次被关联。若要防止其再次被关联，请在 GitHub 上从该账户卸载 Claude GitHub App。
+
+> [!NOTE]
+>
+> 若要阻止与未经您批准的账户建立新的关联，或在不卸载该应用的情况下保持某个账户处于未关联状态，请[限制可以关联哪些账户](#limit-which-github-accounts-can-be-linked)。
 
 在 Enterprise 计划中，用于关联和取消关联的 [Compliance API](https://platform.claude.com/docs/en/api/compliance/activities/list) 活动类型为 `github_app_installation_linked` 和 `github_app_installation_unlinked`。
+
+#### 限制可以关联哪些 GitHub 账户
+
+若要限制哪些 github.com 组织和个人账户可以关联到您的 Claude 组织，请允许您批准的账户，并打开 **Only allowed accounts can be linked**。例如，如果您只允许 `example-corp`，那么成员和所有者都无法关联成员的个人账户。已关联的账户即使未被允许，也会继续正常工作，直到您取消关联为止。
+
+账户关联后，Claude 可以以 Claude GitHub App 的身份对其仓库执行操作，用于 [Code Review](https://code.claude.com/docs/zh-CN/code-review.md) 和 Claude Tag 等功能。该设置打开时，成员仍可将 GitHub 连接到 Claude。成员自己的云端会话使用[每个成员的 GitHub 访问权限](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#github-authentication-options)，因此不要依赖此设置来限制这些会话可以访问哪些仓库。
+
+**1. 允许组织**
+
+作为 Team 或 Enterprise 计划中的所有者，在浏览器中打开 [**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 的 GitHub 部分，然后点击 **Choose organizations**。在表格中选择您批准的组织，然后点击 **Allow**。请包括已关联的组织，因为它们不会被自动允许。
+
+**2. 按名称允许其他账户**
+
+若要允许某个个人账户或不在表格中的组织，请点击 **Allow by name** 并输入其 GitHub 用户名或组织名称。如果出现提示，请先连接您自己的 GitHub 账户。通过该提示进行连接不会关联任何账户。
+
+**3. 打开该设置**
+
+在表格上方，打开 **Only allowed accounts can be linked**，该设置默认处于关闭状态。
+
+**4. 取消关联您未批准的账户**
+
+取消关联某个账户后，Code Review 等功能将不再针对您的 Claude 组织在其仓库上运行。由 [Claude Agent 身份](https://claude.com/docs/claude-tag/concepts/agent-identity)在这些仓库上运行的定时任务会被关闭。成员自己的[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)保持开启。
+
+若要查看未被允许的账户，请展开组织对应的 **Not allowed** 以及个人账户对应的 **Linked personal accounts**。选择要移除的已关联账户并点击 **Unlink**，或为要保留的账户点击 **Allow**。
+
+**5. 关联已允许的账户**
+
+如果某个已允许的账户显示 **Not linked**，请让在 GitHub 上拥有该账户的人员通过[所有者连接或成员连接](#connected-github-accounts)进行关联。对于成员连接，请让对方先在该账户上[安装 Claude GitHub App](https://github.com/apps/claude/installations/new)。
+
+若要将某个账户从允许列表中移除并保留其关联，请在 **Allowed** 下选择该账户并点击 **Disallow**。如果您取消关联某个已允许的账户，它也会从允许列表中移除。
 
 ## 设置使用情况可见性
 
