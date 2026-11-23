@@ -867,7 +867,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
 * `tool_name`：工具的名称
 * `tool_use_id`：此次工具调用的唯一标识符。与传递给 hook 的 `tool_use_id` 相匹配，从而可以在 OTel 事件和 hook 捕获的数据之间建立关联。
-* `request_id`：包含此工具调用的 API 响应的 [`request_id`](#event-correlation-attributes)，以便您将该调用与该响应的 API 事件关联起来。当该响应没有请求 ID，或没有任何 API 响应包含该调用时不包含。需要 Claude Code v2.1.310 或更高版本
+* `request_id`：包含此工具调用或发起此调用的 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#monitor-code-mode-with-opentelemetry) 代码的 API 响应的 [`request_id`](#event-correlation-attributes)。使用它可将该调用与该响应的 API 事件联接起来。当该响应没有请求 ID，或没有任何 API 响应包含该调用或其代码时不存在。需要 Claude Code v2.1.310 或更高版本
 * `success`：`"true"` 或 `"false"`
 * `duration_ms`：执行时间（以毫秒为单位）
 * `error_type`：工具失败时的错误类别字符串，例如 `"Error:ENOENT"` 或 `"ShellError"`
@@ -1021,7 +1021,7 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 * `event.sequence`：用于对事件排序的按进程计数器，详见[事件关联属性](#event-correlation-attributes)
 * `tool_name`：工具的名称（例如 "Read"、"Edit"、"Write"、"NotebookEdit"）
 * `tool_use_id`：此次工具调用的唯一标识符。与传递给 hook 的 `tool_use_id` 相匹配，从而可以在 OTel 事件和 hook 捕获的数据之间建立关联。
-* `request_id`：包含此工具调用的 API 响应的 [`request_id`](#event-correlation-attributes)，以便您将该调用与该响应的 API 事件关联起来。当该响应没有请求 ID，或没有任何 API 响应包含该调用时不包含。需要 Claude Code v2.1.310 或更高版本
+* `request_id`：包含此工具调用或发起此调用的 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#monitor-code-mode-with-opentelemetry) 代码的 API 响应的 [`request_id`](#event-correlation-attributes)。使用它可将该调用与该响应的 API 事件联接起来。当该响应没有请求 ID，或没有任何 API 响应包含该调用或其代码时不存在。需要 Claude Code v2.1.310 或更高版本
 * `decision`：`"accept"` 或 `"reject"`
 * `tool_source`：始终存在。工具的来源，是由 CLI 定义的封闭值集合：
   * `"builtin"`：CLI 自身的工具
@@ -1056,10 +1056,11 @@ Claude Code 通过 OpenTelemetry 日志/事件导出以下事件（当配置了 
 
   当[分类器在计划模式下审查命令](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)时，该属性也会出现在计划模式的调用上。在以下情况下该属性不存在：
 
-  * 由允许或拒绝[权限规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)决定了该调用
+  * 允许或拒绝[权限规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)决定了该调用
   * Claude Code 在自动模式下未询问分类器就批准了该调用
-  * 用户回答了 Claude Code 在[多次阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#repeated-block-thresholds)后显示的提示
-  * 在不带 `--permission-prompt-tool` 的 `-p` 运行中，由于没有人可以回答提示，Claude Code 在多次阻止后拒绝了该调用。该事件将 `decision` 报告为 `"reject"`，将 `source` 报告为 `"config"`
+  * 在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#monitor-code-mode-with-opentelemetry) 中，分类器对代码的审查涵盖了该调用
+  * 用户回答了 Claude Code 在[多次阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#repeated-block-thresholds)之后显示的提示
+  * 在没有 `--permission-prompt-tool` 的 `-p` 运行中，由于没有人回答提示，Claude Code 在多次阻止后拒绝了该调用。该事件将 `decision` 报告为 `"reject"`，将 `source` 报告为 `"config"`
 * `classifier_category`（当 `OTEL_LOG_TOOL_DETAILS=1` 时）：分类器阻止该调用时所指出的[策略](https://code.claude.com/docs/zh-CN/auto-mode-config.md#fix-a-policy-denial)或[内置规则](https://code.claude.com/docs/zh-CN/auto-mode-config.md#inspect-the-defaults-and-your-effective-config)的名称，采用小写加下划线的形式，例如 Data Exfiltration 规则对应 `"data_exfiltration"`。需要 Claude Code v2.1.301 或更高版本。当以下两个条件同时满足时，该属性存在：
 
   * `classifier_verdict` 为 `"block"`

@@ -10,7 +10,7 @@
 >
 > Claude 桌面应用的 Linux 支持处于测试版阶段。
 
-Linux 上的桌面应用提供与 macOS 和 Windows 相同的 Chat、Cowork 和 Claude Code 体验：并行会话、可视化差异审查、集成终端和编辑器以及实时应用预览。有关功能参考，请参阅[使用 Claude Code Desktop](https://code.claude.com/docs/zh-CN/desktop.md)。
+Linux 上的桌面应用为您提供 Chat、[Cowork](#cowork-requirements) 和 Claude Code。在桌面应用中，Claude Code 具有并行会话、可视化 diff 审查、集成终端和编辑器以及实时应用预览。有关功能参考，请参阅[使用 Claude Code Desktop](https://code.claude.com/docs/zh-CN/desktop.md)。
 
 ## 要求
 

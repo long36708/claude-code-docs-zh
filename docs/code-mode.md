@@ -54,10 +54,11 @@ await edit(target, "maxAttempts: 3", "maxAttempts: 5");
 * **模型**：Claude Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 5.2
 * **使用入口**：终端中的交互式 `claude` 会话。Code Mode 不适用于 VS Code 面板、Desktop 应用或云端会话
 * **Agent teams**：要在开启 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md) 的情况下使用 Code Mode，需要 v2.1.326 或更高版本。在默认的[进程内显示模式](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)下，队友以 Code Mode 运行；在分屏窗格中，队友则在不启用 Code Mode 的情况下启动
+* **遥测设置**：要在[功能标志获取关闭](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)或 [OpenTelemetry](https://code.claude.com/docs/zh-CN/monitoring-usage.md) 事件和指标开启的情况下使用 Code Mode，需要 v2.1.329 或更高版本。在任何版本上都请保持[追踪](https://code.claude.com/docs/zh-CN/monitoring-usage.md#traces-beta)关闭
 * **安装**：Claude Code 的[原生构建版本](https://code.claude.com/docs/zh-CN/setup.md)
 * **Windows**：已安装 [Git for Windows](https://git-scm.com/downloads/win)
 
-此外，在某些设置开启时也无法启动 Code Mode，例如 API 密钥助手、OpenTelemetry 导出或 `DISABLE_TELEMETRY`。有关每种情况的解决方法，请参阅 [Code Mode 无法启动](#code-mode-doesnt-start)。
+此外，在某些设置开启时也无法启动 Code Mode，例如 API 密钥助手。有关每种情况的解决方法，请参阅 [Code Mode 无法启动](#code-mode-doesnt-start)。
 
 ## 试用 Code Mode
 
@@ -141,6 +142,14 @@ Read every Markdown file in this project and list the links that point to local 
 ```
 
 正处于 Code Mode 会话中的用户会继续留在该会话中，直到他们退出或重新启动 Claude Code。此后，用户将在不启用 Code Mode 的情况下启动，并且在 `0` 生效期间无法恢复其 Code Mode 会话。您无法通过托管设置为用户启用 Code Mode。
+
+### 使用 OpenTelemetry 监控 Code Mode
+
+如果您收集 [OpenTelemetry 事件](https://code.claude.com/docs/zh-CN/monitoring-usage.md#events)，您的后端会收到 Claude 所编写代码中的工具调用对应的 `tool_decision` 和 `tool_result` 事件，这些事件使用各工具的常规名称，例如 `Bash`。请针对这些调用更新您的查询和设置：
+
+* **查找来自代码的调用**：筛选以 `repl_` 或 `toolu_cc_` 开头的 `tool_use_id` 值。运行代码的 `REPL` 工具有其自身的事件，这些事件不带上述任一前缀
+* **读取分类器判定结果**：在自动模式下，由分类器[对代码的审查](#permission-checks)所涵盖的调用没有 `classifier_verdict`。请在具有该调用 `request_id` 的 `REPL` 工具 `tool_decision` 事件上查找判定结果。如果找到多个，这些事件不会显示是哪一段代码发起了该调用
+* **避免机密信息进入您的后端**：代码可以读取某个值（例如文件中的令牌），并将其传递给另一个调用。如果您的后端不应接收这些值，请不要设置 `OTEL_LOG_TOOL_DETAILS`
 
 ## 权限与长时间运行的代码
 
@@ -295,12 +304,14 @@ Read every Markdown file in this project and list the links that point to local 
 | 原因包含 | 解决方法 |
 | :- | :- |
 | `it isn't open to your account in this version` 或 `it isn't open to your account yet` | 如果您的版本低于 v2.1.323，请[更新](#try-code-mode)。否则，请检查网络连接并重新启动。如果该原因仍然存在，请改日再试 |
+| `Anthropic has turned it off for now` | [更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)，或稍后重新启动 |
 | `it only works directly with the Anthropic API` 或 `it only works with the Anthropic API` | 移除通过云提供商、网关或自定义 `ANTHROPIC_BASE_URL` 路由请求的设置 |
 | `it doesn't work with an API key helper` | 移除 `apiKeyHelper`、`ANTHROPIC_AUTH_TOKEN`，以及 `ANTHROPIC_CUSTOM_HEADERS` 中的任何 `Authorization` 或 `X-Api-Key` 标头。然后登录或设置 `ANTHROPIC_API_KEY` |
 | `it only works with Opus 5.5, Sonnet 5.5 and later models` | 使用[受支持的模型](#requirements)启动，例如使用 `--model opus`。Haiku 5.5 和 Fable 5.2 也可以使用 |
 | `it doesn't work in background jobs` | 在前台启动，不使用 `--remote-control`。如果该原因显示在队友的分屏窗格中，请使用[进程内显示模式](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)，以在 Code Mode 中运行队友 |
-| `it needs settings that Claude Code downloads from Anthropic` | 取消设置[关闭功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的变量，例如 `DISABLE_TELEMETRY` |
-| `OpenTelemetry is on` | 如果您不需要 [OpenTelemetry 导出](https://code.claude.com/docs/zh-CN/monitoring-usage.md)，请取消设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 和 `ENABLE_BETA_TRACING_DETAILED` |
+| `it needs settings that Claude Code downloads from Anthropic` | 将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)以满足[遥测设置要求](#requirements)。如需继续使用当前版本，请取消设置[关闭功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的变量，例如 `DISABLE_TELEMETRY` |
+| `OpenTelemetry tracing is on` | 如果您不需要[追踪](https://code.claude.com/docs/zh-CN/monitoring-usage.md#traces-beta)，请取消设置 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA`、`ENABLE_ENHANCED_TELEMETRY_BETA` 和 `ENABLE_BETA_TRACING_DETAILED` |
+| `OpenTelemetry is on` | 如需保持事件和指标启用，请[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)并满足[遥测设置要求](#requirements)。如需继续使用当前版本，且您不需要 [OpenTelemetry 导出](https://code.claude.com/docs/zh-CN/monitoring-usage.md)，请取消设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 和 `ENABLE_BETA_TRACING_DETAILED` |
 | `it doesn't yet work with the plugin` | 在会话中运行 `/plugin`，并禁用原因中指出的每个插件。如果某个插件是由您的组织启用的，请让您的管理员将其关闭 |
 | `it doesn't yet work with an installed mod` | 关闭检查工具调用的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) |
 | `it can't be used together with agent teams yet` | 如需保持 agent team 启用，请将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.326 或更高版本。如需继续使用当前版本，请取消设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` |

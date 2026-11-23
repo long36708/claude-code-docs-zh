@@ -274,7 +274,7 @@
 > ls -la ~/.local/bin/claude
 > ```
 >
-> 一个本机安装显示一个指向 `~/.local/share/claude/versions/` 的符号链接。您在此路径创建的脚本或符号链接是自定义启动程序，[自动更新会将其保留在原位](https://code.claude.com/docs/zh-CN/setup.md#auto-updates)。
+> 一个本机安装显示一个指向 `~/.local/share/claude/versions/` 的符号链接。如果您在此路径放置了自己的启动程序，请参阅[自定义启动程序](https://code.claude.com/docs/zh-CN/setup.md#custom-launchers)。
 >
 > 如果任一 `ls` 命令打印 `No such file or directory`，这不是错误。这意味着该位置没有安装任何内容，因此继续进行下一个检查。
 >

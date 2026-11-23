@@ -185,6 +185,8 @@ rate_limits:
 
 `severity` 是大写的日志级别，其中 `warn` 写作 `WARNING`。启动失败会产生一条 `ERROR` 行。
 
+每次启动时，无论您的网络设置如何，网关还会写入一条 `WARNING` 行，提醒您不要让其暴露在公共互联网上。要隐藏该行，请在网关的环境中设置 `CLAUDE_GATEWAY_LOG_LEVEL=error`；这样您的收集器只会收到运维日志的 `ERROR` 行。
+
 审计事件同样写入 stderr，不会改变。它们携带 `ts` 和 `evt`，不带 `severity`。
 
 ### 健康

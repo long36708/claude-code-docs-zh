@@ -111,6 +111,8 @@ Chrome 未运行时，Claude Code 会正常启动。
 >
 > 默认启用 Chrome 会增加上下文使用量，因为浏览器工具及其说明会始终被加载。如果您注意到上下文消耗增加，请关闭该设置，仅在需要时连接：在 CLI 中使用 `--chrome`，或在 VS Code 输入框中输入 [`@browser`](https://code.claude.com/docs/zh-CN/vs-code#automate-browser-tasks-with-chrome)。
 
+如需在保持该设置开启的同时启动单个不使用 Chrome 的 CLI 会话，请在终端中运行 [`claude --no-chrome`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)。
+
 ### 回答启动对话框
 
 如果启动 `claude` 时出现“Claude in Chrome extension detected”对话框，您的回答会更改[**默认启用**设置](#enable-chrome-by-default)：
@@ -257,12 +259,12 @@ Claude 会将图像保存到磁盘并报告文件路径。
 1. 验证 Chrome 扩展程序已安装并在 `chrome://extensions` 中启用
 2. 通过运行 `claude --version` 验证 Claude Code 是最新的
 3. 检查 Chrome 是否正在运行
-4. 运行 `/chrome` 并选择"重新连接扩展程序"以重新建立连接
+4. 运行 `/chrome` 并选择"Reconnect extension"以重新建立连接
 5. 如果问题仍然存在，请重新启动 Claude Code 和 Chrome
 
 第一次启用 Chrome 集成时，Claude Code 会安装本机消息传递主机配置文件。Chrome 在启动时读取此文件，因此如果扩展程序在您的第一次尝试中未被检测到，请重新启动 Chrome 以获取新配置。
 
-Claude Code 在首次安装时会打开一个浏览器标签页，提示您连接扩展程序。稍后重写配置文件的会话（例如在切换构建或配置目录后）不会重新打开它。
+Claude Code 仅在首次安装时会打开一个浏览器标签页，提示您连接扩展程序。当之后的会话重写配置文件时（例如在切换构建版本或配置目录后），Claude Code 不会重新打开它。
 
 如果连接仍然失败，请验证主机配置文件是否存在于：
 
@@ -308,9 +310,9 @@ Claude Code 会跳过该设置，因为这些文件存储在项目目录中，�
 
 ### 长会话期间连接断开
 
-Chrome 扩展程序的 service worker 在扩展会话期间可能会进入空闲状态，这会破坏连接。如果浏览器工具在一段时间不活动后停止工作，请运行 `/chrome` 并选择"重新连接扩展程序"。
+Chrome 扩展程序的 service worker 在长时间会话期间可能会进入空闲状态，这会破坏连接。如果浏览器工具在一段时间不活动后停止工作，请运行 `/chrome` 并选择"Reconnect extension"。
 
-运行 `/chrome` 时，请查看其 `Status` 行。如果显示"未连接"，则表示正在运行的会话自身与 Chrome 的连接已失败。选择"重新连接扩展程序"以重新启动该连接。连接成功后，扩展程序的重新连接页面会在 Chrome 中打开。在 v2.1.290 之前，"重新连接扩展程序"仅会打开该页面，而不会重新启动失败的连接，因此如果在较早版本上浏览器工具未恢复，请更新 Claude Code。
+运行 `/chrome` 时，请查看其 `Status` 行。如果显示"Not connected"，则表示正在运行的会话自身与 Chrome 的连接已失败。选择"Reconnect extension"以重新启动该连接。连接成功后，扩展程序的重新连接页面会在 Chrome 中打开。在 v2.1.290 之前，"Reconnect extension"仅会打开该页面，而不会重新启动失败的连接，因此如果在较早版本上浏览器工具未恢复，请更新 Claude Code。
 
 ### 扩展程序登录到了不同的组织
 
@@ -338,11 +340,11 @@ Chrome 扩展程序的 service worker 在扩展会话期间可能会进入空闲
 
 | 错误 | 原因 | 修复 |
 | - | - | - |
-| "浏览器扩展程序未连接" | 扩展程序未在 Chrome 中安装并运行，扩展程序登录的 claude.ai 账户或组织与 Claude Code 不同，或您的组织的 IP 允许列表拒绝了到 `bridge.claudeusercontent.com` 的连接 | 检查扩展程序登录的 claude.ai 账户和[组织](#extension-signed-in-to-a-different-organization)是否与 Claude Code 相同，重新启动 Chrome 和 Claude Code，然后运行 `/chrome` 以重新连接。如果您的组织使用 IP 允许列表且错误仍然存在，请参阅[组织 IP 允许列表和代理出口](https://code.claude.com/docs/zh-CN/network-config.md#organization-ip-allowlists-and-proxy-egress) |
-| 扩展程序在 `/chrome` 中显示"未检测到" | Chrome 扩展程序未安装或已禁用 | 在 `chrome://extensions` 中安装或启用扩展程序 |
-| "没有可用的标签页" | Claude 在标签页准备好之前尝试操作 | 要求 Claude 创建新标签页并重试 |
-| "接收端不存在" | 扩展程序 service worker 进入空闲状态 | 运行 `/chrome` 并选择"重新连接扩展程序" |
-| "没有已连接的浏览器" | Chrome 未打开，或扩展程序登录的 claude.ai 账户和组织与 Claude Code 不同，或 Claude Code 无法访问 `bridge.claudeusercontent.com` | 确认 Chrome 已打开，且扩展程序登录的 claude.ai 账户和[组织](#extension-signed-in-to-a-different-organization)与 Claude Code 相同。如果是这样，请检查您的网络是否允许 Claude Code 访问 `bridge.claudeusercontent.com`，该地址列于[网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)中 |
+| "Browser extension is not connected" | 扩展程序未在 Chrome 中安装并运行，扩展程序登录的 claude.ai 账户或组织与 Claude Code 不同，或您的组织的 IP 允许列表拒绝了到 `bridge.claudeusercontent.com` 的连接 | 检查扩展程序登录的 claude.ai 账户和[组织](#extension-signed-in-to-a-different-organization)是否与 Claude Code 相同，重新启动 Chrome 和 Claude Code，然后运行 `/chrome` 以重新连接。如果您的组织使用 IP 允许列表且错误仍然存在，请参阅[组织 IP 允许列表和代理出口](https://code.claude.com/docs/zh-CN/network-config.md#organization-ip-allowlists-and-proxy-egress) |
+| 扩展程序在 `/chrome` 中显示"Not detected" | Chrome 扩展程序未安装或已禁用 | 在 `chrome://extensions` 中安装或启用扩展程序 |
+| "No tab available" | Claude 在标签页准备好之前尝试操作 | 要求 Claude 创建新标签页并重试 |
+| "Receiving end does not exist" | 扩展程序 service worker 进入空闲状态 | 运行 `/chrome` 并选择"Reconnect extension" |
+| "No browsers are connected" | Chrome 未在扩展程序登录到与 Claude Code 相同的 claude.ai 账户和组织的状态下打开，或 Claude Code 无法访问 `bridge.claudeusercontent.com` | 确认 Chrome 已打开，且扩展程序登录的 claude.ai 账户和[组织](#extension-signed-in-to-a-different-organization)与 Claude Code 相同。如果是这样，请检查您的网络是否允许 Claude Code 访问 `bridge.claudeusercontent.com`，该地址列于[网络访问要求](https://code.claude.com/docs/zh-CN/network-config.md#network-access-requirements)中 |
 
 ## 另请参阅
 

@@ -944,7 +944,7 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
   * `agent`：60 秒。
   * [`SessionEnd`](https://code.claude.com/docs/zh-CN/hooks#sessionend) 任何类型的 hooks 共享 1.5 秒的预算。如果你的设置为每个 hook 设置了更长的 `timeout`，Claude Code 会将预算提高到匹配，最多 60 秒。
 * `PostToolUse` hooks 无法撤销操作，因为工具已经执行。
-* [`PermissionRequest`](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) hook 在 Claude Code 即将向您请求权限时触发，或在它原本会自动拒绝无法显示提示的调用时触发。在带 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)中，它们在 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)之外仍会运行，而没有 hook 做出决策且无其他方式可以应答的调用会被拒绝。
+* [`PermissionRequest`](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) hook 在 Claude Code 即将向您请求权限时触发。在没有[权限宿主](https://code.claude.com/docs/zh-CN/headless.md#turn-off-permission-prompts-in-unattended-runs)的 [`-p` 运行](https://code.claude.com/docs/zh-CN/headless)中，在 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)之外，原本会提示您的调用会被拒绝，除非有某种机制批准它，例如这些 hook 之一。
 * `Stop` hooks 在 Claude 完成响应时触发，而不仅仅在任务完成时。它们不在用户中断时触发。API 错误触发 [StopFailure](https://code.claude.com/docs/zh-CN/hooks.md#stopfailure) 代替。
 * 当多个 `PreToolUse` hook 返回 [`updatedInput`](https://code.claude.com/docs/zh-CN/hooks#pretooluse) 来改写工具的输入时，Claude Code 不会合并这些改写，也不保证工具使用哪一个改写运行。避免让多个 hook 改写同一工具的输入。
 

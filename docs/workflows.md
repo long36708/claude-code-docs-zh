@@ -122,7 +122,11 @@ Claude Code 会在您的输入中高亮显示该关键字，Claude 会为该任�
 
 #### 取消或关闭关键字
 
-如果您并非有意启动工作流，请在 macOS 上按 `Option+W`，在 Windows 和 Linux 上按 `Alt+W`，以取消本次提示词的高亮；或者在光标紧跟高亮关键字时按退格键。要完全阻止该关键字触发，请在 `/config` 中关闭 Ultracode keyword trigger。
+如需使用 `ultracode` 一词而不请求工作流，可以针对单个提示词跳过该关键字，或针对所有提示词关闭该关键字：
+
+* **单个提示词，输入时**：将该词放在反引号中。
+* **单个提示词，已在终端中高亮显示**：紧跟在该词之后按 Backspace，或按 `Alt+W`。在 macOS 上，启用 [Option as Meta](https://code.claude.com/docs/zh-CN/terminal-config.md#enable-option-key-shortcuts-on-macos) 后，该按键为 `Option+W`。
+* **所有提示词**：在 `/config` 中关闭 [**Ultracode keyword trigger**](https://code.claude.com/docs/zh-CN/settings-reference.md#workflowkeywordtriggerenabled)。
 
 #### 关键字的生效范围
 

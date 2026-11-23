@@ -163,7 +163,19 @@ Claude Code 以 300ms 对更新进行防抖，因此快速更改会批处理在�
 
 ### 调整输出大小以适应终端
 
-Claude Code 捕获脚本的输出而不是直接将其连接到终端，因此 `tput cols` 和语言级宽度检测无法从脚本内部读取终端大小。请改为读取 `COLUMNS` 和 `LINES` 环境变量。Claude Code 在运行脚本之前会将这些变量设置为当前终端尺寸。
+要使状态栏适应终端，请读取 Claude Code 传递给脚本的尺寸。Claude Code 将宽度放在 `COLUMNS` 环境变量中，将高度放在 `LINES` 中，并在每次[运行脚本](#when-the-status-line-updates)时更新这两个值。直接询问终端的调用（例如 `stty size`）可能会失败，因为脚本未连接到终端。
+
+为避免某一行被截断并显示 `…`，请使其宽度至少比终端窄四列。这四列为 Claude Code 在两侧添加的间距留出空间。
+
+以下 Bash 示例计算输出的最大宽度：
+
+```bash theme={null}
+max_width=$((COLUMNS - 4))
+```
+
+在 80 列的终端中，`max_width` 为 76。如果您设置了 [`padding`](#manually-configure-a-status-line)，还需从 `max_width` 中减去其值的两倍。
+
+测量某一行时，将 📁 等表情符号计为两列。
 
 ## 可用数据
 
@@ -1167,4 +1179,4 @@ Claude Code 仅在脚本以代码 0 退出后才显示其输出：
 
 * 系统通知，如 MCP 服务器错误和自动更新，显示在该行的右侧。临时通知，如上下文不足警告，也会在此区域轮流显示。
 * 启用详细模式会向此区域添加 token 计数器，显示的是最后一次 API 响应所报告的上下文大小，而不是[旋转指示器旁边的每轮计数](https://code.claude.com/docs/zh-CN/costs.md#read-the-token-count-beside-the-spinner)
-* 在窄终端上，这些通知可能会截断您的状态栏输出
+* 当通知无法放在状态栏旁边时，该通知会移到下方的一行

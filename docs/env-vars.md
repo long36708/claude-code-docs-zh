@@ -604,7 +604,6 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * 启用 [You should know mod](https://code.claude.com/docs/zh-CN/interactive-mode.md#you-should-know-suggestions)
 * 使用 [advisor 工具](https://code.claude.com/docs/zh-CN/advisor.md#requirements)，但在 Claude Platform on AWS 或 [Claude Models on Google Cloud（由 Anthropic 管理）](https://code.claude.com/docs/zh-CN/feature-availability.md#availability-by-model-provider)上使用 Claude Code v2.1.300 或更高版本时除外
 * 使用 [MCP 任务](https://code.claude.com/docs/zh-CN/mcp.md#mcp-tasks-that-run-on-the-server)
-* 启用 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#requirements)
 * 让 Claude 读取[其他组织的公开 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you)
 * 在安装了 Git Bash 的 Windows 上，为 claude.ai 和 Console 账户默认获得 [PowerShell 工具](https://code.claude.com/docs/zh-CN/tools-reference.md#powershell-tool)；除非您设置了 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`，否则 Claude Code 会通过 Git Bash 执行 shell 命令。在未安装 Git Bash 的 Windows 上，该工具保持启用
 * 获得 [Claude 起草的反馈](https://code.claude.com/docs/zh-CN/tools-reference.md#sendfeedback-tool-behavior)，该功能由 Claude Code 通过获取的标志启用

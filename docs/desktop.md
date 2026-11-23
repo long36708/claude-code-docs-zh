@@ -264,6 +264,8 @@ Code 选项卡围绕可以以任何布局排列的窗格构建：聊天、diff�
 
 要隐藏或显示该面板，请点击会话标题栏中或标题栏 **⋮** 菜单中的 **Hide session rail** 或 **Show session rail**。如果这两个名称都看不到，请点击标题栏中的 **Activity panel**。如果仍然看不到该面板，请[检查您使用的是哪种 Code 选项卡布局](#check-which-layout-you-have)。
 
+如果在 mod 的[背景](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#put-a-backdrop-behind-the-conversation)显示时面板消失，请点击 **Show session rail** 或 **Activity panel** 将其恢复。
+
 ### 最小化窗格
 
 要让终端、浏览器、[iOS Simulator](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md) 或[侧边聊天](#ask-a-side-question-without-derailing-the-session)以较小尺寸保持在视野中，请点击窗格标题中的 **Minimize**。该按钮需要 Claude Desktop v4.0.0 或更高版本。使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)时，则需要 v5.11492.0 或更高版本，因此请[检查您的版本](#check-your-version)。浏览器窗格仅在本地会话中提供该按钮。

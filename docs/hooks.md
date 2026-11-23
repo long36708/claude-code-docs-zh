@@ -2160,8 +2160,10 @@ Claude Code 仅在使用 `-p` 标志的[非交互模式](https://code.claude.com
 
 ### PermissionRequest
 
-在 Claude Code 即将向您请求使用某个工具的权限时运行。在无法显示提示的会话中，例如[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下的后台子代理，Claude Code 仍会运行这些 hook；如果没有 hook 返回决策，它会拒绝该工具调用。对于到达 `--permission-prompt-tool` 或 Agent SDK [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/permissions)的调用，hook 会与您的宿主并行运行，以先做出决策的一方为准。
-使用 [PermissionRequest 决策控制](#permissionrequest-decision-control)代表用户允许或拒绝。
+在 Claude Code 即将请求您授予工具使用权限时运行。对于到达 `--permission-prompt-tool` 或 Agent SDK [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/permissions)的调用，hook 与您的宿主并行运行，先做出决定的一方生效。
+使用 [PermissionRequest 决策控制](#permissionrequest-decision-control)可代表用户允许或拒绝。
+
+在既没有 `--permission-prompt-tool` 也没有 `canUseTool` 回调、且不处于 [`dontAsk` 模式](https://code.claude.com/docs/zh-CN/permission-modes#allow-only-pre-approved-tools-with-dontask-mode)的 `-p` 运行中，没有人能回答权限提示。在这种情况下，原本会提示您的调用会被拒绝，除非有某种机制批准它，例如 PermissionRequest hook。
 
 当您需要在 Claude 请求使用工具权限的那一刻获得信号时，请使用此事件。Claude Code 仅在提示等待约六秒后，才会运行 `permission_prompt` 类型的 [Notification](#notification) hook。
 
@@ -3357,7 +3359,7 @@ Claude Code 使用 git 查找已更改或未跟踪的文件，因此对于不是
   * **您退出 worktree 会话，或 Claude 调用 `ExitWorktree`**：Claude Code 会像 `git worktree remove --force` 那样删除您的 WorktreeCreate hook 返回的路径，因此 git 能识别的 worktree 会被删除。git 无法识别的 worktree（例如您的 hook 使用非 git 版本控制系统创建的 worktree）会保留在磁盘上。
   * **`claude remote-control` 清理会话的 worktree**：worktree 保留在磁盘上，运行 `claude remote-control` 的终端会显示 `worktree removal failed, kept: <path>`。
   * **您删除后台会话**：请参阅[删除会话会移除什么](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)。
-* **Hook 以 0 退出**：worktree 被视为已删除。Claude Code 不会从 hook 读取其他任何内容，因此请确保您的 hook 已删除该目录。
+* **hook 以 0 退出**：如果 worktree 的目录仍然存在，请自行移除，因为 Claude Code 不会回退到 git。
 * **Hook 以非零退出**：如果之后 `worktree_path` 处的目录仍然存在，则删除失败，worktree 保留在磁盘上，且不会回退到 git。在以非零退出之前已删除目录的 hook 被视为已删除。有关如何报告该失败，请参阅 [WorktreeRemove 输入](#worktreeremove-input)。
 
 Claude Code 从不删除属于 hook 创建的 worktree 的分支，因为它只知道您的 WorktreeCreate hook 返回的路径。如果您的 WorktreeCreate hook 创建了分支，请在 WorktreeRemove hook 中将其删除。Claude Code 会丢弃 WorktreeRemove hook 的 [JSON 输出字段](#json-output)，例如 `systemMessage` 和 `continue`。
@@ -3397,7 +3399,7 @@ Claude Code 会将 WorktreeCreate 返回的路径作为 hook 输入中的 `workt
 }
 ```
 
-WorktreeRemove hook 的退出码决定结果。当 hook 以非零退出且之后 `worktree_path` 处的目录仍然存在时，删除失败：
+当 hook 以非零值退出，且之后 `worktree_path` 处的目录仍然存在时，移除失败：
 
 * 如果您正在删除后台会话，该会话也会保留。[Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md#what-deleting-a-session-removes)中的拒绝消息会报告 hook 的结束方式（例如 `exited 1`），引用其 stderr 的开头部分，并说明再次删除该会话是否仍会删除该目录。
 * 如果 `claude remote-control` 正在清理会话的 worktree，运行它的终端会显示 `worktree removal failed, kept: <path>`。
@@ -3739,7 +3741,7 @@ matcher 字段与 MCP 服务器名称进行匹配。
   "cwd": "/Users/...",
   "hook_event_name": "Elicitation",
   "mcp_server_name": "my-mcp-server",
-  "message": "Please provide your credentials",
+  "message": "Please provide your username",
   "mode": "form",
   "requested_schema": {
     "type": "object",

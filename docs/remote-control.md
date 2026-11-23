@@ -13,7 +13,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 * **远程使用您的完整本地环境**：您的文件系统、[MCP servers](https://code.claude.com/docs/zh-CN/mcp.md)、工具和项目配置都保持可用，输入 `@` 会自动完成本地项目中的文件路径。
 * **同时从两个界面工作**：对话和 [subagents](https://code.claude.com/docs/zh-CN/sub-agents.md) 和 [dynamic workflows](https://code.claude.com/docs/zh-CN/workflows.md) 的进度在所有连接的设备上保持同步，因此您可以从终端、浏览器和手机交替发送消息。
 * **从您的手机或浏览器发送图像和文件**：在 Claude 应用或 claude.ai/code 中附加照片或文件，可以带有或不带有标题。Claude 直接将附加的照片视为您消息的一部分。Claude Code 将其他文件下载到您的机器，并将其作为 `@` 文件引用传递给 Claude。
-* **在中断后恢复**：如果您的笔记本电脑进入睡眠状态或网络断开，当您的机器重新上线时，Claude Code 会自动重新连接。
+* **在中断后恢复**：如果您的笔记本电脑进入睡眠状态或网络断开，当您的机器重新上线时，Claude Code 会自动重新连接，[限制](#limitations)中所列的情况除外。
 
 与[网络上的 Claude Code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)（在云基础设施上运行）不同，Remote Control 会话直接在您的机器上运行并与您的本地文件系统交互。网络和移动界面只是该本地会话的一个窗口，因此您的计算机必须保持开启状态，`claude` 进程必须继续运行。
 
@@ -369,7 +369,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 * **已连接会话上的 HTTP 403 拒绝**：交互式会话连接后，如果您的机器与 Anthropic 服务器之间的某个环节以 HTTP 403 响应（例如在 VPN 或网络变更之后可能发生），Claude Code 会持续重试最多三分钟。如果拒绝持续时间更长，Claude Code 将断开连接，并在原因中指明拒绝的来源：网络边缘，或您自身网络上的代理、VPN 或防火墙。
 * **长时间网络中断**：如果您的机器处于唤醒状态但无法访问网络，后续操作取决于所用模式：
   * **服务器模式**：Claude Code 大约 10 分钟后放弃，`claude remote-control` 进程退出。要重启服务器，请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。
-  * **交互式会话**：继续在本地工作。Claude Code 会在中断期间持续重试，并在网络恢复时自动重新连接。
+  * **交互式会话**：继续在本地工作。在您的终端显示 Remote Control 失败之前，Claude Code 会持续重试，并在网络恢复时自动重新连接。如果您的终端显示失败，请等待网络恢复，然后按照[失败后重新连接的步骤](#session-ended-elsewhere)操作。
 * **无法下载的附件**：如果您从手机或浏览器附加的文件无法下载到您的机器，Claude 仍会收到您的消息以及已下载的文件。Claude Code 会在消息中添加一条说明（例如 `[1 of 3 attachments did not arrive]`）来代替缺失的文件。
 * **在线状态心跳失败**：如果交互式会话因 `could not reach the Remote Control server for about 30 minutes` 而断开连接，请运行 `/remote-control` 重新连接。
 * **转发的对话框会过期**：Claude Code 会保持权限提示和 `AskUserQuestion` 问题处于打开状态，直到您作答。当 Claude Code 将其他类型的对话框转发到远程会话时（例如安全拒绝后显示的模型选择提示），默认会等待五分钟，然后关闭该对话框并按对话框的无操作默认值继续。设置 [`dialogExpiry`](https://code.claude.com/docs/zh-CN/settings-reference#dialogexpiry) 可调整或禁用该期限。需要 Claude Code v2.1.224 或更高版本。

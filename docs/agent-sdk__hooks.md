@@ -174,7 +174,7 @@ SDK 为代理执行的不同阶段提供 hooks。某些 hooks 在两个 SDK 中�
 | `ElicitationResult` | 否 | 是 | 用户响应 MCP 引出 | 在返回到服务器之前修改或阻止响应 |
 | `ConfigChange` | 否 | 是 | 配置文件更改 | 动态重新加载设置 |
 | `InstructionsLoaded` | 否 | 是 | `CLAUDE.md` 或规则文件加载到上下文中 | 审计加载哪些指令文件 |
-| `WorktreeCreate` | 否 | 是 | Git worktree 创建 | 跟踪隔离的工作区 |
+| `WorktreeCreate` | 否 | 是 | Claude Code 需要一个 worktree，由该 hook 代替 git 创建它 | 创建 worktree 并在 [`hookSpecificOutput.worktreePath`](https://code.claude.com/docs/zh-CN/hooks#worktreecreate-output) 中返回其路径 |
 | `WorktreeRemove` | 否 | 是 | 由 `WorktreeCreate` hook 创建的 worktree 正在被移除 | 清理工作区资源 |
 | `CwdChanged` | 否 | 是 | 会话期间工作目录更改 | 按目录重新加载环境变量 |
 | `FileChanged` | 否 | 是 | 监视的文件被修改、创建或删除 | 项目文件更改时重新加载配置 |
@@ -312,7 +312,7 @@ const options: Options = {
 
 要进行测试，请让回调抛出错误，然后让 Claude 运行一条 Bash 命令。工具结果会包含 `failed; blocking because onFailure is "block"`，并且 Claude 看不到您的错误文本。
 
-当回调没有意见时，请返回 `{}`。设置 `"block"` 后，没有 `return` 的路径会阻止操作。捕获自身错误并返回 `{}` 的回调不算失败，因此请让错误从守卫中向上传播。
+当回调没有意见时，请返回 `{}`。设置 `"block"` 后，没有 `return` 的路径会阻止操作。捕获自身错误并返回 `{}` 的回调不算失败，因此请让错误从守卫中向上传播。`WorktreeCreate` 回调必须返回 `hookSpecificOutput.worktreePath`。
 
 #### 行为不同的事件
 
@@ -322,7 +322,7 @@ const options: Options = {
 * **`PermissionRequest`**：仅当阻止在您的 `canUseTool` 回调作出响应之前到达时才生效。
 * **`PostToolUse`**：工具已经运行，因此 Claude 会将失败作为反馈接收。
 
-超出超时时间的回调遵循 [Hook 超时](#hook-timeout)。设置 `"block"` 后，超时还会阻止 `PreCompact`、`Elicitation` 和 `WorktreeCreate`。
+超出超时时间的回调遵循 [Hook 超时](#hook-timeout)。设置 `"block"` 后，超时还会阻止 `PreCompact` 和 `Elicitation`。
 
 #### `onFailure` 的启动错误
 
@@ -827,7 +827,8 @@ Claude Code 运行每个回调时都有超时限制，您可以在其 `HookMatch
 * `Stop` 和 `SubagentStop`：超时的回调计为不返回任何决定。Agent 或子代理停止，就像该回调已允许它一样，您在该事件上的其他 hook 的决定仍然适用。在 Claude Code v2.1.273 之前，超时的 `Stop` 或 `SubagentStop` 回调计为失败的 hook 运行，Claude Code 丢弃了您在该事件上的其他 hook 的决定。
 * `SessionStart`：超时的回调计为不返回任何输出，会话继续使用您的其他 `SessionStart` hook 的输出。
 * `PreModelSwitch`：Claude Code 阻止模型切换。未回答的 hook 尚未批准切换。
-* 其他事件，如 `Notification`、`PreCompact` 和 `PostModelSwitch`：Claude Code 记录失败并继续。使用 [`onFailure: "block"`](#block-the-action-when-a-callback-fails) 时，`PreCompact`、`Elicitation` 或 `WorktreeCreate` 上的超时会阻止该操作。
+* `WorktreeCreate`：worktree 创建失败并报错。
+* 其他事件，如 `Notification`、`PreCompact` 和 `PostModelSwitch`：Claude Code 记录失败并继续。使用 [`onFailure: "block"`](#block-the-action-when-a-callback-fails) 时，`PreCompact` 或 `Elicitation` 上的超时会阻止该操作。
 
 主会话中 `Stop` 或 `SessionStart` 回调第一次超时时，Claude Code 还会向消息流添加一个 [`SDKInformationalMessage`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkinformationalmessage)，说明驱动会话的应用未响应。当您的应用保持无响应时，后续超时不会重复该消息。
 

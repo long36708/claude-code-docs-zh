@@ -40,7 +40,7 @@ Claude Code 在以下平台和配置上运行：
 >
 > **macOS、Linux、WSL：**
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.sh | bash
 > ```
 >
@@ -48,13 +48,13 @@ Claude Code 在以下平台和配置上运行：
 >
 > **Windows PowerShell：**
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > irm https://claude.ai/install.ps1 | iex
 > ```
 >
 > **Windows CMD：**
 >
-> ```batch theme={null}
+> ```batch theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 > ```
 >
@@ -72,7 +72,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] Homebrew
 >
-> ```bash theme={null}
+> ```bash theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > brew install --cask claude-code
 > ```
 >
@@ -84,7 +84,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [tab] WinGet
 >
-> ```powershell theme={null}
+> ```powershell theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null} theme={null}
 > winget install Anthropic.ClaudeCode
 > ```
 >
@@ -185,12 +185,6 @@ Claude Code 在启动时和运行时定期检查更新。更新在后台下载�
 
 在您的 shell 中运行 `claude doctor`，以查看 Claude Code 记录的最近一次更新尝试的结果。在原生安装上，如果它报告尝试失败，请参阅[会话页脚中的 `Auto-update failed`](https://code.claude.com/docs/zh-CN/troubleshoot-install#auto-update-failed)，了解后续操作。
 
-在 macOS 和 Linux 上，原生安装程序将启动器作为 `~/.local/bin/claude` 处的符号链接管理到 `~/.local/share/claude/versions/`。如果您将该启动器替换为您自己的脚本或符号链接，自动更新和 `claude update` 会将其保留在原位：新版本仍然安装在 `versions/` 目录下，您的启动器决定运行哪个版本。
-
-使用自定义启动器，Claude Code 也会在磁盘上保留每个已安装的版本，因为它无法判断启动器需要哪个版本。`claude doctor` 报告原生安装程序未创建的启动器。
-
-要让 Claude Code 再次管理启动器，请删除 `~/.local/bin/claude` 并运行 `claude update`。
-
 如果 npm 全局安装因为 npm 全局目录不可写而无法自动更新，Claude Code 会在启动时显示一次性通知，`claude doctor` 会列出可用的修复。有关详细信息，请参阅[安装期间的权限错误](https://code.claude.com/docs/zh-CN/troubleshoot-install.md#permission-errors-during-installation)。
 
 > [!NOTE]
@@ -204,6 +198,32 @@ Claude Code 在启动时和运行时定期检查更新。更新在后台下载�
 > **已知问题**：Claude Code 可能会在新版本在这些包管理器中可用之前通知您有更新。如果升级失败，请稍候后重试。
 >
 > Homebrew 在升级后会在磁盘上保留旧版本。定期运行 `brew cleanup` 以回收磁盘空间。
+
+#### 自定义启动器
+
+在 macOS 和 Linux 上，原生安装程序将 `~/.local/bin/claude` 处的启动器作为指向 `~/.local/share/claude/versions/` 的符号链接进行管理。如果您将其替换为自己的脚本，该脚本在自动更新和 `claude update` 期间会保留在原位。新版本仍会安装在 `versions/` 下，但您会继续运行启动器所启动的那个版本。
+
+使用自定义启动器时，Claude Code 还会在磁盘上保留每个已安装的版本，因为它无法判断启动器需要哪个版本。`claude doctor` 会报告该启动器 `was not created by the native installer`。
+
+#### 恢复托管启动器
+
+要让 Claude Code 再次管理 `~/.local/bin/claude`，请将您的自定义启动器替换为指向某个已安装版本的符号链接：
+
+1. 如果您想保留自己的启动器，请将 `~/.local/bin/claude` 复制到其他文件夹。第 3 步会覆盖它。
+
+2. 在您的 shell 中，列出已安装的版本：
+
+   ```bash theme={null}
+   ls ~/.local/share/claude/versions/
+   ```
+
+3. 创建符号链接。将 `VERSION` 替换为列表中的某个版本号。
+
+   ```bash theme={null}
+   ln -sfn ~/.local/share/claude/versions/VERSION ~/.local/bin/claude
+   ```
+
+4. 运行 `claude doctor`，并确认启动器警告已消失。
 
 ### 配置发布渠道
 
@@ -481,7 +501,9 @@ npm 包安装与独立安装程序相同的原生二进制文件。npm 通过每
 * **仅在没有任何机器可能仍在运行旧版本时才删除它**：一台机器无法看到其他机器上运行的进程，因此在删除之前检查正在运行的进程是不够的。
 * **关闭 Claude Code 自身的更新**：设置 [`DISABLE_UPDATES`](https://code.claude.com/docs/zh-CN/env-vars)，并使用您自己的工具安装新版本。否则，一台机器上 npm 安装的自动更新会执行相同的原地升级，从而删除其他机器上的会话正在运行的二进制文件。仅设置 `DISABLE_AUTOUPDATER` 是不够的，因为用户仍然可以运行 `claude update` 和 `claude install`。请参阅[禁用自动更新](#disable-auto-updates)。
 
-原生安装程序会自行从 `~/.local/share/claude/versions/` 中删除旧版本，当该目录位于共享存储上时，这一点尤为重要。除了启动器指向的版本以及同一台机器上的会话正在运行的任何版本之外，它会保留最新的两个版本并删除其余版本。另一台机器上正在运行已删除版本的会话将失去其二进制文件。使用[自定义启动器](#auto-updates)时，Claude Code 会保留所有已安装的版本，并由您自行负责清理。
+原生安装程序会自行从 `~/.local/share/claude/versions/` 中删除旧版本，当该目录位于共享存储上时，这一点尤为重要。除了启动器指向的版本以及同一台机器上的会话正在运行的任何版本之外，它会保留最新的两个版本并删除其余版本。
+
+另一台机器上正在运行已删除版本的会话将失去其二进制文件。使用[自定义启动器](#custom-launchers)时，Claude Code 会保留所有已安装的版本，并由您自行负责清理。
 
 ### 二进制完整性和代码签名
 

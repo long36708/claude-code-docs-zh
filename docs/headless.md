@@ -341,7 +341,7 @@ claude -p "Apply the lint fixes" --permission-mode acceptEdits
 
 当没有人可用来回答权限提示时，传递 `--permission-prompts none`，例如在计划的作业中。当您的运行有权限主机时，该标志最重要：具有 [`canUseTool` 回调](https://code.claude.com/docs/zh-CN/agent-sdk/user-input) 的 Agent SDK 应用，或您使用 [`--permission-prompt-tool`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 传递的 MCP 工具。没有该标志或 [`permissions.denyInsteadOfPrompting`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-denyinsteadofprompting) 设置时，您的运行会等待该主机回答每个权限请求。
 
-使用该标志，您的运行不会查询主机或等待它。任何会提示的内容都被拒绝，除非 `PermissionRequest` hook 允许它，Claude 被告知没有人可以批准请求且不要重试它，运行继续。在没有主机的 `-p` 运行中，这些请求无论如何都被拒绝，该标志也告诉 Claude 不要重试它们。权限规则、[`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 和您设置的权限模式仍然首先决定每个调用；Claude Code 仅拒绝其他任何机制都无法解决的请求。
+使用该标志，您的运行不会查询主机或等待它。任何会提示的内容都被拒绝，除非 `PermissionRequest` hook 允许它，Claude 被告知没有人可以批准请求且不要重试它，运行继续。权限规则、[`PermissionRequest` hook](https://code.claude.com/docs/zh-CN/hooks#permissionrequest) 和您设置的权限模式仍然首先决定每个调用；Claude Code 仅拒绝其他任何机制都无法解决的请求。
 
 > [!NOTE]
 >

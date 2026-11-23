@@ -114,17 +114,17 @@ Claude Code 向您显示命令的输出，但无法向命令发送交互式输�
 设置以下环境变量：
 
 ```bash theme={null}
-# 启用 Agent Platform 集成
+# Enable Agent Platform integration
 export CLAUDE_CODE_USE_VERTEX=1
 export CLOUD_ML_REGION=global
 export ANTHROPIC_VERTEX_PROJECT_ID=YOUR-PROJECT-ID
 
-# 可选：为自定义端点或网关覆盖 Agent Platform 端点 URL
+# Optional: Override the Agent Platform endpoint URL for custom endpoints or gateways
 # export ANTHROPIC_VERTEX_BASE_URL=https://aiplatform.googleapis.com
 
-# 当 CLOUD_ML_REGION=global 时，为不支持全局端点的模型覆盖区域
-export VERTEX_REGION_CLAUDE_HAIKU_4_5=us-east5
-export VERTEX_REGION_CLAUDE_4_6_SONNET=europe-west1
+# When CLOUD_ML_REGION=global, override region for models that don't support global endpoints
+# export VERTEX_REGION_CLAUDE_HAIKU_4_5=us-east5
+# export VERTEX_REGION_CLAUDE_4_6_SONNET=europe-west1
 ```
 
 大多数模型版本都有对应的 `VERTEX_REGION_CLAUDE_*` 变量。有关完整列表，请参阅[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md#variables)。检查 [Google Cloud 的 Agent Platform Model Garden](https://console.cloud.google.com/vertex-ai/model-garden) 以确定哪些模型支持全局端点与仅区域端点。

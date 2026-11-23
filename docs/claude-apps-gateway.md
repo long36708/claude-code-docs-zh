@@ -138,12 +138,12 @@ auto_include_builtin_models: true
 
 **4. 运行它**
 
-围绕满足[镜像要求](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#container-image)的 `claude` 二进制文件构建容器镜像，然后将其与 Postgres 一起运行。Compose 文件将镜像引用为 `registry.example.com/claude-gateway:2.1.198`；替换为您自己的注册表和镜像标签：
+围绕满足[镜像要求](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#container-image)的 `claude` 二进制文件构建容器镜像，然后将其与 Postgres 一起运行。Compose 文件将镜像引用为 `registry.example.com/claude-gateway:<version>`；替换为您自己的注册表和镜像标签：
 
 ```yaml docker-compose.yaml theme={null}
 services:
   gateway:
-    image: registry.example.com/claude-gateway:2.1.198
+    image: registry.example.com/claude-gateway:<version>
     ports: ["8080:8080"]
     volumes: ["./gateway.yaml:/etc/claude/gateway.yaml:ro"]
     environment:
@@ -185,7 +185,7 @@ volumes: { pgdata: }
 [gateway] 2026-06-10T17:03:21.512Z info claude gateway listening on http://0.0.0.0:8080
 ```
 
-网关还会记录一个警告，`access_control.allow_cidrs` 为空。这在这里是预期的，因为在您设置允许列表之前，没有任何东西限制网关提供的客户端地址。[`access_control` 参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning)有推荐的范围。
+启动横幅每次都会提醒您将网关保持在私有网络上。使用此配置时，网关会为任何客户端地址提供服务。要限制其服务的地址，请设置 `access_control`；[`access_control` 参考](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning)有推荐的范围。
 
 如果启动在 `claude gateway listening on` 行之前退出，stderr 的最后一行命名问题：
 

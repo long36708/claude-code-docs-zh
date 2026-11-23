@@ -118,7 +118,7 @@ gcloud services vpc-peerings connect \
   --ranges="google-managed-services-${VPC}" --network="$VPC"
 
 gcloud sql instances create claude-gateway-db \
-  --database-version=POSTGRES_16 --tier=db-g1-small --region="$REGION" \
+  --database-version=POSTGRES_16 --edition=enterprise --tier=db-g1-small --region="$REGION" \
   --network="projects/${PROJECT_ID}/global/networks/${VPC}" --no-assign-ip
 gcloud sql databases create claude_gateway --instance=claude-gateway-db
 PGPASS="$(openssl rand -hex 24)"
@@ -227,7 +227,7 @@ upstreams:
 > >
 > > 每个实例最多持有 [`store.max_connections`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#store) 个 Postgres 连接，默认为 5 个。请参阅[调整连接池大小](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#size-the-connection-pool)，根据数据库为网关剩余的连接数检查 `--max-instances=8`，并将滚动更新启动的额外实例计算在内。
 >
-> 调用者 IAM 检查必须打开或禁用。网关运行自己的 OIDC，其客户端不携带 GCP 令牌，因此 Cloud Run 的调用者检查必须允许未经身份验证的请求。网关的 OIDC 登录在请求到达容器后对其进行身份验证，`allowed_email_domains` 限制哪些域可以登录。
+> 调用方 IAM 检查必须处于放行状态（允许未经身份验证的请求）或被停用。网关运行自己的 OIDC，其客户端不携带 GCP 令牌，因此 Cloud Run 的调用方检查必须允许未经身份验证的请求通过。请求到达容器后，由网关的 OIDC 登录对其进行身份验证，并由 `allowed_email_domains` 控制哪些域可以登录。
 >
 > 两个标志允许未经身份验证的请求：
 >
@@ -270,6 +270,8 @@ upstreams:
 > kubectl annotate serviceaccount gateway -n claude-gateway \
 >   iam.gke.io/gcp-service-account="claude-gateway@${PROJECT_ID}.iam.gserviceaccount.com"
 > ```
+>
+> 内部 Ingress 需要在该 VPC 上的 `$REGION` 中有一个仅代理子网，以及一条允许从该子网到网关 Pod 上 `8080` 端口的流量的防火墙规则。请按照 Google 的[内部 Ingress 指南](https://cloud.google.com/kubernetes-engine/docs/how-to/internal-load-balance-ingress)中的说明创建这两者。
 >
 > 将网关部署为标准 Deployment 加上 Service 和内部 Ingress，类 `gce-internal`，如 [Kubernetes 部署](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#kubernetes)中所述，具有：
 >
