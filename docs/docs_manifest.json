@@ -273,8 +273,8 @@
     "champion-kit.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/champion-kit",
       "original_md_url": "https://code.claude.com/docs/zh-CN/champion-kit.md",
-      "hash": "f6bfb4c0611b82f2c3143647028699f5b395d980395ee70b6c767aab24ff6b63",
-      "last_updated": "2026-10-23T22:28:12.336649"
+      "hash": "b6166820ac656844882e55e3e5fa05d15c644f490b7e16e386c73dfdbfac5fc4",
+      "last_updated": "2026-11-23T22:08:28.021788"
     },
     "channels.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/channels",
@@ -435,8 +435,8 @@
     "commands.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/commands",
       "original_md_url": "https://code.claude.com/docs/zh-CN/commands.md",
-      "hash": "6525900286ce6f3ceca41bef5637a2c228da51ff5e155ef77d90e23a355993c8",
-      "last_updated": "2026-11-23T00:23:45.102225"
+      "hash": "e698519895c0312e44eb6021d2e4c959c4213b9e5f061fbb67c59b90c6ddc01d",
+      "last_updated": "2026-11-23T22:08:48.119220"
     },
     "common-workflows.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/common-workflows",
@@ -501,8 +501,8 @@
     "desktop.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/desktop",
       "original_md_url": "https://code.claude.com/docs/zh-CN/desktop.md",
-      "hash": "940eb85ac5b004d964f72030d485aef3390c540e4a341282ed5027fda93d0740",
-      "last_updated": "2026-11-23T09:23:49.922603"
+      "hash": "155371676d8fc4b03a4b01e16a32c75b50e66d47c16f941f7a17e469e9f531d4",
+      "last_updated": "2026-11-23T22:08:57.532361"
     },
     "desktop-ios-simulator.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/desktop-ios-simulator",
@@ -1119,8 +1119,8 @@
     "setup.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/setup",
       "original_md_url": "https://code.claude.com/docs/zh-CN/setup.md",
-      "hash": "bca2bb3ebad9e79d488051c8ae8c5e1729d6270f910e8cb2e48bfe92d794806e",
-      "last_updated": "2026-11-23T09:24:54.439533"
+      "hash": "01ec2c7ac4b2313ad773c62692a96383d9623c56e275e7762acc99801bb5d271",
+      "last_updated": "2026-11-23T22:10:16.397618"
     },
     "skills.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/skills",
@@ -1221,21 +1221,21 @@
     "ide-integrations.md": {
       "original_url": "https://code.claude.com/docs/en/ide-integrations",
       "original_md_url": "https://code.claude.com/docs/en/ide-integrations.md",
-      "hash": "09c8ce48070791efb41999a91f76a5bc9099e27a214c3f1714359cbcbcc2d9f2",
-      "last_updated": "2026-11-21T17:44:34.612297",
+      "hash": "c2e38e0efedb04645ca2c0c144cedf1569a77b5515aeac67da2434b7bbe64dfc",
+      "last_updated": "2026-11-23T22:10:29.352178",
       "fallback_to_english": true
     },
     "changelog.md": {
       "original_url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md",
       "original_raw_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
-      "hash": "b547b93af776858efdec16acc445e4166351b018b9970cb66ac7ce580ecdd23d",
-      "last_updated": "2026-11-21T00:56:31.217060",
+      "hash": "4db5e4789857123a6418b315c42e5ed3e2ea7a306d76d8e45417c19fe1cd2c45",
+      "last_updated": "2026-11-23T22:10:29.923010",
       "source": "claude-code-repository"
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-23T09:25:03.911839",
-    "fetch_duration_seconds": 129.101101,
+    "last_fetch_completed": "2026-11-23T22:10:29.923056",
+    "fetch_duration_seconds": 160.136639,
     "total_pages_discovered": 203,
     "pages_fetched_successfully": 205,
     "pages_failed": 0,
@@ -1245,7 +1245,7 @@
     "total_files": 205,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-23T09:25:03.911866",
+  "last_updated": "2026-11-23T22:10:29.923072",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
