@@ -420,7 +420,7 @@ MCP 服务器从外部系统为 Claude 提供工具。在插件根目录的 `.mc
 
 用户可以通过以下两种方式之一提供值：
 
-* **在 `/plugin` 中**：在 **Installed** 标签上选择插件并选择 **Configure**
+* **在 `/plugin` 中**：对于来自市场的插件，在 **Installed** 标签页上选择它，然后选择 **Configure**
 * **在安装时，从 shell**：将 [`--config <server>.<key>=<value>`](https://code.claude.com/docs/zh-CN/plugins/cli-reference#plugin-install) 传递给 `claude plugin install`。需要 Claude Code v2.1.285 或更高版本，仅适用于打包在插件内的捆绑。
 
 对于传输和身份验证，参见 [MCP](https://code.claude.com/docs/zh-CN/mcp.md#plugin-provided-mcp-servers)。

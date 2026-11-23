@@ -8,7 +8,7 @@
 
 您安装的 Claude Code 插件可以使用您的用户权限在您的机器上执行任意代码。
 
-您从一个市场安装插件，市场是 Claude Code 从中获取插件的目录。某些市场名称是[为 Anthropic 自己的市场保留的](#marketplace-tiers)，其他所有市场都是第三方的。市场的名称告诉您谁发布了目录，而不是其中每个插件的功能，所以无论插件来自哪个市场，都要[在安装前审查插件](#review-a-plugin-before-you-install)。
+您从一个市场安装插件，市场是 Claude Code 从中获取插件的目录。某些市场名称是[为 Anthropic 自己的市场保留的](#marketplace-tiers)，其他所有市场都是第三方的。市场的名称并不能告诉您其中每个插件的功能，所以无论插件来自哪个市场，都要[在安装前审查插件](#review-a-plugin-before-you-install)。
 
 如果您正在决定是否安装插件，或者您在审查工具以供您的团队使用，请阅读本页。
 
@@ -45,7 +45,7 @@ Claude Code 的[权限规则](https://code.claude.com/docs/zh-CN/permissions.md)
 
 ## 按名称识别 Anthropic 的市场
 
-市场的名称将其分为三个层级之一：官方、社区或第三方。Claude Code 仅对来自 `github.com/anthropics/` 存储库的市场接受官方和社区名称，所以第三方市场不能将自己呈现为 Anthropic 的。同事或您的组织发布的市场是第三方的。
+市场的名称将其分为三个层级之一：官方、社区或第三方。对于来自 `github.com/anthropics/` 仓库的市场，Claude Code 接受官方和社区名称。同事或您的组织发布的市场是第三方的。
 
 该表列出了每个层级中的市场名称：
 

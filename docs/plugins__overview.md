@@ -86,7 +86,7 @@ Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官
 
 ## 区分 Anthropic 的市场和第三方市场
 
-市场的名称将其放在三个层级之一中。Claude Code 仅对来自 `github.com/anthropics/` 存储库的市场接受官方和社区名称：
+市场的名称将其放在三个层级之一中。对于来自 `github.com/anthropics/` 仓库的市场，Claude Code 接受官方和社区名称：
 
 * **官方**：具有 Anthropic [官方市场名称](https://code.claude.com/docs/zh-CN/plugins/security.md#official-marketplace-names)之一的市场，包括 `claude-plugins-official` 和 `claude-code-plugins`。
 * **社区**：具有 Anthropic 社区名称之一的市场，例如 `claude-community`。[按名称识别 Anthropic 的市场](https://code.claude.com/docs/zh-CN/plugins/security.md#marketplace-tiers)列出了它们。

@@ -123,7 +123,7 @@
 
 > [tab] Cloud session
 >
-> [cloud session](https://code.claude.com/docs/zh-CN/cloud-environments.md)（包括 [the browser at claude.ai/code](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)）没有插件浏览器，不会加载您在自己的机器上安装的插件或您的存储库的 `.claude/settings.json` 打开的插件。对于您的组织通过托管设置分发的插件，请参阅 [Manage plugins for your organization](https://code.claude.com/docs/zh-CN/plugins/org.md)。
+> [云端会话](https://code.claude.com/docs/zh-CN/cloud-environments.md)（包括 [claude.ai/code 上的浏览器](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)）没有插件浏览器，也不会加载您在用户或本地作用域安装的插件。对于您的组织通过托管设置分发的插件，请参阅 [Manage plugins for your organization](https://code.claude.com/docs/zh-CN/plugins/org.md)。
 >
 > 请参阅 [which parts of your setup are also available in a cloud session](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup) 了解您设置的其余部分。
 
@@ -280,7 +280,7 @@ Claude Code 在以 `claudeai-` 开头的本地名称下注册市场，该名称�
 插件的详细信息菜单提供 **Disable plugin** 或 **Enable plugin**、**Update now** 和 **Uninstall**。采用设置的插件还会显示两个更多项目，一个插件可以同时显示两者：
 
 * **Configure options**：当插件的清单声明 [`userConfig` 选项](https://code.claude.com/docs/zh-CN/plugins/manifest-reference#user-configuration) 时显示。打开这些选项的对话框
-* **Configure**：当插件包含 [bundled MCP server](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server) 时显示。设置该服务器自己的 `user_config` 设置
+* **Configure**：当市场插件包含[捆绑的 MCP 服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)时显示。设置该服务器自身的 `user_config` 设置
 
 该选项卡也可以显示 **Managed** 范围的插件。您的组织通过 [managed settings](https://code.claude.com/docs/zh-CN/settings.md#settings-files) 安装了这些，您无法在此处启用、禁用或卸载它们。
 

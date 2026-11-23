@@ -1157,13 +1157,13 @@ Not logged in · Please run /login
 
 ### 无法确定身份验证方法
 
-会话在没有任何凭据的情况下到达了 API 客户端。当工作进程在没有凭据的情况下启动时，[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)和云端会话会显示此消息。交互式运行、`-p` 运行和 Agent SDK 运行会将同样的情况报告为[未登录](#not-logged-in)，并且只将此字符串写入调试日志，因此如果您是在调试日志中发现的，请改为按照该条目操作。
+会话在没有任何凭据的情况下到达了 API 客户端。如果交互式运行、`-p` 运行或 Agent SDK 运行显示了 [Not logged in](#not-logged-in)，且其调试日志中包含此字符串，请按照该条目进行处理。
 
 ```text theme={null}
 Could not resolve authentication method. Expected one of apiKey, authToken, credentials, config, or profile to be set. Or for one of the "X-Api-Key" or "Authorization" headers to be explicitly omitted
 ```
 
-在当前版本中，此错误表示工作进程没有可用的凭据。在 v2.1.174 之前，分配给空闲的预初始化工作进程的后台会话即使已配置有效凭据，也可能以这种方式失败。在 v2.1.176 之前，在被认领前处于空闲状态的云端会话也可能出现这种情况。升级即可恢复。
+在 v2.1.174 之前，分配给空闲的预初始化工作进程的后台会话即使已配置有效凭据，也可能以这种方式失败。在 v2.1.176 之前，在被认领前处于空闲状态的云端会话也可能如此。升级即可恢复。
 
 **解决方法：**
 
@@ -5995,7 +5995,7 @@ Claude Code 在 [retention sweep](https://code.claude.com/docs/zh-CN/claude-dire
 **应该怎么做：**
 
 * 以另一种方式撤销更改：要求 Claude 反转其编辑，或从版本控制恢复文件。当备份消失时，再次运行 `/rewind` 会以相同方式失败。
-* 如果 Claude Code 无法写入或删除文件，请修复阻止写入的内容，例如文件权限，然后再次运行 `/rewind`。
+* 如果在您选择 **Restore code** 后 Claude Code 无法写入或删除文件，请修复阻止写入的内容，例如文件权限，然后再次运行 `/rewind`。
 * 要在将来的会话中保留更长时间的备份，请提高 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays)。
 
 在 v2.1.260 之前，Claude Code 无声地跳过备份丢失的文件，恢复似乎成功了。

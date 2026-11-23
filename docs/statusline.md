@@ -356,7 +356,7 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 `context_window` 对象描述来自最近一次 API 响应的实时上下文窗口。
 
 * **合计总数**（`total_input_tokens`、`total_output_tokens`）：当前上下文窗口中的 token。`total_input_tokens` 是 `input_tokens`、`cache_creation_input_tokens` 和 `cache_read_input_tokens` 之和；`total_output_tokens` 是最近一次响应的输出 token。在第一次 API 响应之前，两者均为 `0`。
-* **按组成部分的用量**（`current_usage`）：按类别拆分的相同 token 数。当您需要将缓存命中与新输入分开时，请使用此项。该对象在会话中第一次 API 调用之前为 `null`，在 `/compact` 之后直到下一次 API 调用之前为 `null` 或全部为零。请将这两种情况都视为空。
+* **按组成部分的用量**（`current_usage`）：按类别拆分的相同 token 数。当您需要将缓存命中与新输入分开时，请使用此项。`current_usage` 在对话获得 API 响应之前为 `null`，在 `/compact` 之后直到下一次 API 调用之前为 `null` 或全部为零。请将这两种情况都视为空。
 
 `current_usage` 对象包含：
 

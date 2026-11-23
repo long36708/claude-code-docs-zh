@@ -986,17 +986,15 @@ claude daemon stop --any --keep-workers
 | `was not sent SIGKILL` | macOS、Linux | 再次运行停止命令。如果该进程仍然存在，请使用 `ps -ww -o args= -p <pid>` 检查它：以 `daemon` 启动的 Claude Code 是主管，因此请运行 `kill -9 <pid>`。不要动其他任何进程；如果 `claude agents` 随后无法启动主管，请删除 `~/.claude/daemon.lock`。 |
 | `supervisor (pid=<pid>) is still running` | Windows | 使用 `taskkill /PID <pid>` 结束该进程 |
 
-### 分派失败，显示 `Could not resolve authentication method`
+### 后台会话显示 `Not logged in`
 
-如果后台分派失败，显示 `Could not resolve authentication method`，而交互式会话正常进行身份验证，说明接收分派的工作进程没有获取凭据。后台会话从[主管](#the-supervisor-process)获取其凭据，所以此错误意味着主管进程本身没有可用的存储凭据。确认您已运行 `/login` 或配置了 API 密钥，然后停止主管：
+如果后台会话显示 [`Not logged in`](https://code.claude.com/docs/zh-CN/errors#not-logged-in)，而交互式会话正常进行身份验证，请确认您已运行 `/login` 或配置了 API 密钥，然后停止[主管](#the-supervisor-process)：
 
 ```bash theme={null}
 claude daemon stop --any --keep-workers
 ```
 
-在[大约一分钟](#the-supervisor-process)内，在 shell 中运行 `claude agents` 或 `claude --bg`，以启动读取您存储凭据的新主管。如果您使用环境变量（如 `ANTHROPIC_API_KEY`）而不是 `/login` 进行身份验证，请从设置了该变量的 shell 运行该下一个命令。
-
-有关原因和修复的完整列表，请参阅[错误参考](https://code.claude.com/docs/zh-CN/errors.md#could-not-resolve-authentication-method)。
+在停止主管后的[大约一分钟](#the-supervisor-process)内，在 shell 中运行 `claude agents` 以启动新的主管。如果您使用环境变量（如 `CLAUDE_CODE_OAUTH_TOKEN`）进行身份验证，请从设置了该变量的 shell 运行 `claude agents`。然后运行 [`claude respawn <id>`](#manage-sessions-from-the-shell) 来重新启动该会话，并重新发送您的消息。
 
 ### 后台会话显示 `No LLM gateway`
 

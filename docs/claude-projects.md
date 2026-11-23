@@ -342,7 +342,6 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 | 仓库根目录下的 `CLAUDE.md`、`.claude/CLAUDE.md` 和 `.claude/rules/` | 在线程启动时从每个仓库加载。[特定路径规则](https://code.claude.com/docs/zh-CN/memory.md#path-specific-rules)不会在启动时加载 |
 | `.claude/` 下的 skill、Agent 和命令 | 从每个仓库加载，但[跳过它们的线程](#threads-that-skip-repository-skills)除外 |
 | `.mcp.json` 中的 MCP 服务器 | 不加载。请改为使用您 claude.ai 账户上的连接器，如[将 skill、插件、连接器和工具引入线程](#get-skills-plugins-connectors-and-tools-into-threads)所述 |
-| 在 `.claude/settings.json` 中启用的插件 | 不加载。请改为在 **Project settings > Plugins** 中添加该插件 |
 | `.claude/settings.json` 中的权限规则 | 不适用。请在线程内批准工具调用，如[解除等待批准的线程的阻塞](#unblock-a-thread-waiting-on-approval)所述，或[在您自己的计算机上运行线程](#run-a-thread-on-your-own-computer) |
 | `.claude/settings.json` 中的 hook | 不运行。要使用您的 hook，请[在您自己的计算机上运行线程](#run-a-thread-on-your-own-computer) |
 | `.claude/settings.json` 中的 `env` | 不适用。请在[云环境](#choose-an-environment-for-threads)中设置环境变量 |
@@ -366,7 +365,7 @@ This project holds p95 latency for the payments API under 200 ms: profiling, que
 云线程不具备仅安装在您机器上的 skill、MCP 服务器、插件和工具。Claude 通过 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 在您机器上运行的线程会使用那里安装的内容。要让这些内容对云线程可用：
 
 * skill：为您的 claude.ai 账户启用它们，云线程会加载[您在那里启用的 skill](https://code.claude.com/docs/zh-CN/skills.md#skills-in-cowork-and-cloud-sessions)，但[自托管环境中的某些线程](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled)除外。对于提交到仓库中的 skill，请参阅[线程从您的仓库中获取什么](#what-threads-pick-up-from-your-repositories)。
-* 插件：在 **Project settings > Plugins** 中添加它们；它们会加载到每个新云线程中。仓库在其 `.claude/settings.json` 中声明的插件[不会在云线程中加载](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。
+* 插件：在 **Project settings > Plugins** 中添加它们；它们会加载到每个新云线程中。
 * MCP 服务器：云线程从您 claude.ai 账户上的连接器获取 MCP 工具，这些连接器是您在 [claude.ai/customize/connectors](https://claude.ai/customize/connectors) 一次性连接的 MCP 服务器。每个云线程都可以使用所有这些连接器，无需按项目设置。项目对话本身没有连接器，因此请将需要连接器的工作作为任务发送给云线程。[连接器如何到达 Claude Code](https://code.claude.com/docs/zh-CN/mcp.md#how-connectors-reach-claude-code) 列出了云端会话的规则以及关闭连接器的设置。
 * 命令行工具和包：在环境的[设置脚本](https://code.claude.com/docs/zh-CN/cloud-environments.md#setup-scripts)中安装它们。
 

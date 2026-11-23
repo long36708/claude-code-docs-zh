@@ -22,10 +22,10 @@ Claude Code 按 API token 消耗收费。有关订阅套餐定价（Pro、Max、
 
 在 Claude Code 提示符处运行 `/usage`，并在 **Session** 标题下查看当前会话的 token 使用情况。
 
-Claude Code 根据 token 计数按列表价格在本地计算美元数字，除非 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 表生效。管理员会在您组织的托管设置中设置此表，使该数字使用您的合同费率；当表生效时，`Total cost` 行会带有注释 `at your organization's configured rates`。该数字是估计值，有关权威计费信息，请参阅[管理组织的成本](#manage-costs-for-your-organization)。
+Claude Code 根据 token 计数按列表价格在本地计算美元数字，除非 [`modelPricing`](https://code.claude.com/docs/zh-CN/settings-reference#modelpricing) 表生效。管理员会在您组织的托管设置中设置此表，使该数字使用您的合同费率；当表生效时，`Estimated cost` 行会带有注释 `at your organization's configured rates`。该数字是估计值，有关权威计费信息，请参阅[管理组织的成本](#manage-costs-for-your-organization)。
 
 ```text theme={null}
-Total cost:            $0.55
+Estimated cost:        $0.55
 Total duration (API):  6m 20s
 Total duration (wall): 6h 33m 10s
 Total code changes:    0 lines added, 0 lines removed
@@ -172,7 +172,7 @@ Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同
 
 将其作为[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)下发：服务器托管设置、MDM 策略、`managed-settings.json` 或[策略辅助程序](https://code.claude.com/docs/zh-CN/managed-settings.md#compute-the-policy-with-a-helper-program)。Claude Code 会忽略用户、项目和本地设置以及 `--settings` 中的该键。
 
-要确认费率已生效，请在[已收到托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#read-the-source-in-%2Fstatus)的会话中运行 `/usage`：Session 区块的 `Total cost` 行会附带注释 `at your organization's configured rates`。这些数字仍是估算值，而非发票。`/model` 选择器中的每百万 token 价格仍保持标价。
+要确认费率已生效，请在[已收到托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md#read-the-source-in-%2Fstatus)的会话中运行 `/usage`：Session 区块的 `Estimated cost` 行会附带注释 `at your organization's configured rates`。这些数字仍是估算值，而非发票。`/model` 选择器中的每百万 token 价格仍保持标价。
 
 ### Claude for Teams 和 Enterprise
 

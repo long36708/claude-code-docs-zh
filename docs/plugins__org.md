@@ -103,7 +103,7 @@ Anthropic 的官方市场 `claude-plugins-official` 当 `enabledPlugins` 将其�
 | :- | :- | :- |
 | 终端，交互式 | 在接收设置的每台机器上的会话开始时应用 | `extraKnownMarketplaces` 在信任后应用；`enabledPlugins` 在会话开始时应用 |
 | `-p` 和 CI | 在会话开始时应用，安装在后台运行 | 仅在受信任的文件夹中的 `extraKnownMarketplaces`；`enabledPlugins` 应用 |
-| 云会话 | 在 Anthropic 托管的环境中，仅服务器托管设置到达会话，它在安装插件之前等待它们。MDM 策略和托管设置文件保留在用户的机器上。对于自托管环境，请参阅[策略应用的位置和时间](https://code.claude.com/docs/zh-CN/managed-settings.md#where-and-when-a-policy-applies) | 请参阅[安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin)下的**云会话**选项卡 |
+| 云端会话 | 在 Anthropic 托管的环境中，只有服务器托管设置会到达会话，会话在安装插件之前会等待这些设置。MDM 策略和托管设置文件保留在用户的机器上。对于自托管环境，请参阅[策略应用的位置和时间](https://code.claude.com/docs/zh-CN/managed-settings.md#where-and-when-a-policy-applies) | 请参阅[从您的设置中沿用的内容](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup) |
 
 在 `-p` 或 CI 运行中，市场和插件在后台安装，因此插件可能在第一轮中丢失。设置 `CLAUDE_CODE_SYNC_PLUGIN_INSTALL=1` 使运行在其第一个查询之前等待安装。
 

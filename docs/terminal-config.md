@@ -337,7 +337,7 @@ $env:CLAUDE_CODE_NO_FLICKER = "1"; claude
 
 ### Claude 如何处理粘贴的文本
 
-当您提交时，Claude 会看到每个 `[Pasted text #N]` 占位符后面的内容，标记为您从其他地方粘贴而不是输入的文本。Claude 被告知粘贴可能包含您没有写的指令，并且仅在您输入的消息要求时才遵循其中的指令。粘贴内容也可能在未被标记的情况下到达 Claude，例如在您[安装后的第一个会话](https://code.claude.com/docs/zh-CN/env-vars.md#first-session-after-an-install-or-upgrade)中。
+当您提交时，Claude 会看到每个 `[Pasted text #N]` 占位符后面的内容，标记为您从其他地方粘贴而不是输入的文本。粘贴内容也可能在未被标记的情况下到达 Claude，例如在您[安装后的第一个会话](https://code.claude.com/docs/zh-CN/env-vars.md#first-session-after-an-install-or-upgrade)中。
 
 ### 删除和恢复折叠的粘贴
 

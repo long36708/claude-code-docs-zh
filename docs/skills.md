@@ -229,7 +229,7 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
 如果 skill 仅存在于您机器上的 `~/.claude/skills/` 中，当 [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md) 调用它时，Claude Code 会报告找不到该 skill。这是因为每次运行都作为新的云端会话启动。要在这些会话中使用个人 skill：
 
 * 对于 Cowork 会话、云端会话以及 [项目](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories) 中的云端线程，为您的 claude.ai 账户启用该 skill。[自托管环境中的某些会话](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#how-each-session’s-config-is-assembled) 不会加载您账户的 skill。
-* 对于云端会话，您可以改为将 skill 提交到仓库的 `.claude/skills/`。对于项目，请查看 [哪些线程会加载它](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。在仓库的 `.claude/settings.json` 中声明的插件和仅在您的用户设置中启用的插件 [不会在云端会话中加载](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。
+* 对于云端会话，您可以改为将 skill 提交到仓库的 `.claude/skills/`。对于项目，请查看 [哪些线程会加载它](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。仅在您的用户设置中启用的插件 [不会在云端会话中加载](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。
 
 [Desktop 计划任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md) 在您的机器上本地运行，因此它们确实加载 `~/.claude/skills/`。
 

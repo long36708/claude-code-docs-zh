@@ -586,6 +586,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 >    * 任何允许规则都不会批准已识别的 `rm` 和 `rmdir` [关键路径删除操作](#critical-paths)
 >    * 标记为 [`requiresUserInteraction`](https://code.claude.com/docs/zh-CN/mcp#require-approval-for-a-specific-tool) 的 MCP 工具即使匹配了允许规则，也会直接向您发出提示；在该设置作用于 Claude Code 的会话中，[您的组织设置为 `ask`](https://code.claude.com/docs/zh-CN/mcp#organization-controls-on-connector-tools) 的连接器工具同样如此
 >    * 带有[按命令允许的域名](https://code.claude.com/docs/zh-CN/sandboxing.md#per-command-allowed-domains-in-auto-mode)的 shell 命令即使匹配了允许规则，也会交由分类器处理，因为规则批准的是命令本身，而不是其访问的主机
+>    * 即使在 Manual、`acceptEdits` 和 `dontAsk` 模式下，分类器也可以审查匹配了允许规则的 [Claude in Chrome](https://code.claude.com/docs/zh-CN/chrome.md) 操作
 >    * 基于命令内容进行匹配的询问规则（例如 `Bash(git push *)`）会回退为权限提示
 >    * 如果 Claude 请求的路径本身不受保护，但经[符号链接检查](https://code.claude.com/docs/zh-CN/permissions.md#symlinks)解析后指向受保护路径，则该写入会向您发出提示
 >    * 从[网络路径](https://code.claude.com/docs/zh-CN/permissions.md#network-paths)进行的读取即使匹配了允许规则，也会向您发出提示
@@ -652,7 +653,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 如果您设置 `dontAsk` 模式，Claude Code 会自动拒绝所有原本会提示您的工具调用，不过您安装的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 仍然可以批准其中部分调用。要查看 mod 可以批准哪些调用，请参阅[使用 hook 扩展权限](https://code.claude.com/docs/zh-CN/permissions.md#precedence-among-rules-hooks-and-mods)。不要依赖 `dontAsk` 来阻止 [mod 自身发起的工具调用](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#mods-api-methods)。
 
-Claude 仍然运行在 Manual 模式下不需要批准的操作，例如您工作目录内的文件读取和[只读 Bash 命令](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)。与您的 `permissions.allow` 规则匹配的操作以及由 [PreToolUse hook](https://code.claude.com/docs/zh-CN/permissions.md#extend-permissions-with-hooks) 批准的调用也会运行。在 CI 管道或受限环境中使用此模式，您可以预先定义 Claude 可以执行的操作。在此模式下，状态栏显示 `⏵⏵ don't ask on`。
+Claude 仍然运行在 Manual 模式下不需要批准的操作，例如您工作目录内的文件读取和[只读 Bash 命令](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)。由您的 `permissions.allow` 规则或 [PreToolUse hook](https://code.claude.com/docs/zh-CN/permissions.md#extend-permissions-with-hooks) 批准的大多数调用也会运行。在 CI 管道或受限环境中使用此模式，您可以预先定义 Claude 可以执行的操作。在此模式下，状态栏显示 `⏵⏵ don't ask on`。
 
 以下调用在原本会显示提示的情况下会被拒绝：
 

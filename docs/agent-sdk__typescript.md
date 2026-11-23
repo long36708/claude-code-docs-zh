@@ -153,8 +153,6 @@ function prewarm(params?: {
 | `options` | [`Options`](#options) | 可选的配置对象，与 `startup()` 接受的类型相同 |
 | `initializeTimeoutMs` | `number` | 等待备用进程初始化的最长时间（毫秒）。默认为 `60000`。如果初始化未能在此时间内完成，promise 将以超时错误被拒绝 |
 
-`prewarm()` 会将 [Setup](https://code.claude.com/docs/zh-CN/hooks.md#setup) hook 所花费的时间计入 `initializeTimeoutMs`，即使您未设置该值也是如此。要为运行缓慢的 Setup hook 提供更多时间，请设置更长的值。
-
 #### 返回值
 
 返回一个 `Promise<`[`SpareProcess`](#spareprocess)`>`，在备用进程可供认领时解析。
@@ -1297,7 +1295,7 @@ type AgentDefinition = {
 | `disallowedTools` | 否 | 要为此 Agent 明确禁止的工具名称数组。也接受 MCP 服务器级别的模式：`mcp__server` 或 `mcp__server__*` 会移除该服务器的所有工具，`mcp__*` 会移除任何服务器的所有 MCP 工具 |
 | `prompt` | 是 | Agent 的系统提示词 |
 | `model` | 否 | 此 Agent 的模型覆盖。接受别名（例如 `'fable'`、`'opus'`、`'sonnet'`、`'haiku'`、`'inherit'`）或完整的模型 ID。`'inherit'` 使用生成此 Agent 的 Agent 所用的模型。当您省略 `model` 时，Claude Code 会按照[子代理模型顺序](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)选择模型 |
-| `mcpServers` | 否 | 此 Agent 的 MCP 服务器规范 |
+| `mcpServers` | 否 | 此 Agent 的 MCP 服务器规范。请将 [`createSdkMcpServer()`](#createsdkmcpserver) 服务器放在 [`Options`](#options) 的 `mcpServers` 字段中。如果您改为在此字段中传递服务器对象，TypeScript Agent SDK v0.3.327 或更高版本会忽略它并发出 `CLAUDE_SDK_AGENT_IN_PROCESS_SERVER` 警告 |
 | `skills` | 否 | 要预加载到 Agent 上下文中的 skill 名称数组 |
 | `initialPrompt` | 否 | 当此 Agent 作为主线程 Agent 运行时，作为第一轮用户输入自动提交 |
 | `maxTurns` | 否 | 停止前的最大 agentic 轮次数（API 往返次数） |
@@ -4268,6 +4266,7 @@ type MonitorOutput = {
   taskId: string;
   timeoutMs: number;
   persistent?: boolean;
+  keptInSandboxByCheck?: boolean;
 };
 ```
 

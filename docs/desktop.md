@@ -518,11 +518,11 @@ Worktree 默认存储在 `<project-root>/.claude/worktrees/` 中。要改为将�
 
 ### 在不偏离会话的情况下提出侧边问题
 
-侧边聊天让您可以向 Claude 提出一个使用会话上下文的问题，但不会向主对话添加任何内容。当您想要理解一段代码、检查某个假设或探索某个想法，又不想让会话偏离方向时，可以使用它。
+侧边聊天让您可以向 Claude 提出有关会话的问题。Claude 在侧边聊天中的回答不会自动添加到主对话中。您可以使用侧边聊天来理解一段代码、检查某个假设或探索某个想法。
 
-在 macOS 上按 **Cmd+;** 或在 Windows 上按 **Ctrl+;** 打开侧边聊天，或在输入框中输入 `/btw`。侧边聊天可以读取主线程中截至该时刻的所有内容。完成后，关闭侧边聊天，即可从中断处继续主会话。
+在 macOS 上按 **Cmd+;** 或在 Windows 上按 **Ctrl+;** 打开侧边聊天，或在输入框中输入 `/btw`。侧边聊天可以读取主线程中截至该时刻的所有内容。完成后，关闭侧边聊天并返回主会话。
 
-侧边聊天可在本地、SSH 和 WSL 会话中使用。桌面应用不会将侧边聊天保存到磁盘，因此关闭应用后无法再返回之前的侧边聊天。
+侧边聊天可在本地、SSH 和 WSL 会话中使用。
 
 ### 查看后台任务
 
@@ -674,7 +674,11 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 
 你可以将插件限定到你的用户账户、特定项目或仅本地。如果你的组织集中管理插件，这些插件在桌面会话中的可用方式与在 CLI 中相同，除了桌面应用在 [`disableSideloadFlags`](https://code.claude.com/docs/zh-CN/settings-reference#disablesideloadflags) 下扣留的那些。
 
-插件浏览器在云会话中不可用，从桌面应用安装的插件不可用于云会话。云会话也不会安装存储库的 `.claude/settings.json` 声明的插件，如[从你的设置中继承的内容](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)所述。插件在 WSL 会话中不可用。有关完整的插件参考，包括创建你自己的插件，请参阅 [plugins](https://code.claude.com/docs/zh-CN/plugins/overview.md)。
+> [!NOTE]
+>
+> 插件浏览器在云端会话中不可用，您从桌面应用为用户账户安装或以仅本地方式安装的插件在云端会话中也不可用。请参阅[从您的设置中继承的内容](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。插件在 WSL 会话中不可用。
+
+有关完整的插件参考，包括创建您自己的插件，请参阅[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)。
 
 ### 配置预览服务器
 
@@ -2280,7 +2284,7 @@ Desktop 和 CLI 读取相同的配置文件，因此您的设置会沿用：
 
 #### 来自 Claude Desktop 聊天应用的 MCP 服务器
 
-Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到本地 Code 选项卡会话中，与来自 `~/.claude.json` 和 `.mcp.json` 的服务器一起使用。在 `claude_desktop_config.json` 中定义的服务器在 Desktop 聊天使用入口和本地 Code 选项卡会话中都可用。
+Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到本地 Code 选项卡会话中，与来自 `~/.claude.json` 和 `.mcp.json` 的服务器一起使用。`claude_desktop_config.json` 中的服务器也会加载到 [WSL 会话](https://code.claude.com/docs/zh-CN/desktop-wsl.md)中，除非该会话[缺少连接器](https://code.claude.com/docs/zh-CN/desktop-wsl.md#check-for-the-terminal-and-connectors)。在 WSL 会话中，这些服务器在 Windows 上运行。
 
 > [!NOTE]
 >

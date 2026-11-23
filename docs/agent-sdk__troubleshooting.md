@@ -23,6 +23,7 @@
 | `CLINotFoundError`、`CLIConnectionError`、`ProcessError`、`Claude Code process exited with code N`、`Claude Code returned an error result`、`CLIJSONDecodeError`、`structured_output` 为 `None` | 本页面上的 [CLI 启动](#cli-startup)、[CLI 进程退出](#cli-process-exit)、[大型工具调用和结果](#large-tool-calls-and-results) 和 [结构化输出](#structured-outputs) |
 | `Operation aborted`、`Claude Code process aborted by user`、`Prompt stream failed; closing stdin`，或 Python `query()` 循环在您的所有消息得到回答之前停止且没有抛出异常 | 本页面上的 [流式输入](#streaming-input) |
 | `Image could not be processed` | 本页面上的 [Image could not be processed](#image-could-not-be-processed) |
+| TypeScript 中的 `option can't be sent to Claude Code` | [`Options`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options)：修复该消息指出的选项 |
 
 ## CLI 启动
 

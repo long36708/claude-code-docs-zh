@@ -845,7 +845,7 @@ claude mcp add --transport http hubspot --scope user https://mcp.hubspot.com/ant
 2. Project 作用域
 3. User 作用域
 4. [插件提供的服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#mcp-servers)
-5. [claude.ai 连接器](#use-mcp-servers-from-claude-ai)
+5. [claude.ai 连接器](#use-mcp-servers-from-claude-ai)。在 `claude -p`、Agent SDK 和 VS Code 会话中，连接器的优先级高于插件提供的服务器。
 
 Claude Code 在三个作用域之间按名称匹配重复项。对于插件和连接器，则按端点匹配，因此如果某个插件或连接器指向的 URL 或命令与上述某个已启用的服务器相同，则视为重复项。
 

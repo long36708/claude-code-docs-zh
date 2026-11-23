@@ -1662,7 +1662,6 @@ hook 可能恰好在您中断的同一时刻阻止该提示词。此时提示词
 
 * 去除 markdown 以实现简洁显示
 * 转换 Agent SDK 应用程序向其用户显示的文本
-* 从 Claude 的回复中隐去 API 密钥或内部主机名
 
 Claude Code 会保留每一批内容，直到您的 hook 返回，因此请让 hook 保持快速。如果 hook 失败或超时，Claude Code 会显示原始文本。此事件的默认超时时间为 10 秒；如果您的 hook 需要更多时间，请在 hook 条目中设置 `timeout` 字段。
 
@@ -2509,7 +2508,9 @@ PostToolUseFailure hook 接收与 PostToolUse 相同的 `tool_name` 和 `tool_in
 
 ### PermissionDenied
 
-当[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)拒绝工具调用时运行，包括在没有分类器判定的情况下拒绝的情形——原因是[独立于自动模式的安全检查拒绝了分类器自身的请求](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)，或分类器的响应无法解析。此 hook 仅在自动模式下触发：当您手动拒绝权限对话框、`PreToolUse` hook 阻止调用或 `deny` 规则匹配时，它不会运行。可用于记录拒绝日志、调整配置，或告知模型可以重试该工具调用。
+在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器拒绝工具调用时运行。这包括没有判定结果的拒绝，原因是[独立于自动模式的安全检查拒绝了分类器自身的请求](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action)，或分类器的响应无法解析。使用 PermissionDenied 记录拒绝、调整配置，或告诉模型可以重试该工具调用。
+
+当您在权限对话框中拒绝、`PreToolUse` hook 阻止了调用，或 `deny` 规则匹配时，该 hook 不会运行。
 
 按工具名称匹配，取值与 PreToolUse 相同。
 

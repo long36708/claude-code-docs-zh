@@ -69,7 +69,7 @@
 
 要通过存储库共享插件，请在 `.claude/settings.json` 中的 `enabledPlugins` 下列出它，或将其放在 `.claude/skills/` 下。Claude Code 不扫描项目的 `.claude/plugins/` 目录。
 
-云会话不会添加存储库在 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的市场，因为这需要工作区信任对话框，云会话永远不会显示。
+由 Anthropic 托管的云端会话不会添加仓库在 [`extraKnownMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#extraknownmarketplaces) 下列出的市场，因为这需要工作区信任对话框，而该会话不会显示此对话框。
 
 #### 仓库插件的信任检查和组件限制
 
