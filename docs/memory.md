@@ -547,7 +547,7 @@ Claude Code 在 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/setting
 
 ### 它如何工作
 
-自动记忆开启时，`MEMORY.md` 的前 200 行或前 25KB（以先到者为准）在会话开始时加载。超过该阈值的内容在会话开始时不加载。Claude 通过将详细笔记移到单独的主题文件中来保持 `MEMORY.md` 简洁。
+自动记忆开启时，`MEMORY.md` 的前 200 行或前 25KB（以先到者为准）在会话开始时加载。Claude 通过将详细笔记移到单独的主题文件中来保持 `MEMORY.md` 简洁。
 
 Claude 写入 `MEMORY.md` 后，Claude Code 根据 200 行和 25KB 读取限制测量文件。如果文件接近限制，Claude Code 提醒 Claude 缩短它：每个条目保留一行，将详细信息移到主题文件，并合并或删除陈旧条目。如果文件超过限制，写入仍然成功，但 Claude Code 返回一个[错误告诉 Claude 重写索引](https://code.claude.com/docs/zh-CN/errors.md#memory-index-is-over-its-read-limit)，因为下次加载时超过限制的所有内容都会被丢弃。
 

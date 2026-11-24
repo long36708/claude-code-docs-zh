@@ -128,7 +128,7 @@ Chrome 未运行时，Claude Code 会正常启动。
 
 ### VS Code 会话中的权限提示
 
-在 VS Code 会话中，当 Claude Code 在执行浏览器操作前进行询问时，提示会以卡片形式显示在聊天面板中。当操作针对您尚未允许的站点时，该卡片还会提供允许该站点的选项。
+在 VS Code 会话中，当 Claude Code 在执行浏览器操作前进行询问时，提示会以卡片形式显示在聊天面板中。
 
 在因启用了[默认启用](#enable-chrome-by-default)而在启动时连接到浏览器的会话中，无论处于 Manual、Edit automatically、Auto 还是 Bypass permissions 模式，Claude Code 在对您尚未允许的站点执行浏览器操作前都会询问您。在 Auto 和 Bypass permissions 模式下，此行为会持续到您在该会话中输入 `@browser` 为止。
 

@@ -6,9 +6,9 @@
 
 > 为您的 Claude 组织启用 Code Review：连接 GitHub、安装 Claude GitHub App、选择仓库，并设置审查的运行时机
 
-作为 Claude 组织的 Owner，您可以在 claude.ai 上的 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code#code-review) 中启用 Code Review。审查在 Anthropic 基础设施上运行，因此无需向仓库中添加工作流文件。
+由您的 Claude 组织的 Owner 在 claude.ai 上的 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-code#code-review) 中启用 Code Review。审查在 Anthropic 基础设施上运行，因此无需向仓库中添加工作流文件。
 
-设置完成后，您可以为每个仓库选择审查的细致程度及运行时机。审查级别越高、审查运行越频繁，花费就越多。请参阅 [Code Review 费用](https://code.claude.com/docs/zh-CN/code-review-costs.md#pricing)。
+设置完成后，Owner 可以为每个仓库选择审查的细致程度及运行时机。审查级别越高、审查运行越频繁，花费就越多。请参阅 [Code Review 费用](https://code.claude.com/docs/zh-CN/code-review-costs.md#pricing)。
 
 ## 启用 Code Review 所需的条件
 
@@ -22,11 +22,11 @@
 
 ## 启用 Code Review
 
-**1. 点击 Allow code review 开关**
+**1. 打开 Review 下的开关**
 
-前往 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code#code-review) 的 **Code review** 部分，点击 **Allow code review** 开关。
+前往 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-code#code-review)，打开 **Review** 下的开关。在 **Turn on Code review** 对话框中，点击 **Turn on**。
 
-如果 Code Review 立即启用且没有弹出对话框，说明您的组织已经关联了 Claude GitHub App 或已添加了仓库。请前往[添加更多仓库](#add-more-repositories)，然后再返回完成最后一步。
+如果您的组织已经关联了 Claude GitHub App 或已添加了仓库，则不会再弹出其他对话框，Code Review 即已启用。请前往[添加更多仓库](#add-more-repositories)，然后再返回完成最后一步。
 
 **2. 连接您的 GitHub 账户**
 
@@ -49,9 +49,11 @@
 
 选择需要审查的仓库，然后点击用于添加它们的按钮；例如选择了两个仓库时，该按钮显示为 **Add 2 repositories**。添加仓库需要您连接的 GitHub 账户对该仓库拥有写入权限。您可以稍后[添加更多仓库](#add-more-repositories)。
 
-**5. 点击 Finish**
+**5. 点击 Turn on**
 
-随后会出现 **Code review is set up** 对话框。点击 **Finish** 以启用 Code Review。如果您以其他方式关闭该对话框，仓库仍会保持已添加状态，但 **Allow code review** 会保持关闭，您需要通过该开关将其启用。
+在 **Choose what Claude does on these repositories** 对话框中，保持选中 **Code review**。如果 **Steward** 处于选中状态且您可以更改它，请取消选中，除非您也希望在这些仓库上启用 [PR Steward](https://code.claude.com/docs/zh-CN/pr-steward.md)。然后点击 **Turn on**，这一步才会真正启用 Code Review。
+
+如果您以其他方式关闭该对话框，仓库仍会保持已添加状态，但不会启用任何功能。届时如需启用 Code Review，请再次使用 **Review** 下的开关。
 
 每个仓库初始设置为每次推送后都进行审查，这会运行最多的审查。如需减少审查次数，请[设置审查的运行时机](#set-when-reviews-run)。
 
@@ -65,7 +67,7 @@
 
 ## 为组织设置默认值
 
-作为 Owner，您可以决定审查的细致程度和运行频率。这两项都位于 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code#code-review) 的 **Code review** 部分。
+作为 Owner，您可以决定审查的细致程度和运行频率。这两项都在 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-code#code-review) 中设置：一是 Claude 组织的默认审查级别，二是每个仓库或[整个 GitHub 组织](#cover-a-whole-github-organization)的审查运行时机。
 
 ### 设置默认审查级别
 
@@ -92,10 +94,15 @@
 
 对于流量较大的仓库，如果您希望只让特定的 Pull Request 接受审查，或仅在 Pull Request 准备就绪后才开始审查，Manual 会很有用。要比较每个选项对花费的影响，请参阅[审查的运行频率](https://code.claude.com/docs/zh-CN/code-review-costs.md#how-often-reviews-run)。
 
-要更改此设置，请点击 **Repositories** 表中该仓库所在行的 **Edit**，然后选择一个 **Review runs** 选项。选择后会立即保存，表中的 **Review runs** 列会以缩写形式显示为 Once per PR、Every push 或 Manual。
+要在 [**Claude Ship**](https://claude.ai/admin-settings/claude-code#code-review) 页面上更改此设置，请点击 **Repositories** 表中该仓库所在行的 **Edit**，然后选择一个 **Review runs** 选项：
+
+![某个仓库的 Edit 对话框，其中 Review runs 菜单已展开，列出了 Once after PR creation、After every push（已选中）和 Manual (@claude review)。](https://mintcdn.com/claude-code/cMjxXVBUSLLh9iVu/images/code-review-setup-review-runs-light.png?fit=max\&auto=format\&n=cMjxXVBUSLLh9iVu\&q=85\&s=fe7c63cddcc105ddf7bab4e10e104ba7)
+
+选择后会立即保存。**Repositories** 表中的 **Code review** 列会以缩写形式显示为 Once per PR、Every push 或 Manual。
 
 * **草稿以及来自复刻的 Pull Request**：无论您选择哪个选项，[自动审查都会跳过这两类](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#review-drafts-and-pull-requests-from-forks)
 * **新仓库**：从 **Add a repository** 对话框添加的仓库初始设置为 **After every push**。如果其所属 GitHub 组织已[整体覆盖](#cover-a-whole-github-organization)，则改为采用该组织行的设置。
+* **[Claude Approvals](https://code.claude.com/docs/zh-CN/approvals.md) 策略文件**：在包含此类文件的仓库中，可能会[启动本设置原本不会启动的审查](https://code.claude.com/docs/zh-CN/approvals-setup.md#what-approvals-costs)，[自动审查也可能停止](https://code.claude.com/docs/zh-CN/approvals-policy.md#advisory)
 
 ### 开启或关闭提示评论
 
@@ -124,10 +131,12 @@
 
 ### 添加更多仓库
 
-要在设置完成后添加仓库，请点击 **Code review** 部分中 **Repositories** 表上方的 **Add**。**Add a repository** 对话框随即打开。选择仓库并点击添加按钮；例如选择了两个仓库时，该按钮显示为 **Add 2 repositories**。
+要在设置完成后添加仓库，请点击 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-code#code-review) 中 **Repositories** 表上方的 **Add**。**Add a repository** 对话框随即打开。选择仓库并点击添加按钮；例如选择了两个仓库时，该按钮显示为 **Add 2 repositories**。
 
+* **首先打开的是 Connect GitHub 对话框**：请按照[连接您的 GitHub 账户](#turn-on-code-review)步骤操作，该步骤结束时 **Add a repository** 会处于打开状态
 * **某个仓库未列出**：请参阅[某个仓库未在 Add a repository 中列出](https://code.claude.com/docs/zh-CN/code-review-troubleshooting.md#a-repository-isn’t-listed-in-add-a-repository)。
 * **您希望包含某个 GitHub 组织中的所有仓库**：请[覆盖整个组织](#cover-a-whole-github-organization)，而不是逐个选择仓库
+* **这些是您组织的首批仓库**：随后会出现 **Choose what Claude does on these repositories** 对话框。请按照[点击 Turn on](#turn-on-code-review)步骤中的说明设置其复选框，然后点击其按钮，该按钮显示为 **Turn on** 或 **Done**。无论哪种情况，之后 Code Review 都会处于启用状态。
 
 ### 覆盖整个 GitHub 组织
 
@@ -148,12 +157,14 @@
 
 ### 关闭 Code Review 或移除仓库
 
-在 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code#code-review) 的 **Code review** 部分，根据您要停止的内容选择相应的控件：
+在 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-code#code-review) 中，根据您要停止的内容选择相应的控件：
 
 * **单个仓库，保留在列表中**：点击其所在行的 **Edit**，然后关闭 **Code review**。表中会将该仓库显示为 Off。
-* **单个仓库，将其移除**：点击其所在行的 **Edit**，然后点击对话框底部的 **Remove repository**。该仓库的审查将停止，之后其他 Claude 组织就可以设置该仓库。当该仓库所属的 GitHub 组织被整体覆盖时，无法将其移除；请改为关闭其 **Code review** 开关。
+* **单个仓库，将其移除**：点击其所在行的 **Edit**，然后点击对话框底部的 **Remove repository**。之后其他 Claude 组织就可以设置该仓库。当该仓库所属的 GitHub 组织被整体覆盖时，无法将其移除；请改为关闭其 **Code review** 开关。
 * **整个 GitHub 组织**：点击该组织所在行的 **Edit**，然后选择 **Off**。这也会关闭该组织中您逐个添加的仓库。
-* **全部**：关闭 **Allow code review**。所有仓库都不会再启动新的审查，您的仓库列表会被保留，以便日后重新启用。
+* **全部**：关闭 **Review** 下的开关。您的仓库列表会被保留，以便日后重新打开该开关。
+
+当某个仓库的 **Code review** 开关处于关闭状态，或 **Review** 下的开关处于关闭状态时，[Claude Approvals](https://code.claude.com/docs/zh-CN/approvals-setup.md#what-approvals-costs) 策略可以启动计费审查。要停止这些审查，请更改该策略或[关闭 Approvals](https://code.claude.com/docs/zh-CN/approvals-setup.md#turn-off-approvals)。Code Review 的花费上限同样适用于这些审查。
 
 ## 相关资源
 

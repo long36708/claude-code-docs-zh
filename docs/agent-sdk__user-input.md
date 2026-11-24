@@ -199,7 +199,7 @@ for await (const message of query({
 }
 ```
 
-此示例使用 y/n 流，其中除 `y` 之外的任何输入都被视为拒绝。在实践中，您可能会构建一个更丰富的 UI，让用户修改请求、提供反馈或完全重定向 Claude。有关所有响应方式，请参阅[响应工具请求](#respond-to-tool-requests)。
+此示例使用 `y/n` 流程，其中除 `y` 之外的任何输入都被视为拒绝。在实践中，您可能会构建一个更丰富的 UI，让用户修改请求、提供反馈或完全重定向 Claude。有关所有响应方式，请参阅[响应工具请求](#respond-to-tool-requests)。
 
 ### 响应工具请求
 
@@ -253,7 +253,7 @@ for await (const message of query({
 
 > [tab] 批准并进行更改
 >
-> 用户批准但想先修改请求。您可以在工具执行前更改输入。Claude 会看到结果，但不会被告知您更改了任何内容。对于清理参数、添加约束或限制访问范围很有用。
+> 用户批准但想先修改请求。您可以在工具执行前更改输入。对于清理参数、添加约束或限制访问范围很有用。
 >
 > ```python Python theme={null}
 > async def can_use_tool(tool_name, input_data, context):

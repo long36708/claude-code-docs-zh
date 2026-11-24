@@ -78,15 +78,13 @@ Claude 根据您输入的提示词发布的新 Artifact 会直接通过，无需
 要求 Claude 修改页面，或让长时间运行的任务在进行过程中重新发布。Claude 编辑底层文件并重新发布到相同的 URL。
 
 ```text wrap theme={null}
-在摘要图表下方添加按地区的细分，然后重新发布。
+Add a per-region breakdown below the summary chart and republish.
 ```
-
-任何打开该页面的人都会看到就地更新。每次发布都会成为一个版本，从页面标题中的 **Share** 控件，你可以选择查看者看到哪个版本。
 
 要从不同的会话更新 artifact，请给 Claude 其 URL，或使用 [`/artifacts`](#find-an-artifact-again) 附加它。如果两者都没有，新会话会创建新的 artifact 而不是更新现有的。
 
 ```text wrap theme={null}
-使用今天的数字更新 https://claude.ai/code/artifact/5fbea6f3-...
+Update https://claude.ai/code/artifact/5fbea6f3-... with today's numbers.
 ```
 
 ### 关闭一步式 Artifact 更新

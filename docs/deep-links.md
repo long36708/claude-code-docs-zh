@@ -153,7 +153,7 @@ Check recent commits to main and the last successful build.
 * 向交互式 `claude` 会话发送任何内容，例如一条消息或 `/help`。仅启动会话而不发送任何内容不会注册处理程序。
 * 在您已[信任](https://code.claude.com/docs/zh-CN/permissions.md#project-allow-rules-and-workspace-trust)的文件夹中以 [Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md)启动 Claude Code，例如使用 `claude agents`
 
-您不需要运行单独的安装命令。注册仅写入用户级位置：
+注册仅写入用户级位置：
 
 | 平台 | 处理程序位置 |
 | - | - |

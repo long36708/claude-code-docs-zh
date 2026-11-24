@@ -207,7 +207,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 
 ### 设置 hook 事件
 
-每个[设置 hook 事件](https://code.claude.com/docs/zh-CN/hooks.md#hook-events)都是一个名为 `classic.<Event>` 的事件，如 `classic.Stop` 或 `classic.PostToolUse`。`e` 是该 hook 的 stdin JSON。
+每个[设置 hook 事件](https://code.claude.com/docs/zh-CN/hooks.md#hook-events)都是一个名为 `classic.<Event>` 的事件，如 `classic.Stop`。有关 `e` 上的字段，请参阅[处理设置 hook 事件](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#hook-the-settings-hook-events)。
 
 ### mods API 调用
 

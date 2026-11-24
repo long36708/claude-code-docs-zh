@@ -125,6 +125,12 @@ Claude Code 会在您的输入中高亮显示该关键字，Claude 会为该任�
 如需使用 `ultracode` 一词而不请求工作流，可以针对单个提示词跳过该关键字，或针对所有提示词关闭该关键字：
 
 * **单个提示词，输入时**：将该词放在反引号中。
+
+  例如，以下提示词是一个搜索文件的普通请求：
+
+  ```text wrap theme={null}
+  find every file that mentions `ultracode`
+  ```
 * **单个提示词，已在终端中高亮显示**：紧跟在该词之后按 Backspace，或按 `Alt+W`。在 macOS 上，启用 [Option as Meta](https://code.claude.com/docs/zh-CN/terminal-config.md#enable-option-key-shortcuts-on-macos) 后，该按键为 `Option+W`。
 * **所有提示词**：在 `/config` 中关闭 [**Ultracode keyword trigger**](https://code.claude.com/docs/zh-CN/settings-reference.md#workflowkeywordtriggerenabled)。
 
@@ -227,7 +233,7 @@ Claude Code 在写入前会检查保存位置是否存在符号链接，如果�
 Run /triage-issues on issues 1024, 1025, and 1030
 ```
 
-Claude 会以结构化数据的形式传递该列表，因此脚本可以直接对 `args` 调用数组和对象方法，而无需先解析。如果省略 `args`，该全局变量在脚本中为 `undefined`。
+Claude 会以结构化数据的形式传递该列表，因此脚本可以直接对 `args` 调用数组和对象方法。如果省略 `args`，该全局变量在脚本中为 `undefined`。
 
 ## 工作流提示示例
 
@@ -283,7 +289,9 @@ use a workflow to find flaky tests in this repo: run the suite repeatedly, recor
 
 ### 保存的脚本看起来像什么
 
-当您[保存工作流](#save-the-workflow-for-reuse)时，`.claude/workflows/` 中的文件包含一个 `meta` 块，后跟编排子代理的脚本体。您通常不需要编辑它，但这是一个小的形状，所以您可以识别 Claude 生成的内容：
+当您[保存工作流](#save-the-workflow-for-reuse)时，`.claude/workflows/` 中的文件包含一个 `meta` 块，后跟编排子代理的脚本体。
+
+下面是一个小型脚本的形状，以便您可以识别 Claude 生成的内容：
 
 ```javascript theme={null}
 export const meta = {

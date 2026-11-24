@@ -66,7 +66,7 @@ Remote Control 将 [claude.ai/code](https://claude.ai/code) 或 Claude 应用（
 > | `--spawn <mode>` | 服务器创建会话的方式。 • `same-dir`（未保存模式时的默认值）：所有会话共享当前工作目录，因此编辑相同文件时可能会发生冲突。 • `worktree`：每个按需创建的会话都有自己的 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md)。需要 git 仓库或 [`WorktreeCreate` hook](https://code.claude.com/docs/zh-CN/hooks#worktreecreate)。 • `session`：单会话模式。仅服务一个会话并拒绝其他连接。只能在启动时设置。 在运行时按 `w` 可在 `same-dir` 和 `worktree` 之间切换。您切换到的模式会成为[此项目的默认模式](#set-the-default-spawn-mode-for-a-project)。 |
 > | `--capacity <N>` | 最大并发会话数。默认为 32。不能与 `--spawn=session` 一起使用。 |
 > | `--[no-]create-session-in-dir` | 服务器启动时在当前目录中预先创建一个会话，以便您可以立即开始输入。在 `worktree` 模式下，此会话保留在当前目录中，而按需创建的会话则获得独立的 worktree。默认开启。如果您传入 `--no-create-session-in-dir` 以不带任何会话启动，Claude Code 会在您停止服务器时归档服务器的会话，因此将没有可[恢复](#resume-sessions-after-stopping-the-server)的会话。 |
-> | `--permission-mode <mode>` | 为服务器的会话设置初始[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)，例如 `acceptEdits`。接受 `manual` 作为 `default` 的别名；无法识别的模式会使服务器在启动时停止并列出有效模式。 |
+> | `--permission-mode <mode>` | 设置初始[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)，例如 `acceptEdits`。接受 `manual` 作为 `default` 的别名；无法识别的模式会使服务器在启动时停止并列出有效模式。 |
 > | `--settings <file>` | 将 JSON 设置文件应用于服务器的会话，其[优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)与 `claude --settings` 相同。请提供文件路径，而不是 JSON 字符串。需要 Claude Code v2.1.321 或更高版本。 |
 > | `--chrome` / `--no-chrome` | 在服务器创建的会话中打开或关闭 [Chrome 集成](https://code.claude.com/docs/zh-CN/chrome.md)，以便您在另一台设备上工作时 Claude 可以使用您机器上的 Chrome。如果不带任一标志，服务器预先创建的会话以及您自己从 claude.ai/code 或 Claude 应用启动的任何会话都会以关闭 Chrome 的状态开始，即使您已[默认启用 Chrome](https://code.claude.com/docs/zh-CN/chrome.md#enable-chrome-by-default)。服务器为您的某个[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)线程启动的会话则遵循该设置，但 `bypassPermissions` 模式除外。需要 Claude Code v2.1.273 或更高版本。 |
 > | `-d`, `--debug[=<filter>]` | 为服务器开启调试日志，可选择按类别过滤。只能以 `=` 形式传入过滤器，例如 `--debug=api,hooks`。需要 Claude Code v2.1.282 或更高版本。 |
@@ -178,7 +178,7 @@ Remote Control 会话处于活动状态后，您可以通过以下几种方式�
 已连接的设备会实时显示终端中的对话。以下情况超出了普通消息的范畴：
 
 * **压缩和 `/clear`**：在 Claude Code [压缩对话](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)时，已连接的设备会显示进度，然后显示对话被压缩的位置。当您运行 `/clear` 时，已连接设备上的对话也会重置。
-* **在 `/resume` 或 `/teleport` 后断开连接**：如果已连接的会话有[分享链接](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#share-sessions)，或者 Claude Code 无法检查是否存在分享链接，则当这两个命令中的任一个打开另一个对话时，Remote Control 会断开连接。否则，持有该链接的人将会看到那个对话。要连接新对话，请在终端中运行 `/remote-control`。分享链接检查需要 Claude Code v2.1.324 或更高版本。
+* **在 `/resume` 或 `/teleport` 后断开连接**：如果已连接的会话有[分享链接](https://code.claude.com/docs/zh-CN/share-sessions.md)，或者 Claude Code 无法检查是否存在分享链接，则当这两个命令中的任一个打开另一个对话时，Remote Control 会断开连接。否则，持有该链接的人将会看到那个对话。要连接新对话，请在终端中运行 `/remote-control`。分享链接检查需要 Claude Code v2.1.324 或更高版本。
 * **使用 `/resume` 切换对话**：已连接的设备不会收到切换到的对话的标题或早期历史，但双向的新消息都会发往或来自终端中当前打开的对话。要再次从设备上处理原来的对话，请在终端中运行 `/resume` 并切换回该对话。
 * **使用 `/teleport` 拉取会话**：当您使用 `/teleport` 将[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#from-cloud-to-terminal)拉取到终端时，已连接的设备不会收到被拉取对话的早期历史。双向的新消息都会发往或来自被拉取的对话，该对话现在就是终端中打开的对话。
 * **来自您其他会话的消息**：借助[跨会话消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)，同一连接会在您位于不同机器上的各个会话之间传递消息。
@@ -365,7 +365,7 @@ Claude Code 提供了多种方式在您不在终端时进行工作。它们在�
 
 * **每个交互式进程仅支持一个远程会话**：在服务器模式之外，每个 Claude Code 实例一次仅支持一个远程会话。使用[服务器模式](#start-a-remote-control-session)可从单个进程运行多个并发会话。
 * **本地进程必须保持运行**：Remote Control 作为本地进程运行。如果您关闭终端、退出在您的机器上运行该会话的 Desktop 应用或 VS Code，或以其他方式停止 `claude` 进程，会话将离线，直到您[将其恢复](#resume-sessions-after-stopping-the-server)。如果您在远程机器的终端中运行 `claude`，请在 `tmux` 或 `screen` 中启动它，以便在断开 SSH 连接后会话仍保持运行。
-* **服务器模式下崩溃的会话**：如果由 `claude remote-control` 提供服务的会话崩溃，请从已连接的设备向其发送一条消息。Claude Code 会重新为其提供服务。您无需重启服务器。需要 Claude Code v2.1.238 或更高版本。
+* **服务器模式下崩溃的会话**：如果由 `claude remote-control` 提供服务的会话崩溃，请从已连接的设备向其发送一条消息。Claude Code 会重新为其提供服务。需要 Claude Code v2.1.238 或更高版本。
 * **已连接会话上的 HTTP 403 拒绝**：交互式会话连接后，如果您的机器与 Anthropic 服务器之间的某个环节以 HTTP 403 响应（例如在 VPN 或网络变更之后可能发生），Claude Code 会持续重试最多三分钟。如果拒绝持续时间更长，Claude Code 将断开连接，并在原因中指明拒绝的来源：网络边缘，或您自身网络上的代理、VPN 或防火墙。
 * **长时间网络中断**：如果您的机器处于唤醒状态但无法访问网络，后续操作取决于所用模式：
   * **服务器模式**：Claude Code 大约 10 分钟后放弃，`claude remote-control` 进程退出。要重启服务器，请参阅[停止服务器后恢复会话](#resume-sessions-after-stopping-the-server)。

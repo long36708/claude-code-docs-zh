@@ -20,21 +20,26 @@
 | **Code review skipped — no new changes** | 自动审查未在您最新的推送上运行 | 如果仍想获得审查，请评论 `@claude review` |
 | **Code review not repeated — earlier findings still open** | 自动审查未在您最新的推送上运行，且之前审查中的 Important 发现项仍未解决 | 推送修复；如果仍想获得审查，请评论 `@claude review`。请参阅[推送保留之前结果的情况](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#when-a-push-keeps-the-earlier-result) |
 | **Code review failed** 或 **Code review timed out** | 审查未完成 | 要重新运行，请参阅[重新触发失败或超时的审查](#retrigger-a-failed-or-timed-out-review) |
+| **Code review not run: no policy rule uses it** | 由于仓库的 Claude Approvals 策略，自动审查未运行 | 请参阅[Code review not run: no policy rule uses it](#code-review-not-run-no-policy-rule-uses-it) |
 | **Code review declined** | 审查未运行 | 阅读检查运行的摘要。如果其中提到预算或支出限额，请参阅[审查未运行且 PR 显示预算消息](#review-didn’t-run-and-the-pr-shows-a-budget-message) |
 | 没有检查运行 | 没有启动任何审查 | 评论 `@claude review`。如果之后仍未出现检查运行，请参阅[评论命令未启动审查](#a-comment-command-didn’t-start-a-review) |
 
 ## 审查未启动
 
-当没有出现 **Claude Code Review** 检查运行，或 Claude 发布评论表示审查已被跳过时，请检查以下情况。
+当没有出现 **Claude Code Review** 检查运行，或 Claude 发布评论表示审查已被跳过时，请检查以下情况。其中一种情况涉及标题表明未运行审查的检查运行。
 
 ### 评论命令未启动审查
 
 在您评论 `@claude review` 之后，请查看 Pull Request 上是否出现标题为 **Code review queued...** 或 **Code review in progress...** 的 **Claude Code Review** 检查运行。您的评论上出现 👀 表情回应并不能确认审查即将开始。如果没有出现检查运行，请逐一检查以下原因：
 
-* **此仓库未启用 Code Review**：Claude 不会针对该命令发布任何评论或检查运行。请让 Owner [添加该仓库](https://code.claude.com/docs/zh-CN/code-review-setup.md#add-more-repositories)。
+* **此仓库未启用 Code Review**：Claude 不会针对该命令发布任何评论或检查运行。请让 Owner [添加该仓库](https://code.claude.com/docs/zh-CN/code-review-setup.md#add-more-repositories)。如果某个 [Claude Approvals](https://code.claude.com/docs/zh-CN/approvals.md) 策略会读取 Claude 的审查，那么仅包含 `@claude review` 的新评论仍可启动审查。
 * **评论不满足某个条件**：评论是内联评论或审查正文，而不是新的顶层评论，或者命令不在评论开头。编辑先前的评论而不是发布新评论也不算数，并且 Pull Request 必须处于打开状态。请参阅[评论命令的条件](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#comment-commands)，并发布一条满足这些条件的新评论。
 * **您没有写入权限**：您需要拥有该仓库的 write、maintain 或 admin 权限；对于来自 fork 的 Pull Request，起作用的是基础仓库上的权限。除非该 Pull Request 是您自己的，否则 Claude 可能会回复一条[提示](https://code.claude.com/docs/zh-CN/code-review-setup.md#turn-tip-comments-on-or-off)："No review was started: manual reviews can only be requested by someone with write access to this repository."。请让具有写入权限的人来发表评论。
 * **预算已用尽**：Claude 会发布一条以 "⚠️ Code review skipped" 开头的评论。请参阅[审查未运行且 PR 显示预算消息](#review-didn’t-run-and-the-pr-shows-a-budget-message)。
+
+### Code review not run: no policy rule uses it
+
+**Claude Code Review** 检查上的这个标题表示该仓库有一个 [Claude Approvals](https://code.claude.com/docs/zh-CN/approvals.md) 策略文件，并且该策略不要求对此 Pull Request 进行审查。如果仍想获得审查，请在 Pull Request 上评论 `@claude review`。如需恢复自动审查，请[在一个具有 `verdict` 且匹配已更改文件的规则中指定 Code Review](https://code.claude.com/docs/zh-CN/approvals-policy#advisory)。
 
 ### 审查未运行且 PR 显示预算消息
 
@@ -88,7 +93,7 @@
 
 ### 测试 Pull Request 上没有出现检查运行
 
-确认 **Allow code review** 已开启，该仓库已列在 **Code review** 部分的 **Repositories** 下，并且 Claude GitHub App 可以访问该仓库。自动审查会跳过草稿 Pull Request，而设置为 **Manual (@claude review)** 的仓库需要一条 `@claude review` 评论才能启动首次审查。
+在 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-code#code-review) 中，确认 **Review** 下的开关已开启，并且该仓库已列在 **Repositories** 下。同时确认 Claude GitHub App 可以访问该仓库。自动审查会跳过草稿 Pull Request，而设置为 **Manual (@claude review)** 的仓库需要一条 `@claude review` 评论才能启动首次审查。
 
 ## 相关资源
 

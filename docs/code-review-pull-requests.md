@@ -6,9 +6,9 @@
 
 > 阅读 GitHub Pull Request 上的 Code Review 发现，回复或忽略这些发现，并使用 `@claude review` 请求审查。
 
-Code Review 是一项托管服务，由您的 Claude 组织中的 Owner 为一组 GitHub 仓库启用。启用后，Claude 会审查这些仓库中的 Pull Request，并将其发现以内联评论、审查正文中的摘要以及名为 **Claude Code Review** 的检查运行的形式发布。审查永远不会批准或阻止您的 Pull Request，检查运行也永远不会以失败结束。
+Code Review 是一项托管服务，由您的 Claude 组织中的 Owner 为一组 GitHub 仓库启用。启用后，Claude 会审查这些仓库中的 Pull Request。它会将其发现以内联评论、审查正文中的摘要以及名为 **Claude Code Review** 的检查运行的形式发布。Owner 可以为每个仓库控制[审查何时运行](https://code.claude.com/docs/zh-CN/code-review-setup.md#set-when-reviews-run)以及[审查的详尽程度](https://code.claude.com/docs/zh-CN/code-review-setup.md#set-the-default-review-level)。
 
-Owner 可以为每个仓库控制[审查何时运行](https://code.claude.com/docs/zh-CN/code-review-setup.md#set-when-reviews-run)以及[审查的详尽程度](https://code.claude.com/docs/zh-CN/code-review-setup.md#set-the-default-review-level)。
+审查本身不会批准或阻止您的 Pull Request，检查运行也不会以失败结束。如果仓库中有 [Claude Approvals](https://code.claude.com/docs/zh-CN/approvals.md#keep-automatic-code-reviews) 策略文件，该策略可以使用审查结果来决定由谁进行审批。它还可以更改哪些 Pull Request 会获得自动审查。
 
 > [!NOTE]
 >
@@ -34,8 +34,8 @@ Claude 用以下三种严重程度级别之一标记每个发现：
 
 要清除某个发现，请解决其讨论串或推送修复。
 
-* **不修改代码直接忽略**：在 GitHub 上自行解决该讨论串。仅回复并不会忽略发现。
-* **修复问题**：修改代码并推送。当下一次对该 Pull Request 的审查判断问题已修复时，会解决之前的讨论串，无论该审查是在您推送时自动运行还是由您请求的。
+* **不修改代码直接忽略**：在 GitHub 上自行解决该讨论串。仅回复并不会忽略发现。如果您的 Pull Request 有 **Claude Approvals** 检查，该检查[可能不会计入您的解决操作](https://code.claude.com/docs/zh-CN/approvals-troubleshooting.md#approvals-doesn’t-pass-after-you-resolve-a-review-thread)。
+* **修复问题**：修改代码并推送。当下一次对该 Pull Request 的审查判断问题已修复时，会解决之前的讨论串，无论该审查是在您推送时自动运行还是由您请求的。如果 [PR Steward](https://code.claude.com/docs/zh-CN/pr-steward.md#what-pr-steward-fixes) 在该 Pull Request 上工作，它可能会针对 Important 级别的发现推送自己的修复，因此请在开始之前先拉取该分支。
 * **解释或提出异议**：回复该评论。Claude 不会立即回复，回复也不会启动审查。下一次对该 Pull Request 的审查会读取对其之前发现的回复，并可以解决该讨论串或发布一条后续回复。如果同类发现反复出现，请让维护者在 [`REVIEW.md`](https://code.claude.com/docs/zh-CN/code-review-customize#choose-what-to-write-in-review-md) 中添加规则。
 
 要在不推送的情况下获得下一次审查，请以[顶层 Pull Request 评论](#comment-commands)的形式发表 `@claude review`。
@@ -58,7 +58,7 @@ Claude 用以下三种严重程度级别之一标记每个发现：
 如果推送后检查运行显示以下标题之一，则表示 Code Review 保留了先前审查的结果，而没有启动新的审查：
 
 * **Code review skipped — no new changes**：先前审查中没有仍处于打开状态的 [Important](#severity-levels) 发现，因此无需进行新的审查
-* **Code review not repeated — earlier findings still open**：要启动新的审查，请推送针对某个打开的 Important 发现的修复，或[解决其讨论串](#respond-to-findings)后再次推送
+* **Code review not repeated — earlier findings still open**：要启动新的审查，请推送针对某个打开的 Important 发现的修复，或[解决其讨论串](#respond-to-findings)后再次推送。如果 Claude Approvals 重新打开了该讨论串，则在您下次推送后该标题仍会保留。请推送修复，或请[其解决操作会被计入](https://code.claude.com/docs/zh-CN/approvals-policy.md#findings)的人员来解决该讨论串，然后再次推送。
 
 在 github.com 上，当以下两个条件同时满足时，Code Review 可以保留结果：
 

@@ -60,7 +60,7 @@ Agent view 打开后，底部有一个输入框，表格会随着会话启动而
 
 在常规 `claude` 会话中，在空输入框中按 `←` 会打开 agent view，页脚中的 `←` 提示会报告您的后台会话情况：
 
-* **提示**：会话打开后的十秒内，页脚显示 `← for agents`。提示消失后，按 `←` 仍然有效
+* **提示**：会话打开后的十秒内，页脚显示 `← for agents`
 * **等待计数**：当有后台会话等待您输入时，同一位置会统计其数量，例如 `← 2 agents`；当超过 99 个会话等待时显示 `← 99+ agents`。终端处于焦点状态时，计数大约每十秒刷新一次，焦点返回时会立即刷新
 * **完成计数**：当后台会话成功完成且没有会话等待您输入时，页脚会短暂显示已完成的数量，例如两个会话完成时显示 `← 2 done`
 
@@ -839,7 +839,7 @@ Claude Code 将 agent view 中列出的每个会话都视为后台会话，无�
 
 ### 监督进程
 
-监督进程是一个后台服务，运行您的后台会话，使其在您关闭 agent view 或终端后继续工作。Claude Code 在您第一次后台化会话或打开 agent view 时启动它，您不需要自己管理它。
+监督进程是一个后台服务，运行您的后台会话，使其在您关闭 agent view 或终端后继续工作。Claude Code 在您第一次后台化会话或打开 agent view 时启动它。
 
 每个会话都是监督进程下的独立 Claude Code 进程，该进程发生的情况取决于会话的状态：
 
@@ -912,7 +912,7 @@ Background sessions still running will stop in about a minute. Run 'claude agent
 
 此通知指明了一个未在此会话中运行的后台[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)。
 
-Claude 会看到此通知并自行回复，因此您无需提示它。如果阅读 Claude 的回复后您仍需要该子代理的工作成果，请向 Claude 提出。
+Claude 会看到此通知并自行回复。如果阅读 Claude 的回复后您仍需要该子代理的工作成果，请向 Claude 提出。
 
 ### 提示词被拒绝为过短
 
@@ -929,7 +929,7 @@ Claude 会看到此通知并自行回复，因此您无需提示它。如果阅�
 
 当[会话记录清理](https://code.claude.com/docs/zh-CN/settings-reference.md#cleanupperioddays)删除了已停止会话的保存对话时，Claude Code 拒绝打开该行：消息说没有可恢复的内容。`claude rm <id>` 会删除该行（除非 [Claude Code 拒绝删除](#what-deleting-a-session-removes)），`claude respawn <id>` 再次运行其原始提示词。请参阅[此会话的保存对话不再在磁盘上](https://code.claude.com/docs/zh-CN/errors.md#this-sessions-saved-conversation-is-no-longer-on-disk)。
 
-仅睡眠不会停止会话。会话在睡眠中被保留，主管在唤醒时重新连接到它们。
+会话在睡眠中被保留，主管在唤醒时重新连接到它们。
 
 ### 打开会话说对话已经打开
 

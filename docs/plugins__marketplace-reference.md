@@ -2,9 +2,9 @@
 > Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
 > Use this file to discover all available pages before exploring further.
 
-# Marketplace 参考
+# 市场参考
 
-> marketplace.json 字段、插件条目和插件及 marketplace 源对象的完整参考，包括每个字段的有效位置。
+> marketplace.json 字段、插件条目以及插件和市场源对象的参考，包括每项的有效位置。
 
 `marketplace.json` 是定义插件 marketplace 的文件。它包含 marketplace 的名称、所有者和每个插件的一个条目。每个条目的插件源说明 Claude Code 从哪里获取该插件。
 
@@ -210,7 +210,7 @@ Claude Code 忽略未知的顶级键或插件条目键，而不是拒绝它，�
 
 * 它本身必须是 marketplace 内的相对路径。
 * 它对已经以 `./` 开头的源没有影响。
-* 包含 `/` 的源，如 `team-a/formatter`，不是裸名，即使设置了 `metadata.pluginRoot` 也仍然需要 `./` 前缀。
+* 包含 `/` 的源，如 `team-a/formatter`，不是裸名，仍然需要 `./` 前缀。
 
 ### github plugin source
 

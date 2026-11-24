@@ -84,7 +84,7 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 >
 > 在 `bypassPermissions` 模式中，Claude Code 跳过权限提示，包括对[受保护路径](https://code.claude.com/docs/zh-CN/permission-modes.md#protected-paths)（例如 `.git` 和 `.claude`）的写入。[跨会话消息传递保护措施](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)仍然适用。仅在隔离环境（如容器或虚拟机）中使用此模式，其中 Claude Code 无法造成损害。
 
-为了防止 `bypassPermissions` 或 `auto` 模式被使用，在任何[设置文件](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)中将 `permissions.disableBypassPermissionsMode` 或 `permissions.disableAutoMode` 设置为 `"disable"`。这些在[托管设置](#managed-settings)中最有用，因为它们无法被覆盖。
+为了防止 `bypassPermissions` 或 `auto` 模式被使用，请将 [`permissions.disableBypassPermissionsMode`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-disablebypasspermissionsmode) 或 [`permissions.disableAutoMode`](https://code.claude.com/docs/zh-CN/settings-reference#disableautomode) 设置为 `"disable"`。这些在[托管设置](#managed-settings)中最有用，因为它们无法被覆盖。
 
 要拒绝那些会等待权限提示的调用，使无人值守的会话能够继续工作，请在您的用户设置或托管设置中将 [`permissions.denyInsteadOfPrompting`](https://code.claude.com/docs/zh-CN/settings-reference#permissions-denyinsteadofprompting) 设置为 `true`。`dontAsk` 本身是一种独立的权限模式，而此设置项可与您当前所处的权限模式配合使用。
 

@@ -190,7 +190,7 @@ Hooks 使用与 `settings.json` 中相同的格式。
 
 ### 跨托管来源的按键例外
 
-以下键是"不合并"规则的例外：
+默认情况下，Claude Code 从[一个托管来源](#settings-precedence)读取大多数键。例外情况包括：
 
 * **跨来源锁定键**：一小组键，例如沙箱允许列表锁定，[在托管设置页面中列出](https://code.claude.com/docs/zh-CN/managed-settings.md#precedence-within-the-managed-tier)。当任何由管理员控制的托管来源设置了这些键时，Claude Code 都会遵循它们；用户可写的 HKCU 注册表层级除外。
 

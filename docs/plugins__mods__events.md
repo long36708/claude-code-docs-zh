@@ -396,7 +396,9 @@ on('settings.read', async ($, e, next) => {
 
 ### 处理设置 hook 事件
 
-设置 hook 是您在设置文件中配置的命令、HTTP、提示词和 Agent hook。每个[设置 hook 事件](https://code.claude.com/docs/zh-CN/hooks.md#hook-events)（例如 `Stop`、`SessionEnd` 或 `PostToolUse`）同时也是一个名为 `classic.` 后跟该设置 hook 事件名称的事件，例如 `classic.Stop`。`e` 是设置 hook 在 stdin 上接收的 JSON，包括 `transcript_path`。在加载了[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)的环境中，[您安装的 mod 中针对这些事件的 hook 不会运行](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#hooks-the-guard-passes-over)。
+要处理[设置 hook 事件](https://code.claude.com/docs/zh-CN/hooks.md#hook-events)，请在其名称前添加 `classic.` 前缀，例如 `classic.Stop`。在加载了[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)的环境中，[您安装的 mod 中针对这些事件的 hook 不会运行](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#hooks-the-guard-passes-over)。
+
+在 `classic.PreToolUse` 上，`e` 仅描述工具调用：工具名称位于 `e.tool` 中，内置工具的参数作为字段提供，例如 Bash 的 `e.command`。在其他事件上，`e` 包含对应设置 hook 从 stdin 读取的字段。
 
 以下 hook 使用 `Stop`（在 Claude 完成回复时触发）来记录会话的会话记录保存位置：
 

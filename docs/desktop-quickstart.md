@@ -100,7 +100,7 @@ Claude Code 位于应用侧边栏顶部的 **Code** 选项卡中。本页面将�
 
 您已经进行了第一次编辑。有关 Desktop 可以执行的所有操作的完整参考，请参阅 [使用 Claude Code Desktop](https://code.claude.com/docs/zh-CN/desktop.md)。以下是一些可以尝试的操作。
 
-**中断并调整方向。** 您可以随时重定向 Claude。点击停止按钮立即中断，或输入更正并按 **Enter** 发送，无需停止正在运行的操作。无论哪种方式，您都不必等待它完成或重新开始。
+**中断并调整方向。** 您可以随时重定向 Claude。点击停止按钮立即中断，或输入更正并按 **Enter** 发送，无需停止正在运行的操作。
 
 **为 Claude 提供更多上下文。** 在提示框中输入 `@filename` 以将特定文件拉入对话。Claude 拥有的上下文越多，结果就越好。请参阅 [添加文件和上下文](https://code.claude.com/docs/zh-CN/desktop.md#add-files-and-context-to-prompts)。
 

@@ -857,7 +857,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 
 由于扩展将会话记录公开为一个带标签的区域，您也可以使用 `Tab` 将焦点移至会话记录本身，并按自己的节奏阅读。如果要将焦点移至最新消息或等待中的权限提示，请从[命令面板](#vs-code-commands-and-shortcuts)运行 **Claude Code: Focus last message**。
 
-当某个权限提示选项会保存权限规则或目录访问权限时，其标签末尾会注明批准的保存位置，例如"all projects"或"this session"。要更改保存位置：
+当某个权限提示选项会保存权限规则或目录访问权限时，其标签会注明批准的保存位置，例如"all projects"或"this session"。要更改保存位置：
 
 * 在该选项获得焦点时，按 `Left` 或 `Right` 方向键。移动到每个保存位置时，扩展都会进行播报。方向键功能需要 Claude Code v2.1.268 或更高版本。
 * 点击标签中的保存位置。

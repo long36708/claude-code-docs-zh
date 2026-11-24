@@ -6,7 +6,7 @@
 
 > 告诉自动模式分类器您的组织信任哪些代码库、存储桶和域，设置您自己的阻止和允许规则，并检查您的配置。
 
-[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)让 Claude Code 无需常规权限提示即可运行，通过将工具调用路由到一个分类器，该分类器会阻止任何不可逆、破坏性或针对您环境外的操作。拒绝和显式询问规则在分类器之前进行评估，仍然会阻止或提示。使用 `autoMode` 设置块告诉该分类器您的组织信任哪些代码库、存储桶和域，以便它停止阻止常规内部操作。
+[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)让 Claude Code 无需常规权限提示即可运行，它通过将工具调用路由到一个分类器来实现，该分类器会阻止其判定为不可逆、破坏性或针对您环境外的操作。使用 `autoMode` 设置块告诉该分类器您的组织信任哪些代码库、存储桶和域，以便它停止阻止常规内部操作。
 
 > [!NOTE]
 >
@@ -55,7 +55,7 @@
 | :- | :- | :- |
 | 在操作前提示 | `permissions.ask` | 默认情况下，对匹配内容范围规则（如上面的配方）的命令进行提示。分类器无法自动批准匹配的操作。 |
 | 永不运行操作 | `permissions.deny` | 在咨询分类器之前阻止。分类器和用户意图都无法覆盖它。 |
-| 此会话的一次性边界 | 在对话中说明，例如"在我审查之前不要推送" | 分类器阻止匹配的操作，但如果 [context compaction](https://code.claude.com/docs/zh-CN/costs.md#reduce-token-usage) 删除了说明该边界的消息，边界可能会丢失。使用 ask 或 deny 规则以获得持久保证。 |
+| 此会话的一次性边界 | 在对话中说明，例如"在我审查之前不要推送" | 分类器会阻止其审查的匹配操作，但如果[上下文压缩](https://code.claude.com/docs/zh-CN/costs.md#reduce-token-usage)删除了说明该边界的消息，边界可能会丢失。为避免边界丢失，请改用 ask 或 deny 规则。 |
 
 ## 分类器读取配置的位置
 

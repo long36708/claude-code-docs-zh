@@ -155,7 +155,7 @@ Claude Code 的系统提示未发布。要给 Claude 常设指令，使用 [`CLA
 
 ### 为一个会话更改设置
 
-要尝试一个值而不保存它，在启动 Claude Code 时设置它。该值适用于该会话，您的设置文件保持原样。您有三种方式做到：
+要尝试一个值而不保存它，在启动 Claude Code 时设置它。您有三种方式做到：
 
 * **`--settings`**：将键作为 JSON 传递，内联或作为文件路径。Claude Code 在您的用户、项目和本地文件上方以及托管设置下方应用它。使用 `--settings` 时，您无法设置 [`Managed` 或 `Global config`](https://code.claude.com/docs/zh-CN/settings-reference#scopes) 键，也无法设置某些用户设置键，例如 [`prependPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#prependplugins)。
 * **该键的标志**：某些键有自己的标志，如 `--model` 用于 `model` 和 `--effort` 用于 `effortLevel` 和 `modelSettings`。

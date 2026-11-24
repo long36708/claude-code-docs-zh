@@ -165,6 +165,6 @@ Claude Desktop 将您的登录信息保存在您桌面的密钥环中，例如 G
 * **Computer Use**：[应用和屏幕控制](https://code.claude.com/docs/zh-CN/desktop.md#let-claude-use-your-computer)在 Linux 上不可用。
 * **Dictation**：语音输入在 Linux 桌面应用中不可用。请改用 CLI 中的[语音听写](https://code.claude.com/docs/zh-CN/voice-dictation.md)。
 * **Quick Entry 全局热键**：在 X11 上有效。在原生 Wayland 上，它需要您的桌面环境的 GlobalShortcuts 门户。
-* **Fedora 和 RHEL**：目前仅支持基于 Debian 的发行版。对其他发行版的支持将在未来推出。
+* **Fedora 和 RHEL**：目前仅支持基于 Debian 的发行版。
 
 对于桌面应用中尚未提供的任何功能，[CLI](https://code.claude.com/docs/zh-CN/quickstart.md) 运行相同的 Claude Code 引擎并支持更广泛的 Linux 发行版范围；请参阅[系统要求](https://code.claude.com/docs/zh-CN/setup.md#system-requirements)。

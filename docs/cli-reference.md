@@ -4,7 +4,7 @@
 
 # CLI 参考
 
-> Claude Code 命令行界面的完整参考，包括命令和标志。
+> Claude Code 命令行界面的参考，包括命令和标志。
 
 ## CLI 命令
 

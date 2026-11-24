@@ -72,7 +72,7 @@ Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官
 
 ![市场路径的图表，分为三个框，从左到右。市场是插件的目录，列出一个插件。插件是一个作为单元安装的目录，包含 skills、agents、hooks、MCP 服务器和其他组件。您将插件安装到 Claude Code 中，它加载其组件。](https://mintcdn.com/claude-code/2Q_GtOEovg5qaBem/images/plugins-model.svg?fit=max\&auto=format\&n=2Q_GtOEovg5qaBem\&q=85\&s=4196344954b7c2e27fc0bd6a9a1113a1)
 
-[安装和管理插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin)有您运行 Claude Code 的每个位置的安装步骤。在您开发插件时，您不需要市场：使用 `--plugin-dir` 直接从其文件夹加载它，如[在没有市场的情况下开发](https://code.claude.com/docs/zh-CN/plugins/create.md#develop-without-a-marketplace)所示。
+[安装和管理插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin)有您运行 Claude Code 的每个位置的安装步骤。在您开发插件时，使用 `--plugin-dir` 直接从其文件夹加载它，如[在没有市场的情况下开发](https://code.claude.com/docs/zh-CN/plugins/create.md#develop-without-a-marketplace)所示。
 
 ### 在您的会话中使您安装的插件可用
 

@@ -30,15 +30,13 @@
 
 您在 Claude Code 终端会话之外的某个地方键入了 `/plugin`，Claude 用这一行回复而不是打开任何东西。
 
-您会在没有终端来绘制 `/plugin` 面板的会话中收到此回复：[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)，使用 `claude -p`、Agent SDK、Claude 桌面应用的 Code 选项卡、VS Code 扩展面板和浏览器上的 claude.ai/code。
+例如，您会在使用 `claude -p` 的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)、Agent SDK 和 VS Code 扩展面板中看到此回复。
 
 在 VS Code 扩展面板中，只有 `/plugin` 行后面跟着内容（例如 `/plugin install <plugin>@<marketplace>`）才会收到此回复。单独键入 `/plugin` 或 `/plugins` 会打开 **Manage plugins** 对话框。
 
 从您所在的表面安装插件：
 
-* **Claude 桌面应用、本地或 SSH 会话**：使用 [安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin) 下的 **Desktop app** 选项卡
 * **VS Code 扩展**：使用 [安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin) 下的 **VS Code** 选项卡
-* **网络上的 Claude Code 或桌面云会话**：云会话没有插件浏览器。有关云会话加载的内容，请参阅 [安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin) 下的 **Cloud session** 选项卡
 * **您有权访问的终端**：运行 `claude` 并在那里键入 `/plugin`，或在您的 shell 中运行 `claude plugin install <plugin>@<marketplace>` 而不启动会话
 
 当终端安装成功时，`/plugin` 会打印一个以 `✓ Installed <plugin>.` 开头的安装摘要，`claude plugin install` 会打印 `Installed plugin: <plugin>@<marketplace>`。

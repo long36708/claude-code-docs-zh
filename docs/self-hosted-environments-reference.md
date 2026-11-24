@@ -4,7 +4,7 @@
 
 # 自托管环境参考
 
-> 自托管运行器和编排器的完整参考：CLI 标志、环境变量和 Prometheus 指标。
+> 自托管运行器和编排器的参考：CLI 标志、环境变量和 Prometheus 指标。
 
 > [!NOTE]
 >
@@ -12,7 +12,7 @@
 
 本页面是您在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中运行的两个进程的参考：运行器，它在您的主机上执行 Claude Code [云会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)，以及可选的自动扩展编排器，它在会话队列时启动运行器。每个都有自己的标志表。两者都在 Linux 或 macOS 主机上运行，默认值如 `/workspace` 和 `~/.claude` 假设。运行 `claude self-hosted-runner --help` 以获取已安装版本上的权威列表。
 
-指标系列和一些 API 字段仍然使用 `pool` 来表示这些页面所称的环境；两个术语都指同一事物。环境 ID 是 `pool_id` 字段，形式为 `ccpool_...`：无论这些页面在哪里显示 `pool` 标识符，它都命名环境。CLI 标志和环境变量将其拼写为 `environment`，例如 `--environment-secret-file`；已弃用的 `pool` 拼写仍然有效，如[`--environment-secret-file` 行](#runner-cli-flags)所述。
+指标系列和一些 API 字段仍然使用 `pool` 来表示这些页面所称的环境。环境 ID 是 `pool_id` 字段，形式为 `ccpool_...`：无论这些页面在哪里显示 `pool` 标识符，它都命名环境。CLI 标志和环境变量将其拼写为 `environment`，例如 `--environment-secret-file`；已弃用的 `pool` 拼写仍然有效，如[`--environment-secret-file` 行](#runner-cli-flags)所述。
 
 ## Runner CLI 标志
 

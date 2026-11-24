@@ -27,7 +27,7 @@ security-guidance 插件让 Claude 在工作时审查自己的代码更改中是
 /plugin install security-guidance@claude-plugins-official
 ```
 
-`/plugin` 在终端 CLI 中打开一个交互式面板。如果 Claude 回复说 `/plugin` 在此环境中不可用，请以其他方式安装：
+`/plugin` 在终端 CLI 中打开一个交互式面板。在终端之外，请以其他方式安装：
 
 * **Claude 桌面应用、本地或 SSH 会话**：使用[安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin)下的 **Desktop app** 选项卡
 * **VS Code 扩展**：从[**Manage plugins** 对话框](https://code.claude.com/docs/zh-CN/vs-code.md#manage-plugins)安装

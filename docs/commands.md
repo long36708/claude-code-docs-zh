@@ -4,7 +4,7 @@
 
 # 命令
 
-> Claude Code 中可用命令的完整参考，包括内置命令和捆绑的 skills。
+> Claude Code 中可用命令的参考，包括内置命令和随附 skill。
 
 Commands 从会话内部控制 Claude Code。它们提供了一种快速方式来切换模型、管理权限、清除上下文、运行工作流等。
 
@@ -140,6 +140,8 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/security-review` | 分析当前分支上的更改是否存在安全漏洞。审查您的分支与 origin 默认分支之间的 diff，识别注入、身份验证问题和数据泄露等风险。需要 `origin` 远程；如果审查因 `ambiguous argument` 错误而失败，请参阅[错误参考](https://code.claude.com/docs/zh-CN/errors.md#security-review-fails-without-origin-head) |
 | `/setup-bedrock` | 通过交互式向导配置 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md) 身份验证、区域和模型固定。在设置 `CLAUDE_CODE_USE_BEDROCK=1` 之前[在命令菜单中隐藏](#how-the-command-menu-matches-what-you-type)；需要完整输入。首次使用 Amazon Bedrock 的用户也可以从登录屏幕访问此向导 |
 | `/setup-vertex` | 通过交互式向导配置 [Google Cloud's Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 身份验证、项目、区域和模型固定。在设置 `CLAUDE_CODE_USE_VERTEX=1` 之前[在命令菜单中隐藏](#how-the-command-menu-matches-what-you-type)；需要完整输入。首次使用 Google Cloud's Agent Platform 的用户也可以从登录屏幕访问此向导 |
+| `/ship [level] [pr] [+bot]` | **[Skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。** 提交并推送您的工作，如果您的分支还没有 Pull Request，则创建一个 GitHub Pull Request。然后审查该更改。随后 Claude 会在此会话中监视该 Pull Request，并针对审查反馈和失败的检查推送修复。`/ship stop` 会结束监视。请参阅[使用 `/ship` 让 Pull Request 准备就绪](https://code.claude.com/docs/zh-CN/ship-command)。如果该命令不存在，请参阅[故障排除](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting.md) |
+| `/ship:review` | [`/code-review`](https://code.claude.com/docs/zh-CN/code-review-local) 的别名 |
 | `/simplify [target]` | **[Skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。** 审查已更改的代码以寻找清理机会并应用修复。四个审查 [Agent](https://code.claude.com/docs/zh-CN/sub-agents.md) 并行运行，涵盖现有辅助函数的复用、简化、效率，以及更改是否处于合适的抽象层级。该审查不查找正确性 bug。使用 `/code-review` 查找 bug。传递路径或 PR 引用可审查特定目标 |
 | `/skill-doctor` | 显示您的每个 [skill](https://code.claude.com/docs/zh-CN/skills.md) 在上下文中的开销以及使用频率，以便您[找到可以关闭的 skill](https://code.claude.com/docs/zh-CN/skills.md#find-unused-skills)。需要 Claude Code v2.1.252 或更高版本以及[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching) |
 | `/skills` | 列出可用的 [skill](https://code.claude.com/docs/zh-CN/skills.md)。输入内容可按名称、描述或来源筛选列表。按 `t` 按 token 数排序，按 `Space` 或 `Enter` [循环切换 skill 对 Claude 和 `/` 菜单的可见性](https://code.claude.com/docs/zh-CN/skills#override-skill-visibility-from-settings)，按 `Esc` 保存并关闭。您无法循环切换插件 skill、frontmatter 设置了 `disable-model-invocation: true` 的 skill，或在托管设置或 `--settings` 标志中具有 `skillOverrides` 条目的 skill |
@@ -147,6 +149,7 @@ Commands 从会话内部控制 Claude Code。它们提供了一种快速方式�
 | `/stats` | `/usage` 的别名。在 Stats 选项卡上打开 |
 | `/status` | 在 Status 选项卡上打开设置界面，显示版本、模型、账户和连接状态。在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，`Session kind` 行会显示 `background job · attached` 或 `background job · unattended`（取决于是否附加了终端），在其他任何会话中显示 `interactive`。在 Claude 回复时也可使用 |
 | `/statusline` | 配置 Claude Code 的[状态栏](https://code.claude.com/docs/zh-CN/statusline.md)。描述您想要的内容，或不带参数运行以根据您的 shell 提示符自动配置 |
+| `/steward [pr] [+bot]` | **[Skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills)。** 在此会话中监视您已打开的 GitHub Pull Request，并针对审查反馈和失败的检查推送修复，而不运行 [`/ship`](https://code.claude.com/docs/zh-CN/ship-command) 首先执行的审查。`/steward stop` 会结束监视。请参阅[使用 `/steward` 在不审查的情况下监视](https://code.claude.com/docs/zh-CN/ship-command#start-a-watch-with-%2Fsteward)。如果该命令不存在，请参阅[故障排除](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting.md)。别名：`/ship:steward` |
 | `/stickers` | 查看 Claude Code 贴纸的可用情况 |
 | `/stop` | 停止您已附加到的[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，或您以[窥视回复](https://code.claude.com/docs/zh-CN/agent-view.md#peek-and-reply)方式发送此命令的目标会话；会话记录和任何 worktree 都会保留。要分离而不停止，请使用 `/exit` 或按 `←` |
 | `/subtask <task>` | 生成一个[分叉子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)：一个继承完整对话的后台子代理，在您继续工作的同时处理该任务。完成后，其结果会返回到此对话。要改为将对话复制到单独的后台会话中，请使用 `/fork`。当[关闭 Agent 视图](https://code.claude.com/docs/zh-CN/agent-view.md#turn-off-agent-view)时，`/subtask` 不可用，`/fork` 会改为生成分叉子代理 |

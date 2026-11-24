@@ -151,7 +151,7 @@ Never edit a migration after it has merged. Add a new migration instead.
 
 ### 阻止读取生成的和供应商代码
 
-Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径，例如 `node_modules/`、`dist/` 和 `build/`，无需额外配置就会保持在搜索结果之外。
+Claude 的内容搜索默认尊重 `.gitignore`，所以已列在其中的路径，例如 `node_modules/`、`dist/` 和 `build/`，会保持在搜索结果之外。
 
 对于已检入的路径，例如供应商 SDK 或提交的生成代码，在 `permissions.deny` 中添加 `Read` 拒绝规则以阻止 Claude 打开这些文件。
 

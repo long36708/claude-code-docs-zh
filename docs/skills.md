@@ -213,9 +213,10 @@ Claude Code 在启动时使用 `--add-dir` 传递的目录中监视 `.claude/ski
 | 相同名称在 | 运行哪一个 |
 | :- | :- |
 | Enterprise、personal 和 project 中的两个 | Enterprise 优先于 personal，personal 优先于 project。在 `~/.claude/skills/` 和项目的 `.claude/skills/` 中都有 `deploy` 时，`/deploy` 运行 personal 的 |
-| 这些位置中的任何一个和 [捆绑 skill](#bundled-skills) | 您的 skill 替换捆绑命令，但不替换其别名。项目 `code-review` skill 替换 `/code-review`，捆绑别名 `/review` 永远不会运行您的 skill |
+| 这些位置中的任何一个和名称不是 `ship`、`ship-local` 或 `steward` 的 [随附 skill](#bundled-skills) | 您的 skill 替换随附命令，但不替换其别名。项目 `code-review` skill 替换 `/code-review`，随附别名 `/review` 不会运行您的 skill |
 | 这些位置中的任何一个和 [内置命令](https://code.claude.com/docs/zh-CN/commands.md) | 在本地终端会话中，您的 skill 替换内置命令，但不替换其别名。项目 `usage` skill 替换 `/usage`，内置别名 `/cost` 仍然运行内置命令 |
 | Skill 和 `.claude/commands/` 中的文件 | Skill |
+| 您的名为 `ship`、`ship-local` 或 `steward` 的 skill 或命令 | 在 `/ship` 可用的情况下，运行随附的 `/ship` 或 `/steward`。Claude Code [不会加载您的](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting.md#a-custom-%2Fship-or-%2Fsteward-command-stopped-loading) |
 | 项目根 skill 和嵌套 skill | 两者都加载。请参阅 [monorepos 和子目录](#discovery-from-parent-and-nested-directories) |
 | Enterprise、personal 或 project skill 和 [项目外已添加目录](#skills-from-additional-directories) 中的 skill | Enterprise、personal 或 project skill，而已添加目录中的 skill 以带前缀的名称运行。请参阅 [运行已添加目录中的同名 skill](#run-a-same-named-skill-from-an-added-directory) |
 | 项目外的两个 [已添加目录](#skills-from-additional-directories) | 按 `--add-dir` 或 `/add-dir` 的顺序，最先添加的目录中的 skill。另一个以 [带前缀的名称](#run-a-same-named-skill-from-an-added-directory) 运行 |
@@ -271,7 +272,9 @@ Anthropic 的某些 skills，例如 `pdf` 和 `xlsx`，总是同步。对于其�
 
 要停止在机器上同步，请在您的用户设置中将 [`syncClaudeAiSkills`](https://code.claude.com/docs/zh-CN/settings-reference#syncclaudeaiskills) 设置为 `false`。Claude Code 停止下载，下次启动时它会将已同步的 skills 移动到 `~/.claude/skills/.trash/`，不再加载它们。您的组织可以通过在 claude.ai 上关闭 Skills 来为所有人关闭同步。要在保持 Skills 打开的情况下停止同步，它可以在 [托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md) 中设置相同的密钥。
 
-如果您的组织在 claude.ai 上关闭 Skills，Claude Code 会删除下载的 skills，它们停止加载。删除的 skills 移动到 `~/.claude/skills/.trash/`，您可以在 [保留扫描](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically) 删除它们之前恢复文件。一旦您的组织重新打开 Skills，Claude Code 会在下一次同步时下载您启用的 skills。
+> [!NOTE]
+>
+> 如果您的组织在 claude.ai 上关闭 Skills，Claude Code 会删除下载的 skill，它们停止加载。删除的 skill 移动到 `~/.claude/skills/.trash/`，在 Claude Code [删除它们](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically) 之前，您可以恢复这些文件。一旦您的组织重新打开 Skills，Claude Code 会在下一次同步时下载您启用的 skill。
 
 #### 当同步 skill 名称与另一个命令匹配时
 
@@ -319,7 +322,7 @@ Claude Code 对同步 skill 的正文的处理取决于会话运行的位置：
 
 ### 在会话期间编辑 skill
 
-Claude Code 监视 skill 目录的文件更改，除了在 [bare mode](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode) 中。当您在 `~/.claude/skills/`、项目 `.claude/skills/` 或 `--add-dir` 目录内的 `.claude/skills/` 中添加、编辑或删除 skill 时，Claude Code 在当前会话中获取更改，无需重新启动。
+Claude Code 监视 skill 目录的文件更改，除了在 [bare 模式](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode) 中。当您在 `~/.claude/skills/`、项目 `.claude/skills/` 或 `--add-dir` 目录内的 `.claude/skills/` 中添加、编辑或删除 skill 时，Claude Code 在当前会话中获取更改。
 
 如果新 skill 没有出现，请运行 [`/reload-skills`](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 
@@ -1053,7 +1056,7 @@ This creates `codebase-map.html` in the current directory and opens it in your d
 * 一个**条形图**，按文件类型（按大小排名前 8）分解代码库
 * 一个**可折叠树**，你可以在其中展开和折叠目录，带有颜色编码的文件类型指示器
 
-该脚本需要 Python 3，但仅使用内置库，因此无需安装任何包：
+该脚本需要 Python 3，但仅使用内置库：
 
 ```python expandable theme={null}
 #!/usr/bin/env python3
@@ -1252,7 +1255,9 @@ Claude Code 会将 `description` 和 `when_to_use` 字段中的 `<` 和 `>` 显�
 
 在 v2.1.280 之前，`~/.claude/skills/` 中名为 `manifest.json` 的文件会导致 Claude Code 将该文件列出的 skill 文件夹移动到 `~/.claude/skills/.trash/` 下的带时间戳的文件夹中，这些 skills 停止加载。
 
-要恢复一个 skill，将其文件夹从带时间戳的文件夹移回 `~/.claude/skills/`。在 [保留扫描](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically) 删除垃圾条目之前执行此操作，默认情况下在移动到垃圾箱后 30 天。
+> [!TIP]
+>
+> 要恢复一个 skill，请将其文件夹从带时间戳的文件夹移回 `~/.claude/skills/`。请在 Claude Code [删除它](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)之前执行此操作。
 
 ## 相关资源
 

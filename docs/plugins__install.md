@@ -69,7 +69,7 @@
 >
 > 摘要的最后一句告诉您插件在此会话中是否已可用：
 >
-> * **已激活**：`Plugin is now active.` 无需重新加载。
+> * **已激活**：`Plugin is now active.`
 > * **已激活，但服务器需要设置**：`Plugin is now active.` 后跟一条以 `Its bundled MCP server needs` 开头的说明。在您设置其选项之前，插件的[捆绑 MCP 服务器](https://code.claude.com/docs/zh-CN/plugins/components.md#include-a-packaged-mcpb-server)无法启动。在 `/plugin` 的 **Installed** 选项卡上选择该插件，然后选择 **Configure**。
 > * **需要重新加载**：`Run /reload-plugins to apply.` 面板会关闭，Claude Code 会为您运行该重新加载。如果重新加载会[使提示缓存失效](https://code.claude.com/docs/zh-CN/prompt-caching.md#enabling-or-disabling-a-plugin)，它会发出警告，并改为让插件保持待处理状态。运行 `/reload-plugins --force` 可强制激活它，这会产生一次未缓存的请求。
 > * **加载失败**：摘要中包含 `The plugin couldn't`。在 `/plugin` 中打开 **Errors** 选项卡查看原因，然后参阅[安装后：插件不工作](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#plugin-installed-but-not-working)。
@@ -119,13 +119,13 @@
 >
 > 选择 [scope](#choose-an-install-scope)：**Install for you**、**Install for this project** 或 **Install locally**。
 >
-> 您的更改应用于打开的会话，无需重新启动。请参阅 [Manage plugins in VS Code](https://code.claude.com/docs/zh-CN/vs-code.md#manage-plugins)。
+> 您的更改无需重新启动即可应用于已打开的会话。请参阅[在 VS Code 中管理插件](https://code.claude.com/docs/zh-CN/vs-code.md#manage-plugins)。
 
 > [tab] Cloud session
 >
-> [云端会话](https://code.claude.com/docs/zh-CN/cloud-environments.md)（包括 [claude.ai/code 上的浏览器](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)）没有插件浏览器，也不会加载您在用户或本地作用域安装的插件。对于您的组织通过托管设置分发的插件，请参阅 [Manage plugins for your organization](https://code.claude.com/docs/zh-CN/plugins/org.md)。
+> 要在[云端会话](https://code.claude.com/docs/zh-CN/cloud-environments.md)中使用插件，请在 [claude.ai/customize/plugins](https://claude.ai/customize/plugins) 将其添加到您的 claude.ai 账户，然后启动新会话。您可以[选择列出的插件、添加市场或上传插件](https://claude.com/docs/plugins/overview#find-and-add-a-plugin)。在 Team 和 Enterprise 计划中，由 [Owner](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control) 控制您可以使用其中哪些方式。对于自托管环境，请参阅[在 Amazon Bedrock 或 Google Cloud 的 Agent Platform 上有何不同](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#what-differs-from-sessions-on-the-anthropic-api)。
 >
-> 请参阅 [which parts of your setup are also available in a cloud session](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup) 了解您设置的其余部分。
+> 您在计算机上以用户或本地作用域安装的插件在云端会话中不可用。对于您的组织通过托管设置分发的插件，请参阅[为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)。关于您设置的其余部分，请参阅[哪些设置会沿用](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。
 
 ### Choose an install scope
 

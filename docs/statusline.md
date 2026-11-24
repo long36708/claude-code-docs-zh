@@ -217,7 +217,7 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 | `agent.name` | 使用 `--agent` 标志运行或配置了 Agent 设置时的 Agent 名称 |
 | `pr.number`、`pr.url` | 当前分支的已打开 Pull Request。与页脚中的 PR 徽章一致。在具有 GitLab 远程的仓库中，Claude Code 会改用该分支已打开的 [merge request](https://code.claude.com/docs/zh-CN/interactive-mode.md#gitlab-merge-requests) 来填充这些字段，因此 `pr.number` 是 merge request 编号。merge request 数据需要 Claude Code v2.1.234 或更高版本。不在 git 仓库中时、在找到 Pull Request 或 merge request 之前，或者在其合并或关闭之后，此字段不存在 |
 | `pr.review_state` | 已打开 PR 的审查状态：`approved`、`pending`、`changes_requested` 或 `draft`。即使存在 `pr`，此字段也可能单独缺失 |
-| `pr.kind` | 当 `pr` 描述的是 [GitLab merge request](https://code.claude.com/docs/zh-CN/interactive-mode.md#gitlab-merge-requests) 时为 `mr`。对于 GitHub Pull Request 不存在，因此在此字段出现之前编写的脚本仍可正常工作。对于 merge request，当 GitLab 报告其可合并时，Claude Code 将 `review_state` 设置为 `approved`；任何其他打开状态设置为 `pending`；草稿设置为 `draft`。需要 Claude Code v2.1.234 或更高版本 |
+| `pr.kind` | 当 `pr` 描述的是 [GitLab merge request](https://code.claude.com/docs/zh-CN/interactive-mode.md#gitlab-merge-requests) 时为 `mr`。对于 GitHub Pull Request 不存在。对于 merge request，当 GitLab 报告其可合并时，Claude Code 将 `review_state` 设置为 `approved`；任何其他打开状态设置为 `pending`；草稿设置为 `draft`。需要 Claude Code v2.1.234 或更高版本 |
 | `worktree.name` | 活动 worktree 的名称。仅在会话处于 [worktree 会话](https://code.claude.com/docs/zh-CN/worktrees.md)时存在 |
 | `worktree.path` | worktree 目录的绝对路径 |
 | `worktree.branch` | worktree 的 Git 分支名称（例如 `"worktree-my-feature"`）。对于基于 hook 的 worktree 不存在 |
@@ -379,7 +379,7 @@ Claude Code 通过 stdin 向您的脚本发送以下 JSON 字段：
 
 有关缓存字段的含义及其计费方式，请参阅[检查缓存性能](https://code.claude.com/docs/zh-CN/prompt-caching.md#check-cache-performance)。
 
-`used_percentage` 字段仅根据输入 token 计算：`input_tokens + cache_creation_input_tokens + cache_read_input_tokens`。它不包括 `output_tokens`。
+`used_percentage` 字段仅根据输入 token 计算：`input_tokens + cache_creation_input_tokens + cache_read_input_tokens`。
 
 如果您根据 `current_usage` 手动计算上下文百分比，请使用相同的仅输入公式，以与 `used_percentage` 保持一致。
 

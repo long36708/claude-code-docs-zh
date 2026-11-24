@@ -52,6 +52,8 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 * [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)（`/schedule`）
 * [Ultrareview](https://code.claude.com/docs/zh-CN/ultrareview.md)
 * [Code Review](https://code.claude.com/docs/zh-CN/code-review.md)：Team 和 Enterprise 计划
+* [PR Steward](https://code.claude.com/docs/zh-CN/pr-steward.md)：Team 和 Enterprise 套餐
+* [Claude Approvals](https://code.claude.com/docs/zh-CN/approvals.md)：Team 和 Enterprise 套餐
 * [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)
 * [Chrome 扩展](https://code.claude.com/docs/zh-CN/chrome.md)
 * [Computer use](https://code.claude.com/docs/zh-CN/computer-use.md)：Pro、Max 和 Ultra 套餐
@@ -347,6 +349,8 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 | [Computer use](https://code.claude.com/docs/zh-CN/computer-use.md) | ✓ | ✓ | ✓ | ✗ | ✗ |
 | Dispatch ([Desktop](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)) | 不向新用户开放 | 不向新用户开放 | 不向新用户开放 | ✗ | ✗ |
 | [Code Review](https://code.claude.com/docs/zh-CN/code-review.md) | ✗ | ✗ | ✗ | ✓ | ✓ |
+| [PR Steward](https://code.claude.com/docs/zh-CN/pr-steward.md) | ✗ | ✗ | ✗ | ✓ | ✓ |
+| [Claude Approvals](https://code.claude.com/docs/zh-CN/approvals.md) | ✗ | ✗ | ✗ | ✓ | ✓ |
 | [Artifacts](https://code.claude.com/docs/zh-CN/artifacts.md) | ✓ | ✓ | ✓ | ✓ | ✓ |
 | [分析仪表板和贡献指标](https://code.claude.com/docs/zh-CN/analytics.md) | ✗ | ✗ | ✗ | ✓ | ✓ |
 | [Enterprise Analytics API](https://code.claude.com/docs/zh-CN/analytics.md#access-data-programmatically) | ✗ | ✗ | ✗ | ✗ | ✓ |

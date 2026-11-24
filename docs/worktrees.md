@@ -145,7 +145,7 @@ and report the results.
 
 Claude Code 运行定期扫描，删除 Claude 为子代理和[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md#how-file-edits-are-isolated)创建的 worktrees，一旦它们超过您的 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays) 设置，遵循[保留扫描规则](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)。
 
-当您[后台](https://code.claude.com/docs/zh-CN/agent-view.md#send-the-session-to-the-background)一个 `--worktree` 会话时，其 worktree 变成后台会话 worktree，扫描可以删除。扫描在这些情况下保留 worktree：
+当您将 `--worktree` 会话[转入后台](https://code.claude.com/docs/zh-CN/agent-view.md#send-the-session-to-the-background)时，其 worktree 会成为后台会话 worktree，清理过程可以将其移除。在以下等情况下，清理过程会保留 worktree：
 
 * worktree 仍然保留工作：已更改或未跟踪的文件，或未推送的提交。
 * worktree 中已检出的子模块保留已更改或未跟踪的文件，或 Claude Code 无法检查 worktree 的子模块。此检查需要 Claude Code v2.1.274 或更高版本。
@@ -257,7 +257,7 @@ Claude Code 仅从 git 状态检测合并的情况：worktree 推送到的远程
 Worktree 获得自己的文件和分支，但它与主检出共享以下内容：
 
 * **仓库的 `.git` 目录**：worktree 中的 git 命令会写入主仓库共享的 `.git` 目录。启用[沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md#filesystem-isolation)后，`git commit` 等命令可以在位于 worktree 根目录的会话中正常工作，而 `--worktree` 正是在该位置启动会话。默认情况下，[如果您在 worktree 的子目录中运行 `claude`，这些命令会因 `index.lock` 错误而失败](https://code.claude.com/docs/zh-CN/sandboxing#git-index-lock)。
-* **插件**：从主检出在[项目作用域](https://code.claude.com/docs/zh-CN/plugins/loading.md#find-where-a-plugin-is-enabled)安装的插件也会在同一仓库的 worktree 中加载，因此您无需为每个 worktree 重新安装它们。
+* **插件**：从主检出在[项目作用域](https://code.claude.com/docs/zh-CN/plugins/loading.md#find-where-a-plugin-is-enabled)安装的插件也会在同一仓库的 worktree 中加载。
 * **权限批准**：在 worktree 会话中为 Bash 命令选择"是，不再询问"会将规则保存到主检出的 `.claude/settings.local.json`。该规则适用于主检出和仓库的每个其他 worktree，并且在 worktree 被删除后仍会保留。
 
   在 Windows 以及 Claude Code [不使用仓库根目录](https://code.claude.com/docs/zh-CN/settings.md#where-claude-code-looks-for-each-file)的其他情况下，规则保留在该 worktree 中。请参阅[批准保存的位置](https://code.claude.com/docs/zh-CN/permissions.md#permission-system)。

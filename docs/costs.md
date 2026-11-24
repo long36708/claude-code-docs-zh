@@ -183,7 +183,7 @@ Claude Code 将最新报告写入 `~/.claude/usage-data/report.html`，并在同
 * **限制支出**：席位额度是默认上限。要让成员在超出额度后继续使用，请启用[使用额度](https://support.claude.com/en/articles/12429409-extra-usage-for-paid-claude-plans)，并在组织、群组或单个成员级别设置支出限制。
 * **获取按用户统计的数据**：在 Enterprise 套餐中，[Enterprise Analytics API](https://platform.claude.com/docs/en/api/admin/analytics) 返回跨各 Claude 使用入口（包括 Claude Code）的按用户用量和成本报告。Primary Owner 可在 [claude.ai/analytics/api-keys](https://claude.ai/analytics/api-keys) 创建具有 `read:analytics` 作用域的密钥。在 Teams 套餐中，请导出[支出报告 CSV](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)，其中列出了按用户和按模型的 token 用量及估算支出。
 
-[Claude Enterprise 消耗指南](https://support.claude.com/en/articles/14782391-claude-enterprise-consumption-guide)是供管理员进行规划的参考资料。它说明了 Claude 聊天、Claude Code 和 Cowork 之间的消耗差异，并提供了用于预算编制的按用户美元起始参考值。为编码席位编制的预算应多于聊天席位：每个 Claude Code 轮次都携带文件内容、工具调用和多步推理，因此一次调试会话的消耗可能超过一整天的聊天。
+[Claude Enterprise 消耗指南](https://support.claude.com/en/articles/14782391-claude-enterprise-consumption-guide)是供管理员进行规划的参考资料。它说明了 Claude 聊天、Claude Code 和 Cowork 之间的消耗差异。为编码席位编制的预算应多于聊天席位：每个 Claude Code 轮次都携带文件内容、工具调用和多步推理，因此一次调试会话的消耗可能超过一整天的聊天。
 
 ### Claude Console
 

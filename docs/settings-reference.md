@@ -4,7 +4,7 @@
 
 # 所有设置
 
-> Claude Code 每个 settings.json 键的完整参考：每个键的放置位置、类型和默认值，以及可直接粘贴的示例，并附有所有键的索引。
+> Claude Code settings.json 键的参考：每个键的放置位置、类型和默认值，以及可直接粘贴的示例，并附有键索引。
 
 [返回索引](#all-settings)
 
@@ -2913,7 +2913,7 @@ your-repo-file-index --query "$query" | head -20
 
 轮次完成时，Claude Code 会在主线程上将每个条目的 `pattern` 正则表达式与轮次输出进行匹配，因此缓慢的正则表达式会阻塞 UI 直至完成。诸如 `(a+)+$` 之类的嵌套量词在某些输入下可能耗费指数级时间并冻结会话，因此请保持每个 `pattern` 为线性，并避免嵌套 `+` 或 `*`。
 
-配置了[自定义状态栏](https://code.claude.com/docs/zh-CN/statusline.md)时，页脚徽章会与其一同渲染；两者互不替代。状态栏适用于由脚本驱动、根据会话数据计算自身内容的行，页脚徽章则适用于无需脚本即可将对话中的 ID 转换为链接。
+配置了[自定义状态栏](https://code.claude.com/docs/zh-CN/statusline.md)时，页脚徽章会与其一同渲染。状态栏适用于由脚本驱动、根据会话数据计算自身内容的行，页脚徽章则适用于无需脚本即可将对话中的 ID 转换为链接。
 
 ### `keybindingFlavor`
 
@@ -4481,9 +4481,7 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 
 将用户可以添加的 MCP 服务器加入允许列表。无论服务器在何处定义，Claude Code 都会阻止任何与条目不匹配的服务器，包括插件服务器、用户通过 `--mcp-config` 传入的服务器以及来自 claude.ai 的服务器。
 
-内置服务器（例如 Claude in Chrome、Claude Code 在运行中的 [VS Code](https://code.claude.com/docs/zh-CN/vs-code.md#the-built-in-ide-mcp-server) 或 [JetBrains](https://code.claude.com/docs/zh-CN/jetbrains.md#the-built-in-ide-mcp-server) IDE 中连接的 `ide` 服务器）以及 CLI 自身配置的服务器不受允许列表限制，但拒绝列表仍然对它们适用。在 Claude Code v2.1.268 或更高版本中，[Claude Tag](https://code.claude.com/docs/zh-CN/claude-tag.md) 会话的 Slack 工具同样不受允许列表限制，但拒绝列表仍然对它们适用。进程内的 `type: "sdk"` 服务器不受这两个列表限制；它们由[启动会话的应用](https://code.claude.com/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)注册。
-
-您的组织交付的服务器同样不受允许列表限制，但拒绝列表仍然对它们适用。此豁免涵盖每个 [`managedMcpServers`](#managedmcpservers) 条目，以及值中[除 `env` 外未使用 `${VAR}` 展开](https://code.claude.com/docs/zh-CN/managed-mcp#how-allowlists-and-denylists-apply-to-the-managed-set)的任何 [`managed-mcp.json`](https://code.claude.com/docs/zh-CN/managed-mcp#exclusive-control-with-managed-mcp-json) 条目。完整的检查顺序请参阅[如何评估服务器](https://code.claude.com/docs/zh-CN/managed-mcp.md#how-a-server-is-evaluated)。在 v2.1.259 之前，来自 `managed-mcp.json` 的服务器也必须匹配。
+[某些服务器会跳过允许列表检查](https://code.claude.com/docs/zh-CN/managed-mcp.md#servers-that-skip-the-allowlist-check)，例如 [`managedMcpServers`](#managedmcpservers) 条目。在 v2.1.268 或更高版本中，[Claude Tag](https://code.claude.com/docs/zh-CN/claude-tag.md) 会话的 Slack 工具同样会跳过允许列表检查。托管设置或用户设置中的拒绝列表条目仍然对这些服务器适用。进程内的 `type: "sdk"` 服务器不受这两个列表限制。
 
 * **作用域**：[`Any file`](#scopes)。对于用户添加的服务器，除非设置了 [`allowManagedMcpServersOnly`](#allowmanagedmcpserversonly)，否则所有文件中的条目会合并为一个允许列表。如需防止用户添加条目，请在托管设置中同时部署这两个键。
 * **类型**：对象数组，每个对象恰好包含一个键。使用 `serverName`（仅限字母、数字、连字符和下划线的字符串）；`serverCommand`（由命令及其参数组成的数组，需完全匹配）；或 `serverUrl`（带 `*` 通配符的 URL 模式）

@@ -100,7 +100,7 @@ Claude Code 在您工作时将您的对话保存在本地。每条消息、工�
 
 每个 Claude Code 对话都是一个与您当前目录相关的会话。`/resume` 选择器默认显示来自当前 worktree 的会话，带有键盘快捷键以扩展列表到其他 worktrees 或项目。有关选择器快捷键的完整列表以及名称解析如何工作，请参阅[管理会话](https://code.claude.com/docs/zh-CN/sessions.md#use-the-session-picker)。
 
-Claude 看到您当前分支的文件。当您切换分支时，Claude 看到新分支的文件，但您的对话历史保持不变。Claude 记得您讨论过的内容，即使在切换后也是如此。
+Claude 看到您当前分支的文件。当您切换分支时，Claude 看到新分支的文件，但您的对话历史保持不变。
 
 由于会话与目录相关，您可以通过使用 [git worktrees](https://code.claude.com/docs/zh-CN/worktrees.md) 运行并行 Claude 会话，这为各个分支创建单独的目录。
 
@@ -187,7 +187,7 @@ Claude Code 可以教您如何使用它。提出问题，如"我如何设置 hoo
 
 ### 这是一个对话
 
-Claude Code 是对话式的。您不需要完美的提示。从您想要的开始，然后细化：
+Claude Code 是对话式的，因此从您想要的开始，然后细化：
 
 ```text theme={null}
 修复登录错误

@@ -281,7 +281,7 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 ### 管理上下文
 
-云会话支持产生文本输出的[内置命令](https://code.claude.com/docs/zh-CN/commands.md)。仅在终端界面中运行的命令，如 `/plugin` 或 `/resume`，不可用。在云会话中打开选择器或面板的命令表现不同：
+云端会话支持产生文本输出的[内置命令](https://code.claude.com/docs/zh-CN/commands.md)。仅在终端界面中运行的命令，如 `/resume`，不可用。在终端中打开选择器或面板的命令在云端会话中表现不同：
 
 * **`/model`、`/effort`、`/color` 和 `/rename`**：将值作为参数传递，例如 `/model sonnet`，而不是打开终端选择器或滑块。参数形式遵循每个命令的[可用性说明](https://code.claude.com/docs/zh-CN/commands.md#all-commands)。
 * **`/fast`**：当快速模式在[你的账户上可用](https://code.claude.com/docs/zh-CN/fast-mode.md#requirements)时，为会话切换[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-in-cloud-sessions)。需要会话环境中的 Claude Code v2.1.271 或更高版本。
@@ -335,27 +335,7 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 ### 共享会话
 
-要共享会话，请根据下面的账户类型切换其可见性。之后，按原样共享会话链接。打开链接时，收件人会看到最新状态，但他们的视图不会实时更新。
-
-#### 从 Enterprise 或 Team 账户共享
-
-Enterprise 和 Team 账户的共享方式如下：
-
-* **可见性选项**：**私有**和**团队**。团队可见性使会话对您的 claude.ai 组织中的其他成员可见
-* **仓库访问权限**：默认启用验证，基于收件人账户所连接的 GitHub 账户
-* **您的名称**：您账户的显示名称对所有有访问权限的收件人可见
-* **Slack 会话**：[Claude in Slack](https://code.claude.com/docs/zh-CN/slack.md) 会话会自动以团队可见性共享
-
-#### 从 Max、Ultra 或 Pro 账户共享
-
-* **可见性选项**：**私有**和**公开**。公开可见性使会话对任何登录 claude.ai 的用户可见
-* **仓库访问权限**：默认不启用验证
-* **敏感内容**：共享前请检查您的会话。会话可能包含来自私有 GitHub 仓库的代码和凭据
-
-要要求收件人拥有仓库访问权限，或从共享会话中隐藏您的名称，请在 claude.ai 上打开 Settings，然后：
-
-* **如果 Settings 菜单显示的是 Code 而不是 Claude Code**：前往 [**Privacy**](https://claude.ai/settings/data-privacy-controls)，其中包含这些设置
-* **否则**：前往 [**Claude Code > Sharing settings**](https://claude.ai/settings/claude-code)
+有关如何通过链接共享会话、收件人可以读取哪些内容以及如何停止共享，请参阅[共享云端会话或 Remote Control 会话](https://code.claude.com/docs/zh-CN/share-sessions.md)。
 
 ### 归档会话
 
@@ -391,6 +371,8 @@ Claude 可以监视拉取请求并自动响应 CI 失败和审查评论。Claude
 * **任何现有 PR**：将 PR URL 粘贴到会话中并告诉 Claude 自动修复它
 
 要停止监视，请在会话的 [**Changes** 卡片](#review-changes)中，通过拉取请求的 **⋮** 菜单关闭 **Auto-fix**，或告诉 Claude 停止监视该 PR。
+
+在由 PR Steward 处理您的拉取请求的仓库中，**Auto-fix** 开关不可用。对 PR Steward 正在监视的拉取请求发出的自动修复请求会失败。请参阅[自动修复不可用](https://code.claude.com/docs/zh-CN/pr-steward-troubleshooting.md#auto-fix-is-unavailable)。
 
 ### Claude 如何响应 PR 活动
 

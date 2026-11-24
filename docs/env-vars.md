@@ -316,7 +316,7 @@ Claude Code 在启动时读取 shell 环境变量，因此对它们的更改在�
 | `CLAUDE_CODE_FORCE_TERMINAL_IMAGES` | 当您的终端使用 Unicode 占位符绘制 kitty 图形协议图像，而您仍看到 `Image` 的灰显 `alt` 文本时，设置为 `1` 可将 [mod `Image` 元素](https://code.claude.com/docs/zh-CN/plugins/mods/reference#elements)绘制为图片。请参阅[哪些终端会绘制 `Image` 以及在哪些情况下不应设置此变量](https://code.claude.com/docs/zh-CN/plugins/mods/gallery#image-and-client) |
 | `CLAUDE_CODE_FORK_SUBAGENT` | 控制分叉模式，该模式默认开启，允许 Claude 自行启动[分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)。设置为 `0` 可关闭分叉模式，例如为了[让 Claude 等待子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#let-claude-wait-for-a-subagent)。有关版本信息，请参阅[关闭分叉模式](https://code.claude.com/docs/zh-CN/sub-agents.md#turn-fork-mode-on-or-off) |
 | `CLAUDE_CODE_FORWARD_SUBAGENT_TEXT` | 设置为 `1` 可在 `claude -p --output-format stream-json` 输出中发出[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)的文本和思考块，行为与 [`--forward-subagent-text`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 标志相同。当调用 `claude` 的外部框架无法自行传递该标志时，请使用此变量。该标志在"使用 stream-json 输出的非交互模式"之外会报错退出，而此变量在这些情况下会被忽略，因此在进程范围内设置时，嵌套调用仍能正常工作。需要 Claude Code v2.1.211 或更高版本 |
-| `CLAUDE_CODE_FULL_SIGN_IN_LINK` | 设置为 `1` 可打印完整的 claude.ai 登录 URL，而不是短 URL。当短 URL 显示错误或您的脚本需要从 URL 中读取值时使用。请在 shell 或用户设置中设置它。需要 Claude Code v2.1.330 或更高版本 |
+| `CLAUDE_CODE_FULL_SIGN_IN_LINK` | 设置为 `1` 可打印完整的登录 URL。当短登录 URL 显示错误，或您的脚本需要从 URL 中读取值时使用。请在 shell 或用户设置中设置它。需要 Claude Code v2.1.330 或更高版本 |
 | `CLAUDE_CODE_GATEWAY_HINT_HEADERS` | 设置为 `1` 可在自定义代理或第三方提供商（例如 Amazon Bedrock 或 Claude Platform on AWS）上发送[网关提示标头](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#gateway-hint-headers)，例如 `x-claude-code-request-class` 和 `x-claude-code-compaction`。设置为 `0` 可在所有连接上停止发送这些标头，包括直接连接到 Anthropic API 的情况（Claude Code 默认会在此类连接上发送这些标头）。需要 Claude Code v2.1.273 或更高版本 |
 | `CLAUDE_CODE_GATEWAY_MODEL_DISCOVERY_TIMEOUT_MS` | 由 `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY` 开启的[网关模型发现](https://code.claude.com/docs/zh-CN/llm-gateway-protocol.md#model-discovery)请求的超时时间（毫秒，默认：`3000`）。当您的网关在启动时需要超过三秒才能响应 `/v1/models` 时，请调高此值。仅接受纯数字；`0`、负值和其他写法会保留默认值。需要 Claude Code v2.1.269 或更高版本 |
 | `CLAUDE_CODE_GIT_BASH_PATH` | 仅限 Windows：Git Bash 可执行文件（`bash.exe`）的路径。当已安装 Git Bash 但它不在 PATH 中时使用。如果该路径不存在，或文件名不是 `bash.exe`、`sh.exe`、`bash` 或 `sh`，Claude Code 会忽略此变量并像未设置一样自动检测 Git Bash，同时记录一条可通过 `--debug` 查看的警告。在 v2.1.219 之前，路径不存在时 Claude Code 会在启动时退出，并且会将任何现有文件用作 shell，而不检查它是否为 bash 或 sh。请参阅 [Windows 设置](https://code.claude.com/docs/zh-CN/setup.md#set-up-on-windows) |
@@ -600,6 +600,7 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 * 运行 [`claude import` 或 `/import` 命令](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands)
 * 运行 [`/skill-doctor`](https://code.claude.com/docs/zh-CN/skills#find-unused-skills) 或在 `/plugin` 的 **Stats** 选项卡中打开其报告
 * 在 Pro、Max 和 Ultra 计划中运行 [`/restart`](https://code.claude.com/docs/zh-CN/commands)
+* 运行 [`/ship` 或 `/steward`](https://code.claude.com/docs/zh-CN/ship-command)
 * 将您的 claude.ai 账户中启用的 [skill](https://code.claude.com/docs/zh-CN/skills.md#where-synced-skills-load) 和[插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)同步到终端会话中
 * 启用 [You should know mod](https://code.claude.com/docs/zh-CN/interactive-mode.md#you-should-know-suggestions)
 * 使用 [advisor 工具](https://code.claude.com/docs/zh-CN/advisor.md#requirements)，但在 Claude Platform on AWS 或 [Claude Models on Google Cloud（由 Anthropic 管理）](https://code.claude.com/docs/zh-CN/feature-availability.md#availability-by-model-provider)上使用 Claude Code v2.1.300 或更高版本时除外
@@ -610,7 +611,7 @@ Claude Code 通过从 Anthropic 获取的功能标志来启用部分功能。在
 
 ### 安装或升级后的首个会话
 
-在您安装 Claude Code 后，或升级到新增某项功能的版本后，首个会话中可能缺少[受标志控制的功能](#features-that-need-feature-flag-fetching)。Claude Code 在该会话期间获取功能标志后，会将其保存在本机上，因此您在该机器上的下一个会话将具备该功能。
+在您安装 Claude Code 后，或升级到新增某项功能的版本后，首个会话中可能缺少[受标志控制的功能](#features-that-need-feature-flag-fetching)。在 Anthropic 启用某项功能后的首个会话中，情况同样如此。Claude Code 在该会话期间获取功能标志后，会将其保存在本机上，因此您下次在该机器上启动 Claude Code 时将具备该功能。
 
 在以下这类设置中，首个会话之后的会话同样会在没有新获取标志的情况下启动：
 

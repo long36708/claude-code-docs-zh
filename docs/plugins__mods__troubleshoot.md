@@ -68,13 +68,15 @@ mod 添加的任何内容都不会出现，`/plugin` 中的 [`mods active` 行](
 
 ### 来自内置保护的消息
 
-在[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)加载的地方，它可以拒绝 mod 或其答案之一。部分消息会指明您的组织管理员为更改该规则而设置的选项。
+在[内置守卫](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#know-what-happens-by-default)加载的地方，它可以拒绝 mod，或拒绝其某个答案或调用。部分消息会指明您的组织管理员为更改该规则而设置的选项。
 
 | 消息包含 | 这意味着什么 | 它出现在哪里 |
 | :- | :- | :- |
 | `mods are limited to your organization's by policy (allowManagedModsOnly)` | 您的组织仅允许 [其自己的 mod](https://code.claude.com/docs/zh-CN/plugins/mods/admin.md#install-your-organizations-mods)，因此您的 mod 被拒绝 | 调试日志，以及 [热重新加载插件目录的会话](#find-out-why-a-mod-does-nothing) 中的会话记录 |
-| `tried to lift a deny rule in your settings` | 您的 mod 的 [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#tools) hook 批准了 `deny` 规则拒绝的调用。该调用保持被拒绝。 | 会话记录和调试日志，会话中每个 mod 一次。在 `claude -p` 运行中，仅调试日志。 |
+| `tried to lift` 或 `tried to reword`，例如 `tried to lift a deny rule in your settings` | 您的 mod 中的某个 hook（例如 [`tool.check`](https://code.claude.com/docs/zh-CN/plugins/mods/events#approve-or-refuse-a-tool-call-before-the-user-is-asked)）试图放宽或改写该消息所指明的决定。该决定保持不变。请返回 `await next(e)` 给出的结果，或更严格的决定。 | 会话记录和调试日志。在 `claude -p` 运行中，为调试日志。 |
 | `the rules and hooks in your settings could not be checked for this call, so it is refused` | 守卫在检查 mod 批准的调用时失败，因此它拒绝了该调用 | Claude 为被拒绝的调用读取的原因 |
+| `is not for plugins outside policy to change` | 您的 mod 试图更改守卫拒绝更改的环境变量。请删除该 `$.env.set` 调用。 | `$.env.set` 抛出的错误 |
+| `would be named as a tool of one of the organization's servers` | 原因之一是插件名称与您组织的某个 MCP 服务器或插件名称相同。请重命名该插件，并更新匹配该工具旧[完整名称](https://code.claude.com/docs/zh-CN/plugins/mods/api.md#add-a-tool)的 hook。如果错误仍然存在，请询问管理员 [`managed-mcp.json`](https://code.claude.com/docs/zh-CN/managed-mcp#deploy-managed-mcp-json) 是否可读且有效。 | `$.tool.register` 抛出的错误 |
 
 ### `validate` 通过且不列出 `hooks` 行
 

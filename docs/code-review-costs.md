@@ -30,13 +30,15 @@ Code Review 通过[使用额度](https://support.claude.com/en/articles/12429409
 * **`@claude review`**：运行一次审查，但不订阅后续推送
 * **草稿和来自 fork 的 Pull Request**：[自动审查会跳过这两者](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#review-drafts-and-pull-requests-from-forks)，因此向它们推送不会增加审查次数
 
+在包含 [Claude Approvals](https://code.claude.com/docs/zh-CN/approvals-setup.md#what-approvals-costs) 策略文件的仓库中，可能会启动 **Review runs** 设置本不会启动的审查，并且[自动审查可能会停止](https://code.claude.com/docs/zh-CN/approvals-policy.md#advisory)。
+
 ## 估算您的支出
 
 在大范围推广之前，先进行小规模试点，根据您自己的 Pull Request 估算每月支出。
 
 1. 为试点设置[每月支出上限](#limit-your-spend)。
 2. 为几个具有代表性的仓库启用 Code Review，并将 **Review runs** 设为 **Once after PR creation** 或 **Manual (@claude review)**。
-3. 运行若干次审查后，在 [**Admin settings > Claude Code**](https://claude.ai/admin-settings/claude-code#code-review) 的 **Code review** 部分中，查看 **Repositories** 表的 **Average cost** 列，了解每个仓库每次审查的平均费用。
+3. 运行若干次审查后，前往 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-code#code-review)，在 **Repositories** 表中点击每个仓库所在行的 **Edit**。在 **Cost** 下查看其每次审查的平均费用。
 4. 将该平均值乘以该仓库每月打开的 Pull Request 数量。对于 **After every push**，还需再乘以每个 Pull Request 的典型推送次数。
 
 仓库的平均费用会随其 Pull Request 的大小以及您选择的审查级别而变化。

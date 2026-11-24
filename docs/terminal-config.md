@@ -6,7 +6,7 @@
 
 > 修复 Shift+Enter 以插入新行、在 Claude 完成时获得终端铃声、配置 tmux、匹配颜色主题，以及在 Claude Code CLI 中启用 Vim 模式。
 
-Claude Code 可以在任何终端中工作，无需配置。此页面适用于某些特定功能的行为不符合您预期的情况。在下方找到您的症状。如果一切都已按预期工作，您不需要此页面。
+Claude Code 可以在任何终端中工作，无需配置。此页面适用于某些特定功能的行为不符合您预期的情况。在下方找到您的症状。
 
 * [Shift+Enter 提交而不是插入新行](#enter-multiline-prompts)
 * [macOS 上的 Option 键快捷键无效](#enable-option-key-shortcuts-on-macos)
@@ -41,7 +41,7 @@ Claude Code 可以在任何终端中工作，无需配置。此页面适用于�
 * 如果 Claude Code 无法读取或解析 keymap、无法备份或无法验证合并结果，它会[保持文件不变并打印快捷键块供您自己添加](https://code.claude.com/docs/zh-CN/errors.md#terminal-setup-left-your-zed-keymap-unchanged)
 * 如果 keymap 是符号链接，请[自行添加快捷键](https://code.claude.com/docs/zh-CN/errors.md#terminal-setup-left-your-zed-keymap-unchanged)
 
-如果您在 tmux 内运行，即使外部终端支持，Shift+Enter 也需要下面的 [tmux 配置](#configure-tmux)。
+如果您在 tmux 内运行，Shift+Enter 还需要下面的 [tmux 配置](#configure-tmux)。
 
 要将换行绑定到不同的键，或交换行为使 Enter 插入换行而 Shift+Enter 提交，请在您的[快捷键文件](https://code.claude.com/docs/zh-CN/keybindings.md)中映射 `chat:newline` 和 `chat:submit` 操作。
 
@@ -169,7 +169,7 @@ set -as terminal-features 'xterm*:extkeys'
 | `base` | string | 主题所基于的内置预设：`dark`、`light`、`dark-daltonized`、`light-daltonized`、`dark-ansi` 或 `light-ansi`。默认为 `dark` |
 | `overrides` | object | 颜色 token 名称到颜色值的映射。未在此列出的 token 会沿用基础预设 |
 
-颜色值支持 `#rrggbb`、`#rgb`、`rgb(r,g,b)`、`ansi256(n)` 或 `ansi:<name>`，其中 `<name>` 是 16 种标准 ANSI 颜色名称之一，例如 `red` 或 `cyanBright`。未知的 token 和无效的颜色值会被忽略，因此拼写错误不会破坏渲染。
+颜色值支持 `#rrggbb`、`#rgb`、`rgb(r,g,b)`、`ansi256(n)` 或 `ansi:<name>`，其中 `<name>` 是 16 种标准 ANSI 颜色名称之一，例如 `red` 或 `cyanBright`。未知的 token 和无效的颜色值会被忽略。
 
 以下示例定义了一个主题，它保留 dark 预设，但重新设置了提示词强调色、错误文本和成功文本的颜色：
 
@@ -185,7 +185,7 @@ set -as terminal-features 'xterm*:extkeys'
 }
 ```
 
-Claude Code 会监视 `~/.claude/themes/`，并在添加或更改文件时重新加载，因此在编辑器中所做的修改无需重启即可应用于正在运行的会话。如果 Claude Code 启动时 `~/.claude/themes/` 文件夹本身尚不存在，请在创建第一个主题文件后重启一次。此后，更改无需重启即可生效。
+Claude Code 会监视 `~/.claude/themes/`，并在添加或更改文件时重新加载，因此在编辑器中所做的修改无需重启即可应用于正在运行的会话。如果 Claude Code 启动时 `~/.claude/themes/` 文件夹本身尚不存在，请在创建第一个主题文件后重启一次。
 
 以下参考涵盖了可在 `overrides` 中设置的 token。`/theme` 中的交互式编辑器会显示相同的 token 并提供实时预览，此外还有一些单一用途的强调色（例如引导界面颜色），此处未列出。
 

@@ -124,7 +124,7 @@
 | `session.append{door=hook-context}` | 来自设置 hook 的上下文的存储行 |
 | `session.append{door=compaction}` | 压缩摘要和边界的存储行 |
 
-在其他一些情况下，守卫也会跳过用户的 hook，例如 [`tool.describe`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#tools) 上您组织的工具描述，以及 skill 文本的存储行。对于这些情况，`/plugin` 不会显示说明。如果其他事件上的 hook 没有任何作用，请参阅[查明 mod 为何没有任何作用](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)。
+在其他一些情况下，守卫也会跳过用户的 hook，例如 [`tool.describe`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#tools) 上您组织的工具描述。对于这种情况，`/plugin` 不会显示说明。如果其他事件上的 hook 没有任何作用，请参阅[查明 mod 为何没有任何作用](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)。
 
 该说明显示在插件的详细信息中以及 `/plugin` 的 **Errors** 选项卡中。它需要 Claude Code v2.1.299 或更高版本。它会按照 mod 注册时的写法列出表中的每个 hook，如以下示例所示：
 

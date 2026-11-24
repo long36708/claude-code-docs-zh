@@ -87,7 +87,7 @@ Claude Code 设计用于大多数开发环境，但在处理大型代码库时�
 1. 按 Ctrl+C 尝试取消当前操作
 2. 如果无响应，您可能需要关闭终端并重新启动
 
-重新启动不会丢失您的对话。在同一目录中运行 `claude --resume` 以继续会话。
+在同一目录中运行 `claude --resume` 以继续会话。
 
 ### 编辑器集成终端中的文本乱码或损坏
 
@@ -180,7 +180,7 @@ echo $VTE_VERSION
 
 ### WSL 上的搜索速度缓慢或结果不完整
 
-在 WSL 上[跨文件系统工作](https://learn.microsoft.com/en-us/windows/wsl/filesystems)时的磁盘读取性能损失可能导致使用 Claude Code 在 WSL 上时搜索匹配数少于预期。搜索仍然有效，但返回的结果少于本机文件系统。
+在 WSL 上[跨文件系统工作](https://learn.microsoft.com/en-us/windows/wsl/filesystems)时的磁盘读取性能损失可能导致使用 Claude Code 在 WSL 上时搜索匹配数少于预期。
 
 > [!NOTE]
 >

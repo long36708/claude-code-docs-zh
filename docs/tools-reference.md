@@ -4,7 +4,7 @@
 
 # 工具参考
 
-> Claude Code 可以使用的工具的完整参考，包括权限要求和每个工具的行为。
+> Claude Code 可以使用的工具的参考，包括权限要求和每个工具的行为。
 
 Claude Code 可以访问一组内置工具，帮助它理解和修改您的代码库。工具名称是您在[权限规则](https://code.claude.com/docs/zh-CN/permissions.md#tool-specific-permission-rules)、[子代理工具列表](https://code.claude.com/docs/zh-CN/sub-agents.md)和[hook 匹配器](https://code.claude.com/docs/zh-CN/hooks.md)中使用的确切字符串。
 

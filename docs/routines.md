@@ -99,13 +99,13 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 **4. 选择仓库**
 
-展开 **Advanced settings**。在 **General** 标签页的 **Repository** 下，选择一个或多个供 Claude 在其中工作的 GitHub 仓库。
+在 **Trigger** 下方的 **Repository** 行中，选择一个或多个供 Claude 在其中工作的 GitHub 仓库。如果没有该行，请展开 **Advanced settings**，并在 **General** 标签页中找到 **Repository**。
 
 每个仓库都会在运行开始时被克隆。Claude 会为其更改创建带有 `claude/` 前缀的分支。
 
 **5. 选择环境**
 
-选择仓库后，其下方会出现 **Cloud environment**。为任务选择一个[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)。如果已选中某个环境，您可以保留它或选择其他环境。环境控制云端会话可以访问的内容：
+在 **Trigger** 下方找到 **Cloud environment**（如果没有，请在 **Advanced settings > General** 下查找），并为任务选择一个[云环境](https://code.claude.com/docs/zh-CN/cloud-environments.md)。如果已选中某个环境，您可以保留它或选择其他环境。环境控制云端会话可以访问的内容：
 
 * **Network access**：设置每次运行期间可用的互联网访问级别
 * **Environment variables**：提供 Claude 在每次运行期间可以使用的值。它们[对使用该环境的任何人都可见](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)，因此在 Anthropic 托管的环境中，请改为将 Claude 在运行期间调用的 API 的密钥存储为[网络密钥](https://code.claude.com/docs/zh-CN/cloud-environments.md#add-network-secrets)。该部分还列出了永远不会获得密钥的请求
@@ -121,7 +121,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 **7. 检查连接器**
 
-切换到 **Advanced settings** 的 **Connectors** 标签页。默认包含您所有已连接的 [MCP 连接器](https://code.claude.com/docs/zh-CN/mcp.md)。请移除任务不需要的连接器：Claude 可以在运行期间使用所包含的连接器，包括写入操作。有关运行何时会停下来先询问您，请参阅[运行期间的权限提示](#permission-prompts-during-a-run)。
+展开 **Advanced settings** 并打开 **Connectors** 标签页。默认包含您所有已连接的 [MCP 连接器](https://code.claude.com/docs/zh-CN/mcp.md)。请移除任务不需要的连接器：Claude 可以在运行期间使用所包含的连接器，包括写入操作。有关运行何时会停下来先询问您，请参阅[运行期间的权限提示](#permission-prompts-during-a-run)。
 
 **8. 创建任务**
 
@@ -441,7 +441,7 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 
 **2. 打开环境选择器**
 
-前往 **Advanced settings > General > Cloud environment**，如果 **Advanced settings** 处于折叠状态，请先将其展开。点击显示您环境名称（例如 **Default**）的云图标。
+在 **Trigger** 下方找到 **Cloud environment**；如果它不在那里，请在 **Advanced settings > General** 下查找。点击显示您环境名称（例如 **Default**）的云图标。
 
 **3. 打开环境设置**
 
@@ -479,7 +479,7 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 
 ## Routine 名称仍出现的位置
 
-定时任务以前称为 Routine，以下位置仍保留这一旧名称。它们指的都是同一项功能：
+定时任务以前称为 Routine，以下位置仍保留这一旧名称：
 
 * **应用**：在某些账户中，侧边栏条目和页面标题显示为 **Routines**，按钮显示为 **New routine**，其他标签也使用 routine 一词。如需在此处创建任务，请参阅[完整页面表单](#full-page-form)。
 * **网址**：`claude.ai/code/routines`

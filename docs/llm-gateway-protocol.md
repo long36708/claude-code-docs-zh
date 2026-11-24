@@ -8,7 +8,7 @@
 
 本页面记录了 Claude Code 发送到网关的请求，包括它调用的端点、网关必须转发的标头和正文字段，以及不转发时停止工作的功能。本指南是为配置网关产品以与 Claude Code 兼容的运营人员编写的。
 
-[Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 是 Anthropic 的自托管网关，在 `GET /protocol` 处提供自己的端点参考，涵盖该网关的登录、推理、托管设置、模型发现和遥测端点。这是一份与本指南分开的文档。
+[Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 是 Anthropic 的自托管网关，在 `GET /protocol` 处提供自己的端点参考，涵盖该网关的登录、推理、托管设置、模型发现和遥测端点。
 
 > [!NOTE]
 >

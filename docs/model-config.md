@@ -369,15 +369,15 @@ Claude Code 代表您进行的模型更改以相同的方式检查：
 * **`model`**：在会话启动时设置初始模型选择
 * **`ANTHROPIC_DEFAULT_SONNET_MODEL`** / **`ANTHROPIC_DEFAULT_OPUS_MODEL`** / **`ANTHROPIC_DEFAULT_HAIKU_MODEL`** / **`ANTHROPIC_DEFAULT_FABLE_MODEL`**：控制 `sonnet`、`opus`、`haiku` 和 `fable` 别名解析为什么，以及[帐户类型默认](#default-model-setting)使用哪个版本
 
-此示例在 Sonnet 4.5 上启动用户，将选择器限制为 Sonnet 和 Haiku，并确保默认值解析为允许列表上的模型，而不是层级默认值：
+此示例让用户在 Sonnet 5 上启动，将选择器限制为 Sonnet 5.x 和 Haiku，并确保默认值解析为允许列表上的模型：
 
 ```json theme={null}
 {
-  "model": "claude-sonnet-4-5",
-  "availableModels": ["claude-sonnet-4-5", "haiku"],
+  "model": "claude-sonnet-5",
+  "availableModels": ["claude-sonnet-5", "haiku"],
   "enforceAvailableModels": true,
   "env": {
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-5"
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5"
   }
 }
 ```
@@ -685,7 +685,7 @@ Claude Code 在用户设置中的 [`modelSettings`](https://code.claude.com/docs
 >
 > 您从通过 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md#what-connected-devices-see) 连接的手机或浏览器上的 effort 控件中选择的级别仅适用于该会话。
 
-当您在 [`-p` 运行](https://code.claude.com/docs/zh-CN/headless)中使用 `/effort` 设置级别时，Claude Code 仅将其应用于该会话，不将其保存为您的默认值。
+当您在 [`-p` 运行](https://code.claude.com/docs/zh-CN/headless)中使用 `/effort` 设置级别时，Claude Code 仅将其应用于该会话。
 
 `/effort` 滑块也有一个 **Ultracode** 切换。Ultracode 是 Claude Code 设置而不是模型 effort 级别：启用它时，Claude 为实质性任务编排[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)，在会话运行的任何 effort 级别。关于它可以在哪里持久设置，请参阅 [`ultracode`](https://code.claude.com/docs/zh-CN/settings-reference#ultracode) 设置。
 

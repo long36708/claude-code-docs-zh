@@ -174,7 +174,7 @@ Claude Code 永远不会因插件的 skill、命令、Agent、hook、监视器�
 
 ### 压缩对话
 
-[压缩](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)会用摘要替换您的消息历史记录。按照设计，这会使对话层失效：下一个请求拥有一个新的、更短的历史记录，与旧的历史记录不共享前缀。
+[压缩](https://code.claude.com/docs/zh-CN/context-window.md#what-survives-compaction)会用摘要替换您的消息历史记录。这会使对话层失效：下一个请求拥有一个新的、更短的历史记录，与旧的历史记录不共享前缀。
 
 * **系统提示词**：当对话的提示词是最新的时，下一个请求会从缓存中读取此层。如果该提示词已过时，例如在您[恢复对话](#resuming-a-session)之后，Claude Code 会切换为当前的提示词，下一个请求会重建此层的缓存一次。
 * **项目上下文**：Claude Code 会从磁盘重新加载此层。它与对话一起缓存，因此在 `/compact` 或自动压缩之后，即使其文件未改变，其缓存也会被重建。

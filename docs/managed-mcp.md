@@ -369,7 +369,7 @@ URL 支持 `*` 通配符，包括以 `*` 作为整个方案。主机名匹配不
 除了跳过[全部三个检查](#how-a-server-is-evaluated)的进程内 `type: "sdk"` 服务器之外，还有三组服务器跳过允许列表检查：
 
 * 组织自己的服务器：每个 `managedMcpServers` 条目，以及任何其值在 `env` 之外不使用 `${VAR}` 展开的 `managed-mcp.json` 条目。
-* 内置服务器，例如 Chrome 中的 Claude、Claude Code 在运行的 VS Code 或 JetBrains IDE 中连接的 `ide` 服务器，以及 CLI 本身配置的服务器。
+* 某些内置服务器，例如 Claude Code 在运行的 VS Code 或 JetBrains IDE 中连接的 `ide` 服务器，以及终端会话中的 Chrome 中的 Claude。
 * [Claude Tag](https://code.claude.com/docs/zh-CN/claude-tag.md) 会话的 Slack 工具：它用来读取线程和发布回复的服务器无需允许列表条目即可加载。
 
 在其命令、参数、URL 或标头中使用 `${VAR}` 展开的 `managed-mcp.json` 服务器仍会被检查。Claude Code 还会检查用户、插件或 claude.ai 添加的每个服务器，以及用户通过 `--mcp-config` 传递的每个服务器。有关哪些版本改变了 `managed-mcp.json` 服务器的检查范围，以及如何阻止某个服务器加载，请参阅[允许列表和拒绝列表如何应用于托管集](#how-allowlists-and-denylists-apply-to-the-managed-set)。

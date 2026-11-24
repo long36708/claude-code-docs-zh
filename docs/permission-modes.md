@@ -294,7 +294,7 @@ claude --permission-mode acceptEdits
 
 规划期间 shell 命令的处理方式取决于会话，以下情况中第一个匹配的情况适用：
 
-* **可使用绕过权限的交互式终端会话**：规划命令既不经过分类器，也不会弹出提示。[使用 bypassPermissions 模式跳过所有检查](#skip-all-checks-with-bypasspermissions-mode)介绍了在这种情况下仍会提示的少数几种操作。
+* **可使用绕过权限的交互式终端会话**：规划命令可以在既不经过分类器、也不弹出提示的情况下运行。[使用 bypassPermissions 模式跳过所有检查](#skip-all-checks-with-bypasspermissions-mode)介绍了在这种情况下仍会提示的操作。
 * **[自动模式](https://code.claude.com/docs/zh-CN/auto-mode-config.md)可用且 `useAutoModeDuringPlan` 设置已开启**（默认开启）：分类器会审查除[关键路径删除](#critical-paths)以外的 shell 命令，而不是提示您。获批准的命令会运行，被拒绝的命令会被阻止。
 * **自动模式不可用，或 `useAutoModeDuringPlan` 已关闭**：[内置只读命令集](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)以外的命令会提示您批准，即使启用了沙箱的[自动允许模式](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-modes)也是如此。
 
@@ -326,7 +326,7 @@ claude --permission-mode plan
 
 ## 使用自动模式消除权限提示
 
-自动模式让 Claude 无需经过常规权限提示即可执行操作。一个独立的分类器模型会在操作运行前对其进行审查，阻止任何超出您请求范围、针对无法识别的基础设施，或看起来受 Claude 读取的恶意内容驱动的操作。显式的 [ask 规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)仍会强制弹出提示。
+自动模式让 Claude 无需经过常规权限提示即可执行操作。一个独立的分类器模型会在操作运行前对其进行审查，并阻止它[判定为有风险](#what-the-classifier-blocks-by-default)的操作。它会查找超出您请求范围、针对无法识别的基础设施，或受 Claude 读取的恶意内容驱动的操作。
 
 在 Claude Code v2.1.283 或更高版本中，对于所有计划和提供商，自动模式都是交互式终端和 VS Code 会话的[内置初始权限模式](#which-mode-a-session-starts-in)。在更早的版本中，它仅在 Pro、Max、Ultra 和 Team 计划中是内置初始权限模式。
 
@@ -545,7 +545,7 @@ Claude Code v2.1.261 及更高版本还会默认阻止以下操作：
 
 分类器会将您在对话中声明的边界视为阻止信号。如果您告诉 Claude "不要推送"或"在部署前等我审查"，即使默认规则允许，分类器也会阻止[其审查](#how-the-classifier-evaluates-actions)的相应操作。边界会一直有效，直到您在后续消息中解除它。Claude 自己判断某个条件已满足并不能解除边界。
 
-边界不会作为规则存储。分类器在每次检查时都会从会话记录中重新读取这些边界，因此如果[上下文压缩](https://code.claude.com/docs/zh-CN/costs.md#reduce-token-usage)移除了声明边界的消息，该边界可能会丢失。如需硬性保证，请改为添加 [deny 规则](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)。
+边界不会作为规则存储。分类器在每次检查时都会从会话记录中重新读取这些边界，因此如果[上下文压缩](https://code.claude.com/docs/zh-CN/costs.md#reduce-token-usage)移除了声明边界的消息，该边界可能会丢失。为避免边界丢失，请改为添加 [deny 规则](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)。
 
 ### 您在对话中声明的批准
 
@@ -686,7 +686,7 @@ claude --permission-mode dontAsk
 * 针对发送到此机器之外的您的会话的消息，[`isolatePeerMachines`](https://code.claude.com/docs/zh-CN/settings-reference#isolatepeermachines) 批准提示仍会出现。
 * 当没有 [`crossSessionInbound`](https://code.claude.com/docs/zh-CN/cross-session-messaging#control-inbound-messages) 值适用时，Claude Code 会保留来自您另一个会话的入站消息以供您批准，仅当发送会话将自己标识为同样绕过权限提示时才无需询问即可传递。如果您在消息被保留期间离开该权限模式，Claude Code 会重新应用入站规则，并传递现在被接受的任何保留消息。
 
-在可使用绕过权限的交互式终端会话中，Claude Code 也不强制执行[计划模式的](#analyze-before-you-edit-with-plan-mode)阻止。Claude 仍然被指示在不编辑的情况下进行计划，但它在计划期间尝试的文件编辑或 shell 命令无需提示即可运行。显式[询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)和可识别的针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除仍会提示。
+在可使用绕过权限的交互式终端会话中，请勿依赖[计划模式的](#analyze-before-you-edit-with-plan-mode)阻止。Claude 在计划期间尝试的文件编辑或 shell 命令可能无需提示即可运行。显式[询问规则](https://code.claude.com/docs/zh-CN/permissions.md#manage-permissions)和可识别的针对[关键路径](#critical-paths)的 `rm` 和 `rmdir` 删除仍会提示。
 
 在 Claude Code 没有交互式终端运行的任何地方，计划模式都会保留其阻止，包括[非交互式运行](https://code.claude.com/docs/zh-CN/headless.md)（带 `-p`）、[Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/permissions.md#plan-mode-plan) 会话和 [VS Code 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)的聊天面板中的对话。在这些环境中，`--allow-dangerously-skip-permissions` 使 `bypassPermissions` 稍后可选。
 

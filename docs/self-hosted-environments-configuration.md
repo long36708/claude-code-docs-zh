@@ -618,7 +618,7 @@ env | grep -E 'CLAUDE_CODE_USE_(BEDROCK|VERTEX)'
 将模型请求发送到 Amazon Bedrock 或 Google Cloud 的 Agent Platform 的会话与 Anthropic API 上的会话存在以下不同：
 
 * **来自 claude.ai 的策略**：[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)不会传递到这些会话。Owner 在 Claude Code 管理设置中设定的组织策略也不会传递到这些会话，因此 Claude Code 不会在会话中强制执行这些策略。请将您依赖的规则放入 runner 镜像的[托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)中。
-* **账户 skill**：这些会话不会下载用户的 claude.ai 账户中已启用的 skill。请参阅[每个会话的配置是如何组装的](#how-each-session’s-config-is-assembled)。
+* **账户 skill 和插件**：这些会话不会下载用户的 claude.ai 账户中已启用的 skill 或插件。请参阅[每个会话的配置是如何组装的](#how-each-session’s-config-is-assembled)。
 * **文件**：用户在 claude.ai 或移动端、桌面端应用中附加到会话的文件不会传递到会话，Claude 也无法通过 [`SendUserFile` 工具](https://code.claude.com/docs/zh-CN/tools-reference)回传文件。请改为将输入文件放在仓库中或 runner 上。
 * **模型选择**：Anthropic 的控制平面会发送每个会话的模型；当会话启动时未指定模型，Claude Code 会使用该提供商的默认模型。您无法通过 runner 环境中的 `ANTHROPIC_MODEL` 或 `ANTHROPIC_DEFAULT_MODEL` 选择模型，但可以固定别名解析到的模型：
   * **`ANTHROPIC_MODEL` 和 `ANTHROPIC_DEFAULT_MODEL`**：runner 会从其传递给会话的环境中移除这两个变量，尽管提供商页面的示例设置了 `ANTHROPIC_MODEL`。
@@ -861,7 +861,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 
 ### 每个会话的配置如何组装
 
-运行器为每个会话提供自己的配置目录，该目录以运行器在启动时一次性捕获的主机 `~/.claude/` 快照为初始内容：您的运行器镜像中的 `settings.json`、`CLAUDE.md`、hook、Agent、命令和 skill 会作为用户级基线应用于每个会话。如果您更改正在运行的主机上的配置，更改仅在您重启运行器后生效。
+自托管运行器为每个会话提供自己的配置目录，该目录以运行器在启动时一次性捕获的主机 `~/.claude/` 快照为初始内容。您的运行器镜像中的 `settings.json`、`CLAUDE.md`、hook、Agent、命令和 skill 会作为用户级基线应用于会话。如果您更改正在运行的主机上的配置，更改仅在您重启运行器后生效。
 
 设置 `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` 可从其他路径获取初始内容，或将其指向空目录以禁用初始内容填充。
 
@@ -871,6 +871,10 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 * **托管设置**：会话会从运行器镜像中的标准系统路径读取 [`managed-settings.json`](https://code.claude.com/docs/zh-CN/settings#where-settings-live)。关于其中的键是否与[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)一起应用，请参阅 [Claude Code 如何合并托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)。
 
 有关这些来源的应用顺序，请参阅[设置优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)。
+
+> [!NOTE]
+>
+> 在 [PR Steward](https://code.claude.com/docs/zh-CN/pr-steward-setup.md#choose-the-environment-pr-steward-runs-in) 会话中，Claude Code 不会从运行器加载任何 `CLAUDE.md` 或规则文件，这包括您的运行器镜像和仓库的检出内容。PR Steward [从仓库的默认分支](https://code.claude.com/docs/zh-CN/pr-steward-pull-requests.md#save-pr-steward-instructions-for-everyone-in-a-repository)读取仓库的指令文件，因此请将它应遵循的内容放在那里。
 
 当 Anthropic 的控制平面为会话提供 [Claude Code hook](https://code.claude.com/docs/zh-CN/hooks.md) 时，运行器会将它们与您自己的配置并行安装，而不是覆盖您的配置。需要 Claude Code v2.1.229 或更高版本；较旧的运行器会忽略所提供的 hook。所提供的 hook 会运行 `python3`，因此请在您的[运行器镜像](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#build-the-runner-image)中安装 `python3`。
 
@@ -914,7 +918,7 @@ exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@" --permission-mode auto
 * **`--capacity 1`（默认值）并使用内置检出**：会话在其仓库列表中的第一个仓库中启动。该仓库的 `.claude/settings.json` 作为项目设置生效，其 [`.mcp.json`](#mcp-servers) 会被加载，而其他仓库的则不会。
 * **`--capacity` 大于 1，或使用 [`checkout` hook](#checkout)**：会话在包含各检出内容的按会话目录中启动。没有任何仓库的 `.claude/settings.json` 作为项目设置生效，没有任何仓库的 `.mcp.json` 会被加载，并且 hook 命令中的 [`$CLAUDE_PROJECT_DIR`](https://code.claude.com/docs/zh-CN/hooks#reference-scripts-by-path) 是该目录，而不是某个检出目录。
 
-无论会话在何处启动，每个仓库的 `CLAUDE.md` 都会被加载。在项目线程之外，其 skill 也会被加载。运行器将每个仓库作为[附加目录](https://code.claude.com/docs/zh-CN/permissions.md#additional-directories-grant-file-access-not-configuration)传递给 Claude Code，因此在项目线程之外，Claude Code 还会从每个仓库的 `.claude/settings.json` 中读取 `enabledPlugins` 和 `extraKnownMarketplaces` 键。如果您使用 [`--trust-workspace false`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，Claude Code 会跳过这两个键。跳过 `enabledPlugins` 需要 Claude Code v2.1.323 或更高版本。
+无论会话在何处启动，每个仓库的 `CLAUDE.md` 都会被加载。在项目线程之外，其 skill 也会被加载。运行器将每个仓库作为[附加目录](https://code.claude.com/docs/zh-CN/permissions.md#additional-directories-grant-file-access-not-configuration)传递给 Claude Code。在项目线程之外，`enabledPlugins` 和 `extraKnownMarketplaces` 键也可以来自每个仓库的 `.claude/settings.json`。如果您使用 [`--trust-workspace false`](https://code.claude.com/docs/zh-CN/self-hosted-environments-reference#runner-cli-flags) 启动运行器，Claude Code 会跳过这两个键。跳过 `enabledPlugins` 需要 Claude Code v2.1.323 或更高版本。
 
 要在每个会话中运行某个 hook 或应用某条权限规则，请将其放在运行器主机上的 `~/.claude/settings.json` 中。无论会话在何处启动，运行器都会[将该主机文件填充到每个会话中](#how-each-session’s-config-is-assembled)。在 `Read` 或 `Edit` 规则中，请将路径写为以 `//` 开头的绝对路径或以 `~/` 开头的相对于主目录的[模式](https://code.claude.com/docs/zh-CN/permissions.md#read-and-edit)，因为其他模式会以设置来源或当前目录为锚点。
 

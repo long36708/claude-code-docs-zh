@@ -2672,7 +2672,7 @@ asyncio.run(main())
     "resolvedModel": str | None,  # 转入后台时正在使用的模型
     "modelsUsed": list[str] | None,  # 转入后台之前按顺序使用的模型，连续重复项已合并
     "prompt": str,  # Agent 运行的提示词
-    "outputFile": str,  # 写入 Agent 输出的文件路径
+    "outputFile": str,  # 任务输出文件的路径
     "canReadOutputFile": bool | None,  # 是否可以直接读取输出文件
 }
 ```

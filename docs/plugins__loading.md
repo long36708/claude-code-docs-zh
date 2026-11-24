@@ -114,9 +114,10 @@
 
 有关 Cowork 加载的组件，请参阅 claude.com 上的[组件支持表](https://claude.com/docs/plugins/platform-support#compare-component-support-by-app)。
 
-同步插件在 Cowork 会话和您使用 claude.ai 账户登录的终端会话中加载：
+同步插件在 Cowork 会话、云端会话以及您使用 claude.ai 账户登录的终端会话中加载：
 
 * **[Cowork](https://claude.com/product/cowork)**：Claude Code 在会话启动时将它们下载到会话自己的环境中
+* **[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)**：当您启动会话或 Claude 在您的[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)中启动线程时，它们会被下载。对于自托管环境，请参阅[在 Amazon Bedrock 或 Google Cloud 的 Agent Platform 上有何不同](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#what-differs-from-sessions-on-the-anthropic-api)
 * **终端会话**：每次启动 Claude Code 时，它在后台同步一次，下载新的和更新的插件，并删除您或您的组织关闭的插件。终端会话中的同步需要 Claude Code v2.1.273 或更高版本
 
 #### 云端 Cowork 会话中的同步时间

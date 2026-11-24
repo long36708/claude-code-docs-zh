@@ -176,7 +176,7 @@ Claude 根据您的项目创建初始服务器配置。如果您的应用使用�
 
 浏览器窗格是一个选项卡式浏览器，因此您可以在运行的应用旁边打开文档、问题跟踪器或任何其他网站。要打开浏览器，在 macOS 上按 **Cmd+Shift+B** 或在 Windows 上按 **Ctrl+Shift+B**，或[选择 **Browser**](#arrange-your-workspace)。您可以在窗格中登录网站，包括弹出式登录流程，例如 Google OAuth。
 
-您第一次点击聊天中的外部链接时，会出现一个对话框，询问链接是在浏览器窗格中打开还是在您的默认浏览器中打开。要在之后更改您的选择，请使用浏览器窗格 **⋮** 菜单中的 **Open links in built-in browser**。在 macOS 上 **Cmd** 点击或在 Windows 上 **Ctrl** 点击会直接在您的默认浏览器中打开链接。
+您第一次点击聊天中的外部链接时，会出现一个对话框，询问链接是在浏览器窗格中打开还是在您的默认浏览器中打开。要在之后更改您的选择，请使用浏览器窗格 **⋮** 菜单中的 **Open links in built-in browser**。如果该选项不在其中，请在该菜单中打开 **More settings**。在 macOS 上 **Cmd** 点击或在 Windows 上 **Ctrl** 点击会直接在您的默认浏览器中打开链接。
 
 Claude 可以使用与[验证您的应用](#preview-your-app)相同的工具读取和交互外部页面，并进行两项额外的安全检查：
 
@@ -216,7 +216,7 @@ Claude 读取您的评论并进行请求的更改，这些更改显示为您可�
 
 在本地、[SSH](#ssh-sessions) 和 [WSL](https://code.claude.com/docs/zh-CN/desktop-wsl.md) 会话中，结果会显示为一张按文件分组的 **Code review** 卡片。使用该卡片处理这些结果：
 
-* 点击 **Walk through in Changes** 打开 diff 视图，逐条查看结果。当前 diff 中的结果会显示在其对应的行上，您可以在那里点击 **Fix this one** 或忽略它。
+* 点击 **Walk through in changes** 打开 diff 视图，逐条查看结果。当前 diff 中的结果会显示在其对应的行上，您可以在那里点击 **Fix this one** 或忽略它。
 * 点击 **Apply fixes** 让 Claude 修复仍未处理的结果。
 
 在任何会话中，您也可以在输入框中要求 Claude 修复审查发现的问题。有关 `/code-review` 检查的内容及其接受的参数，请参阅[使用 `/code-review` 在本地审查](https://code.claude.com/docs/zh-CN/code-review-local)。
@@ -630,7 +630,7 @@ Dispatch 是您离开终端时与 Claude 协作的几种方式之一。有关与
 
 连接外部服务、添加可重用工作流、自定义 Claude 的行为并配置预览服务器。要在一个地方管理连接器、skill 和插件，请点击侧边栏中的**自定义**或 **Plugins**。桌面应用中的 [Cowork](https://claude.com/product/cowork) 从此配置获取其 skill、插件和连接器，该配置通过您的 claude.ai 账户同步，而不是从 CLI 的 `~/.claude` 目录获取。
 
-Claude Code 还会在你使用同一账户登录的终端会话中加载为你的 claude.ai 账户启用的 skills 和插件。请参阅[从 claude.ai 同步的 Skills](https://code.claude.com/docs/zh-CN/skills.md#how-synced-skills-behave) 和[从 claude.ai 同步的插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)。
+要了解为您的 claude.ai 账户启用的 skill 和插件还会在哪些其他位置加载，请参阅[从 claude.ai 同步的 Skills](https://code.claude.com/docs/zh-CN/skills.md#how-synced-skills-behave) 和[从 claude.ai 同步的插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#synced-plugins)。
 
 ### 连接外部工具
 
@@ -678,7 +678,7 @@ Claude Code 还会在你使用同一账户登录的终端会话中加载为你�
 
 > [!NOTE]
 >
-> 插件浏览器在云端会话中不可用，您从桌面应用为用户账户安装或以仅本地方式安装的插件在云端会话中也不可用。请参阅[从您的设置中继承的内容](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。插件在 WSL 会话中不可用。
+> 您在计算机上以用户作用域或本地作用域安装的插件在云端会话中不可用。要在云端会话中使用插件，请参阅[安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin)下的 **Cloud session** 选项卡。插件在 WSL 会话中不可用。
 
 有关完整的插件参考，包括创建您自己的插件，请参阅[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)。
 
@@ -708,7 +708,7 @@ Claude 自动检测你的开发服务器设置并将配置存储在启动会话�
 
 启用 `autoVerify` 时，Claude 在编辑文件后自动验证代码更改。它拍摄屏幕截图、检查错误并在完成响应之前确认更改有效。
 
-自动验证默认开启。可通过在 `.claude/launch.json` 中添加 `"autoVerify": false` 来按项目禁用它，或在 Browser 窗格的 **⋮** 菜单中关闭 **Auto-verify changes**。
+自动验证默认开启。可通过在 `.claude/launch.json` 中添加 `"autoVerify": false` 来按项目禁用它，或在 Browser 窗格的 **⋮** 菜单中关闭 **Auto-verify changes**。如果该选项不在其中，请在该菜单中打开 **More settings**。
 
 ```json theme={null}
 {
@@ -2095,7 +2095,7 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 
 在本地和 SSH 会话中，桌面应用直接将每个用户连接的 claude.ai 连接器传递给 Claude Code。无论您使用哪个设置源或文件位置，都没有 MCP 设置或 `managed-mcp.json` 到达这些连接器。要在这些会话中阻止连接器的工具，请使用您的组织的[连接器工具控制](https://code.claude.com/docs/zh-CN/mcp.md#organization-controls-on-connector-tools)。[连接器如何到达 Claude Code](https://code.claude.com/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)显示在每种会话中哪些设置管理连接器。
 
-`permissions.disableBypassPermissionsMode` 和 `disableAutoMode` 也在用户和项目设置中工作，但将它们放在托管设置中可防止用户覆盖它们。
+要防止用户覆盖 `permissions.disableBypassPermissionsMode` 或 `disableAutoMode`，请在托管设置中设置它。
 
 有关仅托管源可以设置的权限、插件和交付键，请参阅[仅托管设置可以设置的键](https://code.claude.com/docs/zh-CN/managed-settings.md#managed-only-settings)。
 

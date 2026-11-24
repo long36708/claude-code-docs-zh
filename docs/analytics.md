@@ -118,8 +118,6 @@ Claude 所有者导航到 [claude.ai/admin-settings/claude-code](https://claude.
 
 在比较之前，行被规范化：空格被修剪、多个空格被折叠、引号被标准化、文本被转换为小写。
 
-包含 Claude Code 协助行的已合并拉取请求在 GitHub 中被标记为 `claude-code-assisted`。
-
 #### 时间窗口
 
 PR 合并日期前 21 天到后 2 天的会话被考虑用于归属匹配。
@@ -173,8 +171,6 @@ PR 合并日期前 21 天到后 2 天的会话被考虑用于归属匹配。
 #### 以编程方式访问数据
 
 在 Enterprise 计划上，[Claude Enterprise Analytics API](https://platform.claude.com/docs/en/api/admin/analytics) 为您的组织返回每个用户的参与度、使用情况和成本报告，涵盖 Claude 的所有表面，包括 Claude Code。主要所有者在 [claude.ai/analytics/api-keys](https://claude.ai/analytics/api-keys) 处使用 `read:analytics` 范围创建密钥。该 API 在 Teams 计划上不可用。
-
-要通过 GitHub 查询贡献数据，请搜索标记为 `claude-code-assisted` 的 PR。
 
 ## 访问 API 客户的分析
 

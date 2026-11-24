@@ -69,7 +69,7 @@ Claude 应用网关是一个自托管服务，位于开发人员的 Claude Code 
 
 | 您需要 | 详情 |
 | - | - |
-| Claude Code v2.1.195 或更高版本 | `claude gateway` 子命令和网关登录流在 v2.1.195 中发布。早期的公开版本不包含它们。运行网关服务器的机器和每个开发人员的机器都必须是 v2.1.195 或更高版本；运行 `claude update` 获取最新版本。[Claude Platform on AWS 上游](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#claude-platform-on-aws)在网关服务器上需要 Claude Code v2.1.198 或更高版本。 |
+| Claude Code v2.1.195 或更高版本 | `claude gateway` 子命令和网关登录流在 v2.1.195 中发布。运行网关服务器的机器和每个开发人员的机器都必须是 v2.1.195 或更高版本；运行 `claude update` 获取最新版本。[Claude Platform on AWS 上游](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config.md#claude-platform-on-aws)在网关服务器上需要 Claude Code v2.1.198 或更高版本。 |
 | OpenID Connect (OIDC) 身份提供商 | Okta、Microsoft Entra ID、Google Workspace、Keycloak 或 Dex，或任何其他符合 OIDC 的 IdP，如 PingFederate。网关针对它运行标准 OIDC 发现和授权代码流。不支持 SAML 和 LDAP。 |
 | PostgreSQL 11 或更高版本 | 支持设备登录流和速率限制计数器。托管 PostgreSQL 服务均可使用，包括最小层级；请参阅[支持哪些数据库](https://code.claude.com/docs/zh-CN/claude-apps-gateway-deploy.md#postgres)。使用[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)时，它还保存应备份的持久支出、审计和身份表。建议通过 `?sslmode=require` 使用 TLS。PostgreSQL 11、12 和 13 要求网关服务器上的 Claude Code 为 v2.1.290 或更高版本。PostgreSQL 项目已不再维护这些版本，因此请尽可能使用更新的版本。 |
 | 模型上游 | Amazon Bedrock 凭据、Claude Platform on AWS 凭据、Google Cloud 凭据、Microsoft Foundry 资源或 Anthropic API 密钥。支持多个上游和故障转移。 |

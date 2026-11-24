@@ -53,7 +53,7 @@ GitHub Enterprise Server (GHES) 支持让您的组织使用 Claude Code 处理�
 
 **5. 启用 Code Review**
 
-转到 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code)，使用与 github.com 相同的配置为您的 GHES 仓库启用 [Code Review](https://code.claude.com/docs/zh-CN/code-review-setup.md)。
+转到 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-code#code-review)，使用与 github.com 相同的配置为您的 GHES 仓库启用 [Code Review](https://code.claude.com/docs/zh-CN/code-review-setup.md)。
 
 ### GitHub App 权限
 
@@ -91,7 +91,7 @@ Claude 会在您保存连接时生成应用的 webhook URL。点击 **Add config
 
 Claude Code 从您工作目录中的 git 远程自动检测您的 GHES 主机名。
 
-像往常一样从您的 GHES 实例克隆存储库，将 `github.example.com` 和存储库路径替换为您的 GHES 主机名和存储库：
+从您的 GHES 实例克隆仓库，将 `github.example.com` 和仓库路径替换为您的 GHES 主机名和仓库：
 
 ```bash theme={null}
 git clone git@github.example.com:platform/api-service.git

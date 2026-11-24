@@ -8,7 +8,7 @@
 
 借助 Code Review，Claude 会审查您 GitHub 仓库中的 Pull Request。多个 Agent 会结合周围代码阅读每项更改，查找逻辑错误、安全漏洞或破损的边界情况等问题。验证步骤会在报告发现之前对照代码检查这些发现。
 
-发现以内联评论的形式出现在相关代码行上，按[严重程度](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#severity-levels)排序，并在 Pull Request 上附带摘要和检查运行。审查永远不会批准或阻止 Pull Request，因此合并的决定权仍在您的团队手中。
+发现以内联评论的形式出现在相关代码行上，按[严重程度](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#severity-levels)排序，并在 Pull Request 上附带摘要和检查运行。审查本身不会批准或阻止 Pull Request。如果仓库的 [Claude Approvals](https://code.claude.com/docs/zh-CN/approvals.md) 策略文件使用了审查结果，该结果会计入审批。
 
 ![审查分为四个阶段的示意图。GitHub 上的 Pull Request 被交给多个 Agent，它们在 Anthropic 基础设施上并行搜索。验证步骤剔除误报，剩余的发现经过去重并按严重程度排序，然后审查将内联评论、摘要和检查运行发布回 GitHub。](https://mintcdn.com/claude-code/gLJVaPQEgKC8ZyUD/images/code-review-pipeline.svg?fit=max\&auto=format\&n=gLJVaPQEgKC8ZyUD\&q=85\&s=0351c96df9efa3105172eb00a672f130)
 

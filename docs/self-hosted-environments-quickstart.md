@@ -107,7 +107,7 @@ mkdir -p /etc/claude
 claude self-hosted-runner --environment-secret-file '/etc/claude/environment-secret' --base-dir '<writable-dir>'
 ```
 
-运行器向您的环境注册后会记录 `Registered: runner_id=<runner-id>`，然后开始轮询工作。使用此命令启动时，运行器按设计会在服务完一个会话后退出，而不是在每个轮次之后退出。要服务更多会话，请在每次运行器退出时再次启动它。有关何时会发生这种情况以及运行器会记录什么，请参阅[如果运行器退出](#if-the-runner-exits)。
+运行器向您的环境注册后会记录 `Registered: runner_id=<runner-id>`，然后开始轮询工作。使用此命令启动时，运行器会在服务完一个会话后退出，而不是在每个轮次之后退出。要服务更多会话，请在每次运行器退出时再次启动它。有关何时会发生这种情况以及运行器会记录什么，请参阅[如果运行器退出](#if-the-runner-exits)。
 
 **3. 验证运行器出现**
 

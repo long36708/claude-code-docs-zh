@@ -444,8 +444,8 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 | 每个 Amazon Bedrock 请求都返回 502；日志显示 `Could not load credentials from any providers` | 在 EC2 上，IMDSv2 的默认跳数限制为 1，阻止了来自容器内的实例元数据请求。启动和 `/readyz` 仍然通过，因为 AWS SDK 在第一个请求时解析实例凭据，而不是在客户端构造时 | 使用 `aws ec2 modify-instance-metadata-options --instance-id <id> --http-put-response-hop-limit 2` 提高跳数限制，或在启动模板中设置它。更改适用于实例上的每个容器。在可用的地方优先使用 ECS 任务角色，它们从 ECS 容器凭据端点读取凭据并完全避免更改，或在专用网关实例上应用更改以限制暴露。 |
 | 日志：一条包含 `upstream <name>: Google issued an access token that expires in <N>s` 的警告，出现在 Google 凭据文件类型为 `external_account` 的上游上 | 请求会一直成功，直到该访问令牌过期；之后除非 `credential_source` 指向的令牌已提前续订，否则请求会失败。 | 如果由某个进程将该令牌写入文件，请让它在旧令牌过期前五分钟以上写入新令牌 |
 | 在峰值负载下，响应开始缓慢或似乎挂起，或在上游健康时失败，显示 502 `all upstreams failed` | 副本打开的请求比它一次发送到上游的请求多，所以额外的请求在网关内等待。在 `provider: anthropic` 上游上，等待时间超过 `timeouts.upstream_ttfb_ms` 的请求放弃该上游，当没有后续上游提供服务时会产生 502。日志显示包含 `client requests are open` 的警告。 | 添加副本，或提高每个副本上的限制。请参阅[并发上游请求](#concurrent-upstream-requests)。 |
-| 在 `provider: anthropic` 以外的上游上，包含较长思考停顿的轮次失败。网关前面的代理记录了一个保持打开约 12.5 分钟的请求，随后是一连串 `504` 错误 | Claude Code 结束了一个已传送首个响应事件、此后仅携带 keepalive ping 的流。它以非流式方式重新发送该请求，而每个回复所需的时间都超过了代理的超时时间。 | 为您的开发者提高 `CLAUDE_STREAM_IDLE_TIMEOUT_MS`。请参阅[长时间思考导致代理超时](#long-thinking-ends-in-proxy-timeouts)。 |
-| 在 `provider: anthropic` 上，包含较长思考停顿的轮次失败。代理记录了一个保持打开约 20 分钟的请求，随后是 `502` 或 `504` 错误 | Claude Code 结束了一个已传送首个响应事件、此后仅携带 keepalive ping 的流。它以非流式方式重新发送该请求，而每个回复所需的时间都超过了网关对上游的等待时间 `timeouts.upstream_ttfb_ms` 或代理的超时时间。 | 为您的开发者提高 `CLAUDE_STREAM_IDLE_TIMEOUT_MS`。请参阅[Anthropic API 上游上的长时间思考](#long-thinking-on-an-anthropic-api-upstream)。 |
+| 在 `provider: anthropic` 以外的上游上，包含较长思考停顿的轮次失败。网关前面的代理记录了一个或两个请求，每个保持打开约 12.5 分钟，随后是一连串 `504` 错误 | Claude Code 结束了一个已传送首个响应事件、此后仅携带 keepalive ping 的流。它以非流式方式重新发送该请求，而每个回复所需的时间都超过了代理的超时时间。 | 为您的开发者提高 `CLAUDE_STREAM_IDLE_TIMEOUT_MS`。请参阅[长时间思考导致代理超时](#long-thinking-ends-in-proxy-timeouts)。 |
+| 在 `provider: anthropic` 上，包含较长思考停顿的轮次失败。代理记录了一个或两个请求，每个保持打开约 20 分钟，随后是 `502` 或 `504` 错误 | Claude Code 结束了一个已传送首个响应事件、此后仅携带 keepalive ping 的流。它以非流式方式重新发送该请求，而每个回复所需的时间都超过了网关对上游的等待时间 `timeouts.upstream_ttfb_ms` 或代理的超时时间。 | 为您的开发者提高 `CLAUDE_STREAM_IDLE_TIMEOUT_MS`。请参阅[Anthropic API 上游上的长时间思考](#long-thinking-on-an-anthropic-api-upstream)。 |
 | 开发者的请求失败，显示 `API Error: 400 you aren't in a group that can use this gateway. Ask your administrator to add you to one` | 每个上游都有 [`groups` 列表](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#what-happens-when-a-developer-is-in-no-listed-group)，而开发者的会话不包含任何列出的组。 | 在您的 IdP 中将开发者添加到某个列出的组，或将一个没有 `groups` 的上游列在最后，为其他所有人提供服务。网关会在开发者下次刷新令牌时重新读取组。如果 IdP 省略了组，而其 userinfo 端点会返回组，请设置 [`oidc.userinfo_fallback: true`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#oidc)。 |
 | IdP 错误：unknown or unsupported scope | IdP 拒绝它不识别的作用域 | 将 `oidc.scopes` 设置为您的 IdP 接受的确切列表；它必须包含 `openid`。默认值为 `openid profile email offline_access`。 |
 | 设置 `oidc.scopes` 后会话不会静默续订 | `offline_access` 从覆盖中删除了 | 如果您的 IdP 支持，添加 `offline_access` 回来。没有刷新令牌，开发者每 `session.ttl_hours` 重新运行浏览器登录。 |
@@ -486,10 +486,10 @@ Claude Code 直接从每位开发者的机器获取插件市场，而不是通�
 
 如果您的上游是 `provider: anthropic`，请改用 [Anthropic API 上游上的长时间思考](#long-thinking-on-an-anthropic-api-upstream)：在那里您同样需要提高 `CLAUDE_STREAM_IDLE_TIMEOUT_MS`，但时间和错误有所不同。
 
-如果轮次在长时间思考后失败，且您的代理记录了一个保持打开约 12.5 分钟的请求，随后是一连串 `504` 错误，请在网关策略中提高 [`CLAUDE_STREAM_IDLE_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars)。例如，如果代理的空闲超时时间为 240 秒，这一连串错误就是 10 个请求，每个都在 240 秒时被切断。
+如果轮次在长时间思考后失败，且您的代理记录了一个或两个约 12.5 分钟的请求，随后是一连串 `504` 错误，请在网关策略中提高 [`CLAUDE_STREAM_IDLE_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars)。
 
-* **第一个请求**：一个流，它传送首个响应事件 `message_start`，然后在 Claude 思考期间仅发送 ping。在默认设置下，Claude Code 会在约 12.5 分钟后结束该流。
-* **其余 10 个**：同一个请求，以[非流式方式](https://code.claude.com/docs/zh-CN/errors.md#streaming-response-ended-before-any-complete-data-was-received)发送并随后重试，默认总共发送 10 次。它们不会收到 ping，因此较慢的回复会触发代理的超时。
+* **每个长时间请求**：一个流，它传送首个响应事件 `message_start`，然后在 Claude 思考期间仅发送 ping。在默认设置下，Claude Code 会在约 12.5 分钟后结束该流。
+* **`504` 错误**：Claude Code 以[非流式方式](https://code.claude.com/docs/zh-CN/errors.md#streaming-response-ended-before-any-complete-data-was-received)重新发送该请求，然后重试。这些请求不会收到 ping，因此较慢的回复会触发代理的超时。例如，如果代理的空闲超时时间为 240 秒，每个请求都会在 240 秒时结束。
 
 此修复不需要更长的代理超时时间。如果您只提高代理的超时时间，一旦回复所需时间超过 Claude Code 自身的等待时间（默认 300 秒），非流式请求仍会失败。
 
@@ -513,7 +513,7 @@ Error streaming, falling back to non-streaming mode: Stream idle timeout - no ch
 | `900000` | 约 22.5 分钟 |
 | `1800000` | 约 37.5 分钟 |
 
-如果上游挂起而网关持续发送 ping，您的开发者也需要等待同样长的时间，Claude Code 才会放弃该流。
+如果上游挂起而网关持续发送 ping，请预计在 Claude Code 放弃流式传输之前，最多会出现两个这样时长的流。
 
 #### 通过策略下发该值
 
@@ -534,9 +534,9 @@ managed:
 
 ### Anthropic API 上游上的长时间思考
 
-如果 `provider: anthropic` 是该模型唯一的上游，且您的代理记录了一个保持打开约 20 分钟的请求，随后是 `502` 或 `504` 错误，请在网关策略中提高 [`CLAUDE_STREAM_IDLE_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars)。
+如果 `provider: anthropic` 是该模型唯一的上游，且您的代理记录了一个或两个约 20 分钟的请求，随后是 `502` 或 `504` 错误，请在网关策略中提高 [`CLAUDE_STREAM_IDLE_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars)。
 
-* **长时间请求**：一个流，它传送 `message_start`，然后在 Claude 思考期间仅发送 ping。在默认设置下，Claude Code 会在约 20 分钟后结束它；提高该变量后，结束时间会相应推迟。
+* **每个长时间请求**：一个流，它传送 `message_start`，然后在 Claude 思考期间仅发送 ping。在默认设置下，Claude Code 会在约 20 分钟后结束它；提高该变量后，结束时间会相应推迟。
 * **错误**：Claude Code 随后以[非流式方式](https://code.claude.com/docs/zh-CN/errors.md#streaming-response-ended-before-any-complete-data-was-received)发送的请求。每个请求都会因网关返回的 `502` 而失败；如果代理的超时时间短于网关的等待时间，则会因代理的 `504` 而失败。该等待时间即 [`timeouts.upstream_ttfb_ms`](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#http-tuning)，此修复无需提高它。
 
 要确认原因，请参阅[确认原因](#confirm-the-cause)。

@@ -6022,7 +6022,7 @@ Transcript writes are failing (disk full — ENOSPC) · recent messages may not 
 **应该怎么做：**
 
 * 修复错误代码指出的条件：对于 `ENOSPC` 释放磁盘空间；对于 `EDQUOT` 提高或清除配额；对于 `EACCES`、`EPERM` 或 `EROFS` 恢复对记录位置的写入访问
-* 警告会在下一次成功写入时自动清除；无需重启
+* 警告会在下一次成功写入时自动清除
 * 在警告显示期间发送的消息稍后恢复会话时可能仍然丢失
 
 ### 因为设置了 CLAUDE\_CODE\_SKIP\_PROMPT\_HISTORY 所以记录保存已关闭

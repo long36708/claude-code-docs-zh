@@ -4,7 +4,7 @@
 
 # 插件 manifest 参考
 
-> plugin.json 的完整参考：每个字段的类型和默认值、接受的路径形式，以及 userConfig 和环境变量的 schema。
+> plugin.json 参考：各字段的类型和默认值、接受的路径形式，以及 userConfig 和环境变量的 schema。
 
 Plugin manifest 是 plugin 的 `.claude-plugin/` 目录中的 `plugin.json` 文件。它包含 plugin 的元数据和 Claude Code 提示用户输入的 [`userConfig`](#user-configuration) 值。它还声明任何在其[默认位置](#standard-layout)之外定义内联或保留的组件。
 

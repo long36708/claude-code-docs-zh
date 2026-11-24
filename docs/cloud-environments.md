@@ -281,6 +281,8 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 > [!NOTE]
 >
 > 对于此表中的仓库配置，[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)中的云端线程加载得更少。它启动时不包含 `.mcp.json` 服务器，也不包含 `.claude/settings.json` 中的 hook 和权限规则，并且可能会跳过 skill、Agent 和命令。请参阅[线程从您的仓库中获取的内容](https://code.claude.com/docs/zh-CN/claude-projects.md#what-threads-pick-up-from-your-repositories)。
+>
+> [PR Steward](https://code.claude.com/docs/zh-CN/pr-steward-pull-requests.md#save-pr-steward-instructions-for-everyone-in-a-repository) 会话和 [Approvals 分类器运行](https://code.claude.com/docs/zh-CN/approvals-classifiers.md#what-a-classifier-run-can-read-and-change)加载的内容也更少。
 
 云端会话从您仓库的全新克隆开始。您提交到仓库的任何内容都可用。您只在自己机器上安装或配置的任何内容在会话中都不可用。您组织的策略通过[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)单独到达。
 
@@ -295,7 +297,7 @@ Anthropic 托管环境中的云端会话在 HTTP/HTTPS 网络代理后面运行�
 | 您组织的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md) | 是，除了在 [Claude Tag](https://claude.com/docs/claude-tag/overview) 会话中 | 在会话启动时从 Anthropic 的服务器获取。请参阅[使用入口覆盖范围](https://code.claude.com/docs/zh-CN/model-config.md#surface-coverage)了解 `availableModels` 在云端会话中如何强制执行。通过 MDM 或托管设置文件部署到您设备的设置不适用，因为会话在 Anthropic 管理的 VM 上运行；在[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)中，会话也会读取运行器镜像中的托管设置文件，根据 [Claude Code 如何组合托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources) |
 | 您的用户 `~/.claude/CLAUDE.md` | 否 | 位于您的机器上，不在仓库中。请参阅[添加个人偏好而无需提交到仓库](#add-personal-preferences-without-committing-to-the-repo) |
 | 您的用户 `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` | 否 | 位于您的机器上，不在仓库中。请改为将它们提交到仓库的 `.claude/` 目录。云端会话会自动加载[您在 claude.ai 上启用的 skill](https://code.claude.com/docs/zh-CN/skills.md#skills-in-cowork-and-cloud-sessions) |
-| 仅在您的用户设置中启用的插件 | 否 | 用户作用域的 `enabledPlugins` 位于您机器上的 `~/.claude/settings.json` |
+| 仅在您的用户设置中启用的插件 | 否 | 用户作用域的 `enabledPlugins` 位于您机器上的 `~/.claude/settings.json`。要使用此类插件，请参阅[安装插件](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin)下的**云端会话**标签页 |
 | 您使用 `claude mcp add` 在默认本地作用域或用户作用域添加的 MCP 服务器 | 否 | 在这些作用域下，该命令会写入您机器上的 `~/.claude.json`。请从仓库根目录运行 `claude mcp add --scope project` 以写入仓库的 [`.mcp.json`](https://code.claude.com/docs/zh-CN/mcp#project-scope)，并提交该文件。具有一个仓库的会话会加载它 |
 | 您的仓库的 `.claude/settings.json` `env` 块中的传输变量，例如 `NODE_EXTRA_CA_CERTS` 和 [mTLS 客户端证书变量](https://code.claude.com/docs/zh-CN/network-config.md#mtls-authentication) | 否 | 托管环境管理会话的 API 连接，因此 Claude Code 忽略这些键，并在会话的调试日志中记录每个被忽略的键 |
 | Claude 调用的服务的 API 密钥和令牌 | 在 Anthropic 托管的环境中，作为[网络密钥](#add-network-secrets) | 您在环境中添加一次密钥，Agent 代理会将其附加到发往您列出的主机的请求。Agent 代理[无法附加](#requests-that-never-get-the-credential)的密钥保留在环境变量中 |

@@ -237,7 +237,7 @@ Read every Markdown file in this project and list the links that point to local 
 
 ### 使用 hook 检查代码输出
 
-如需在 Claude 读取代码返回的内容之前对其进行检查或脱敏，请编写一个匹配 `REPL`（运行代码的工具）的 [`PostToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#posttooluse)。同一个 hook 也会在[后台代码](#long-running-code)完成时以及代码抛出错误时运行。
+如需检查代码返回的内容或对其进行脱敏，请编写一个匹配 `REPL`（运行代码的工具）的 [`PostToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#posttooluse)。同一个 hook 也会在[后台代码](#long-running-code)完成时以及代码抛出错误时运行。
 
 #### 在 hook 中读取代码输出
 

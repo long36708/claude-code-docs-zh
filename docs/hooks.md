@@ -1034,7 +1034,7 @@ blocking because Git Bash wasn't found, so only exit code 0 or 2 counts as this 
 | Hook 事件 | 可以阻止？ | 退出 2 时发生什么 |
 | :- | :- | :- |
 | `PreToolUse` | 是 | 阻止工具调用 |
-| `PermissionRequest` | 否 | 此事件不接受退出码 2，权限流程保持不变。改为通过 [`decision` 对象](#permissionrequest-decision-control)拒绝 |
+| `PermissionRequest` | 否 | 不会被读取为决策。改为通过 [`decision` 对象](#permissionrequest-decision-control)拒绝 |
 | `UserPromptSubmit` | 是 | 阻止提示词。请参阅[被阻止的提示词留下什么](#what-a-blocked-prompt-leaves-behind) |
 | `UserPromptExpansion` | 是 | 阻止扩展 |
 | `Stop` | 是 | 防止 Claude 停止，继续对话 |
@@ -1226,7 +1226,7 @@ Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `
 
 * `PreToolUse`：直接位于 `hookSpecificOutput` 下的 `updatedInput` 会在工具运行前替换其参数。请参阅 [PreToolUse 决策控制](#pretooluse-decision-control)
 * `PermissionRequest`：`updatedInput` 位于 `decision` 对象内。请参阅 [PermissionRequest 决策控制](#permissionrequest-decision-control)
-* `PostToolUse`：`updatedToolOutput` 替换工具的结果。在 [Cowork](https://claude.com/docs/cowork/overview) 云端会话中，当工具为 `AskUserQuestion` 或 `ExitPlanMode` 时，Claude Code 会忽略 `updatedToolOutput`，Claude 读取的是原始回答或计划。请参阅 [PostToolUse 决策控制](#posttooluse-decision-control)
+* `PostToolUse`：`updatedToolOutput` 替换工具的结果。请参阅 [PostToolUse 决策控制](#posttooluse-decision-control)，其中包括在 [Cowork](https://claude.com/docs/cowork/overview) 云端会话中的限制
 * `UserPromptSubmit`：无法替换提示词；它仅在其旁边注入 `additionalContext`
 
 对于脱敏或转换用例，请在 `PreToolUse` 处拦截出站工具输入，在 `PostToolUse` 处拦截成功调用的结果。`PostToolUseFailure` 无法改写结果，因此无法对失败命令的输出进行脱敏。
@@ -1444,7 +1444,7 @@ exit 0
 
 ### Setup
 
-仅在您使用 `--init-only` 启动 Claude Code，或在使用 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下使用 `--init` 或 `--maintenance` 启动时触发。正常启动时不会触发。将其用于您从 CI 或脚本中显式触发的一次性依赖安装或定期清理，与正常的会话启动分开。对于每个会话的初始化，请改用 [SessionStart](#sessionstart)。
+仅当您使用 `--init-only` 启动 Claude Code，或在使用 `-p` 标志的[非交互模式](https://code.claude.com/docs/zh-CN/headless.md)下使用 `--init` 或 `--maintenance` 启动时触发。用于从 CI 或脚本中显式触发的一次性依赖安装或定期清理。对于每个会话的初始化，请改用 [SessionStart](#sessionstart)。
 
 匹配器的值对应触发该 hook 的 CLI 标志：
 
@@ -2216,7 +2216,7 @@ PreToolUse hook 在每次工具调用之前运行，无论该调用是否需要�
 
 要允许或重写 Monitor 命令，请参阅[匹配 Monitor 命令](#match-monitor-commands)。
 
-以退出码 2 退出但未返回 `decision` 对象的 hook 不会改变权限流程，其 stderr 会被丢弃。要授予或拒绝请求，请返回 `decision` 对象。
+在此事件上，Claude Code 不会将退出码 2 视为决策。要授予或拒绝请求，请返回 `decision` 对象。
 
 ```json theme={null}
 {
@@ -2332,7 +2332,7 @@ hook 可以将其收到的某个 `permission_suggestions` 原样作为自己的 
 | `reason` | 当 `decision` 为 `"block"` 时向 Claude 显示的说明 |
 | `additionalContext` | 与工具结果一起添加到 Claude 上下文中的字符串。请参阅[为 Claude 添加上下文](#add-context-for-claude) |
 | `classifierContext` | 关于此调用结果的简短说明，供[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)分类器而非 Claude 使用。请参阅[为自动模式分类器注释结果](#annotate-a-result-for-the-auto-mode-classifier)。需要 Claude Code v2.1.236 或更高版本 |
-| `updatedToolOutput` | 在发送给 Claude 之前，用提供的值替换工具的输出。该值必须与工具的输出结构匹配。在 [Cowork](https://claude.com/docs/cowork/overview) 云端会话中，当工具为 `AskUserQuestion` 或 `ExitPlanMode` 时，Claude Code 会忽略此字段，Claude 会读取原始回答或计划 |
+| `updatedToolOutput` | 在工具输出发送给 Claude 之前，用提供的值替换它。该值必须符合工具的输出结构。在 [Cowork](https://claude.com/docs/cowork/overview) 云端会话中，对于某些工具（例如 `AskUserQuestion` 和 `ExitPlanMode`），Claude Code 会忽略此字段和 `updatedMCPToolOutput`，此时 Claude 读取的是原始结果 |
 | `updatedMCPToolOutput` | 仅替换 [MCP 工具](#match-mcp-tools)的输出。建议优先使用 `updatedToolOutput`，它也适用于内置工具 |
 
 下面的示例替换了一次 `Bash` 调用的输出。替换值与 `Bash` 工具的输出结构相匹配：
@@ -4106,7 +4106,7 @@ LLM 必须使用包含以下内容的 JSON 响应：
 * `PostToolUseFailure` 和 `TaskCreated`：原因作为工具错误返回给 Claude，转轮继续，无论 `continueOnBlock` 如何
 * 在 `TaskUpdate` 调用上触发的 `TaskCompleted`：Claude 将原因作为工具结果接收，轮次继续，无论 `continueOnBlock` 如何
 * `TeammateIdle`，以及在队友轮次结束时触发的 `TaskCompleted`：默认情况下队友进入空闲状态，原因显示在其会话记录中。设置 `continueOnBlock: true` 以将原因发送给队友并使其继续工作
-* `PermissionRequest`：`ok: false` 无效。要从 hook 拒绝批准，请使用[命令 hook](#command-hook-fields)，返回 `hookSpecificOutput.decision.behavior: "deny"`
+* `PermissionRequest`：`ok: false` 不会拒绝该请求。要从 hook 拒绝批准，请使用[命令 hook](#command-hook-fields)，返回 `hookSpecificOutput.decision.behavior: "deny"`
 * `PermissionDenied`：`ok: false` 无效，因为拒绝已经发生。此事件读取的唯一输出是 `hookSpecificOutput.retry`，提示和代理 hooks 无法设置。它们在此事件上运行，但其输出被丢弃。使用[命令 hook](#command-hook-fields)返回 `retry`
 
 如果您需要对任何事件进行更精细的控制，请使用[命令 hook](#command-hook-fields)，其中包含[决定控制](#decision-control)中描述的每个事件字段。
