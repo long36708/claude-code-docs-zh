@@ -54,6 +54,7 @@ await edit(target, "maxAttempts: 3", "maxAttempts: 5");
 * **模型**：Claude Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 5.2
 * **使用入口**：终端中的交互式 `claude` 会话。Code Mode 不适用于 VS Code 面板、Desktop 应用或云端会话
 * **Agent teams**：要在开启 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md) 的情况下使用 Code Mode，需要 v2.1.326 或更高版本。在默认的[进程内显示模式](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)下，队友以 Code Mode 运行；在分屏窗格中，队友则在不启用 Code Mode 的情况下启动
+* **Mods**：要在使用 hook 工具调用的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 时使用 Code Mode，需要 v2.1.327 或更高版本。如果您使用的是 `stable` 频道，且更新未达到该版本，请[切换到 `latest`](https://code.claude.com/docs/zh-CN/setup#configure-release-channel)
 * **遥测设置**：要在[功能标志获取关闭](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)或 [OpenTelemetry](https://code.claude.com/docs/zh-CN/monitoring-usage.md) 事件和指标开启的情况下使用 Code Mode，需要 v2.1.329 或更高版本。在任何版本上都请保持[追踪](https://code.claude.com/docs/zh-CN/monitoring-usage.md#traces-beta)关闭
 * **安装**：Claude Code 的[原生构建版本](https://code.claude.com/docs/zh-CN/setup.md)
 * **Windows**：已安装 [Git for Windows](https://git-scm.com/downloads/win)
@@ -312,8 +313,8 @@ Read every Markdown file in this project and list the links that point to local 
 | `it needs settings that Claude Code downloads from Anthropic` | 将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)以满足[遥测设置要求](#requirements)。如需继续使用当前版本，请取消设置[关闭功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的变量，例如 `DISABLE_TELEMETRY` |
 | `OpenTelemetry tracing is on` | 如果您不需要[追踪](https://code.claude.com/docs/zh-CN/monitoring-usage.md#traces-beta)，请取消设置 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA`、`ENABLE_ENHANCED_TELEMETRY_BETA` 和 `ENABLE_BETA_TRACING_DETAILED` |
 | `OpenTelemetry is on` | 如需保持事件和指标启用，请[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)并满足[遥测设置要求](#requirements)。如需继续使用当前版本，且您不需要 [OpenTelemetry 导出](https://code.claude.com/docs/zh-CN/monitoring-usage.md)，请取消设置 `CLAUDE_CODE_ENABLE_TELEMETRY` 和 `ENABLE_BETA_TRACING_DETAILED` |
-| `it doesn't yet work with the plugin` | 在会话中运行 `/plugin`，并禁用原因中指出的每个插件。如果某个插件是由您的组织启用的，请让您的管理员将其关闭 |
-| `it doesn't yet work with an installed mod` | 关闭检查工具调用的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) |
+| `it doesn't yet work with the plugin` | 将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)以满足 [mod 要求](#requirements)。如需继续使用当前版本，请运行 `/plugin`，并禁用原因中指出的每个插件。如果某个插件是由您的组织启用的，请让您的管理员将其关闭 |
+| `it doesn't yet work with an installed mod` | 将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)以满足 [mod 要求](#requirements)。如需继续使用当前版本，请运行 `/plugin`，并禁用您安装的每个 mod |
 | `it can't be used together with agent teams yet` | 如需保持 agent team 启用，请将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.326 或更高版本。如需继续使用当前版本，请取消设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` |
 | `this launch's tool options` | 不使用 `--restricted` 启动，将 `REPL` 添加到 `--tools`，并从 `--disallowedTools` 和您的 `deny` 规则中移除 `REPL` |
 | `couldn't save your answer` | 使 `~/.claude.json` 可写 |
