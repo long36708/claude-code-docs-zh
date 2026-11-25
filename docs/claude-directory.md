@@ -6,7 +6,7 @@
 
 > Claude Code 读取 CLAUDE.md、settings.json、hooks、skills、commands、subagents、workflows、rules 和自动内存的位置。探索项目中的 .claude 目录和主目录中的 ~/.claude。
 
-Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、设置、skills、subagents 和内存。将项目文件提交到 git 以与您的团队共享；`~/.claude` 中的文件是个人配置，适用于您的所有项目。
+Claude Code 从您的项目目录和主目录中的 `~/.claude` 读取指令、设置、skill、子代理和记忆。将项目文件提交到 git 即可共享它们；`~/.claude` 中的文件是个人配置，适用于您的所有项目。
 
 在 Windows 上，`~/.claude` 解析为 `%USERPROFILE%\.claude`。如果您设置了 [`CLAUDE_CONFIG_DIR`](https://code.claude.com/docs/zh-CN/env-vars)，此页面上的每个 `~/.claude` 路径都将位于该目录下。这同样适用于 `.claude.json`，否则它位于 `~/.claude.json`。
 
@@ -38,7 +38,7 @@ Configuration files
 
 **`.claude/`**
 
-项目设置、规则、skill、子代理和其他配置。如果您使用 git，请提交其中的大部分文件以便团队共享，并将 `settings.local.json` 等个人文件排除在提交之外。
+项目设置、规则、skill、子代理及其他配置。如果您使用 git，请提交其中大部分文件以便共享，并将 `settings.local.json` 等个人文件排除在提交之外。
 
 **`.claude/settings.json`**
 
@@ -78,7 +78,7 @@ Configuration files
 
 **When it loads**: 在终端启动时读取，因此添加或编辑样式后请重启 Claude Code
 
-每个 Markdown 文件定义一种[输出样式](https://code.claude.com/docs/zh-CN/output-styles.md#how-output-styles-work)，即一组调整 Claude 工作方式的指令。如果某个样式由团队共享（例如所有人都使用的审查模式），请将其放在这里。有关如何选择样式，请参阅 [`~/.claude/output-styles/`](#ce-global-output-styles)。
+每个 Markdown 文件定义一种[输出样式](https://code.claude.com/docs/zh-CN/output-styles.md#how-output-styles-work)，即一组调整 Claude 工作方式的指令。要与项目中的所有人共享某个样式（例如审查模式），请将其提交到这里。有关如何选择样式，请参阅 [`~/.claude/output-styles/`](#ce-global-output-styles)。
 
 **`.claude/agents/`**
 

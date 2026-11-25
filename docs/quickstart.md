@@ -25,7 +25,7 @@
 > 以下情况在其他页面中介绍：
 >
 > * **从未使用过终端**：请从[终端指南](https://code.claude.com/docs/zh-CN/terminal-guide)开始
-> * **希望在终端以外的地方使用 Claude Code**：Claude Code 也可在[网页](https://claude.ai/code)、[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)、[VS Code](https://code.claude.com/docs/zh-CN/vs-code.md) 和 [JetBrains IDE](https://code.claude.com/docs/zh-CN/jetbrains.md)、[Slack](https://code.claude.com/docs/zh-CN/slack.md) 中使用，以及通过 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 和 [GitLab](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md) 在 CI/CD 中使用。查看[所有界面](https://code.claude.com/docs/zh-CN/overview.md#use-claude-code-everywhere)。
+> * **希望在终端以外的地方使用 Claude Code**：Claude Code 也可在[网页](https://claude.ai/code)、[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)、[VS Code](https://code.claude.com/docs/zh-CN/vs-code.md) 和 [JetBrains IDE](https://code.claude.com/docs/zh-CN/jetbrains.md) 中使用，以及通过 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 和 [GitLab](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md) 在 CI/CD 中使用。查看[所有界面](https://code.claude.com/docs/zh-CN/overview.md#use-claude-code-everywhere)。
 
 ## 步骤 1：安装 Claude Code
 

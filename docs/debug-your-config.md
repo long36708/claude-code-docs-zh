@@ -62,7 +62,7 @@
 运行 `/hooks` 来列出当前会话注册的每个 hook，按事件分组。如果您定义的 hook 没有出现，说明 Claude Code 没有加载它。请检查以下原因：
 
 * 该 hook 定义在独立文件中。hook 应位于[设置文件](https://code.claude.com/docs/zh-CN/settings.md#settings-files)中的 `"hooks"` 键下。
-* `matcher` 值是数组而不是单个字符串。在您启动交互式会话时以及在 `claude doctor` 中，Claude Code 会将该条目列为无效设置。如果该数组位于 `PreToolUse` 或 `PermissionRequest` 下，该文件中的其他 hook 也都不会加载。
+* `matcher` 值是数组而不是单个字符串。在您启动交互式会话时以及在 `claude doctor` 中，Claude Code 会将该条目列为无效设置。如果该数组位于 `PreToolUse`、`PermissionRequest` 或 `PreSkillShellCommand` 下，该文件中的其他 hook 也都不会加载。
 * 该 hook 位于某个 skill 的 frontmatter 中，而在本次会话中您和 Claude 都尚未调用该 skill。请调用它或让 Claude 调用它，然后再次运行 `/hooks`。如果该 hook 仍未出现，请检查其他原因，例如[未能解析的 frontmatter](https://code.claude.com/docs/zh-CN/skills.md#skill-not-triggering) 或某项 [skill hook 的限制](https://code.claude.com/docs/zh-CN/hooks.md#limits-on-skill-hooks)。
 
 如果 hook 出现但没有触发，匹配器通常是原因。检查它是否有这些错误：

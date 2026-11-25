@@ -2809,6 +2809,7 @@ Claude Code 根据子代理的最后一次 API 请求（而非整个运行过程
     "taskId": str,  # 后台监视任务的 ID
     "timeoutMs": int,  # 监视实际生效的截止时间（毫秒）
     "persistent": bool | None,  # False：每个监视都有截止时间
+    "keptInSandboxByCheck": bool | None,
 }
 ```
 

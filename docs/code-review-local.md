@@ -12,7 +12,7 @@
 
 > [!NOTE]
 >
-> 如需在 GitHub 上自动审查仓库中的每个 Pull Request，请参阅 [Code Review](https://code.claude.com/docs/zh-CN/code-review.md)，这是一项由 Owner 为您的组织启用的托管服务。
+> 如需在 GitHub 上自动审查仓库中的每个 Pull Request，请参阅 [Code Review](https://code.claude.com/docs/zh-CN/code-review.md)，这是一项由 Claude 组织的 Owner 启用的托管服务。
 
 `/review` 是 `/code-review` 的别名。
 

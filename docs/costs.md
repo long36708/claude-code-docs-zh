@@ -296,7 +296,7 @@ MCP 工具定义[默认被延迟](https://code.claude.com/docs/zh-CN/mcp.md#scal
 
 > [tab] settings.json
 >
-> 将此添加到您的 [settings.json](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)，以在每个 Bash 命令之前运行 hook：
+> 将此添加到您的 [settings.json](https://code.claude.com/docs/zh-CN/settings.md#where-settings-live)，以在每次 Bash 工具调用之前运行 hook：
 >
 > ```json theme={null}
 > {

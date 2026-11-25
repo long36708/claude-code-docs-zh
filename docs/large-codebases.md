@@ -35,7 +35,7 @@
 
 ### 示例 monorepo
 
-本页面的示例引用了一个包含三个包的 monorepo。相同的模式适用于大型单树代码库：其中示例使用 `packages/api/`，替换为你自己的子系统目录，例如 `src/backend/` 或 `lib/core/`。
+本页面的示例引用了一个包含三个包的 monorepo。凡示例使用 `packages/api/` 之处，请替换为您自己的子系统目录，例如 `src/backend/` 或 `lib/core/`。
 
 ```text theme={null}
 monorepo/

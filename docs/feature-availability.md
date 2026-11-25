@@ -47,7 +47,6 @@ Claude Code CLI 和所有本地运行的功能在每个提供商上的工作方�
 这些需要使用 claude.ai 账户登录，无法通过 Anthropic Console API 密钥或第三方提供商访问：
 
 * [云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)和移动设备上的 Claude Code
-* [Slack 中的 Claude Code](https://code.claude.com/docs/zh-CN/slack.md)：Pro、Max 和 Ultra 套餐
 * [Claude Code Desktop](https://code.claude.com/docs/zh-CN/desktop.md)
 * [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)（`/schedule`）
 * [Ultrareview](https://code.claude.com/docs/zh-CN/ultrareview.md)

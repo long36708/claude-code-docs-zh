@@ -24,7 +24,7 @@ Claude [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) 和
 
 **2. 登录**
 
-使用您用于 Claude Code 的相同 claude.ai 账户和组织登录。云会话和远程控制需要 claude.ai 账户，因此无法通过 Anthropic Console API 密钥或来自 Amazon Bedrock 等第三方提供商的方式访问。
+使用您用于 Claude Code 的相同 claude.ai 账户登录；如果您属于某个组织，也请使用相同的组织。云端会话和 Remote Control 需要 claude.ai 账户，因此无法通过 Anthropic Console API 密钥或来自 Amazon Bedrock 等第三方提供商的方式访问。
 
 **3. 打开 Code 选项卡**
 
@@ -86,4 +86,3 @@ Dispatch 在其生成的 Code 会话完成或需要您的批准时发送自己�
 * [远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)：从任何设备继续本地会话
 * [来自 Dispatch 的会话](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)：Dispatch 任务如何在桌面应用程序中成为 Code 会话
 * [Channels](https://code.claude.com/docs/zh-CN/channels.md)：通过 Telegram、Discord 或 iMessage 从您的手机询问 Claude 一些事情，同时工作在您的机器上运行
-* [Slack 中的 Claude Code](https://code.claude.com/docs/zh-CN/slack.md)：通过提及 `@Claude` 从您的 Slack 工作区委派编码任务

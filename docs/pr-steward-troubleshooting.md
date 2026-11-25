@@ -61,6 +61,9 @@
 | `PR Steward didn't start: only someone with write access` | 请拥有写入权限的人添加 `claude-pr-steward-watching` 标签或评论 `@claude steward` |
 | `PR Steward hasn't started: your organization has no extra usage available` | 请 Owner 在 [**Organization settings > Usage**](https://claude.ai/admin-settings/usage) 中添加使用额度或提高支出限额。如果是您请求 PR Steward 启动的，那么再次请求时它就会启动。否则，它将在下一次推送时启动 |
 | `PR Steward hasn't started: billing for PR Steward isn't set up` | 请 Owner 选择一个已启用 PR Steward 的仓库，并将其 [**Steward** 设置更改](https://code.claude.com/docs/zh-CN/pr-steward-setup.md#choose-when-pr-steward-starts-in-each-repository)为 **Off** 以外的其他选项。之后可以立即改回 |
+| `PR Steward hasn't started: your Claude organization hasn't picked where it runs yet` | 请 Owner [为 PR Steward 选择一个环境](https://code.claude.com/docs/zh-CN/pr-steward-setup.md#choose-the-environment-pr-steward-runs-in)，然后评论 `@claude steward` |
+| `PR Steward hasn't started: it can't use the environment that your Claude organization picked for it` | 请 Owner [为 PR Steward 选择另一个环境](https://code.claude.com/docs/zh-CN/pr-steward-setup.md#choose-the-environment-pr-steward-runs-in)，然后评论 `@claude steward` |
+| `PR Steward hasn't started: the self-hosted runners it would run on need Claude Code 2.1.317 or newer` | 请负责运行您的[自托管环境](https://code.claude.com/docs/zh-CN/pr-steward-setup.md#run-pr-steward-in-a-self-hosted-environment)的人[更新其 runner](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#pin-the-version)，然后评论 `@claude steward` |
 | `Claude PR Steward couldn't start, so it isn't watching this pull request` | 添加标签或评论 `@claude steward` 以重试 |
 | `Claude PR Steward couldn't start on this pull request because the setup script` | 请能够编辑 [PR Steward 运行所在环境](https://code.claude.com/docs/zh-CN/pr-steward-setup.md#choose-the-environment-pr-steward-runs-in)的人修复其设置脚本，然后再次启动 PR Steward |
 | `this repository has PR Steward enabled in more than one Claude workspace` | 请各 Owner 仅在一个 Claude 组织中保留该仓库，并将其从其他组织中移除 |

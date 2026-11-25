@@ -197,7 +197,7 @@ input_match: '"skill"\s*:\s*"(?:[\w-]+:)?your-skill-name"'
 
 ### 在 prompt.md 中设置运行限制和工具
 
-在 `prompt.md` frontmatter 中设置用例的 `max_turns`、`timeout_seconds`、`model`、`tags` 和它可以使用的 `allowed_tools`；[prompt.md frontmatter](#prompt-md-fields) 参考列出了每个字段及其默认值。
+在 `prompt.md` frontmatter 中设置用例的 `max_turns`、`timeout_seconds`、`model`、`tags` 和 `allowed_tools`。有关其他字段和默认值，请参阅 [prompt.md frontmatter](#prompt-md-fields) 参考。
 
 Claude 会完全按照您编写的内容接收正文。其中的 `@path` 提及不会扩展为文件附件，所以如果 Claude 需要读取文件，请在 `allowed_tools` 中为其授予相应工具。
 
@@ -336,19 +336,25 @@ mock 文件的正文和 frontmatter 接受这些选项：
 
 添加 `--case <glob>` 按用例名称过滤，添加 `--tag <tag>` 保留具有任何给定标签的用例。
 
-将 target 放在 `--tag`、`--allow-tools` 和 `--json` 之前。前两个接受列表，`--json` 接受可选路径，所以它们每个都会将后面的 target 读取为自己的值。
+将 target 放在 `--tag`、`--allow-tools`、`--disallow-tools` 和 `--json` 之前。前三个接受列表，`--json` 接受可选路径，所以它们每个都会将后面的 target 读取为自己的值。
 
 ### 授予工具
 
 运行永远不会停下来请求权限。需要授予但您没有授予的内置工具，例如 `Bash`、`Write`、`Edit`、`WebFetch` 和 `WebSearch`，会从会话中移除，所以 Claude 根本无法调用它们。
 
-运行仅允许用例在 `allowed_tools` 中列出的只读工具，来自 `Read`、`Glob`、`Grep`、`NotebookRead`、`Skill`、`AskUserQuestion`、`Agent`、`TodoWrite` 和任务工具 `TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate` 和 `TaskStop`，加上您使用 `--allow-tools` 授予的任何工具。该授予适用于运行中的每个用例。要让用例使用 `Bash`、`Write`、`Edit`、`WebFetch` 或 `WebSearch`，请自行授予它们：
+运行会预先批准用例在 `allowed_tools` 中列出的只读工具（范围为 `Read`、`Glob`、`Grep`、`NotebookRead`、`Skill`、`AskUserQuestion`、`Agent`、`TodoWrite` 以及任务工具 `TaskCreate`、`TaskGet`、`TaskList`、`TaskUpdate` 和 `TaskStop`），加上您使用 `--allow-tools` 授予的任何工具。该授予适用于运行中的每个用例。
+
+要让用例使用 `Bash`、`Write`、`Edit`、`WebFetch` 或 `WebSearch`，请使用 `--allow-tools` 授予它们：
 
 ```bash theme={null}
 claude plugin eval . --allow-tools Write Edit "Bash(npm test *)"
 ```
 
 当用例请求您没有授予的工具时，进度输出会将其列为 `not granted`。[模拟](#mock-mcp-servers) MCP 服务器上的工具不需要授予。真实插件 MCP 服务器上的工具需要服务器启动（使用 `--allow-real-servers` 或 `--mocks off`）和按名称授予，例如 `--allow-tools "mcp__plugin_my-plugin_github__*"`；插件的 MCP 工具命名为 `mcp__plugin_<plugin>_<server>__<tool>`。
+
+#### 预先批准从其他路径读取
+
+要预先批准读取 `/data` 等文件夹下的内容，请授予以 `//` 开头的 [`Read` 规则](https://code.claude.com/docs/zh-CN/permissions#read-and-edit)，例如 `--allow-tools "Read(//data/**)"`。在原生 Windows 上，针对 `C:\data` 的相同授予为 `Read(//c/data/**)`。仅列出 `Read`、`Glob` 或 `Grep` 并不会预先批准您机器上的每个路径。
 
 #### shell 授予需要沙箱
 
@@ -365,6 +371,20 @@ claude plugin eval . --allow-tools Write Edit "Bash(npm test *)"
 
 请询问您的管理员该设置能否针对您的机器更改，或从该运行中移除 shell 授予。
 
+### 从运行中移除内置工具
+
+要从每个用例中移除某个内置工具，请将其[确切名称](https://code.claude.com/docs/zh-CN/tools-reference.md)传递给 `--disallow-tools`。对于单个用例，请在该用例的 [`disallowed_tools`](#prompt-md-fields) 字段中列出该名称。需要 Claude Code v2.1.299 或更高版本。
+
+如果您只是从 `allowed_tools` 中省略 `Agent`，Claude 仍然可以调用它。
+
+要从每个用例中移除 `Agent` 和 `TaskStop`，请在 shell 中运行：
+
+```bash theme={null}
+claude plugin eval . --disallow-tools Agent TaskStop
+```
+
+输出会在 `Removed from Claude's tools in every case` 之后列出这两个工具。
+
 ### 命令选项
 
 此表涵盖运行次数、模型、评分、成本、工具授予、模拟和输出的选项。运行 `claude plugin eval --help` 获取完整列表，其中还包括 `--case`、`--tag`、`--eval-dir`、`--no-scaffold`、`--report` 和 `--verbose`。
@@ -379,6 +399,7 @@ claude plugin eval . --allow-tools Write Edit "Bash(npm test *)"
 | `--threshold <0..1>` | `1.0` | 当用例的 with 分支得分至少为此值时，用例通过。任何低于它的用例都会使命令以 1 退出 |
 | `--max-cost-usd <usd>` | 无上限 | 运行的标价成本估算的上限，而不是计划用量的上限。在每次运行开始前检查。一旦花完，不会再启动任何运行；已开始的运行会完成，所以花费可能会因这些运行而超过上限。如果有任何运行未启动，命令会以 2 退出并给出部分结果 |
 | `--allow-tools <tools...>` | 无 | 授予超出只读集合的工具。请参阅 [授予工具](#grant-tools) |
+| `--disallow-tools <tools...>` | 无 | 从每个用例中移除内置工具。请参阅 [从运行中移除内置工具](#disallow-tools) |
 | `--scaffold` | 关闭 | 运行每个用例的 [`scaffold_script`](#add-setup-or-history-with-case-yaml) |
 | `--trust-plugin` | 关闭 | 对于您愿意自行运行其代码和套件的插件，跳过首次运行信任提示。在 CI 中传递它，以便作业永远不会被该提示拒绝或卡在该提示处等待。请参阅 [运行可以访问什么](#security) |
 | `--mocks <mode>` | `record` | `record` 从 [模拟](#mock-mcp-servers) 回答 MCP 工具调用，不启动插件的真实服务器，并保存 Agent 模拟答案以供重放。`off` 忽略模拟并启动插件的真实 MCP 服务器 |
@@ -535,13 +556,16 @@ evals/
 | `model` | 子会话的默认值 | 被测试代理的模型。`--model` 覆盖它 |
 | `max_turns` | `10` | 轮次上限，最多 200。达到它被记录为运行错误，通常降低分数，所以慷慨地设置它 |
 | `timeout_seconds` | `300` | 每次运行的挂钟上限，最多 3600 |
-| `allowed_tools` | `[]` | 用例想要的工具，例如 `[Read, Glob, Grep, Skill]`。只读工具在列出时授予；对于其他任何内容，参见[授予工具](#grant-tools) |
+| `allowed_tools` | `[]` | 用例需要的工具，例如 `[Read, Glob, Grep, Skill]`。参见[授予工具](#grant-tools) |
+| `disallowed_tools` | | 要[从此用例中移除](#disallow-tools)的确切内置工具名称，例如 `[Agent, TaskStop]` |
 | `append_system_prompt` | | 附加到子会话系统提示的文本 |
 | `env` | `{}` | 子会话的额外环境变量。键必须匹配 `EVAL_[A-Z0-9_]*`；任何其他键使运行失败。运行仅从你的 shell 继承允许列表：基础知识如 `PATH` 和区域设置、代理和证书设置、选择和验证你的模型提供商的变量、大多数 `ANTHROPIC_*` 和 `CLAUDE_CODE_*` 配置，以及 `EVAL_*`。要将插件传递任何其他内容，例如工具链设置，将其导出为 `EVAL_*` 变量 |
 
 ### case.yaml 字段
 
-`case.yaml` 是 `prompt.md` 的替代或伴侣：它在 YAML 中描述用例并添加指向其他文件的字段。它需要 `schema_version: "1.1"` 和 `name`。`prompt.md` 字段 `description`、`tags`、`plugins`、`runs` 和 `expected_outcome` 在顶级；`model`、`max_turns`、`timeout_seconds`、`allowed_tools`、`append_system_prompt` 和 `env` 在 `execution:` 下。当两个文件都存在时，`prompt.md` frontmatter 覆盖匹配的 `case.yaml` 字段，`prompt.md` 正文是提示，`graders/*.md` 在 `case.yaml` 中列出的任何评分器之后添加。
+`case.yaml` 是 `prompt.md` 的替代或补充：它以 YAML 描述用例，并添加指向其他文件的字段。它需要 `schema_version: "1.1"` 和 `name`。`prompt.md` 字段 `description`、`tags`、`plugins`、`runs` 和 `expected_outcome` 位于顶级；`model`、`max_turns`、`timeout_seconds`、`allowed_tools`、`disallowed_tools`、`append_system_prompt` 和 `env` 位于 `execution:` 下。
+
+当两个文件都存在时，`prompt.md` frontmatter 会覆盖匹配的 `case.yaml` 字段，但 `disallowed_tools` 除外，该字段的两个列表会合并。`prompt.md` 正文是提示词，`graders/*.md` 会添加在 `case.yaml` 中列出的任何评分器之后。
 
 这些字段仅存在于 `case.yaml` 中：
 
@@ -675,7 +699,9 @@ eval 目录下不存在 `<case>/prompt.md` 或 `<case>/case.yaml`，或你的 `-
 
 该错误是预期的，因为 `Δ` 将你的插件运行与基线进行比较。在 JSON 结果中，基线运行位于 `cases[].arms.without` 下。
 
-在加载了你的插件的运行中，在 `allowed_tools` 中列出 `Agent` 的案例可以通过其命名空间名称调度你的插件的某个代理，例如 `my-plugin:code-reviewer` 表示名为 `my-plugin` 的插件中的 `code-reviewer` 代理。要跳过基线运行，传递 `--ablation none`。
+> [!NOTE]
+>
+> 在加载了您的插件的运行中，Claude 可以通过命名空间名称调度您的插件的某个 Agent，例如 `my-plugin:code-reviewer` 表示名为 `my-plugin` 的插件中的 `code-reviewer` Agent。要跳过基线运行，请传递 `--ablation none`。
 
 ### 尽管生成了正确的文件，但所有内容的评分都为零
 

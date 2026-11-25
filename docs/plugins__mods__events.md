@@ -46,7 +46,9 @@ on('tool.call', async ($, e, next) => {
 
 ### 重写事件
 
-要更改 Claude Code 作用的内容，例如提示词的文本，请使用修改后的事件副本调用 `next`。事件本身是不可变的：它被深度冻结，对字段赋值会抛出错误。此 hook 在发送前修剪每个提示词：
+要更改 Claude Code 作用的内容，请使用修改后的事件副本调用 `next`。
+
+此 hook 在发送前修剪提示词：
 
 ```javascript theme={null}
 on('prompt.submit', async ($, e, next) => {
@@ -55,7 +57,7 @@ on('prompt.submit', async ($, e, next) => {
 })
 ```
 
-后续处理程序和 Claude Code 接收修剪后的提示，永远看不到原始提示。你也可以更改结果：`await next(e)`，然后返回替换了字段的结果副本。
+对于以纯文本形式输入的提示词，后续处理程序和 Claude 会收到修剪后的提示词。
 
 ### 回答事件
 
@@ -150,7 +152,7 @@ on('tool.call', { tool: ['Edit', 'Write'] }, async ($, e, next) => {
 * **自行响应调用**：在不调用 `next` 的情况下返回一个带有 `result` 字段的对象；对于内置工具，请让 `result` 的结构与该工具自身结果在[适用于您构建版本的类型](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)中的结构一致。不会出现权限提示，工具也不会运行，因此您返回的结果就是 Claude 对所发生情况的全部了解。
 * **向 Claude 扣留结果**：在 `await next(e)` 之后返回 `{ deny: reason }`。Claude 读取的是您的原因，而不是 `next` 返回的内容。如果工具已运行，deny 会阻止 Claude 看到其结果，但不会撤销工具所做的任何操作。如果工具已运行并成功，原因会跟在诸如 `Bash ran, and a plugin withheld its result:` 的说明之后。
 
-您组织的[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中的 hook 会在任何 mod 的 `tool.call` hook 之前运行。当托管 hook 阻止该调用时，任何 mod 的 `tool.call` hook 都不会针对该调用运行。
+[托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中的 hook 会在任何 mod 的 `tool.call` hook 之前运行。当托管 hook 阻止该调用时，任何 mod 的 `tool.call` hook 都不会针对该调用运行。
 
 #### 暂缓工具调用，直到用户做出决定
 
@@ -260,15 +262,15 @@ on('tool.check', { tool: /^mcp__github__/ }, async ($, e, next) => {
 
 ### 改写或补充提示词
 
-`prompt.submit` hook 会在轮次开始之前看到每个提示词，因此可以改写文本或向其中添加内容。`e.text` 是输入的内容。
+要改写提示词或向其中添加内容，请处理 `prompt.submit`，从 `e.text` 读取提示词，并返回下表中的某个值：
 
 | 要执行的操作 | 返回的内容 |
 | :- | :- |
-| 改写提示词。会话记录和您的[提示词历史](https://code.claude.com/docs/zh-CN/interactive-mode.md#command-history)会显示新文本。 | `next({ ...e, text: newText })` |
+| 改写以纯文本形式输入的提示词。会话记录和您的[提示词历史](https://code.claude.com/docs/zh-CN/interactive-mode.md#command-history)会显示新文本。 | `next({ ...e, text: newText })` |
 | 在提示词之后添加只有 Claude 读取的文本 | `next({ ...e, context: [...(e.context ?? []), extraText] })` |
 | 阻止发送提示词 | `{ drop: 'the reason' }` |
 
-以下 hook 会在提示词提及 Pull Request 时，为 Claude 添加当前分支名称：
+当提示词中提到 Pull Request 时，此 hook 会为 Claude 添加当前分支名称：
 
 ```javascript theme={null}
 on('prompt.submit', async ($, e, next) => {
@@ -284,10 +286,11 @@ on('prompt.submit', async ($, e, next) => {
 
 当您发送诸如 `open a PR for this change` 之类的提示词时，您的消息在会话记录中看起来不变，而 Claude 还会在其后读取诸如 `Current branch: feature/auth` 的一行。未提及 Pull Request 的提示词会原样通过，且不会运行 `git`。
 
-要阻止提示词，请在不调用 `next` 的情况下返回 `{ drop: 'the reason' }`。文本会返回到用户的提示词输入框中，用户会看到 `Prompt dropped by a hook:` 后跟您的原因，因此请以用户为对象撰写原因。在以下情况下，提示词仍会被发送：
+要阻止提示词，请在不调用 `next` 的情况下返回 `{ drop: 'the reason' }`。文本会返回到用户的提示词输入框中，用户会看到 `Prompt dropped by a hook:` 后跟您的原因，因此请以用户为对象撰写原因。不要依赖 `drop` 来阻止每个提示词。例如，在以下情况下，提示词仍会被发送：
 
 * **您的 hook 在其 `next(e)` 调用已放行提示词之后返回 `drop`**：轮次仍会运行，并且该 hook 会[失败](#handle-a-hook-that-fails)，错误消息中包含 `a drop after its next() was answered`
 * **您的 hook 抛出异常或超时**：Claude Code 会跳过它并发送提示词。请[添加 `.catch` 处理程序](#handle-a-hook-that-fails)，以免失败时发送了本应被该 hook 阻止的提示词。
+* **提示词是[带有 `context: fork` 的 skill](https://code.claude.com/docs/zh-CN/skills#run-skills-in-a-subagent) 的 `/command`**：您的 hook 不会运行。要阻止该命令，请在不调用 `next` 的情况下从 [`command.run`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-command) hook 返回 `{ text: 'the reason' }`。
 
 [其他事件](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#prompts-and-what-claude-reads)涵盖了 Claude 读取的其余内容：`prompt.section` 用于系统提示词的每个部分，`prompt.context` 用于随第一条消息发送的上下文，`skill.prompt` 用于 skill 的文本。要在对话开始后更改某个部分，请参阅[发送更改后的系统提示词部分或工具描述](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#break-prompt-cache)。在 `skill.prompt` hook 中，您还可以读取[该 skill 来自哪个插件或文件](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#skill-prompt-fields)。
 
@@ -297,9 +300,9 @@ on('prompt.submit', async ($, e, next) => {
 
 | 事件 | 触发时机 | hook 可以执行的操作 |
 | :- | :- | :- |
-| `turn.start` | 轮次开始 | 观察。`e.turnId` 在另外两个事件中标识该轮次。 |
+| `turn.start` | 轮次开始。子代理的轮次触发该事件时会设置 `e.agentId`，这需要 Claude Code v2.1.299 或更高版本。 | 观察。`e.turnId` 在另外两个事件中标识该轮次。 |
 | `turn.step` | Claude Code 即将向模型发送一个请求。包含工具调用的轮次会有多个请求。子代理的请求会设置 `e.agentId`。 | 读取每个请求的 token 用量、通过 `next({ ...e, model })` 将其发送到不同的模型，或在不调用模型的情况下直接响应 |
-| `turn.complete` | 轮次结束，包括用户中断的轮次，此时 `e.isAborted` 为 `true`。`e.answer` 是 Claude 的最终文本，`e.durationMs` 是所用时间，`e.usage` 是该轮次的 token 总量。子代理的轮次触发该事件时会设置 `e.agentId`。 | 观察，或返回一个带有 `text` 字段的对象（例如 `{ text: 'Done in 12 seconds' }`），以在回答下方显示一行 |
+| `turn.complete` | 轮次结束，包括用户中断的轮次，此时 `e.isAborted` 为 `true`。`e.answer` 是 Claude 的最终文本，`e.durationMs` 是所用时间，`e.usage` 是该轮次的 token 总量。子代理的轮次触发该事件时会设置 `e.agentId`。 | 观察。在主对话中，返回一个带有 `text` 字段的对象（例如 `{ text: 'Done in 12 seconds' }`），以在回答下方显示一行。 |
 
 请将 `turn.step` hook 编写为异步生成器，因为该事件是流式的。`yield* next(e)` 会在响应流式传输时将其转发，并求值为完成后的结果。以下 hook 会记录 Claude API 从[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md)中为每个请求提供了多少内容：
 

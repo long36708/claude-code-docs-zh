@@ -12,7 +12,7 @@
 >
 > 服务器管理的设置可供 [Claude for Teams](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_teams#team-&-enterprise) 和 [Claude for Enterprise](https://anthropic.com/contact-sales?utm_source=claude_code\&utm_medium=docs\&utm_content=server_settings_enterprise) 客户使用。
 >
-> 如果您在 claude.ai 的 **Organization settings > Desktop 3P** 下设置了提供商或网关，请改为按照 [Enterprise Admin Console 指南](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code)操作。
+> 如果您在 claude.ai 的 [**Organization settings > Desktop 3P**](https://claude.ai/admin-settings/desktop-deployment) 下设置了提供商或网关，请改为按照 [Enterprise Admin Console 指南](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code)操作。
 
 ## 要求
 

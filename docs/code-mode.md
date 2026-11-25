@@ -126,6 +126,14 @@ Read every Markdown file in this project and list the links that point to local 
 >
 > 如需稍后恢复 Code Mode 会话，请在运行 `claude --continue` 或 `claude --resume` 时保持 `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE` 设置为 `1`。如果 Code Mode 处于关闭状态，Claude Code 会拒绝恢复该会话。在未启用 Code Mode 的情况下启动的会话，即使设置了该变量，也会在不启用 Code Mode 的情况下恢复。
 
+### 在子代理中使用 Code Mode
+
+如果您的[子代理](https://code.claude.com/docs/zh-CN/sub-agents.md)有 `tools` 列表，请将 [`REPL`](https://code.claude.com/docs/zh-CN/tools-reference) 添加到该列表中，以便子代理使用 Code Mode：
+
+```yaml theme={null}
+tools: Read, Bash, REPL
+```
+
 ### 关闭 Code Mode
 
 从 shell、`~/.claude/settings.json` 以及任何 `--settings` 文件中移除 `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE`，然后启动新会话。您也可以保留该变量，并在其中任一位置将其值改为 `0`。只要其中一处为 `0`，即使另一处设置为 `1`，Code Mode 也会保持关闭。

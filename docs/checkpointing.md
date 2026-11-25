@@ -17,7 +17,7 @@ Claude Code 会在您工作时自动跟踪 Claude 所做的文件编辑。要撤
 Claude Code 会跟踪其文件编辑工具所做的所有更改：
 
 * 您发送的每条开启新轮次的提示词都会创建一个新的检查点
-* Claude Code 会为会话中最近的 100 个检查点保留文件快照。丢弃较旧的检查点时，会删除不再被任何剩余检查点引用的快照文件，但每个文件的首个快照除外，VS Code 扩展会将其用作会话 diff 的基线。
+* Claude Code 会为会话中最近的 100 个检查点保留文件快照。丢弃较旧的检查点时，会删除不再被任何剩余检查点引用的快照文件，但每个文件的首个快照除外。
 * Claude Code 会将检查点与对话一起保存，因此在恢复会话后您仍然可以运行 `/rewind`
 * Claude Code 会在[保留期清理](https://code.claude.com/docs/zh-CN/claude-directory.md#cleaned-up-automatically)中删除会话的文件快照，默认情况下约为该会话最后一次保存快照后的 30 天。回退到快照已被删除的检查点时，可能会失败并显示 [`No files were restored`](https://code.claude.com/docs/zh-CN/errors#no-files-were-restored)。如需更长时间地保留快照，请设置 [`cleanupPeriodDays`](https://code.claude.com/docs/zh-CN/settings-reference#cleanupperioddays)。
 

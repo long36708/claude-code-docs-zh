@@ -162,7 +162,7 @@ Shell 导出仅适用于该终端会话和从它启动的程序。从 dock 或�
 
 ## 配置每个界面
 
-CLI 读取上面的环境变量和设置文件。其他界面是 VS Code 扩展、桌面应用、GitHub Actions、Agent SDK 和云界面（如 Slack 和网络）；下面的部分涵盖这些设置是否到达每一个。
+CLI 读取上面的环境变量和设置文件。其他使用入口包括 VS Code 扩展、桌面应用、GitHub Actions、Agent SDK，以及 Claude Tag 和网页版等云端使用入口。下面的部分说明这些设置是否会作用于每个使用入口。
 
 ### VS Code 扩展
 
@@ -255,9 +255,9 @@ options = ClaudeAgentOptions(
 )
 ```
 
-### Slack、云会话和远程控制
+### 云端会话、Claude Tag 和 Remote Control
 
-[Slack 中的 Claude Code](https://code.claude.com/docs/zh-CN/slack.md) 和[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)不属于网关部署的一部分。在云端会话的环境配置中设置的网关变量不会生效。如果您的流量必须保持在网关上，请不要为这些用户启用这些使用入口。
+[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)和 [Claude Tag](https://claude.com/docs/claude-tag/overview) 不属于网关部署的一部分。如果您的流量必须保持在网关上，请关闭这些使用入口。
 
 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 和[语音听写](https://code.claude.com/docs/zh-CN/voice-dictation.md)都依赖于 claude.ai 身份：Remote Control 将实时会话与您的账户配对，语音听写到达 claude.ai 转录端点。当 `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN` 或 `apiKeyHelper` 处于活动状态时，它们不可用。Remote Control 在 `ANTHROPIC_BASE_URL` 指向非 Anthropic 主机时也被禁用，因此仅使用 claude.ai 登录是不够的。
 

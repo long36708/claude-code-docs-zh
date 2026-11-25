@@ -170,7 +170,7 @@ Claude Code 按以下顺序，取第一个适用的来源作为每个队友的�
 >
 > `teammateDefaultModel` 已在 v2.1.234 中移除；Claude Code 会忽略残留的值。请改为在提示词中指定模型。
 
-Claude Code 会根据您组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表检查它为队友选择的模型。当允许列表阻止某个值时，Claude Code 会替换为另一个模型：
+Claude Code 会根据现有的任何 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表检查它为队友选择的模型。当允许列表阻止某个值时，Claude Code 会替换为另一个模型：
 
 * **系列别名，例如 `opus`**：在 Anthropic API 和 Claude Platform on AWS 上，Claude Code 会在允许列表允许的该系列最新版本上运行队友。在使用提供商特定模型 ID 的提供商上，[替换机制不起作用](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)，被阻止的别名会像其他被阻止的值一样，按照下一条规则回退
 * **任何其他被阻止的值，包括在替换机制不起作用的提供商上的系列别名，或其系列没有允许版本的别名**：Claude Code 会改为在负责人的模型上运行队友。如果您设置了 `CLAUDE_CODE_SUBAGENT_MODEL`，Claude Code 会先尝试该模型，并遵循同样的规则

@@ -258,7 +258,7 @@ Claude Code 仅在使用您的 claude.ai 账户登录的会话中同步，并 [�
 * 不使用由 `/login` 存储的登录的会话，例如使用 API 密钥进行身份验证的会话，或 `ANTHROPIC_AUTH_TOKEN`、`CLAUDE_CODE_OAUTH_TOKEN` 或 `apiKeyHelper` 脚本提供凭证的会话
 * 不获取功能标志的会话，例如 Amazon Bedrock 上的会话或您设置 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 的会话
 * [bare mode](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode) 中的会话或您使用 `--safe-mode` 启动的会话
-* 您的组织的托管设置 [将 skills 锁定到插件源](https://code.claude.com/docs/zh-CN/settings-reference.md#strictpluginonlycustomization-skills) 的会话，或您使用 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 列表启动的会话，该列表省略了 `user`
+* 托管设置 [将 skill 锁定到插件源](https://code.claude.com/docs/zh-CN/settings-reference.md#strictpluginonlycustomization-skills) 的会话，或您使用省略了 `user` 的 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 列表启动的会话
 
 如果您在会话期间使用 `/login` 登录，请重新启动 Claude Code 以开始同步。
 
@@ -425,7 +425,7 @@ Your skill instructions here...
 | `user-invocable` | 否 | 当只有 Claude 应调用该 skill 时设置为 `false`：Claude Code 会将其从 `/` 菜单中隐藏，并且在您输入 `/name` 时不会运行它。适用于用户不应直接调用的背景知识。默认值：`true`。 |
 | `allowed-tools` | 否 | 在调用此 skill 的轮次中，Claude 无需请求权限即可使用的工具。当您发送下一条消息时，该授予即被清除。接受以空格或逗号分隔的字符串，或 YAML 列表。请参阅[为 skill 预先批准工具](#pre-approve-tools-for-a-skill)。 |
 | `disallowed-tools` | 否 | 在此 skill 处于活动状态时，从 Claude 可用工具池中移除的工具。适用于永远不应调用某些工具的自主 skill，例如对后台循环禁用 `AskUserQuestion`。接受以空格或逗号分隔的字符串，或 YAML 列表。当您发送下一条消息时，该限制即被清除。与拒绝规则一样，只要还有其他工具存在，该字段就无法移除 [`EndConversation`](https://code.claude.com/docs/zh-CN/tools-reference#endconversation-tool-behavior)。 |
-| `model` | 否 | 此 skill 处于活动状态时使用的模型。该覆盖适用于当前轮次的剩余部分，且不会保存到设置中。当您发送下一个提示词时，会话模型即恢复。接受与 [`/model`](https://code.claude.com/docs/zh-CN/model-config) 相同的值，或使用 `inherit` 保留当前活动的模型。被组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除的值不会被使用，会话将保留其当前模型。在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下，以及在[分类器审查命令时的计划模式](https://code.claude.com/docs/zh-CN/permission-modes.md#analyze-before-you-edit-with-plan-mode)下，自动模式不支持的模型同样不会被使用，会话将保留其当前模型。使用 `context: fork` 时，该值改为设置[分叉子代理的模型](#run-skills-in-a-subagent)，被排除的值遵循[与子代理模型覆盖相同的规则](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)。 |
+| `model` | 否 | 当您[使用 `/name` 运行此 skill](#where-you-write-the-skills-name) 时，该轮次使用的模型。接受 [`/model`](https://code.claude.com/docs/zh-CN/model-config) 的值，或使用 `inherit` 表示当前活动的模型。当由 Claude 运行该 skill 时，会话保留其模型。当您的[组织阻止该值](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)、[计划模式升级](https://code.claude.com/docs/zh-CN/model-config.md#opusplan-model-setting)处于活动状态，或[自动模式的分类器已启用](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)且不支持该值时，情况同样如此。使用 `context: fork` 时，该值为分叉子代理的[单次调用模型](https://code.claude.com/docs/zh-CN/sub-agents.md#choose-a-model)。 |
 | `effort` | 否 | 当前轮次剩余部分的 [effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)。覆盖会话的 effort 级别，但不会覆盖 [`CLAUDE_CODE_EFFORT_LEVEL`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量。使用 `context: fork` 时，该值改为设置分叉子代理的 effort 级别。省略该字段时，级别由 [effort 解析顺序](https://code.claude.com/docs/zh-CN/model-config.md#adjust-effort-level)决定。对于使用其他模型的分叉，请参阅[子代理和队友的 effort 级别](https://code.claude.com/docs/zh-CN/model-config.md#effort-level-of-subagents-and-teammates)。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。 |
 | `context` | 否 | 设置为 `fork` 可在分叉的子代理上下文中运行。请参阅[在子代理中运行 skill](#run-skills-in-a-subagent)。 |
 | `agent` | 否 | 设置 `context: fork` 时使用的子代理类型。 |
@@ -820,6 +820,8 @@ PowerShell 工具对它运行的命令应用相同的超时、后台化和输出
 * **裸仓库文件夹**：当某个文件夹中的 `HEAD` 文件直接与 `refs` 或 `commondir` 并列时，该文件夹看起来就是裸仓库。当工作目录所在位置或其上级中最近的仓库看起来是裸仓库时，对于包含 `git` 或 Claude Code 无法解析的 Bash 命令，Claude Code 会忽略 `allowed-tools`。如果您信任该文件夹，请在会话中使用 [`/permissions`](https://code.claude.com/docs/zh-CN/permissions#manage-permissions) 允许该命令。
 
 在自动模式中，原本需要你批准的命令不会中止调用。技能加载时带有指令，告诉 Claude 首先运行该命令，然后 Claude 自己的调用通过[自动模式的常规检查](https://code.claude.com/docs/zh-CN/permission-modes.md#how-the-classifier-evaluates-actions)。调用仍然会在[分叉技能](#run-skills-in-a-subagent)中中止，该技能设置 `agent`，以及在 Claude 没有[运行注入命令的 shell 工具](#how-injected-commands-run)的会话中。
+
+`PreToolUse` hook 不会为 skill 加载时运行的注入命令触发。要记录或阻止通过权限检查的注入命令，请使用 [`PreSkillShellCommand` hook](https://code.claude.com/docs/zh-CN/hooks#preskillshellcommand)。
 
 ### 在子代理中运行技能
 

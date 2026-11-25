@@ -1901,7 +1901,7 @@ echo(!host!
 * **设置文件损坏**：当您自己的设置文件损坏时，管理员的条目可能显示为灰色，并附带指出该文件的消息。[修复该文件](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file)。
 * **新主机**：Desktop 保存主机后的一分钟内，[**Create another**](#create-another-machine) 显示为灰色。请在一分钟后再选择它。在 Claude Desktop v4.4212.0 之前，**Replace Dev box's host** 会显示为灰色 10 分钟。
 * **hook 已关闭或受限**：您自己的条目只在您自己的 hook 可以运行的地方生效。请从您的设置中移除 `disableAllHooks`，或询问您的管理员。
-* **设置仍在加载**：在 Desktop 加载您组织的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)之前，所有条目都显示为灰色，通常在启动后几秒钟内完成。如果条目一直是灰色，请检查您与 claude.ai 的连接。
+* **设置仍在加载**：在 Desktop 加载完所有[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)之前（通常在启动后几秒钟内），所有条目都会显示为灰色。如果条目一直显示为灰色，请检查您与 claude.ai 的连接。
 
 #### 为您的团队预配置 SSH 连接
 
@@ -2098,6 +2098,23 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 要防止用户覆盖 `permissions.disableBypassPermissionsMode` 或 `disableAutoMode`，请在托管设置中设置它。
 
 有关仅托管源可以设置的权限、插件和交付键，请参阅[仅托管设置可以设置的键](https://code.claude.com/docs/zh-CN/managed-settings.md#managed-only-settings)。
+
+#### 为所有用户部署 Skill
+
+要在本地和 SSH 会话中为每个用户提供相同的 skill，请将它们部署为[企业 skill](https://code.claude.com/docs/zh-CN/skills.md#where-skills-live)，您只需在一台机器上安装一次，即可供该机器的所有用户使用。请将它们安装在会话运行所在的机器上：
+
+* **本地会话**：每个用户的计算机
+* **SSH 会话**：每台远程主机
+
+请将每个 skill 安装在对应该机器平台的路径下：
+
+| 平台 | 路径 |
+| :- | :- |
+| macOS | `/Library/Application Support/ClaudeCode/.claude/skills/<skill-name>/SKILL.md` |
+| Linux | `/etc/claude-code/.claude/skills/<skill-name>/SKILL.md` |
+| Windows | `C:\Program Files\ClaudeCode\.claude\skills\<skill-name>\SKILL.md` |
+
+要确认您的 skill 已加载，请使用一个 [frontmatter](https://code.claude.com/docs/zh-CN/skills.md#frontmatter-reference) 仅设置 `name` 和 `description` 的 skill 进行测试。启动一个新会话并发送一条消息，然后在输入框中键入 `/` 和该 skill 名称的前几个字母。该 skill 会出现在列表中。
 
 #### 在 Code 选项卡中行为不同的 Claude Code 设置
 
@@ -2320,6 +2337,7 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 * **Linux (beta)**：Linux 桌面应用中尚不提供计算机使用。请参阅 [Claude Desktop on Linux](https://code.claude.com/docs/zh-CN/desktop-linux.md)。
 * **内联代码建议**：Desktop 不提供自动完成风格的代码补全。它通过对话式提示词和显式代码更改工作，并可以在 Claude 回复后[建议您的下一个提示词](#accept-a-suggested-prompt)。
 * **Agent team**：协调的团队（由 Claude 作为团队负责人从共享任务列表中为队友分配任务）在 [CLI](https://code.claude.com/docs/zh-CN/agent-teams.md) 中可用，不在 Desktop 中。对于一个会话内的多 Agent 工作，请使用[动态工作流](https://code.claude.com/docs/zh-CN/workflows.md)，它可在 Desktop 中运行；Claude 也可以直接[向您的其他会话发送消息并管理它们](#work-across-sessions)。
+* **Code Mode**：Desktop 会话启动时不包含实验性的 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)，即使您在设置中启用了它。要使用它，请在终端中运行 CLI。
 * **Terminal-dialog 命令**：在终端中打开交互式面板的内置命令，其行为在 Code 选项卡中有所不同。直接编辑[设置文件](https://code.claude.com/docs/zh-CN/settings.md)来管理权限规则和配置，或从独立 CLI 运行命令。
   * 没有参数形式的命令，例如 `/permissions`，会回复 `isn't available in this environment`。
   * `/config` 打开 **设置 > Code** 或 **设置 > Claude Code**。
@@ -2358,6 +2376,8 @@ Desktop 应用会将 `claude_desktop_config.json` 中的 MCP 服务器加载到�
 在早期布局中，在输入框上方选择环境以及任何项目文件夹或仓库，在其下方的一行中选择权限模式和模型。早期布局没有[会话详细信息面板](#see-session-details)和[已保存的本地和 SSH 环境](#create-a-saved-environment)。
 
 ### Code 选项卡中的 403 或身份验证错误
+
+如果卡片显示 `For security, Claude Code needs a recent sign-in.`，请参阅 [Claude Code 需要最近登录](https://code.claude.com/docs/zh-CN/errors.md#claude-code-needs-a-recent-sign-in)。
 
 如果在使用 Code 选项卡时看到 `Error 403: Forbidden` 或其他身份验证失败：
 

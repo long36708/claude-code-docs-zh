@@ -50,7 +50,7 @@
 * 运行带有模型的 `/advisor`，例如 `/advisor opus`，以设置它。
 * 运行 `/advisor off` 以关闭它。
 
-Claude Code 不会调用您的组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除的已保存顾问。要使用顾问，请使用 `/advisor` 选择允许的模型。
+Claude Code 不会调用被您设置中的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除的已保存顾问。要使用顾问，请使用 `/advisor` 选择允许的模型。
 
 Claude Code 仍然会保存您当前主模型不支持的顾问。该顾问在您使用 [`/model`](https://code.claude.com/docs/zh-CN/model-config#setting-your-model) 切换到[兼容的主模型](#choose-an-advisor-model)后激活。如果 API 已在当前对话中拒绝了已保存的顾问，它将保持关闭状态，直到 `/clear` 或 `/compact`，即使在您切换模型之后。
 
@@ -78,7 +78,7 @@ Claude Code 在该会话中使用该标志而不是 `advisorModel` 设置。它�
 
 * 会话的主模型不支持顾问
 * 请求的模型（例如 Haiku 4.5）无法充当顾问
-* 您的组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了请求的模型
+* 某个 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表排除了请求的模型
 * 您请求了 Fable，而您的账户仍然需要[使用额度同意](#fable-advisor-and-usage-credits)
 
 如果您使用 `--advisor` 启动[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，并且上述任何情况成立，Claude Code 会在没有顾问的情况下启动会话，而不是退出。

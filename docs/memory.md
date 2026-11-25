@@ -67,7 +67,7 @@ CLAUDE.md 文件可以位于多个位置，每个位置具有不同的作用域�
 
 ### 设置项目 CLAUDE.md
 
-项目 CLAUDE.md 可以存储在 `./CLAUDE.md` 或 `./.claude/CLAUDE.md` 中。创建此文件并添加适用于在项目上工作的任何人的指令：构建和测试命令、编码标准、架构决策、命名约定和常见工作流。这些指令通过版本控制与您的团队共享，因此请关注项目级标准而不是个人偏好。
+项目 CLAUDE.md 可以存储在 `./CLAUDE.md` 或 `./.claude/CLAUDE.md` 中。创建此文件并添加适用于在项目上工作的任何人的指令：构建和测试命令、编码标准、架构决策、命名约定和常见工作流。这些指令通过版本控制共享，因此请关注项目级标准而不是个人偏好。
 
 要确认文件已加载，请在会话中运行 [`/context all`](https://code.claude.com/docs/zh-CN/commands#all-commands) 并检查 **Memory files** 下的列表。在[全屏模式](https://code.claude.com/docs/zh-CN/fullscreen.md)下，仅运行 `/context` 会折叠该列表。
 
@@ -393,7 +393,7 @@ Claude Code 可以将 [`AGENTS.md`](https://code.claude.com/docs/zh-CN/glossary#
 | `claude-md-or-agents-md` | 您的 `CLAUDE.md` 文件，或当您的工作目录或其上方没有 `CLAUDE.md` 或 `CLAUDE.local.md` 时您的 `AGENTS.md` 文件。这是默认值 |
 | `claude-md-and-agents-md` | 您的 `CLAUDE.md` 和 `AGENTS.md` 文件一起，每个目录的 `CLAUDE.md` 文件首先，其 `AGENTS.md` 在之后。Claude Code 跳过已加载的 `AGENTS.md`，因此您的 `CLAUDE.md` 导入或符号链接到的 `AGENTS.md` 不会被读取两次 |
 | `claude-md` | 仅您的 `CLAUDE.md` 文件 |
-| `managed-only` | 仅您组织的托管 `CLAUDE.md` 和启动时的[自动记忆](#auto-memory)。您的项目、本地和用户 `CLAUDE.md` 文件、您的 `.claude/rules/` 文件和每个 `AGENTS.md` 都被排除在外。子目录的 `CLAUDE.md` 和 `.claude/rules/` 文件以及[路径范围规则](#path-specific-rules)仍会按需加载 |
+| `managed-only` | 启动时仅读取托管 `CLAUDE.md` 和[自动记忆](#auto-memory)。您的项目、本地和用户 `CLAUDE.md` 文件、您的 `.claude/rules/` 文件和每个 `AGENTS.md` 都被排除在外。子目录的 `CLAUDE.md` 和 `.claude/rules/` 文件以及[路径范围规则](#path-specific-rules)仍会按需加载 |
 
 您也可以在设置文件中设置该值，而不是在 `/config` 中。将其添加到 [`pluginConfigs`](https://code.claude.com/docs/zh-CN/settings-reference#pluginconfigs) 中的 `cc-plugin-agents-md@builtin` 下，这是读取 `AGENTS.md` 的内置插件的 ID。Claude Code 从 `~/.claude/settings.json`、`--settings` 文件或[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中读取该条目，并在项目和本地设置文件中忽略它。此示例让 Claude 读取两个文件：
 

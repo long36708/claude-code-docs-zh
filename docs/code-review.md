@@ -20,7 +20,7 @@
 
 ## 可用性
 
-在设置 Code Review 之前，请确认您的组织符合条件：
+在设置 Code Review 之前，请检查以下要求：
 
 * **套餐**：[Team 和 Enterprise](https://code.claude.com/docs/zh-CN/feature-availability.md)
 * **代码托管平台**：托管在 GitHub 上的仓库，包括 [GitHub Enterprise Server](https://code.claude.com/docs/zh-CN/github-enterprise-server.md) 和启用数据驻留的 GitHub Enterprise Cloud。对于数据驻留，请让 Owner 按照 [GitHub Enterprise Server 管理员设置](https://code.claude.com/docs/zh-CN/github-enterprise-server.md#admin-setup)操作，并输入您企业的 `ghe.com` 主机名。

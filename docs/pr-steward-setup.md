@@ -147,11 +147,11 @@
 
 要添加设置脚本、环境变量或不同的网络访问权限，请使用[组织共享环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#organization-shared-environments)。在 **Claude Ship** 页面上，在 **Where it runs** 下选择一个 **Default environment**。要为某个仓库覆盖该设置，请在 **Edit** 对话框中点击 **Environment** 旁边的 **Change**。
 
-如果两者都未设置，PR Steward 可以使用您组织的[默认环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#the-default-environment)。如果也没有默认环境，它将在一个由 Anthropic 托管、没有设置脚本也没有环境变量的环境中运行。
+如果两者都未设置，PR Steward 可以使用您组织的[默认环境](https://code.claude.com/docs/zh-CN/cloud-environments.md#the-default-environment)。如果该默认环境是[自托管](#run-pr-steward-in-a-self-hosted-environment)环境，请在 **Where it runs** 下为 PR Steward 选择该环境或其他环境。在您完成此操作之前，Pull Request 可能会收到一条[说明 PR Steward 尚未启动的评论](https://code.claude.com/docs/zh-CN/pr-steward-troubleshooting.md#pr-steward-posted-a-comment-that-says-why)。如果您的组织没有默认环境，PR Steward 将在一个由 Anthropic 托管、没有设置脚本也没有环境变量的环境中运行。
 
 ### 在自托管环境中运行 PR Steward
 
-对于 PR Steward 运行的环境，您可以选择[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)。[审批和合并方面的限制](https://code.claude.com/docs/zh-CN/pr-steward-security.md#limits-on-approvals-and-merges)仅针对 Anthropic 托管的会话进行描述。在没有 [Anthropic 托管 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#use-the-anthropic-git-proxy) 的运行器上，PR Steward 使用运行器自己的 git 凭据进行推送。
+对于 PR Steward 运行的环境，您可以选择[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)。其运行器需要 Claude Code v2.1.317 或更高版本。[审批和合并方面的限制](https://code.claude.com/docs/zh-CN/pr-steward-security.md#limits-on-approvals-and-merges)仅针对 Anthropic 托管的会话进行描述。在没有 [Anthropic 托管 git](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#use-the-anthropic-git-proxy) 的运行器上，PR Steward 使用运行器自己的 git 凭据进行推送。
 
 > [!WARNING]
 >

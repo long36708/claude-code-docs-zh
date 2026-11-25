@@ -53,7 +53,7 @@ Claude Code 通过多个 API 提供商之一连接到 Claude。您的选择会�
 
 Claude Code 在启动时获取 server-managed 设置，并在会话期间每小时刷新一次，无需部署端点基础设施。通过 claude.ai 管理控制台传递需要 Claude for Teams 或 Enterprise 计划。在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上的部署可以通过运行 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 获得相同的远程传递，或改用基于文件或操作系统级别的机制之一。
 
-如果您在 claude.ai 的 **Organization settings > Desktop 3P** 下设置了提供商或网关，请参阅 Enterprise Admin Console 指南中的[哪些设置优先](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority)。
+如果您在 claude.ai 的 [**Organization settings > Desktop 3P**](https://claude.ai/admin-settings/desktop-deployment) 下设置了提供商或网关，请参阅 Enterprise Admin Console 指南中的[哪些设置优先](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority)。
 
 如果您的组织混合使用提供商，请为 claude.ai 用户配置 [server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 加上 [file-based 或 plist/registry 回退](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)，以便其他用户仍然接收托管策略。
 
@@ -158,7 +158,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 
 **1. 允许组织**
 
-作为 Team 或 Enterprise 计划中的所有者，在浏览器中打开 [**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 的 GitHub 部分，然后点击 **Choose organizations**。在表格中选择您批准的组织，然后点击 **Allow**。请包括已关联的组织，因为它们不会被自动允许。
+在 Team 或 Enterprise 计划中，[所有者](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control)可以进行此设置。在浏览器中打开 [**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) 的 GitHub 部分，然后点击 **Choose organizations**。在表格中选择您批准的组织，然后点击 **Allow**。请包括已关联的组织，因为它们不会被自动允许。
 
 **2. 按名称允许其他账户**
 
@@ -189,7 +189,7 @@ WSL 2 实用程序 VM 内的进程对 Windows 端端点检测传感器不可见�
 | Usage monitoring | 会话、工具和令牌的 OpenTelemetry 导出 | 所有提供商 | [Monitoring usage](https://code.claude.com/docs/zh-CN/monitoring-usage.md) |
 | Analytics dashboard | Teams / Enterprise 上具有排行榜的采用和贡献指标；Console 上的每用户使用情况和支出指标 | Teams / Enterprise 在 [claude.ai/analytics](https://claude.ai/analytics/claude-code)，Console 在 [platform.claude.com/claude-code](https://platform.claude.com/claude-code) | [Analytics](https://code.claude.com/docs/zh-CN/analytics.md) |
 | Programmatic reporting | 通过 API 的每用户使用情况和成本数据 | Enterprise 的 [Enterprise Analytics API](https://platform.claude.com/docs/en/api/admin/analytics)，Console 的 [Claude Code Analytics API](https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api) | [Costs](https://code.claude.com/docs/zh-CN/costs.md#manage-costs-for-your-organization) |
-| Spend controls | 支出限制和速率限制 | Teams / Enterprise 的组织设置，Console 的工作区限制；在第三方云上，云预算控制或具有每用户[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) | [Costs](https://code.claude.com/docs/zh-CN/costs.md#manage-costs-for-your-organization) |
+| Spend controls | 支出限制和速率限制 | Teams / Enterprise 的[组织设置](https://claude.ai/admin-settings/usage)，Console 的工作区限制；在第三方云上，云预算控制或具有每用户[支出限制](https://code.claude.com/docs/zh-CN/claude-apps-gateway-spend-limits.md)的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway) | [Costs](https://code.claude.com/docs/zh-CN/costs.md#manage-costs-for-your-organization) |
 
 在 Teams 和 Enterprise 上，每用户使用情况和支出数字来自您组织的分析设置中的[支出报告](https://support.claude.com/en/articles/12883420-view-usage-analytics-for-team-and-enterprise-plans)，而不是分析仪表板。云提供商通过 AWS Cost Explorer、GCP Billing 或 Azure Cost Management 公开支出。有关跨 Claude chat、Claude Code 和 Cowork 规划企业预算的信息，请参阅 [Claude Enterprise consumption guide](https://support.claude.com/en/articles/14782391-claude-enterprise-consumption-guide)。
 

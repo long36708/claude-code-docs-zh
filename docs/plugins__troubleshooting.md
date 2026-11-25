@@ -856,10 +856,10 @@ claude plugin update formatter@my-marketplace --scope project
 
 #### Hooks 无法加载
 
-**Errors** 选项卡显示以下消息之一：
+**Errors** 选项卡或 `claude plugin list` 显示如下消息：
 
-* **`Couldn't load hooks from <path>: <reason>`** 或 **`Failed to load hooks from <path>: <reason>`**：修复 `<reason>` 指明的问题，例如无效的 JSON 或缺少顶层 `hooks` 键。要在发布插件前捕获 `hooks/hooks.json` 中的 JSON 语法问题，请在您的 shell 中运行 `claude plugin validate <plugin-directory>`
-* **`hooks path not found: <path>`**：清单的 `hooks` 字段命名在该路径相对于插件根处不存在的文件。修复路径或添加文件
+* **`Couldn't load hooks from <path>`**、**`Failed to load hooks from <path>`** 或 **`Hook load failed`**：修复其中指明的问题，例如无效的 JSON 或缺少顶层 `hooks` 键。要在发布插件前捕获 `hooks/hooks.json` 中的 JSON 语法问题，请在您的 shell 中运行 `claude plugin validate <plugin-directory>`
+* **`hooks path not found: <path>`** 或 **`Path not found: <path> (hooks)`**：`<path>` 处不存在文件。修复路径或添加文件
 * **`hooks path escapes plugin directory: <path>`**：请参阅 [Path escapes plugin directory](https://code.claude.com/docs/zh-CN/errors.md#path-escapes-plugin-directory)
 
 #### 成绩单中的 `hook error` 通知
@@ -1183,6 +1183,11 @@ claude plugin install my-plugin@my-marketplace --config api_url=https://example.
 安装被拒绝，显示此行，启用显示相同的行，以 `cannot be enabled` 结尾，或安装或更新显示命名原因的行：`Plugin "<name>" is from marketplace "<marketplace>", which is blocked by your organization's policy`，或 `Plugin "<name>" depends on "<dep>", which is blocked by your organization's policy`。
 
 托管设置阻止此插件、其市场或它需要的依赖项。要求您的管理员哪个条目适用。阻止的依赖项意味着插件在依赖项的市场被允许之前无法安装。
+
+从 `/plugin` 安装时，该消息的其他形式也请询问您的管理员，例如：
+
+* `Plugin "<name>" is blocked by your organization's policy and can't be installed`
+* `Can't install "<name>": dependency "<dep>" is blocked by your organization's policy`
 
 ### `--plugin-dir is disabled by your organization's managed settings (disableSideloadFlags)`
 

@@ -783,19 +783,14 @@ fi
 # shellcheck disable=SC2086  # $base is either "" or "FETCH_HEAD", intentional word-split
 unpushed=$(git -C "$d" rev-list HEAD --not $base --remotes=origin --count 2>/dev/null) || unpushed=0
 if [ "$unpushed" -gt 0 ]; then
-  branch=$(git -C "$d" symbolic-ref --short -q HEAD)
-  if [ -n "$branch" ]; then
-    # $branch is attacker-influenced — git-check-ref-format(1) allows `"`
-    # in ref names. `\` is forbidden (rule 10) but escaped anyway as cheap
-    # defense-in-depth.
-    # Escape JSON metacharacters before interpolating into the hand-built
-    # payload so a branch like x","continue":false can't inject keys into
-    # the hook-output JSON the harness parses. $unpushed is safe — the
-    # -gt guard above rejects anything that isn't a plain integer.
-    branch_esc=$(printf '%s' "$branch" | sed 's/\\/\\\\/g; s/"/\\"/g')
-    printf '{"decision":"block","reason":"There are %s unpushed commit(s) on branch '\''%s'\''. Please push these changes to the remote repository."}' "$unpushed" "$branch_esc"
-  else
+  # The branch name is not trusted text, so the message leaves it out.
+  # $unpushed is a count from git rev-list, or 0.
+  # With -q, symbolic-ref exits 1 on a detached HEAD.
+  git -C "$d" symbolic-ref -q HEAD >/dev/null 2>&1
+  if [ $? -eq 1 ]; then
     printf '{"decision":"block","reason":"There are %s unpushed commit(s) on a detached HEAD. Please create a branch and push it to the remote repository."}' "$unpushed"
+  else
+    printf '{"decision":"block","reason":"There are %s unpushed commit(s) on the branch checked out in the project directory. Please push these changes to the remote repository."}' "$unpushed"
   fi
   exit 0
 fi
@@ -825,14 +820,13 @@ Stop hook 检查的是每个子模块所处的提交，而不是其中的文件�
 
 ### 替换旧版 Stop hook 脚本
 
-在您的 `stop-hook-nudge.sh` 副本中搜索 `GIT_OPTIONAL_LOCKS`。如果找不到，说明您使用的是旧版副本。请在所有安装位置将其替换为[当前脚本](#prompt-sessions-to-push-their-work)，然后重启运行器。保留您的 Stop hook 设置，但在大型检出上可调高 `timeout`。
+在您的 `stop-hook-nudge.sh` 副本中搜索文本 `checked out in the project directory`。如果找不到，说明您使用的是旧版副本。请立即在所有安装位置将其替换为[当前脚本](#prompt-sessions-to-push-their-work)，然后重启运行器。保留您的 Stop hook 设置，但在大型检出上可调高 `timeout`。
 
-* **时机**：如果您的会话在启用 [Bash 沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)的情况下运行，请立即替换。否则，请在下次构建镜像或重启运行器时替换。
-* **变化**：子模块中未提交的文件不再提示 Claude。而 `.gitmodules` 标记为 `ignore = all` 的子模块中的新提交现在会提示 Claude。
+替换脚本后，关于未推送提交的提示将不再包含分支名称。如果您的旧版副本曾因子模块中未提交的文件而提示 Claude，该提示将不再出现。有关当前脚本如何处理子模块，请参阅[子模块与 Stop hook](#submodules-and-the-stop-hook)。
 
 > [!WARNING]
 >
-> hook 在 Bash 沙箱之外运行，因此当前脚本的 git 调用会跳过某些可能启动检出的 git 设置中所指定程序的 git 功能，但并不会跳过全部此类功能。不要仅依赖沙箱，并请按照[加固您的部署](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#harden-your-deployment)中的说明隔离会话。
+> hook 在 [Bash 沙箱](https://code.claude.com/docs/zh-CN/sandboxing.md)之外运行，因此当前脚本的 git 调用会跳过某些可能启动检出的 git 设置中所指定程序的 git 功能，但并不会跳过全部此类功能。不要仅依赖沙箱，并请按照[加固您的部署](https://code.claude.com/docs/zh-CN/self-hosted-environments-deploy.md#harden-your-deployment)中的说明隔离会话。
 
 ## 权限和工具批准
 

@@ -106,6 +106,16 @@ Claude Code 支持多种权限模式来控制工具调用的批准方式。请�
 
 会话记录和权限对话框中为工具显示的标签可能与其规范名称不同。例如，会话记录中标记为 `Stop Task` 的工具具有规范名称 `TaskStop`。权限规则和 [hook 匹配器](https://code.claude.com/docs/zh-CN/hooks.md) 不匹配标签，因此写作 `Stop Task` 的规则不匹配。对于拒绝和询问规则，[启动警告](https://code.claude.com/docs/zh-CN/errors.md#matches-no-tool)会指出这一点。请使用[工具参考](https://code.claude.com/docs/zh-CN/tools-reference.md)中列出的规范名称。
 
+#### 允许在工作目录之外使用文件工具
+
+使用 `Edit(*)`、`Write(*)` 或 `NotebookEdit(*)` 允许规则时，您仅在[工作目录](#working-directories)中预先批准该工具。要同时预先批准工作目录之外的路径，请写出您想要的每个工具的裸名称，例如 `Edit` 或 `Read`。某些调用仍不会被预先批准，例如写入[受保护路径](https://code.claude.com/docs/zh-CN/permission-modes.md#protected-paths)以及从[网络路径](#network-paths)读取。
+
+当启动警告提示您的 `Read(*)` 规则 `adds nothing to Read's default` 时，您可以从设置文件中删除该规则。
+
+> [!WARNING]
+>
+> 不要依赖文件工具的 `(*)` 允许规则将该工具限制在工作目录中。v2.1.317 之前的版本会将该规则视为裸名称；如果 Anthropic 关闭工作目录限制，更高版本也可能如此。请改为[阻止文件工具在工作目录之外进行读取和写入](#block-file-tool-reads-and-writes-outside-the-working-directories)。
+
 ### 使用说明符进行细粒度控制
 
 在括号中添加说明符以匹配特定的工具使用：
@@ -564,7 +574,7 @@ WebFetch 规则使用 `domain:` 前缀并针对请求的 URL 的主机名进行�
 | `WebFetch` | Claude 无需提示您即可获取。不改变沙箱命令可以到达的主机。 | Claude Code 移除 `WebFetch` 工具，因此 Claude 根本无法获取。不改变沙箱命令可以到达的主机。 |
 | `WebFetch(domain:*)` | Claude 无需提示您即可获取，沙箱命令可以到达任何主机。 | Claude Code 保留工具并拒绝每次获取，沙箱命令无法到达任何主机。 |
 
-两种形式也在 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 的读取上有所不同，即 Artifact 工具在 claude.ai 上发布的页面。裸 `WebFetch` deny 或 ask 规则不适用于这些读取。覆盖 `claude.ai` 或 `*.claudeusercontent.com` 内容主机的 `domain:` 规则，如 `WebFetch(domain:claude.ai)` 或 `WebFetch(domain:*)`，拒绝每次读取或在读取前提示。[`Artifact` 规则](https://code.claude.com/docs/zh-CN/artifacts#disable-artifacts)也是如此。
+两种形式也在 [Artifact](https://code.claude.com/docs/zh-CN/artifacts.md) 的读取上有所不同，即 Artifact 工具在 claude.ai 上发布的页面。裸 `WebFetch` deny 或 ask 规则不适用于 Artifact 工具的读取。覆盖 `claude.ai` 或 `*.claudeusercontent.com` 内容主机的 `domain:` 规则，如 `WebFetch(domain:claude.ai)` 或 `WebFetch(domain:*)`，拒绝每次读取或在读取前提示。
 
 当规则阻止读取时，拒绝命名规则。在 v2.1.268 之前，裸 `WebFetch` deny 规则阻止每次 Artifact 读取，裸 ask 规则在每次读取前提示。
 

@@ -16,18 +16,18 @@
 * [Claude GitHub App](https://github.com/apps/claude)，已安装在该仓库上并[关联到您的 Claude 组织](https://code.claude.com/docs/zh-CN/admin-setup.md#connected-github-accounts)
 * 合并到默认分支的权限
 * GitHub 上该仓库的管理员访问权限，以便将 **Claude Approvals** 检查设为必需。私有仓库还需要[付费 GitHub 计划](https://docs.github.com/en/get-started/learning-about-github/githubs-plans)
-* 在强制执行本页中的任一策略之前，需要有两个具有写入权限的人。如果只有一人，对于 `.claude/` 下的更改，或 Claude 的审查失败或未给出结果的更改，检查将无法通过。在[每项更改保留两个人](#keep-two-people-on-each-change)的策略下，任何更改的检查都无法通过
+* 在强制执行本页中的任一策略之前，需要有两个具有写入权限的人。对于 `.claude/` 下的更改（包括策略文件），两项策略都要求有两个人参与
 
 ## 规划您的第一个策略
 
-[策略文件](https://code.claude.com/docs/zh-CN/approvals-policy.md)告诉 Approvals 谁需要批准 Pull Request。对于第一个策略，请决定 Claude 是否可以批准，然后复制与之匹配的入门策略：
+在[策略文件](https://code.claude.com/docs/zh-CN/approvals-policy.md)中，您可以设置谁需要批准 Pull Request。对于第一个策略，请决定 Claude 是否可以批准，然后复制与之匹配的入门策略：
 
-* **[在 Code Review 通过时让 Claude 批准](#let-claude-approve-when-code-review-passes)**：通过 Claude 审查的 Pull Request 通常不需要其他人批准
-* **[每项更改保留两个人](#keep-two-people-on-each-change)**：Pull Request 通常需要作者以外的一个人批准，且 Claude 不批准
+* **[在 Code Review 通过时让 Claude 批准](#let-claude-approve-when-code-review-passes)**：通过 Claude 审查的 Pull Request 通常只需要其作者
+* **[每项更改保留两个人](#keep-two-people-on-each-change)**：Pull Request 通常需要作者以外的一个人，且 Claude 只发表评论
 
-两个策略都以观察模式开始。在观察模式下，**Claude Approvals** 检查会显示策略将作出的决定，Claude 不批准，并且该检查[通常视为通过](https://code.claude.com/docs/zh-CN/approvals-pull-requests.md#approvals-in-observe-mode)。
+两个策略都以观察模式开始。在观察模式下，**Claude Approvals** 检查会显示策略将作出的决定，并且该检查[通常视为通过](https://code.claude.com/docs/zh-CN/approvals-pull-requests.md#approvals-in-observe-mode)。
 
-两个策略都指定了 `claude/code_review`。请在策略文件中保留它。一旦该文件进入默认分支，无论处于观察模式还是强制执行模式，在没有匹配规则指定它的地方，自动 Code Review 通常会停止。
+两个策略还都指定了 `claude/code_review`。请将它保留在与您希望审查的文件相匹配的规则中，以便在观察模式下以及强制执行后，[自动 Code Review 能够继续进行](https://code.claude.com/docs/zh-CN/approvals.md#keep-automatic-code-reviews)。
 
 > [!TIP]
 >
@@ -35,7 +35,7 @@
 
 ### 在 Code Review 通过时让 Claude 批准
 
-强制执行此入门策略后，通过 Claude 审查的 Pull Request 通常不需要其他人批准，`.claude/` 下的更改除外。其他 Pull Request 通常需要[作者以外](https://code.claude.com/docs/zh-CN/approvals-policy.md#whether-a-pull-request’s-author-counts)的一个人批准。
+强制执行此入门策略后，通过 Claude 审查的 Pull Request 通常只需要其作者，`.claude/` 下的更改除外。其他 Pull Request 通常需要[作者以外](https://code.claude.com/docs/zh-CN/approvals-policy.md#whether-a-pull-request’s-author-counts)的一个人。
 
 在此策略中，第一条规则要求一项更改由两个人批准。其 `override` 在 `claude/code_review` 读取为 `pass` 时将人数降为一人，并允许 Claude 批准。第二条规则要求 `.claude/` 下的更改由两个人批准：
 
@@ -59,7 +59,7 @@ rules:
 
 ### 每项更改保留两个人
 
-此入门策略要求每项更改由两个人批准。强制执行该策略后，Pull Request 通常需要作者以外的一个人批准，且 Claude 不批准。
+使用此入门策略可要求每项更改由两个人批准。强制执行该策略后，Pull Request 通常需要作者以外的一个人，且 Claude 只发表评论。
 
 在此策略中，两条规则都要求两个人。第一条规则将 `claude/code_review` 列在 [`advisory`](https://code.claude.com/docs/zh-CN/approvals-policy#advisory) 下，因此审查遵循您的 Code Review 设置：
 
@@ -104,13 +104,13 @@ rules:
 
 在[将策略从观察模式切换到强制执行](#switch-from-observe-mode-to-enforcement)之前，请决定哪些文件需要人工批准、该检查管控哪些分支，以及何时更改 GitHub 要求的批准数：
 
-* **文件**：决定哪些文件无论 Claude 发现什么都需要人工批准，然后复制[此规则](https://code.claude.com/docs/zh-CN/approvals-github-rules.md#ask-for-a-person-who-isn’t-an-author)并缩小其 `paths`
+* **文件**：决定哪些文件无论 Claude 发现什么都需要人工批准，然后复制[此规则](https://code.claude.com/docs/zh-CN/approvals-github-rules.md#ask-for-a-person-who-isn’t-an-author)并缩小其 `paths` 列表
 * **分支**：强制执行的策略也涵盖目标为默认分支以外分支的 Pull Request，因此请列出 **Claude Approvals** 检查应管控其合并的每个分支。在这些分支上，不包含任何受涵盖文件的 Pull Request 不会获得检查，因此必需检查会一直等待
 * **GitHub 要求的批准数**：仅在切换的最后一步之后，再[更改 GitHub 要求的批准数](https://code.claude.com/docs/zh-CN/approvals-github-rules.md#required-reviews-and-codeowners)
 
 ### 从观察模式切换到强制执行
 
-策略文件的 [`mode`](https://code.claude.com/docs/zh-CN/approvals-policy#top-level-keys) 为以下值之一：
+策略文件的 [`mode`](https://code.claude.com/docs/zh-CN/approvals-policy#top-level-keys) 键为以下值之一：
 
 * **`observe`**：**Claude Approvals** 检查显示策略将作出的决定，Claude 不批准，并且该检查[通常视为通过](https://code.claude.com/docs/zh-CN/approvals-pull-requests.md#approvals-in-observe-mode)
 * **`enforce`**：该检查可以阻止合并，并且在策略允许的情况下 Claude 可以批准。这是默认值，因此没有 `mode` 行的策略文件会被强制执行
@@ -137,7 +137,7 @@ Approvals 稍后会评估部分您未重新运行的 Pull Request，这可能会
 
 ### 设置 GitHub 接受的 Claude Approvals 来源
 
-将必需检查的来源设置为 Claude 应用。如果设为 **any source**，GitHub 会接受来自其他地方、名为 **Claude Approvals** 的检查。要通过 GitHub 的 API 设置来源，请将 Claude 应用的 ID `1236702` 放入规则集中的 `integration_id` 或分支保护规则中的 `app_id`。
+将必需检查的来源设置为 Claude 应用。如果允许 **any source**，GitHub 会接受来自其他地方、名为 **Claude Approvals** 的检查。要通过 GitHub 的 API 设置来源，请将 Claude 应用的 ID `1236702` 放入规则集中的 `integration_id` 或分支保护规则中的 `app_id`。
 
 ## 控制 Approvals 的花费
 
@@ -147,7 +147,7 @@ Approvals 会针对策略启动的模型运行扣除您组织的使用额度，�
 
 在 `if` 条件中包含 `claude/code_review` 的策略，可在 Pull Request 打开时以及每次推送时启动一次[计费的 Code Review](https://code.claude.com/docs/zh-CN/code-review-costs.md)。要停止这些审查，请将其从条件中移到 `advisory`。当 `claude/code_review` 仅位于 `advisory` 下且没有 [`level`](https://code.claude.com/docs/zh-CN/approvals-classifiers#read-a-classifier’s-answer-from-a-rule) 时，审查遵循您的 Code Review 设置。
 
-规则还可以读取其他[分类器](https://code.claude.com/docs/zh-CN/approvals-classifiers.md)。对于 `claude/diff` 和自定义分类器，每次[调用模型的运行](https://code.claude.com/docs/zh-CN/approvals-classifiers.md#what-a-classifier-run-costs)都会计费。要限制自定义分类器的每次运行，请设置其 [`budget`](https://code.claude.com/docs/zh-CN/approvals-classifiers#budget)。
+规则还可以读取其他[分类器](https://code.claude.com/docs/zh-CN/approvals-classifiers.md)。对于 `claude/diff` 和自定义分类器，每次[调用模型的运行](https://code.claude.com/docs/zh-CN/approvals-classifiers.md#what-a-classifier-run-costs)都会计费。要限制自定义分类器的每次运行，请设置其 [`budget`](https://code.claude.com/docs/zh-CN/approvals-classifiers#budget) 键。
 
 ### 限制策略的费用
 
@@ -172,7 +172,7 @@ Approvals 会针对策略启动的模型运行扣除您组织的使用额度，�
 
 > [!WARNING]
 >
-> 仅在关闭 Approvals 之后，才可暂停或卸载 Claude GitHub App，或取消关联您的 GitHub 组织。如果先执行这些操作，新提交将不会获得检查，因此必需检查可能会阻止合并。GitHub 还可能继续计入 Claude 在打开的 Pull Request 上留下的批准审查。
+> 仅在关闭 Approvals 之后，才可暂停或卸载 Claude GitHub App，或取消关联您的 GitHub 组织。如果先执行其中任何一项操作，必需的 **Claude Approvals** 检查可能会阻止合并。GitHub 还可能继续计入 Claude 在打开的 Pull Request 上留下的批准审查。
 
 请按以下顺序操作：
 
@@ -181,7 +181,7 @@ Approvals 会针对策略启动的模型运行扣除您组织的使用额度，�
 3. **关闭 Approvals**：根据所需的作用域[选择方式](#ways-to-turn-off-approvals)。
 4. **驳回 Claude 的审查**：在 Claude 已批准的打开的 Pull Request 上，在 GitHub 中驳回该审查。
 
-若要在不关闭 Approvals 的情况下阻止该检查阻止合并，请先在默认分支以外的分支上不再将其设为必需。然后在每个策略文件中加入 `mode: observe`。此后该检查通常不再阻止合并，而分类器仍会运行并计费。目标为其他这些分支的 Pull Request 不会获得检查，除非它们更改了策略文件或分类器文件。
+若要在不关闭 Approvals 的情况下阻止该检查阻止合并，请先在默认分支以外的分支上不再将其设为必需。然后在每个策略文件中加入 `mode: observe`。此后该检查[通常不再阻止合并](https://code.claude.com/docs/zh-CN/approvals-pull-requests.md#approvals-in-observe-mode)，而分类器仍会运行并计费。
 
 ### 关闭 Approvals 的方式
 
@@ -193,7 +193,7 @@ Approvals 会针对策略启动的模型运行扣除您组织的使用额度，�
 | 某个 GitHub 组织，或其 **Edit** 对话框显示 **Claude Approvals** 的仓库 | 具有 [Owner 角色](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control)时，前往 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-ship)，点击其所在行的 **Edit**，然后关闭 **Claude Approvals** |
 | 整个 Claude 组织 | 具有 Owner 角色时，前往 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-ship)，在 **Approve** 行中点击 **Block globally**。要重新启用，请在同一行中点击 **Allow policy files** |
 
-为整个 Claude 组织关闭的内容，在之后有策略文件合并时仍保持关闭。如果您也要关闭 Code Review，请先关闭 Approvals，因为即使 Code Review 已关闭，策略仍可能启动计费的审查。
+为整个 Claude 组织关闭 Approvals 后，即使之后有策略文件合并，它仍保持关闭。如果您也要关闭 Code Review，请先关闭 Approvals，因为即使 Code Review 已关闭，策略仍可能启动计费的审查。
 
 ## 相关资源
 

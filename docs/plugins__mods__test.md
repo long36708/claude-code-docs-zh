@@ -163,7 +163,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 
 ### 查看 stub 返回的内容
 
-您的 mod 在测试中进行的每个 mods API 调用都需要一个 stub 来回答，除了工具包自己回答的少数几个：[`$.ui.invalidate`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#redraw-when-something-changes)、[`$.state`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#keep-state) 和 `$.session.append` 调用。对于 `$.clock` 调用，使用 `mock.clock(on)`，否则您的 mod 的 `$.clock.now()` 会失败并显示 `no implementation for clock.now`。
+[`$.ui.invalidate`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#redraw-when-something-changes)、[`$.state`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#keep-state) 和 `$.session.append` 调用不需要 stub。对于 `$.clock` 调用，使用 `mock.clock(on)`，否则您的 mod 的 `$.clock.now()` 会失败并显示 `no implementation for clock.now`。通过的测试[可能会隐藏](#follow-the-test-kit’s-rules) `no implementation for` 错误，每个因该错误而失败的调用都需要一个 stub。
 
 此表列出了 mods 最常使用的。第一列是您的 mod 进行的调用或它使用 `next(e)` 传递的事件。第二列是传递给 `on` 的函数，使用该名称，因此 `$.store.get` 行变成 `on('store.get', ($, e) => ({ value: saved.get(e.key) }))`。stub 中的 `'...'` 标记您需要填写的文本：
 
@@ -176,7 +176,7 @@ mods API 调用的 stub 返回一个带有 `value` 字段的对象，该字段�
 | `$.ui.ask` | 一个 `tool.call` stub，因为问题作为对 `AskUserQuestion` 工具的调用到达它：`($, e) => ({ result: { answers: { [e.questions[0].question]: 'Run it' } } })`。如果您的 mod 传递其他工具调用，请先检查 `e.tool`。 |
 | `$.model.complete` | `() => ({ value: { isAnswered: true, text: '...', usage } })` |
 | `$.process.run` | `($, e) => ({ value: { exitCode: 0, stdout: '...', stderr: '' } })`。`e.argv` 是参数列表，`e.init` 保存 `cwd` 和 `timeoutMs`。 |
-| 任何应该失败的 mods API 调用 | `() => ({ deny: 'the reason' })`，这使调用在您的 mod 中拒绝。抛出的 stub 会被跳过。 |
+| 要让 stub 返回 `{ value }` 的调用失败 | `() => ({ deny: 'the reason' })`，这使调用在您的 mod 中拒绝。`ui.toast`、`ui.log` 和 `ui.status` 不会拒绝。抛出的 stub 会被跳过。 |
 | `session.start` | `() => ({ cwd: '/work' })` |
 | `turn.start` | `($, e) => ({ turnId: e.turnId })` |
 | `tool.call` | `() => ({ result: '...' })` |
@@ -316,6 +316,7 @@ test('the second tab counts presses and saves the count', async ($, on) => {
 | `select({ key: 'size', value: 'large' })` | 在具有该 key 的 `Select` 中选择具有该值的选项 |
 | `keepsBeneath()` | 在没有 `ui.render` stub 的测试中，当绘图包含 `next(e)` 返回的内容时，它解析为 `true`；当您的 hook 将其省略时，解析为 `false`。在注册了 stub 的测试中，请使用 `find` 查找该 stub 绘制的内容。需要 Claude Code v2.1.321 或更高版本。 |
 | `find({ key: 'more' })` 或 `find({ type: 'Text', text: 'Count: 2' })` | 返回第一个匹配的元素作为 `{ type, props, children }`，或 `undefined`。`text` 可以是字符串或正则表达式。 |
+| `drawn()` | 返回上次绘制时的整棵树 |
 | `unmount()` | 移除绘图 |
 
 每个方法在您的处理程序完成后解析，因此您可以在下一行检查结果。将 `props` 设置为 Claude Code 为该站点传递的内容。[render sites table](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites) 列出每个站点的 props，[您的构建的类型](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build) 有它们的类型。

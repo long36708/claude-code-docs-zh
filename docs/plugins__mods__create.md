@@ -298,16 +298,22 @@ claude plugin validate ./first-mod
 
 在 `hooks:` 行中查看您的模块 hook 的事件，每个事件的过滤器都显示在大括号中；在 `calls:` 行中查看它调用的每个 mods API 方法。如果您的模块读取或设置环境变量，还请查看 `env reads:` 和 `env writes:` 行；如果它使用 [`$.state`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#keep-state)，还请查看 `state reads:` 和 `state writes:` 行。对于每个可以拒绝操作的 hook，您还会看到一行，例如 `gating hook without .catch: tool.call`，它表明该 hook 是否有 [`.catch` 处理程序](https://code.claude.com/docs/zh-CN/plugins/mods/events#handle-a-hook-that-fails)。
 
-如果您打算处理的某个事件未出现在 `hooks:` 行中，Claude Code 也不会调用该 hook。常见原因是事件名称拼写错误，该命令会将其报告为错误，例如 `"tool.calls" is not an event`。
+如果您打算处理的某个事件未出现在 `hooks:` 行中，Claude Code 也不会调用该 hook。请对照[您的构建版本的类型定义](#get-the-types-for-your-build)检查每个事件名称，因为验证并不能发现所有拼写错误。例如，`tool.calls` 会失败并报告 `"tool.calls" is not an event`，但 `tol.call` 能通过验证，随后该 mod 却无法加载。
 
 遵循这些规则，以便静态分析可以找到每个 hook 和调用：
 
-* 完整写出每个 mods API 调用：`$`、命名空间，然后是方法，例如 `$.store.get('notes')`。您可以将 `$` 传递给在同一文件顶层声明的函数；对于名为 `loadNotes` 的自定义函数，`calls:` 行会显示 `$.store.get (via loadNotes)`。将 `$` 传递给方法、在 hook 内部定义的函数或从您的其他文件导入的函数会导致验证失败。[`$.state`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#keep-state) 使用的 `read` 和 `update` 函数是可以接收它的导入。不要将 `$` 或其某个命名空间赋值给变量、对其解构，或使用计算名称对其进行索引。`const ui = $.ui` 会失败并报告 `$.ui is used as a value`。
+* 完整写出每个 mods API 调用：`$`、命名空间，然后是方法，例如 `$.store.get('notes')`。不要将 `$` 或其某个命名空间赋值给变量、对其解构，或使用计算名称对其进行索引。`const ui = $.ui` 会失败并报告 `$.ui is used as a value`。
 * 在每个 `on` 调用中将事件名称写为字符串文字，例如 `'tool.call'`。变量或循环遍历名称列表会失败，出现 `the event name passed to on() is not a string literal`。
 * 在 `register` 内，不要声明第二个名为 `on` 的变量或参数。验证失败，出现 `"on" is declared again (shadowed)`。
 * 仅从插件目录内的文件导入，通过相对路径。唯一允许的裸导入是 `claude-code`，用于类型和一些帮助程序。
 * 在文件顶部使用 `import` 声明，如 `import { name } from './file.js'`。动态 `import()` 失败，出现 `a dynamic import(); a hooks module imports its own files with an import declaration`。
 * 将每个文件写为 ES 模块，使用 `import` 而不是 `require`。[参考](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#files)列出 Claude Code 加载的文件扩展名。
+
+#### 将 `$` 传递给您的函数
+
+您可以将 `$` 传递给在 hook 所在文件顶层声明的函数，以及 [`$.state`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#keep-state) 使用的 `read` 和 `update` 函数。对于名为 `loadNotes` 且调用 `$.store.get` 的函数，`calls:` 行会显示 `$.store.get (via loadNotes)`。将 `$` 传递给方法或在 hook 内部定义的函数会导致验证失败。
+
+在 Claude Code v2.1.299 或更高版本中，您还可以将 `$` 传递给从您的其他文件导入的函数。在该文件中使用 `function` 关键字声明它，例如 `export function loadNotes($) { ... }`。导入的箭头函数会失败，并报告 `a name bound to a function expression, outside the hook's own file`。
 
 ### 测试 mod
 
@@ -362,7 +368,7 @@ mod 是一个插件，所以您在清单中对其进行版本控制，人们使�
 
 在你这样做之前，检查插件的 `name`：`claude plugin validate` 失败一个[看起来像 Anthropic 自己的](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#name)名称，例如以 `claude-` 开头的名称。事件和方法可以在版本之间更改，所以你的 README 是说明你测试的 Claude Code 版本的地方。
 
-继续针对目录使用 `--plugin-dir` 进行开发，而不是针对已安装的副本。Claude Code 按版本缓存已安装的插件，所以在您提高版本并再次安装之前，您的编辑不会到达已安装的副本。
+请继续使用 `--plugin-dir` 针对该目录进行开发，而不是针对[已安装的副本](https://code.claude.com/docs/zh-CN/plugins/loading.md#in-place-and-copied-plugins)。
 
 ## 后续步骤
 

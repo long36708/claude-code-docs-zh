@@ -117,7 +117,7 @@
 
 ### 开发人员可以更改的内容
 
-开发人员如需更改审查级别、**Review runs** 设置或接受审查的仓库，需要联系您。在没有 Owner 角色的情况下，他们可以在 GitHub 上执行以下操作：
+开发人员如需更改审查级别、**Review runs** 设置或接受审查的仓库，需要请 Owner 进行更改。在没有 Owner 角色的情况下，他们可以在 GitHub 上执行以下操作：
 
 * **请求审查**：在 Pull Request 上评论 [`@claude review`](https://code.claude.com/docs/zh-CN/code-review-pull-requests#comment-commands)。这需要对仓库拥有写入权限，并且适用于自动审查会跳过的[草稿以及来自复刻的 Pull Request](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#review-drafts-and-pull-requests-from-forks)。
 * **让单个 Pull Request 在每次推送时接受审查**：在[既非草稿也非来自复刻](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md#review-drafts-and-pull-requests-from-forks)的 Pull Request 上评论 `@claude review always`，例如在设置为 Manual 的仓库中

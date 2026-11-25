@@ -41,7 +41,7 @@ Team 和 Enterprise 的 Owner 可以通过 [**Organization settings > Capabiliti
 
 * **积压工作维护**：一个计划触发器每个工作日晚上在您的仓库中运行，并将您的问题跟踪器添加为连接器。定时任务读取自上次运行以来新开的问题，添加标签，并根据所引用的代码区域分配负责人。然后它会将摘要发布到 Slack，让团队以整理好的队列开始新的一天。
 * **警报分诊**：当错误超过阈值时，您的监控工具会调用定时任务的 API 端点，并将警报正文作为 `text` 传入。任务的提示词指示 Claude 调查触发负载中的警报，因此它会提取堆栈跟踪，并将其与仓库中的最近提交相关联。然后它会打开一个草稿 Pull Request，其中包含建议的修复方案和指回该警报的链接。值班人员只需审查该 PR，而不必从空白终端开始。
-* **定制代码审查**：一个 GitHub 触发器在 `pull_request.opened` 时运行。定时任务应用您团队自己的审查清单，并针对安全、性能和风格问题留下行内评论。它还会添加一条摘要评论，让人工审查者可以专注于设计，而不是机械性检查。
+* **定制代码审查**：一个 GitHub 触发器在 `pull_request.opened` 时运行。定时任务应用您自己的审查清单，并针对安全、性能和风格问题留下行内评论。它还会添加一条摘要评论，让人工审查者可以专注于设计，而不是机械性检查。
 * **部署验证**：您的 CD 流水线在每次生产部署后调用定时任务的 API 端点。任务针对新构建运行冒烟检查，扫描错误日志以查找回归问题，并在部署窗口关闭前向发布频道发布可行或不可行的结论。
 * **文档偏差检查**：一个计划触发器每周运行。定时任务扫描自上次运行以来合并的 PR，标记引用了已更改 API 的文档，并针对文档仓库打开更新 PR 供编辑审查。
 * **库移植**：一个 GitHub 触发器在 `pull_request.closed` 时运行，并筛选为某个 SDK 仓库中已合并的 PR。定时任务将该更改移植到另一种语言的对应 SDK 中并打开一个相应的 PR，使两个库保持同步，而无需人工重新实现每项更改。
@@ -344,7 +344,7 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 * **Failed**：会话未正常结束。例如，它意外停止、因错误而结束，或在运行开始之前就已被归档
 * **Cancelled**：运行并未失败，但其会话已被归档。如果您归档了一个成功运行的会话，该运行会变为 **Cancelled**。任务本身无需做任何更改
 
-如果 **History** 下出现警告，请参阅[“The last run”警告](#the-last-run-didnt-start)。
+如果 **History** 下出现警告，请参阅[History 下的警告](#the-last-run-didnt-start)。
 
 ### 编辑和控制定时任务
 
@@ -510,14 +510,14 @@ curl -X POST https://api.anthropic.com/v1/claude_code/routines/trig_01ABCDEFGHJK
 
 您的组织已关闭云端定时任务，且您无法通过本地配置更改这一点。请询问您 Team 或 Enterprise 组织的 Owner 能否在 [**Organization settings > Capabilities > Remote sessions**](https://claude.ai/admin-settings/capabilities) 打开 **Scheduled tasks (Was Routines)** 或 **Routines** 开关。
 
-### "The last run" 警告
+### History 下的警告
 
-当 **History** 下的警告以 "The last run" 开头时，请在第一列中找到该警告，并按照其所在行的说明操作。之后的某次运行启动后，该警告即会清除。
+当 **History** 下的警告以 "The last run" 或 "This didn't run" 开头时，请在第一列中找到该警告，并按照其所在行的说明操作。之后的某次运行启动后，该警告即会清除。
 
 | 警告 | 处理方法 |
 | :- | :- |
-| "The last run didn't start because your organization had reached its limit on cloud sessions running at once." | 该任务无需更改。稍后点击 **Run now**，或等待下一次运行 |
-| "The last run didn't start because its cloud environment couldn't be found or used." | 在任务的详情页面上，打开其名称旁边的菜单，选择 **Edit**，然后找到[云环境选择器](#environments-and-network-access)。如果其中显示 **Unavailable environment**，说明该环境已被归档或您的账户已无法再使用该环境，请在此处选择另一个环境并保存更改。否则，请在详情页面上使用 **Run now** 重试，或在选择器中选择另一个环境并保存更改 |
+| "This didn't run"，后跟该次运行的时间，然后是 "You were at the limit for tasks Claude can work on at the same time." 或 "Your organization was at its limit for tasks Claude can work on at the same time." | 该任务无需更改。稍后点击 **Run now**，或等待下一次运行 |
+| "The last run didn't start because its environment couldn't be found or used." | 在任务的详情页面上，打开其名称旁边的菜单，选择 **Edit**，然后找到[云环境选择器](#environments-and-network-access)。如果其中显示 **Unavailable environment**，说明该环境已被归档或您的账户已无法再使用该环境，请在此处选择另一个环境并保存更改。否则，请在详情页面上使用 **Run now** 重试，或在选择器中选择另一个环境并保存更改 |
 | "The last run was blocked because it couldn't access something it needs, or your organization's policy doesn't allow it." | 检查您的 [GitHub 访问权限](#repositories-and-branch-permissions)是否涵盖该任务的仓库。如果已涵盖，请询问您 Claude 组织的 [Owner](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control) 是否有策略阻止了该任务 |
 | "The last run didn't start because of a problem that's usually temporary." | 点击 **Run now** 重试，或等待下一次运行 |
 | "The last run didn't start because its repository or branch wasn't available." | 在 GitHub 上检查任务中的每个仓库是否都有[运行所基于的分支](#repositories-and-branch-permissions)。同时检查您的 [GitHub 访问权限](#repositories-and-branch-permissions)是否涵盖每个仓库，如果连接已过期，请重新连接 GitHub |

@@ -26,7 +26,7 @@ Approvals 会在推送或批准等事件发生后评估您的 Pull Request。它
 
 **Claude Approvals** 检查在其标题（即检查列表中其名称旁边的文本）中给出 Pull Request 的审批状态。在下列表格中查找您的检查标题，以了解其含义及后续操作。
 
-如果标题不在此处，请打开 **Claude Approvals** 检查的摘要，其中给出了原因和下一步操作。要找到策略文件 `.claude/approvals.yml` 的维护者，请查看默认分支上最后修改该文件的人。
+对于任何其他标题，请打开 **Claude Approvals** 检查的摘要，其中会给出原因和下一步操作。要查找谁在维护策略文件 `.claude/approvals.yml`，请查看在默认分支上最后一次更改该文件的人。
 
 ### Approvals 等待人员操作
 
@@ -40,20 +40,20 @@ Approvals 会在推送或批准等事件发生后评估您的 Pull Request。它
 
 ### Approvals 等待 Code Review 或分类器
 
-出现以下标题时，Approvals 正在等待 [Code Review](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md) 或[分类器](https://code.claude.com/docs/zh-CN/approvals-classifiers.md)的回复，或者未得到回复：
+出现以下标题时，Approvals 需要 [Code Review](https://code.claude.com/docs/zh-CN/code-review-pull-requests.md) 或[分类器](https://code.claude.com/docs/zh-CN/approvals-classifiers.md)给出回复：
 
 | 标题 | 操作 |
 | :- | :- |
-| **Waiting for Code Review**、**Waiting for repo/change\_risk**、**Waiting for classifiers** | 暂时无需操作 |
-| **A classifier had no result**、**A classifier has not run**，或以某个名称代替 "A classifier"，如 **repo/change\_risk has not run** | [重新运行 Claude Approvals 检查](#comment-commands-for-approvals)。请参阅[运行未给出回复时的情况](https://code.claude.com/docs/zh-CN/approvals-classifiers.md#what-a-rule-sees-when-a-classifier-run-gives-no-answer) |
+| **Waiting for Code Review**、**Waiting for repo/change\_risk**、**Waiting for classifiers** | 等待结果 |
+| **A classifier had no result**、**A classifier has not run**，或以某个名称代替 "A classifier"，如 **repo/change\_risk has not run** | [重新运行 Claude Approvals 检查](#comment-commands-for-approvals)。请参阅[没有回复时规则看到的内容](https://code.claude.com/docs/zh-CN/approvals-classifiers.md#what-a-rule-sees-when-a-classifier-run-gives-no-answer) |
 
 ### 规则或策略文件阻止 Approvals 通过
 
-出现以下标题时，表示有规则阻止该 Pull Request、没有规则适用于某个已更改的文件，或某个策略文件无法使用：
+出现以下标题时，表示有规则阻止该 Pull Request，或策略需要修复：
 
 | 标题 | 操作 |
 | :- | :- |
-| **Held by Code Review's findings** | 修复 Code Review 在 Pull Request 上发布的问题，然后推送。如果策略的 [`findings`](https://code.claude.com/docs/zh-CN/approvals-policy#findings) 列表中包含您，您可以解决这些问题的讨论串。如果解决后 **Claude Approvals** 检查仍未通过，请推送修复 |
+| **因 Code Review 的发现而被挂起** | 修复 Code Review 在 Pull Request 上发布的发现，然后推送。如果策略的 [`findings`](https://code.claude.com/docs/zh-CN/approvals-policy#findings) 列表中列出了您，您可以解决这些发现的讨论线程。如果在您解决这些线程后 **Claude Approvals** 检查仍处于挂起状态，请推送修复 |
 | **Held by** 加上引号中的规则用途、**Held by a policy rule** | 询问策略文件的维护者，检查摘要中的规则需要什么，然后推送修复 |
 | **No rule applies to** 加上引号中的文件名、**No rule applies to a changed file** | 请策略文件的维护者添加一条不带 `if` 且覆盖该文件的规则。该规则合并后，重新运行检查 |
 | **This change breaks a policy file**、**Default branch policy file cannot be used** | [修复策略文件](https://code.claude.com/docs/zh-CN/approvals-troubleshooting.md#fix-a-policy-file-that-approvals-refuses) |
@@ -67,10 +67,10 @@ Approvals 会在推送或批准等事件发生后评估您的 Pull Request。它
 | 标题 | 操作 |
 | :- | :- |
 | **Passed; no approval from Claude** | 如果 GitHub 要求批准，请找人批准 |
-| **Nothing ran, not blocking: no file is covered** | 无需操作。如果应有人审查该 Pull Request 更改的文件，请让[策略文件](https://code.claude.com/docs/zh-CN/approvals-policy.md)的维护者覆盖这些文件 |
+| **Nothing ran, not blocking: no file is covered** | 如果应有人审查该 Pull Request 更改的文件，请让[策略文件](https://code.claude.com/docs/zh-CN/approvals-policy.md)的维护者覆盖这些文件 |
 | **Observe mode ended: not evaluated yet** | 推送一个提交或[重新运行 Claude Approvals 检查](#comment-commands-for-approvals)。如果检查通过，启用了自动合并或位于合并队列中的 Pull Request 可能会立即合并 |
 
-在 **Passed; no approval from Claude** 状态下，Claude 在以下等情况中不会发布批准：
+如果您看到 **Passed; no approval from Claude**，请检查是否存在以下等原因：
 
 * 某条规则设置为 `claude: comments`
 * 某个已更改的文件没有规则，或者是[符号链接、子模块指针或 `.gitattributes` 文件](https://code.claude.com/docs/zh-CN/approvals-policy#protected-files)
@@ -80,13 +80,13 @@ Approvals 会在推送或批准等事件发生后评估您的 Pull Request。它
 
 在观察模式下，**Claude Approvals** 检查以中性结果结束（GitHub 将其视为通过），其标题以 **(observe mode)** 开头。
 
-在以下等情况中，检查结果不是中性的：
+在以下等情况中，检查可能会等待、失败、被暂扣或不出现：
 
 | 情况 | 检查的行为 |
 | :- | :- |
 | Pull Request 更改了策略文件或分类器文件 | 它可能会等待一个人（可以是作者）。如果更改破坏了其中某个文件，检查将失败 |
 | 默认分支的策略文件无法使用 | 在您[修复策略文件](https://code.claude.com/docs/zh-CN/approvals-troubleshooting.md#fix-a-policy-file-that-approvals-refuses)之前，检查会失败 |
-| 标题显示 Withheld | Approvals 暂不给出通过结果，例如因为另一个打开的 Pull Request 具有相同的最新提交。检查的摘要会说明如何解除 |
+| 标题显示 Withheld | Approvals 暂缓了一项已通过的检查，例如因为另一个处于打开状态的 Pull Request 具有相同的最新提交。请阅读该检查的摘要，了解如何解除此状态 |
 | Pull Request 的目标分支不是默认分支 | 不会出现检查，除非该 Pull Request 更改了策略文件或分类器文件 |
 
 ## Approvals 的评论命令
@@ -105,22 +105,22 @@ Approvals 也可以响应来自 GitHub App 机器人账户的 `@claude approvals
 
 ## 来自 Claude、fork 和外部贡献者的 Pull Request
 
-由 `claude[bot]` 打开的 Pull Request 需要第二个 GitHub App，Claude 才能批准它。来自 fork 或来自没有写入权限的人的 Pull Request 可能需要维护者参与。
+在 Claude 能够批准由 `claude[bot]` 创建的 Pull Request 之前，您需要第二个 GitHub App。来自 fork 的 Pull Request，或来自没有写入权限的人员的 Pull Request，可能需要维护者处理。
 
 ### Claude 打开的 Pull Request
 
-GitHub 不允许打开 Pull Request 的账户批准该 Pull Request。如果没有第二个应用，Claude 不会批准由 `claude[bot]` 打开的 Pull Request，并且 **Claude Approvals** 检查可能会以标题 **Passed; no approval from Claude** 通过。
+在您添加第二个 GitHub App 之前，由 `claude[bot]` 打开的 Pull Request 上的 **Claude Approvals** 检查可能会以标题 **Passed; no approval from Claude** 通过。
 
 要让 Claude 批准这些 Pull Request，请添加第二个应用：
 
 1. **安装**：请您的 GitHub 组织的所有者在该仓库上安装 [Claude Approvals GitHub App](https://github.com/apps/claude-approvals/installations/new)。
-2. **关联**：[将该应用关联到您的 Claude 组织](https://claude.ai/settings/claude-approvals/github/finish)。这需要一个既是 GitHub 组织所有者、又是 Claude 组织 Owner 或 Primary Owner 的人来操作。如果没有人同时具备这两种身份，请联系 [Anthropic 支持](https://support.claude.com)。
+2. **关联**：请一位既是 GitHub 组织所有者、又是 Claude 组织 Owner 或 Primary Owner 的人[将该应用关联到您的 Claude 组织](https://claude.ai/settings/claude-approvals/github/finish)。如果他们无法完成关联，请联系 [Anthropic 支持](https://support.claude.com)。
 
 然后，在由 `claude[bot]` 打开的未关闭 Pull Request 上[重新运行检查](#comment-commands-for-approvals)。请保持必需检查的来源不变，因为 [Claude GitHub App](https://github.com/apps/claude) 仍会报告该检查。
 
 ### 来自 fork 和外部贡献者的 Pull Request
 
-Approvals 无法确认 fork 的提交是由具有写入权限的人推送的。在来自 fork 的 Pull Request 上，Approvals 可能会等待维护者（即具有写入权限的人）：
+在来自 fork 的 Pull Request 上，Approvals 可能会等待维护者（即具有写入权限的人）：
 
 * **在维护者为某个提交作担保之前**：任何分类器的回复都不计入，包括 Code Review 的回复。如果某条规则依赖于分类器，**Claude Approvals** 检查的标题可能显示为 **No classifier result counts on this commit**。
 * **为某个提交作担保**：在观察模式之外，如果您具有写入权限，请阅读更改。然后评论 `@claude approvals rerun`，后面加上最新提交的完整 SHA，并作为评论的唯一文本。之后分类器即可针对该提交运行。如果不带 SHA，该命令可能会覆盖您评论时的最新提交。

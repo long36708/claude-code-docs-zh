@@ -201,21 +201,21 @@ mod 还可以[在会话记录中放置自己的一行](#place-a-row-in-the-trans
 
 ### 更改 Claude Code 已经绘制的内容
 
-Claude Code 自己绘制大部分界面：消息、工具调用行、加载指示器等。这些部分中的每一个也是一个渲染站点，因此 mod 可以重新设置其样式或替换它。要更改其中一个，请让您的 `ui.render` hook 按此表中的名称进行过滤：
+要更改 Claude Code 绘制的某个部分，请让您的 `ui.render` hook 按此表中的某个渲染位置进行过滤：
 
 | 站点 | 它是什么 |
 | :- | :- |
 | `UserMessage`, `AssistantMessage` | 会话记录中的一条消息 |
 | `ToolUse`, `ToolResult`, `ToolGroup` | 工具调用的行、其结果，以及折叠起来的一组调用 |
 | `CommandOutput` | 命令打印的行 |
-| `AskUserQuestion` | Claude 打开以向您提问的对话框 |
+| `AskUserQuestion` | Claude 打开以向您提问的对话框。`ui.render` hook 无法替换它。 |
 | `Spinner`, `ToolProgress`, `TurnDuration` | 轮次的状态栏：Claude 工作时显示动画的行、正在运行的工具的实时进度行，以及结束轮次的行 |
 | `InfoNotice`, `SessionMode`, `PromptHint` | 徽标下方的状态栏、页脚中的模式标签，以及输入框下方的提示行 |
 | `AgentRow` | 子代理或队友在 Agent 面板中的行 |
 
-`Pane`、`AskUserQuestion`、`Spinner`、`UserMessage`、`AssistantMessage` 以及工具调用位置在终端、Desktop 应用和 VS Code 扩展中均有效。[渲染位置表](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites) 列出了其他每个位置在哪里触发。
+`Pane`、`AbovePrompt`、`AskUserQuestion`、`Spinner`、`UserMessage`、`AssistantMessage` 以及工具调用位置在终端、Desktop 应用和 VS Code 扩展中均有效。[渲染位置表](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#render-sites) 列出了其他每个位置在哪里触发。要在不使用 `ui.render` hook 的情况下更改 Desktop 应用中消息的气泡和字体，请[使用主题设置消息样式](#style-messages-in-the-desktop-app)。
 
-在 Claude Code 已经绘制的站点上，您的 hook 可以更改某个细节、替换绘制内容，或保持不变。选择一个选项卡，查看每种方式应用于加载指示器的效果。这些示例读取由另一个 hook 计数的 `calls` 变量，如[教程 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 中所示。
+选择一个选项卡，查看 hook 如何更改加载指示器的某个细节、替换加载指示器，或保持其不变。这些示例读取由另一个 hook 计数的 `calls` 变量，如[教程 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 中所示。
 
 > [tab] Change a detail
 >
@@ -439,7 +439,130 @@ export function register(on) {
 
 * **`backdrop` 字段**：`scene` 是您为由您的 hook 绘制的背景选择的[名称](https://code.claude.com/docs/zh-CN/plugins/mods/reference.md#limits)。有关其他字段以及 `overrideColorScheme`，请参阅[适用于您所用版本的类型](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)。
 * **背景是否被绘制**：当连接到该会话的 Desktop 或移动应用表示它会绘制背景时，`$.theme.set` 以 `isDrawn: true` 解析。否则 `isDrawn` 为 `false`，`reason` 说明原因。
-* **每个会话一个主题**：无论背景和[颜色](#change-the-colors-of-the-desktop-app)是由哪个 mod 设置的，调用 `$.theme.set` 的 mod 都会替换会话的背景和颜色，调用 `$.theme.clear()` 的 mod 都会移除它们。请仅在用户要求时调用 `$.theme.clear()`。
+* **每个会话一个主题**：无论会话的背景、[颜色](#change-the-colors-of-the-desktop-app)、[消息样式](#style-messages-in-the-desktop-app)和[声音](#add-sound-to-a-theme)是由哪个 mod 设置的，调用 `$.theme.set` 的 mod 都会替换它们，调用 `$.theme.clear()` 的 mod 都会移除它们。请仅在用户要求时调用 `$.theme.clear()`。
+
+### 使用着色器为背景添加动画
+
+要在 Desktop 应用的 Code 选项卡中制作一个会移动并跟随用户指针的[背景](#put-a-backdrop-behind-the-conversation)，请将 `Svg` 包裹在 [`Shader`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#elements) 元素中。该元素指定一个着色器文件，即在 GPU 上计算每个像素颜色的代码。应用会将结果绘制在 `Svg` 之上。`Shader` 需要 Code 选项卡中的 Claude Code 为 v2.1.326 或更高版本，因此请先[在那里检查版本](https://code.claude.com/docs/zh-CN/desktop.md#claude-code-version-in-the-code-tab)。
+
+以下步骤会创建一个名为 `glow` 的 mod。它会在指针下方绘制一道光，点击背景会改变光的颜色。
+
+**1. 保存清单和 hooks.json**
+
+根据[自己编写 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself)，将 `.claude-plugin/plugin.json` 和 `hooks/hooks.json` 保存到 `~/.claude/skills/glow/` 中，并在这两个文件中将 `first-mod` 改为 `glow`。[位于 `~/.claude/skills/` 下](https://code.claude.com/docs/zh-CN/plugins/create#scaffold-a-plugin-that-loads-every-session)的 mod 会在您启动会话时加载。
+
+**2. 编写着色器**
+
+将此文件保存为 `~/.claude/skills/glow/hooks/glow.ts`。它导入的 `claude-code/shader` 模块由 Claude Code 提供。
+
+着色器会在指针周围绘制一道光，`warm` 为 `0` 时为蓝色，为 `1` 时为橙色：
+
+```typescript glow/hooks/glow.ts theme={null}
+import {
+  length, max, min, mix, picture, pointers, shader, smoothstep, values, vec2, vec3, vec4,
+} from 'claude-code/shader'
+
+// Declare each number the mod sets through the Shader's values, with its range
+const { warm } = values({ warm: [0, 1] })
+
+// This function runs once for every pixel and returns that pixel's color
+const glow = picture(pixel => {
+  let light = 0
+  // The loop sees the mouse, each finger, and for one second each pointer that lifted
+  // A mouse that rests for half a second counts as lifted
+  for (const pointer of pointers) {
+    // Subtracting two positions subtracts their x and their y, in points
+    // The result is typed as a plain number, so vec2() marks it as a position again
+    const near = smoothstep(200, 0, length(vec2(pixel.point - pointer.at)))
+    // A pointer fades in over a quarter second, then out as gone counts from 0 to 1
+    const fade = min(pointer.age * 4, 1) * (1 - pointer.gone)
+    light = max(light, near * near * fade)
+  }
+  const color = mix(vec3(0.25, 0.55, 1), vec3(1, 0.45, 0), warm)
+  const alpha = 0.7 * light
+  // The color is premultiplied: red, green and blue are multiplied by alpha
+  return vec4(color * alpha, alpha)
+})
+
+// A shader runs its passes in order, and this one has a single pass
+export default shader({ passes: [glow] })
+```
+
+**3. 绘制背景**
+
+将此文件保存为 `~/.claude/skills/glow/hooks/register.js`。该 mod 在会话开始时设置主题，并绘制一个带有一个 `Svg` 子项的 `Shader`。
+
+该 mod 的 [`ui.pointer`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface) hook 在点击后运行，翻转 `warm`，并请求重新绘制：
+
+```javascript glow/hooks/register.js theme={null}
+const STILL =
+  '<svg xmlns="http://www.w3.org/2000/svg"' +
+  ' viewBox="0 0 1 1" preserveAspectRatio="none">' +
+  '<rect width="1" height="1" fill="#1a3a9c"/>' +
+  '</svg>'
+
+let warm = 0
+
+export function register(on) {
+  on('session.start', async ($, e, next) => {
+    // The scene is a name you choose for the backdrop your hook draws
+    await $.theme.set({ backdrop: { scene: 'glow' }, overrideColorScheme: 'dark' })
+    return next(e)
+  })
+
+  on('ui.render', { component: 'Backdrop' }, async ($, e, next) => {
+    // This hook runs for every mod's backdrop, so pass on the others
+    if (e.props.plugin !== $.plugin.name || e.props.scene !== 'glow') return next(e)
+    const { Shader, Svg } = $.ui.resolve(e)
+    // module must be a string literal, relative to this file
+    return Shader({
+      module: './glow.ts',
+      values: { warm },
+      children: [Svg({ source: STILL, alt: 'A dark blue background' })],
+    })
+  })
+
+  on('ui.pointer', async ($, e, next) => {
+    warm = 1 - warm
+    $.ui.invalidate('ui.render')
+    return next(e)
+  })
+}
+```
+
+**4. 检查着色器**
+
+此步骤是可选的，并且需要 [CLI](https://code.claude.com/docs/zh-CN/quickstart.md)，CLI 有自己的版本号。在 shell 中进入 `~/.claude/skills/`，运行 `claude plugin validate ./glow`，并在输出中查找 `shader hooks/glow.ts: runs on any GPU`。如果输出将 `glow.ts` 中的某一行指为错误，请修复该行。
+
+早于 v2.1.326 的 CLI 会报告 `"ui.pointer" is not an event`。如果您的 CLI 报告了此错误，请[更新它](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)并再次运行该命令。
+
+**5. 试用背景**
+
+在 Code 选项卡中发送一条消息，以启动一个新的本地会话。背景会变为深蓝色。如果没有变化，请关闭任何其他设置主题的 mod 并启动新会话，因为一个会话只有[一个主题](#put-a-backdrop-behind-the-conversation)。如果背景仍然没有变化，请[找出 mod 不起作用的原因](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)。
+
+移动指针。一道蓝光会跟随指针，并在您停止移动时逐渐消失。如果没有出现光，请参阅[修复只显示 `Svg` 的背景](#fix-a-backdrop-that-shows-only-the-svg)。点击对话旁边的空白区域，然后再次移动指针。光现在变为橙色。如果仍然是蓝色，请回答 Claude 的任何权限提示或问题，然后在远离消息和按钮的位置再次快速点击，且不要拖动。
+
+要试用某项更改，请保存 `glow.ts` 或 `register.js`，mod 会在正在运行的会话中重新加载。如果几秒钟内未显示更改，请发送一条消息来加载它。要关闭该 mod，请将 `glow` 移出 `~/.claude/skills/` 并启动新会话。
+
+在此示例的基础上进行构建时，请遵循以下关于指针输入、着色器和 `Svg` 的规则：
+
+* **点击**：当您的 mod 已设置主题，并且用户点击了背景中未被应用覆盖的部分时，您的 mod 会收到 `ui.pointer`。应用每秒最多发送两次点击，其余的会被丢弃。要在不更改 mod 状态的情况下绘制按下效果，请在着色器中使用 `pointer.down * (1 - pointer.gone)`，它在按下期间为 `1`，之后逐渐减弱。
+* **点击位置**：`e.x` 和 `e.y` 的范围是 `0` 到 `1`，从背景的左上角开始。在着色器中，`pixel.uv` 使用相同的比例，但从左下角开始。要在点击处绘制，请通过 `values` 传递 `e.x` 和 `1 - e.y`。
+* **移动**：请在着色器中从 `pointers` 读取指针移动，因为移动指针不会触发 `ui.pointer`。要实现随时间变化的运动，请导入 `time`，即自着色器启动以来的秒数。
+* **按下**：要从按下时开始为某个效果计时，请在循环中检查每个指针的 `down` 是否为 `1`，并读取其 `age`，即自按下以来的秒数。按下会作为一个新指针到达，因此它不一定是 `pointers` 中的第一个。
+* **`values`**：在着色器文件中声明最多八个数字，并通过 `values` prop 设置它们。当您的 mod 的状态发生变化时，请调用 `$.ui.invalidate('ui.render')` 以发送新的数字。
+* **着色器文件**：使用 TypeScript 的一个子集编写，不能使用 `while` 循环、递归或从其他文件导入。有关完整规则和可调用的函数，请[使用 CLI 获取类型定义](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)，并在其中搜索 `claude-code/shader`。
+* **`Svg`**：请将其绘制为一幅完整的图片，因为当着色器无法运行时，用户只会看到它。
+
+#### 修复只显示 `Svg` 的背景
+
+请先检查减少动态效果，因为它会阻止任何着色器运行，然后再检查以下其他原因：
+
+* **减少动态效果已开启**：如果您不需要减少动态效果，请在系统设置中将其关闭，并在 Desktop 应用的 **Settings > General** 中将 **Motion** 设置为 **System**。
+* **着色器文件违反了某条规则**：在 shell 中，对 mod 的目录运行 `claude plugin validate`，并修复输出中指出的行。
+* **着色器对 GPU 来说过于繁重**：如果 `claude plugin validate` 输出 `needs a fast GPU`，请简化着色器，直到输出显示 `runs on any GPU`。从输出中排列为开销最大的行开始。
+* **`Svg` 包含会阻止着色器的内容**：将 `Svg` 源替换为 [`glow` 示例](#animate-a-backdrop-with-a-shader)中的 `STILL`。如果着色器随后能够运行，请恢复您的源，但去掉会阻止着色器的内容，例如光照滤镜或 `feTile`。
+* **任一 mod 的着色器运行后停止了**：应用因闪烁或运行过慢而停止某个着色器后，在最多五分钟内不会启动任何着色器。请将亮度或颜色的大幅变化控制在每秒三次以下，或简化运行缓慢的着色器。然后等待五分钟，再启动新会话。
 
 ### 更改 Desktop 应用的颜色
 
@@ -510,7 +633,7 @@ export function register(on) {
 * **版本过旧**：[更新 Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md#claude-code-version-in-the-code-tab)，重启它，然后在 Code 选项卡中启动一个新的本地会话。如果该 mod 是由 Claude 编写的，请在那里再次请求。
 * **mod 未加载**：如果该 mod 是由 Claude 编写的，请在[让 Claude 编写 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#ask-claude-for-a-mod) 中了解它何时加载。如果是您自己编写的，请将您的文件及其路径与[自己编写颜色 mod](#write-a-colors-mod-yourself) 进行比较。
 * **主题被拒绝**：请让 Claude 运行该 mod 的 [`makeColors`](#write-a-colors-mod-yourself) 调用。如果该调用抛出错误，或者其 `problems` 列表中有以 `Desktop won't paint this theme` 开头的条目，请让 Claude 修复该主题。如果该 mod 是您安装的，请将 Claude 发现的问题发送给其作者。
-* **另一个 `$.theme` 调用**：当会话中的任何 mod 调用 `$.theme.set` 或 `$.theme.clear()` 时，之前调用设置的颜色和[背景](#put-a-backdrop-behind-the-conversation)都会消失。在您自己的 mod 中，请在同一个 `$.theme.set` 调用中传递 `colors` 和 `backdrop`。一次只使用一个设置主题的 mod。
+* **另一个 `$.theme` 调用**：当会话中的任何 mod 调用 `$.theme.set` 或 `$.theme.clear()` 时，之前调用设置的颜色、[背景](#put-a-backdrop-behind-the-conversation)、[消息样式](#style-messages-in-the-desktop-app)和[声音](#add-sound-to-a-theme)都会消失。在您自己的 mod 中，请在同一个 `$.theme.set` 调用中传递主题的所有部分。一次只使用一个设置主题的 mod。
 
 ### 从 Desktop 应用中移除 mod 颜色
 
@@ -529,6 +652,193 @@ export function register(on) {
 **3. 移除仍保留的颜色**
 
 如果颜色仍然存在，请从 Code 选项卡打开 **Settings**，并在其中搜索 `code appearance`。打开搜索结果，然后选择 **Remove colors**。
+
+### 在 Desktop 应用中设置消息样式
+
+要为 Desktop 应用 Code 选项卡中的消息设置专属的气泡、字体和文本大小，请编写一个使用 `style` 对象调用 `$.theme.set` 的 mod。这需要 Code 选项卡中的 Claude Code 为 v2.1.329 或更高版本，因此请先[在那里检查版本](https://code.claude.com/docs/zh-CN/desktop.md#claude-code-version-in-the-code-tab)。终端、VS Code 扩展和移动应用显示消息时不会应用该样式。
+
+此 mod 为消息设置衬线字体，并将每条消息放入圆角气泡中。如果 `$.theme.set` 拒绝该样式，mod 会将错误写入会话记录：
+
+```javascript theme={null}
+const style = {
+  Text: { fontFamily: ['serif'], fontSize: 15, lineHeight: 22 },
+  // The corners run top left, top right, bottom right, bottom left
+  UserMessage: { backgroundColor: '#1d5fd1', color: '#ffffff', radius: [18, 18, 4, 18], padding: 12 },
+  AssistantMessage: { backgroundColor: '#e9e9ec', color: '#1c1c1f', radius: [18, 18, 18, 4], padding: 12 },
+}
+
+export function register(on) {
+  on('session.start', async ($, e, next) => {
+    try {
+      await $.theme.set({ style })
+    } catch (error) {
+      $.ui.log(error.message)
+    }
+    return next(e)
+  })
+}
+```
+
+要试用此示例：
+
+**1. 保存 mod**
+
+将代码保存为 `~/.claude/skills/bubbles/hooks/register.js`。根据[自己编写 mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself)，将 `.claude-plugin/plugin.json` 和 `hooks/hooks.json` 保存到 `~/.claude/skills/bubbles/` 中，并在这两个文件中将 `first-mod` 改为 `bubbles`。
+
+**2. 关闭其他主题 mod**
+
+[关闭任何其他调用 `$.theme.set` 的 mod](#remove-mod-colors-from-the-desktop-app)，因为每次调用都会替换整个主题。要同时使用样式和颜色，请参阅[将样式与颜色或背景结合使用](#combine-a-style-with-colors-or-a-backdrop)。
+
+**3. 检查样式**
+
+在 Code 选项卡中启动一个新的本地会话并发送一条消息。您的消息会显示在蓝色气泡中，Claude 的回复显示在浅灰色气泡中，两者都使用衬线字体。如果没有任何变化，请参阅[修复缺失的消息样式](#fix-a-missing-message-style-in-the-desktop-app)。
+
+要移除该样式，请将 `~/.claude/skills/bubbles/` 移出 `~/.claude/skills/` 并启动新会话。
+
+#### 将样式与颜色或背景结合使用
+
+要将消息样式与[颜色](#write-a-colors-mod-yourself)或[背景](#put-a-backdrop-behind-the-conversation)一起使用，请由一个 mod 在一次调用中传递所有这些内容，例如 `$.theme.set({ colors: theme, style })`。v2.1.329 之前的 Claude Code 版本会拒绝包含 `style` 或 [`sound`](#add-sound-to-a-theme) 的调用。要在这些版本上保留您的颜色和背景，请捕获该错误、记录它，然后在不带 `style` 和 `sound` 的情况下重复该调用。
+
+#### 选择要设置样式的对话部分
+
+您传递给 `$.theme.set` 的 `style` 对象中的每个键都指定对话的一个部分。
+
+| 键 | 设置样式的对象 | 可设置的内容 |
+| :- | :- | :- |
+| `Text` | 您的消息和 Claude 回复中的文字，在 `UserMessage` 或 `AssistantMessage` 未设置同一属性时生效 | 文本属性 |
+| `Heading` | Claude 回复中的标题，否则这些标题使用回复的字体 | 文本属性 |
+| `UserMessage` | 您的消息 | 文本属性、框属性和 `rotate` |
+| `AssistantMessage` | Claude 回复中的每个文本块 | 文本属性、框属性和 `rotate` |
+| `ToolUse` | 工具调用的行 | `color`、`fontFamily` 和框属性 |
+
+其他部分保留应用的外观，例如权限提示、Claude 在对话框中提出的问题、代码块和输入框。
+
+请以点数表示尺寸，例如 `lineHeight: 22`。有关每个值的格式和范围，请参阅[适用于您所用版本的类型](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)中的 `ThemeStyle`。
+
+* **文本属性**：`color`、`fontFamily`、`fontSize`、`fontWeight`、`italic`、`letterSpacing` 和 `lineHeight`。请将 `fontFamily` 写成只含一项的列表，例如 `['serif']`。该项必须是 `sans`、`serif`、`mono`、`cursive` 或 `code`，`$.theme.set` 会拒绝任何其他值。使用 `code` 表示应用的代码字体。
+* **框属性**：`backgroundColor`、`radius`、`borderColor`、`borderWidth`、`shadow`、`fill`，以及 `padding` 或 `paddingTop` 等内边距。将阴影写成 `{ x: 0, y: 2, blur: 8, color: 'rgba(0, 0, 0, 0.15)' }`。使用 `fill` 在文本后方绘制渐变或矢量图形，例如 `{ gradient: { stops: ['#dbe8ff', '#c4d6f5'] } }`。
+* **`rotate`**：消息倾斜的度数，范围为 `-3` 到 `3`
+
+要让气泡有所变化，请将 `UserMessage` 或 `AssistantMessage` 设置为最多包含四个对象的列表。每条消息会获得其中一个对象（顺序不固定），并一直保留它。
+
+#### 为浅色模式和深色模式设置消息颜色
+
+要在浅色模式和深色模式下为消息设置不同的颜色，请将以下消息颜色添加到 [`makeColors`](#write-a-colors-mod-yourself) 返回的主题中的 `inputs.light` 和 `inputs.dark`：
+
+* **您的消息**：`bg-user-message` 用于气泡，`text-user-message` 用于文本
+* **Claude 的回复**：`bg-assistant-message` 用于气泡，`text-assistant-message` 用于文本
+
+在将它们添加到传递 `style` 的 mod 之前，请从对应的 `UserMessage` 或 `AssistantMessage` 中移除 `color` 和 `backgroundColor`，因为这些属性优先于消息颜色。
+
+此示例为[自己编写颜色 mod](#write-a-colors-mod-yourself) 中的 `paper` mod 设置您的消息颜色。在该 mod 的 `register.js` 中，将以下几行添加到 `makeColors` 调用和 `register` 函数之间：
+
+```javascript theme={null}
+Object.assign(theme.inputs.light, { 'bg-user-message': '#d9c4a0', 'text-user-message': '#2a241d' })
+Object.assign(theme.inputs.dark, { 'bg-user-message': '#4a3a2b', 'text-user-message': '#f0e7d7' })
+```
+
+将 `paper` 放在 `~/.claude/skills/` 下，并将其他主题 mod（例如 `bubbles`）移出该目录。启动一个新的本地会话并发送一条消息。您的气泡在浅色模式下为棕褐色，在深色模式下为棕色。如果不是，请参阅[修复缺失的 mod 颜色](#fix-missing-mod-colors-in-the-desktop-app)和[修复缺失的消息样式](#fix-a-missing-message-style-in-the-desktop-app)。
+
+#### 修复 Desktop 应用中缺失的消息样式
+
+如果消息样式的全部或部分没有出现在 Code 选项卡中，请检查以下原因：
+
+* **mod 未加载**：[找出 mod 不起作用的原因](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)
+* **调用被拒绝**：像[示例](#style-messages-in-the-desktop-app)那样捕获 `$.theme.set` 的错误并将其写入会话记录。如果错误包含 `theme.set does not know the attribute "style"`，请在显示该错误的应用中[更新 Claude Code](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off)。如果错误指出了某个属性，例如 `style.Text.fontSize is a number of points, 11 to 28`，请更改该属性的值。
+* **另一个 `$.theme` 调用**：如果会话中的任何 mod 调用 `$.theme.clear()`，或在不带您的 `style` 的情况下调用 `$.theme.set`，样式就会消失。在您自己的 mod 中，请[在一次调用中传递整个主题](#combine-a-style-with-colors-or-a-backdrop)。关闭任何其他设置主题的 mod。
+* **对比度低**：当文本与其背景的对比度低于 3:1 时，该消息、标题或工具行会以应用自己的颜色显示。`$.theme.set` 不会报告错误。请选择差异更大的颜色，并同时检查浅色模式和深色模式。
+* **背景**：在[背景](#put-a-backdrop-behind-the-conversation)之上，文本颜色只会在纯色或接近纯色的背景上显示。凡是为 `UserMessage`、`AssistantMessage` 和 `ToolUse` 的文本设置颜色的地方（包括通过 `Text` 或 `Heading` 设置），都请为它们设置纯色的 `backgroundColor`。
+* **辅助功能设置**：在应用或操作系统中开启更高对比度时，消息显示时不会应用该样式。使用 OpenDyslexic 等辅助功能字体时，消息会保留该字体。要查看完整样式，请关闭这些设置。
+* **未关闭的提示**：当屏幕上有权限提示或 Claude 的问题时，新样式会等待。回答后即可看到样式。
+
+### 为主题添加声音
+
+要为您的主题在 Desktop 应用的 Code 选项卡中添加背景声音和事件短音效，请将 `sound` 传递给 [`$.theme.set`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#mods-api-methods)。`sound` 需要 Code 选项卡中的 Claude Code 为 v2.1.329 或更高版本，因此请先[在那里检查版本](https://code.claude.com/docs/zh-CN/desktop.md#claude-code-version-in-the-code-tab)。终端、VS Code 扩展和移动应用不播放主题声音。
+
+您将每个声音描述为由音调和噪声组成的多个层，无需音频文件，Desktop 应用会生成音频。
+
+此 mod 设置深色模式，在背景中播放柔和的噪声，并在 Claude 完成一个轮次时播放三个铃声音符：
+
+```javascript theme={null}
+// The rest of the theme, which still works without sound
+const look = { overrideColorScheme: 'dark' }
+
+const sound = {
+  ambience: {
+    // A layer with drone: true plays without a break
+    // A layer with scatter plays now and then
+    // gain is how loud a layer is, from 0 to 1
+    layers: [{ wave: 'brown', drone: true, gain: 0.2 }],
+  },
+  cues: {
+    done: {
+      // step is the seconds from one note to the next
+      layers: [{ wave: 'bell', notes: ['C5', 'E5', 'G5'], step: 0.15, gain: 0.3 }],
+    },
+  },
+}
+
+export function register(on) {
+  on('session.start', async ($, e, next) => {
+    try {
+      await $.theme.set({ ...look, sound })
+    } catch (error) {
+      // A refused call sets nothing, so set the theme again without sound
+      $.ui.log(error.message)
+      await $.theme.set(look)
+    }
+    return next(e)
+  })
+}
+```
+
+有关其他波形、字段和范围，请参阅[适用于您所用版本的类型](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#get-the-types-for-your-build)中的 `ThemeSound`。要试听此示例：
+
+**1. 启动会话**
+
+将代码放入一个 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/create.md#write-a-mod-yourself) 中，并将该 mod 的目录保存到 [`~/.claude/skills/` 下](https://code.claude.com/docs/zh-CN/plugins/create#scaffold-a-plugin-that-loads-every-session)，使其在您启动会话时加载。在 Code 选项卡中，发送第一条消息以[启动本地会话](https://code.claude.com/docs/zh-CN/desktop.md#start-a-session)。如果会话的标题栏中没有出现扬声器按钮，请参阅[修复缺失的扬声器按钮](#fix-a-missing-speaker-button)。
+
+**2. 开启主题声音**
+
+如果扬声器按钮显示为划掉状态，请选择它。三个音符会播放一次，以确认声音已开启，随后噪声会逐渐淡入。要更改音量或关闭噪声，请打开按钮旁边的菜单。
+
+**3. 试听提示音**
+
+再发送一条消息。Claude 完成时会播放这三个音符。
+
+#### 每种主题声音的播放时机
+
+在用户通过扬声器按钮开启之前，主题声音处于关闭状态。开启后，它会在该设备上的其他会话和主题中保持开启，直到用户将其关闭、退出登录或切换账户。请选择合适的 `gain`，以适应主题一加载就会听到声音的用户。
+
+Desktop 应用会在以下时刻自行播放每个声音，mod 无法触发任何声音：
+
+| 声音 | 播放时机 |
+| :- | :- |
+| `ambience` | 当会话窗口拥有焦点时。无输入 10 分钟后暂停，并在下一次输入时恢复。 |
+| `cues.send` | 用户发送消息 |
+| `cues.tool` | Claude 开始工具调用 |
+| `cues.compact` | 对话被压缩 |
+| `cues.done` | Claude 完成一个轮次，除非用户停止了它或将另一条消息加入了队列 |
+| `cues.ask` | 出现权限提示或问题 |
+| `cues.error` | 轮次以错误结束 |
+| `cues.click` | 用户点击背景中没有消息、控件或面板覆盖的位置 |
+
+当用户开启声音或选择音量时，还会听到一个提示音，即主题按以下顺序拥有的第一个提示音：`send`、`done`、`tool`、`compact`、`ask`、`error`。
+
+在有未回答的提示时、语音进行期间以及窗口没有焦点时，表中的声音会播放得更少。要重新听到所有声音：
+
+* **有权限提示或问题正在等待**：回答它。在此之前，只有 `cues.ask` 可以播放。
+* **听写、语音通话或朗读回复正在进行**：结束它。在此之前，环境声和提示音都保持静音。
+* **窗口没有焦点**：点击窗口。在此之前，只有 `cues.done` 可以播放。
+
+#### 修复缺失的扬声器按钮
+
+如果会话的标题栏中没有扬声器按钮，请检查您的版本、mod 是否已加载，以及会话中的 `$.theme` 调用：
+
+* **版本过旧**：如果 Code 选项卡中的 `/status` 显示的版本早于 v2.1.329，请[更新 Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md#claude-code-version-in-the-code-tab)并启动新的本地会话。在这些版本上，调用会失败并显示错误，例如 `theme.set does not know the attribute "sound"`。
+* **mod 未加载**：按照[找出 mod 不起作用的原因](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#find-out-why-a-mod-does-nothing)操作。
+* **值超出范围**：调用会失败，因此借助示例中的 `catch` 块，主题会在不带声音的情况下加载。在会话记录中找到示例记录的错误，并修复其中指出的字段，例如 `sound.cues.done.layers[0].gain is a number, 0 to 1`。
+* **另一个 `$.theme` 调用**：当任何 mod 之后在不带 `sound` 的情况下调用 `$.theme.set`，或调用 `$.theme.clear()` 时，声音和按钮都会消失。在您自己的 mod 中，请在与主题其余部分相同的调用中传递 `sound`。关闭任何其他设置主题的 mod。
 
 ## 从元素构建树
 
@@ -613,6 +923,7 @@ export function register(on) {
 | `Button` | 调用 `onPress` 的控件 | 到处 |
 | `Link`, `Code`, `Markdown` | 带有 `href` 和可选 `label` 的链接、代码块和格式化为 Claude 回复方式的文本。`Markdown` 在 `text` 属性中而不是在 `children` 中获取其内容，当您传递 `onLinkPress` 时需要 `key`。 | 到处 |
 | `Input`, `Select` | 文本字段和下拉列表 | 终端、桌面、VS Code |
+| `Shader` | 在 `Svg` 之上[由 GPU 绘制的背景](#animate-a-backdrop-with-a-shader) | 桌面 |
 | `Svg` | SVG 文档 | 桌面、VS Code |
 | `Client` | 由您的第二个文件绘制的区域，用于动画和指针输入。该文件没有 mod API。它通过发布数据到达您的 hook，该数据作为 `ui.message` 事件到达。如果它加载、绘制或运行失败，您的 hook 会收到 [`ui.fault`](https://code.claude.com/docs/zh-CN/plugins/mods/reference#interface) 事件。 | 终端、桌面 |
 | `Raster`, `Image` | [彩色单元格网格](#draw-a-grid-of-colored-cells)和图片 | 终端 |

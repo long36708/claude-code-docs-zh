@@ -88,7 +88,9 @@ Claude Code 还会在对话中途附加系统上下文，例如文件更改通�
 
 Fable 模型、Opus 5.5、Sonnet 5.5 和 Opus 5 上的[自动模型回退](https://code.claude.com/docs/zh-CN/model-config.md#automatic-model-fallback)也是一次模型切换。当安全分类器将某个请求标记为属于具有备用模型的类别时，Claude Code 会在该模型上重新运行请求，会话也会在该模型上继续。
 
-当 skill 或命令的 frontmatter 指定的 [`model`](https://code.claude.com/docs/zh-CN/skills#frontmatter-reference) 不同于会话当前模型时，该轮次也是一次模型切换：下一个请求读取整个对话历史记录而没有缓存命中。会话模型在您的下一个提示词时恢复。`context: fork` skill 则设置的是[分叉子代理的模型](https://code.claude.com/docs/zh-CN/skills.md#run-skills-in-a-subagent)。
+#### 设置模型的 skill 和命令
+
+当 skill 或命令的 [`model` 值生效](https://code.claude.com/docs/zh-CN/skills#frontmatter-reference)且不同于会话当前模型时，该轮次就是一次模型切换。下一个请求会读取整个对话历史记录而没有缓存命中。会话模型在您的下一个提示词时恢复。使用 `context: fork` 时，该值会改为应用于一个拥有[自己的缓存](#subagents-and-the-cache)的[子代理](https://code.claude.com/docs/zh-CN/skills.md#run-skills-in-a-subagent)。
 
 ### 更改 effort 级别
 
@@ -240,7 +242,7 @@ API 限制每个请求可以携带的图像和 PDF 数量。有关当前数值�
 
 ### 调用 skill 和命令
 
-[Skills](https://code.claude.com/docs/zh-CN/skills.md) 和[命令](https://code.claude.com/docs/zh-CN/commands.md)在调用点将其指令作为用户消息注入。对话中早期的任何内容都不会改变。frontmatter 中命名 `model` 的 skill 或命令可以是该轮的[模型切换](#switching-models)。
+[Skills](https://code.claude.com/docs/zh-CN/skills.md) 和[命令](https://code.claude.com/docs/zh-CN/commands.md)在调用点将其指令作为用户消息注入。对话中早期的任何内容都不会改变。[`model` 值生效](https://code.claude.com/docs/zh-CN/skills#frontmatter-reference)的 skill 或命令可能构成该轮次的[模型切换](#switching-models)。
 
 ### 运行 `/recap`
 

@@ -310,7 +310,7 @@ frontmatter 定义子代理的元数据和配置。正文将成为指导子代�
 | `background` | 否 | 设置为 `true` 可使此子代理保持在后台运行，即使 Claude 要求等待它。默认情况下，Claude 从主对话生成的自定义子代理已经会[在后台启动](#run-subagents-in-foreground-or-background) |
 | `omitClaudeMd` | 否 | 设置为 `true` 可使此子代理在启动时的[初始上下文](#what-loads-at-startup)中不包含用户、项目和本地 CLAUDE.md 文件；[托管策略文件](https://code.claude.com/docs/zh-CN/memory.md#how-claude-md-files-load)仍会加载，但[托管子代理](#choose-the-subagent-scope)除外。适用于从委派提示词中获取所需全部信息的子代理。当 Agent 通过 `--agent` 或 `agent` 设置作为主会话 Agent 运行时忽略。需要 Claude Code v2.1.271 或更高版本 |
 | `effort` | 否 | 此子代理活动时的 effort 级别。覆盖会话的 effort 级别，但不覆盖 [`CLAUDE_CODE_EFFORT_LEVEL`](https://code.claude.com/docs/zh-CN/env-vars#variables) 环境变量。选项：`low`、`medium`、`high`、`xhigh`、`max`；可用级别取决于模型。请参阅[选择 effort 级别](#choose-an-effort-level) |
-| `isolation` | 否 | 设置为 `worktree` 可在临时 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 中运行子代理，为其提供仓库的隔离副本，默认从您的[默认分支](https://code.claude.com/docs/zh-CN/worktrees.md#choose-the-base-branch)而不是父会话的 `HEAD` 创建分支。如果子代理未做任何更改，worktree 会被自动清理 |
+| `isolation` | 否 | 设置为 `worktree` 可在临时 [git worktree](https://code.claude.com/docs/zh-CN/worktrees.md) 中运行子代理，为其提供仓库的隔离副本。默认情况下，该副本从您的[默认分支](https://code.claude.com/docs/zh-CN/worktrees.md#choose-the-base-branch)而不是父会话的 `HEAD` 创建分支。如果子代理未做任何更改，Claude Code [可以移除该 worktree](https://code.claude.com/docs/zh-CN/worktrees.md#isolate-subagents-with-worktrees) |
 | `color` | 否 | 子代理在任务列表和会话记录中的显示颜色。接受 `red`、`blue`、`green`、`yellow`、`purple`、`orange`、`pink` 或 `cyan` |
 | `initialPrompt` | 否 | 当此 Agent 作为主会话 Agent 运行时（通过 `--agent` 或 `agent` 设置），作为第一个用户轮次自动提交。会处理其中的[命令](https://code.claude.com/docs/zh-CN/commands.md)和 [skill](https://code.claude.com/docs/zh-CN/skills.md)。添加在任何用户提供的提示词之前。对[插件子代理](#choose-the-subagent-scope)忽略 |
 | `experimental` | 否 | 实验性选项的映射。将其 `cacheTtl` 键设置为 `5m` 或 `1h`，可为此子代理的请求选择[提示缓存生命周期](https://code.claude.com/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)，其优先级取决于 frontmatter 在[缓存生命周期优先级](https://code.claude.com/docs/zh-CN/prompt-caching.md#choose-the-ttl-yourself)中的位置。Claude Code 会忽略任何其他值，在您的 Claude 订阅使用使用额度时忽略 `1h`，并且只从子代理文件中读取该字段。需要 Claude Code v2.1.248 或更高版本 |
@@ -410,7 +410,7 @@ experimental:
 
 #### 当允许列表阻止子代理模型时
 
-如果您组织的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表阻止了为 [`web-fetch`](https://code.claude.com/docs/zh-CN/tools-reference#which-model-the-web-fetch-subagent-runs-on) 以外的子代理设置的模型，子代理会在以下适用的第一项上运行：
+如果您设置中的 [`availableModels`](https://code.claude.com/docs/zh-CN/model-config#restrict-model-selection) 允许列表阻止了为 [`web-fetch`](https://code.claude.com/docs/zh-CN/tools-reference#which-model-the-web-fetch-subagent-runs-on) 以外的子代理设置的模型，子代理会在以下适用的第一项上运行：
 
 1. 对于被阻止的系列别名，在[支持此替换的提供商](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)上，使用该系列中允许的最新版本
 2. `CLAUDE_CODE_SUBAGENT_MODEL` 中的模型（如果您设置了），遵循同样的规则
@@ -458,7 +458,7 @@ experimental:
 * `WaitForMcpServers`
 * `Workflow`
 
-第二个过滤器适用于在后台运行的子代理。无论子代理在何处运行，`Agent` 和 `ExitPlanMode` 都遵循第一个过滤器的条件。后台子代理保留所有 MCP 工具，如果它通过 [`SubagentHandback`](https://code.claude.com/docs/zh-CN/tools-reference) 报告，还会保留该工具。它还保留 `Read`、`Grep`、`Glob`、`LSP`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage`、`Artifact`、`ListPlugins`、`ListSkills`、`SearchPlugins` 和 `SearchSkills`。
+第二个过滤器适用于在后台运行的子代理。无论子代理在何处运行，`Agent` 和 `ExitPlanMode` 都遵循第一个过滤器的条件。后台子代理保留所有 MCP 工具，如果它通过 [`SubagentHandback`](https://code.claude.com/docs/zh-CN/tools-reference) 报告，还会保留该工具。它还保留 `Read`、`Grep`、`Glob`、`LSP`、`Bash`、`PowerShell`、`Edit`、`Write`、`NotebookEdit`、`WebFetch`、`WebSearch`、`TodoWrite`、`Skill`、`ToolSearch`、`EnterWorktree`、`ExitWorktree`、`Monitor`、`TaskStop`、`SendMessage`、`Artifact`、`ListPlugins`、`ListSkills`、`SearchPlugins`、`SearchSkills` 和 `REPL`。
 
 不要在后台子代理中依赖其他内置工具：Claude Code 会移除其中的大多数，无论是继承的还是列在 `tools` 字段中的。除非移除后 `tools` 列表[解析结果为空](https://code.claude.com/docs/zh-CN/errors.md#agent-would-be-spawned-with-zero-tools)，否则移除操作不会报告错误。
 
@@ -555,7 +555,7 @@ tools: Agent, Read, Bash
 
 #### 将 MCP 服务器限定于子代理
 
-使用 `mcpServers` 字段为子代理提供对主对话中不可用的 [MCP](https://code.claude.com/docs/zh-CN/mcp.md) 服务器的访问权限。此处定义的内联服务器在子代理启动时连接（需符合[针对 Agent 文件所在文件夹的信任规则](#inline-server-trust)），并在其完成时断开连接。字符串引用共享父会话的连接。
+使用 `mcpServers` 字段为子代理提供对主对话中不可用的 [MCP](https://code.claude.com/docs/zh-CN/mcp.md) 服务器的访问权限。此处定义的内联服务器在子代理启动时连接（需符合[针对 Agent 文件所在文件夹的信任规则](#inline-server-trust)），并在最后一个使用它们的 Agent 完成时断开连接。字符串引用共享父会话的连接。
 
 > [!NOTE]
 >
@@ -714,7 +714,7 @@ the review preferences and corrections you're given.
 
 若要对工具使用进行更动态的控制，请使用 `PreToolUse` hook 在操作执行前对其进行验证。当您需要允许某个工具的部分操作同时阻止其他操作时，这非常有用。
 
-此示例创建一个只允许只读数据库查询的子代理。`PreToolUse` hook 会在每个 Bash 命令执行前运行 `command` 中指定的脚本：
+此示例创建一个只允许只读数据库查询的子代理。`PreToolUse` hook 会在每次 Bash 工具调用执行前运行 `command` 中指定的脚本：
 
 ```yaml theme={null}
 ---
@@ -927,7 +927,7 @@ claude --agent my-plugin:security-reviewer
 
 如果插件将 Agent 放在其 `agents/` 目录的子文件夹中，请在作用域名称中包含该子文件夹，例如 `claude --agent my-plugin:review:security`。
 
-要使其成为项目中每个会话的默认值，请在 `.claude/settings.json` 中设置 `agent`：
+要将某个子代理设为项目中会话的默认值，请在 `.claude/settings.json` 中设置 `agent`：
 
 ```json theme={null}
 {

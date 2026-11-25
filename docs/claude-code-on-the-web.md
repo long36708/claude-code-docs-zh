@@ -236,7 +236,7 @@ Teleport 需要 claude.ai 订阅身份验证。请找到与您相符的情况：
 
 * **您使用 API 密钥或 Console 账户登录**：在您的 shell 中运行 `claude auth login`，然后使用 claude.ai 登录
 * **错误指明了您的提供商**：云端会话无法通过第三方提供商使用。请参阅[错误表](#errors-when-sending-to-a-cloud-session)
-* **您已通过 claude.ai 登录**：您的组织可能已禁用云端会话
+* **您通过组织登录 claude.ai**：请询问[所有者](https://code.claude.com/docs/zh-CN/server-managed-settings.md#access-control)是否已[启用云端会话](https://code.claude.com/docs/zh-CN/errors.md#cloud-sessions-are-disabled-by-your-organizations-policy)
 
 ## 处理会话
 

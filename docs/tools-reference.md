@@ -48,6 +48,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `Read` | 读取文件的内容。请参阅 [Read 工具行为](#read-tool-behavior) | 否 |
 | `ReadMcpResourceTool` | 按 URI 读取特定 MCP 资源 | 否 |
 | `RemoteTrigger` | 在 claude.ai 上创建、更新、运行和列出[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)（以前称为 Routine）。支持 `/schedule` 命令。[`RemoteTrigger` 输入参考](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#remotetrigger)记录了每个操作和删除该工具的组织策略。云端定时任务位于 claude.ai 上，需要 Pro、Max、Ultra、Team 或 Enterprise 计划。因此，此工具无法从 Amazon Bedrock、AWS 上的 Claude Platform、Google Cloud 的 Agent Platform 或 Microsoft Foundry 访问 | 否 |
+| `REPL` | 运行 Claude 在 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md) 中编写的 JavaScript。仅在 Code Mode 开启时可用。有关 Claude Code 如何检查该代码中的工具调用，请参阅[权限检查](https://code.claude.com/docs/zh-CN/code-mode.md#permission-checks) | 否 |
 | `ReportFindings` | 将代码审查发现报告为结构化列表，每个发现都有文件、摘要和失败场景，以便 Claude Code 可以呈现它们而不是将其打印为文本。当活跃的代码审查指令要求它这样做时，Claude 会调用它。发现还可以携带可选的 `category` 段，例如 `correctness` 或 `test-coverage`，显示在呈现列表中的文件位置旁边 | 否 |
 | `ScheduleWakeup` | 重新安排[自定步调 `/loop`](https://code.claude.com/docs/zh-CN/scheduled-tasks#let-claude-choose-the-interval)的下一次迭代。Claude 在每次迭代结束时调用此工具以选择下一次运行的时间，在一分钟到一小时之间；您不直接调用它。要改为结束循环，Claude 使用 `stop: true` 调用它，这会取消待处理的唤醒。待处理的唤醒出现在 [Stop hook 输入](https://code.claude.com/docs/zh-CN/hooks.md#stop-input)中的 `session_crons` 中 | 否 |
 | `SearchPlugins` | 搜索您的 claude.ai 插件目录。在与 `ListPlugins` 相同的会话中可用 | 否 |
@@ -150,10 +151,10 @@ Bash 工具在单独的进程中运行每个命令。
 
 ### 命令之间保留的内容
 
-* 当 Claude 在主会话中运行 `cd` 时，新的工作目录会传递到后续的 Bash 命令，只要它保持在项目目录内或使用 `--add-dir`、`/add-dir` 或 settings 中的 `additionalDirectories` 添加的[额外工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)内。这包括 Claude 响应您后续消息时运行的命令。
+* 在主会话中，只有以退出码 0 退出的前台命令中的 `cd` 才会传递到后续的 Bash 命令。该命令还必须在项目目录或[额外工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)内结束，例如您使用 `--add-dir`、`/add-dir` 或设置中的 `additionalDirectories` 添加的目录。
+  * 默认情况下，如果该命令在这些目录之外结束，Claude Code 会重置为项目目录，并将 `Shell cwd was reset to <dir>` 附加到工具结果中。
+  * 要禁用此传递，请设置 `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`。
   * 子代理会话永远不会传递工作目录更改。
-  * 如果 `cd` 落在这些目录之外，Claude Code 会重置为项目目录，并将 `Shell cwd was reset to <dir>` 附加到工具结果中。
-  * 要禁用此传递，使每个 Bash 命令都在项目目录中启动，请设置 `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`。
 * 环境变量不会保留。一个命令中的 `export` 在下一个命令中不可用。
 * Claude Code 会启动一个非交互式 shell，对于 Zsh 加载 `~/.zshrc`，对于 Bash 加载 `~/.bashrc`，并将它捕获的别名、函数和 shell 选项应用于 Bash 命令。
 
@@ -511,9 +512,11 @@ Claude Code 使用 `-ExecutionPolicy Bypass` 仅在进程范围内生成 PowerSh
 * 单个 [command hooks](https://code.claude.com/docs/zh-CN/hooks.md#command-hook-fields) 上的 `"shell": "powershell"`：在 PowerShell 中运行该 hook。Hooks 直接生成 PowerShell，因此无论 `CLAUDE_CODE_USE_POWERSHELL_TOOL` 如何，这都有效。
 * [skill frontmatter](https://code.claude.com/docs/zh-CN/skills.md#frontmatter-reference) 中的 `shell: powershell`：在 PowerShell 中运行 `` !`command` `` 块。需要启用 PowerShell 工具。
 
-PowerShell 命令遵循与 Bash 命令[相同的主会话工作目录重置行为](#what-persists-between-commands)，包括 `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR` 环境变量。
+### PowerShell 命令中的工作目录和变量
 
-PowerShell 命令还会接收 hook 通过 `CLAUDE_ENV_FILE` 持久化的变量，具体条件请参阅 [PowerShell 命令中的持久化变量](https://code.claude.com/docs/zh-CN/hooks.md#persisted-variables-in-powershell-commands)。需要 Claude Code v2.1.296 或更高版本。
+默认情况下，当主会话中的前台 PowerShell 命令结束时所在位置位于您的[工作目录](https://code.claude.com/docs/zh-CN/permissions.md#working-directories)之外，Claude Code 会重置到项目目录。要在每条命令之后都进行重置，请设置 `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`。
+
+PowerShell 命令会接收 hook 通过 `CLAUDE_ENV_FILE` 持久化的变量，具体条件请参阅 [PowerShell 命令中的持久化变量](https://code.claude.com/docs/zh-CN/hooks.md#persisted-variables-in-powershell-commands)。需要 Claude Code v2.1.296 或更高版本。
 
 ### PowerShell 中搜索和 `git diff` 的退出码 1
 
@@ -689,31 +692,54 @@ Claude 使用 WebFetch 在网页上查找信息。URL 可以来自您，也可�
 | 阻止某个域名 | 将该域名的 `WebFetch(domain:...)` 规则添加到 `deny` |
 | 要求对某个域名进行提示 | 将该域名的 `WebFetch(domain:...)` 规则添加到 `ask` |
 | 关闭 WebFetch | 将 `WebFetch` 添加到 `deny`，或将 [`CLAUDE_CODE_DISABLE_WEB_FETCH`](https://code.claude.com/docs/zh-CN/env-vars#variables) 设置为 `1` |
-| 为您的组织执行上述任一操作 | 将规则放入[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md) |
 
 在沙箱之外，如果允许使用 Bash，Claude 仍然可以使用 `curl`、`wget` 或其他工具访问任何 URL。请参阅[特定于工具的权限规则](https://code.claude.com/docs/zh-CN/permissions.md#tool-specific-permission-rules)。
 
-### 当获取触发提示、失败或缺少 WebFetch 时
+要将 `WebFetch` 规则应用于您的组织，请将其放入[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)。
 
-Claude 的回复可能会遗漏页面上 Claude 未询问的任何内容。在终端中，按 `Ctrl+O` 可查看 Claude 提出的问题以及它收到的答案。
+### 修复意外的 WebFetch 提示和拒绝
 
-| 您注意到的情况 | 处理方法 |
+如果获取被阻止或拒绝，或者您看到了意料之外的权限提示，或根本没有看到提示，请在第一列中查找您看到的情况。
+
+| 症状 | 处理方法 |
 | :- | :- |
-| Claude 说页面没有涵盖您知道其中存在的内容 | 让 Claude 重新获取该页面，并告诉它要查找什么。如需原始页面，请让它通过 Bash 工具对该 URL 运行 `curl`。 |
-| Claude 遗漏了长页面的结尾部分，或说页面的一部分未被读取 | 让 Claude 获取页面的下一部分。这需要 Claude Code v2.1.290 或更高版本。[`web-fetch` 子代理](#web-fetch-subagent)会完整读取最多约 48,000 个字符的页面，而 Claude 调用 WebFetch 时，WebFetch 会读取前 100,000 个字符。 |
-| Claude 描述的是页面最近更改之前的样子 | WebFetch 会在 15 分钟内重复使用页面的副本。要更改该时长，请设置 [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)。 |
-| Claude 说下载超时 | 下载在五分钟后会失败。要更改该限制，请设置 [`CLAUDE_CODE_WEBFETCH_DEADLINE_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)。 |
-| Claude 报告重定向并就此停止 | 让 Claude 获取新的 URL。当重定向对主机的更改不仅仅是添加或删除 `www.` 时，WebFetch 会返回新的 URL，而不返回页面内容。 |
-| Claude 无法获取本地或内网服务器 | WebFetch [拒绝 `localhost`](https://code.claude.com/docs/zh-CN/errors#webfetch-cannot-fetch-localhost) 以及任何其他不含点的主机名。让 Claude 通过 Bash 工具使用 `curl` 访问该服务器。 |
-| 在云端会话中，Claude 说网络阻止了该域名 | 在云端会话中仅有允许规则是不够的。还需将该域名[添加](https://code.claude.com/docs/zh-CN/cloud-environments.md#allow-specific-domains)到云环境的网络访问中。 |
+| 您已允许的域名获取失败 | 该 URL 还必须通过 [WebFetch 域名安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)，除非您使用 [`skipWebFetchPreflight`](https://code.claude.com/docs/zh-CN/settings-reference#skipwebfetchpreflight) 关闭该检查。请参阅 [WebFetch 域名安全检查失败](https://code.claude.com/docs/zh-CN/errors.md#webfetch-domain-safety-check-failed)。 |
 | 在自动模式下，获取被阻止且您没有看到提示 | 为该域名添加允许规则。如果是分类器阻止了获取，您也可以在终端中打开 `/permissions`，并在 **Recently blocked** 选项卡下[批准该获取](https://code.claude.com/docs/zh-CN/auto-mode-config.md#review-denials)，以便 Claude 重试。 |
 | 在 `claude -p` 或 Agent SDK 中，获取被拒绝 | 这些运行[以 Manual 模式启动](https://code.claude.com/docs/zh-CN/permission-modes.md#which-mode-a-non-interactive-run-starts-in)，需要批准的调用会被拒绝。请添加允许规则或以自动模式启动。 |
-| 您已允许的域名获取失败 | 该 URL 还必须通过 [WebFetch 域名安全检查](https://code.claude.com/docs/zh-CN/data-usage.md#webfetch-domain-safety-check)，除非您使用 [`skipWebFetchPreflight`](https://code.claude.com/docs/zh-CN/settings-reference#skipwebfetchpreflight) 关闭该检查。请参阅 [WebFetch 域名安全检查失败](https://code.claude.com/docs/zh-CN/errors.md#webfetch-domain-safety-check-failed)。 |
 | 您自己设置文件中的规则不起作用 | 如果您的组织设置了 [`allowManagedPermissionRulesOnly`](https://code.claude.com/docs/zh-CN/settings-reference#allowmanagedpermissionrulesonly)，Claude Code 会忽略该规则。请让管理员将其添加到托管设置中。 |
 | 将域名添加到沙箱的 [`allowedDomains`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-network-alloweddomains) 后仍继续出现提示 | WebFetch 不读取该列表，因此请添加 WebFetch 允许规则 |
 | 您未允许的域名没有出现提示 | 对于一组内置的预先批准文档域名，以及在 `auto` 和 `bypassPermissions` 模式下，Claude Code 会跳过提示。如果仍要求提示，请为该域名添加 `ask` 规则。沙箱中的 Bash 命令不会继承预先批准的集合。 |
 | claude.ai Artifact 链接又带来了一个提示 | 请参阅[读取与您共享的 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) |
-| Claude 无法获取任何页面 | 在会话中运行 `/status`。如果 `Organization configuration` 行列出了 `HIPAA`，则 WebFetch 已关闭：请参阅[开发者在 Claude Code 中看到的内容](https://code.claude.com/docs/zh-CN/hipaa-setup.md#what-developers-see-in-claude-code)。如果 `Organization policy` 行报告策略未加载并提到了 web fetch，请按照该行给出的任何修复方法操作。一旦允许 WebFetch 的策略加载完成，WebFetch 就会恢复可用，无需重启。 |
+
+### 修复失败的 WebFetch 请求
+
+如果 Claude 说它无法获取某个页面，请在第一列中查找发生的情况。
+
+| 症状 | 处理方法 |
+| :- | :- |
+| 在云端会话中，Claude 说网络阻止了该域名 | 在云端会话中仅有允许规则是不够的。还需将该域名[添加](https://code.claude.com/docs/zh-CN/cloud-environments.md#allow-specific-domains)到云环境的网络访问中。 |
+| Claude 无法获取本地或内网服务器 | WebFetch [拒绝 `localhost`](https://code.claude.com/docs/zh-CN/errors#webfetch-cannot-fetch-localhost) 以及任何其他不含点的主机名。让 Claude 通过 Bash 工具使用 `curl` 访问该服务器。 |
+| Claude 报告重定向并就此停止 | 让 Claude 获取新的 URL。当重定向对主机的更改不仅仅是添加或删除 `www.` 时，WebFetch 会返回新的 URL，而不返回页面内容。 |
+| Claude 说下载超时 | 下载在五分钟后会失败。要更改该限制，请设置 [`CLAUDE_CODE_WEBFETCH_DEADLINE_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)。 |
+
+### 修复缺失或过时的页面内容
+
+Claude 的回复可能会遗漏页面上 Claude 未询问的任何内容。在终端中，按 `Ctrl+O` 可查看 Claude 提出的问题以及它收到的答案。
+
+| 症状 | 处理方法 |
+| :- | :- |
+| Claude 说页面没有涵盖您知道其中存在的内容 | 让 Claude 重新获取该页面，并告诉它要查找什么。如需原始页面，请让它通过 Bash 工具对该 URL 运行 `curl`。 |
+| Claude 遗漏了长页面的结尾部分，或说页面的一部分未被读取 | 让 Claude 获取页面的下一部分。这需要 Claude Code v2.1.290 或更高版本。[`web-fetch` 子代理](#web-fetch-subagent)会完整读取最多约 48,000 个字符的页面，而 Claude 调用 WebFetch 时，WebFetch 会读取前 100,000 个字符。 |
+| Claude 描述的是页面最近更改之前的样子 | WebFetch 会在 15 分钟内重复使用页面的副本。要更改该时长，请设置 [`CLAUDE_CODE_WEBFETCH_CACHE_TTL_MS`](https://code.claude.com/docs/zh-CN/env-vars#variables)。 |
+
+### 查明 WebFetch 不可用的原因
+
+如果 Claude 无法获取任何页面，请在会话中运行 `/status`，并检查 `Organization configuration` 和 `Organization policy` 行：
+
+* **`Organization configuration` 列出了 `HIPAA`**：WebFetch 已关闭。请参阅[开发者在 Claude Code 中看到的内容](https://code.claude.com/docs/zh-CN/hipaa-setup.md#what-developers-see-in-claude-code)。
+* **`Organization policy` 报告策略未加载并提到了 web fetch**：请按照该行给出的任何修复方法操作。一旦允许 WebFetch 的策略加载完成，WebFetch 就会恢复可用，无需重启。
+
+如果 `/status` 两者都未显示，请在[设置文件](https://code.claude.com/docs/zh-CN/settings.md#find-or-create-your-settings-files)中查找 `deny` 下的 `WebFetch`，或查找是否将 `CLAUDE_CODE_DISABLE_WEB_FETCH` 设置为 `1`。要重新启用 WebFetch，请删除该规则，或取消设置该变量并启动新会话。如果规则位于[托管设置](https://code.claude.com/docs/zh-CN/settings.md#check-what-your-organization-enforces)中，请让管理员将其删除。
 
 ### web-fetch 子代理
 
@@ -740,7 +766,7 @@ Claude 的回复可能会遗漏页面上 Claude 未询问的任何内容。在�
 
 您的 `WebFetch` [权限规则](https://code.claude.com/docs/zh-CN/permissions.md#webfetch)适用于 `web-fetch` 子代理获取的页面，匹配 `WebFetch` 的 `PreToolUse` 和 `PostToolUse` [hook](https://code.claude.com/docs/zh-CN/hooks.md) 也同样适用。
 
-| 如果您依赖 | 使用子代理时 | 处理方法 |
+| 您的配置 | 使用子代理时的变化 | 处理方法 |
 | :- | :- | :- |
 | 关于获取哪些页面的 CLAUDE.md 指令 | 子代理启动时不带您的 CLAUDE.md 文件，包括您组织的托管 CLAUDE.md | 使用 `WebFetch` 权限规则限制获取 |
 | `SubagentStart` 或 `SubagentStop` hook | 只有在[托管设置](https://code.claude.com/docs/zh-CN/managed-settings.md)中定义的 hook 会为此子代理运行 | 在任何其他设置文件中，使用匹配 `WebFetch` 的 `PreToolUse` 或 `PostToolUse` hook |

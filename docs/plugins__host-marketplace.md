@@ -14,8 +14,8 @@
 >
 > 这些情况在其他页面上有介绍：
 >
-> * **你还没有编写目录文件**：从 [创建 marketplace](https://code.claude.com/docs/zh-CN/plugins/create-marketplace.md) 开始
-> * **你是一个管理员，需要在你的组织机器上要求、限制或预安装 marketplace**：阅读 [为你的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)
+> * **您尚未编写目录文件**：请从[创建市场](https://code.claude.com/docs/zh-CN/plugins/create-marketplace.md)开始
+> * **您希望在组织内的各台机器上强制要求、限制或预安装市场**：请阅读[为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)
 
 从 [托管你的 marketplace](#host-your-marketplace) 开始选择一个主机和你的用户运行的命令。在你的第一次发布之前阅读 [保持用户更新](#keep-users-up-to-date)。在你更改插件的 `name` 之前阅读 [重命名或删除插件](#rename-or-remove-a-plugin)。
 
@@ -113,7 +113,7 @@ ln -s ../../shared-plugin/skills/foo ./skills/foo
 
 对于 GitHub Enterprise Server 主机，用户需要从他们的机器访问该主机的 git 访问权限。有关每个 Claude Code 表面需要到达 GHES 托管的 marketplace 的内容，请参阅 [GHES 上的插件 marketplace](https://code.claude.com/docs/zh-CN/github-enterprise-server.md#plugin-marketplaces-on-ghes)。
 
-如果你改为通过 claude.ai 上的 **组织设置 > 插件和技能** 分发，你的用户的 git 凭证不涉及。请参阅 [通过组织设置分发](#distribute-through-organization-settings)。
+如果您改为通过 claude.ai 上的 [**Organization settings > Plugins & skills**](https://claude.ai/admin-settings/skills?tab=inventory) 进行分发，则不涉及用户的 git 凭据。请参阅[通过组织设置分发](#distribute-through-organization-settings)。
 
 ### 为没有 git 主机账户的用户提供服务
 

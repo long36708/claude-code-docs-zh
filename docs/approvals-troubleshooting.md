@@ -84,12 +84,16 @@
 | "no key of this name is read at this place" | 对照[顶级键](https://code.claude.com/docs/zh-CN/approvals-policy.md#top-level-keys)和[规则键](https://code.claude.com/docs/zh-CN/approvals-policy.md#rule-keys)检查键的拼写和层级 |
 | "this names no fact and no usable classifier" | 对照[事实](https://code.claude.com/docs/zh-CN/approvals-policy.md#if)检查名称。对于 `repo/<name>`，检查策略文件旁边或其上级目录中的 `.claude/classifiers/<name>/def.yml` 是否能加载 |
 | "a condition has no NOT" | 改写为相反的运算符 |
+| "a login goes in single quotes inside a condition" | 如果该词是登录名，请将其放在单引号中，例如 `"pr/opened_by = 'ana-acme'"`。对于机器人，请写 `bot:` 加上其名称，不带引号，例如 `"pr/opened_by = bot:dependabot"` |
 | "no local has this name" | 在此文件或其上级的策略文件中定义该 local。登录名或团队名不要带 `@` |
 | "this is not YAML" | 在消息指出的行附近查找未闭合的引号或括号，或制表符。请使用空格缩进 |
 
 ## 分类器未给出答案或其定义被拒绝
 
-要查看每次[分类器](https://code.claude.com/docs/zh-CN/approvals-classifiers.md)运行的状态以及缺少答案的原因，请在 Claude 于 Pull Request 上的评论中打开 **Classifier results**。如果某次运行达到了预算，请拆分 Pull Request，或调高低于其[上限](https://code.claude.com/docs/zh-CN/approvals-classifiers.md#budget)的 `time` 或 `cost`。
+要查看每次[分类器](https://code.claude.com/docs/zh-CN/approvals-classifiers.md)运行的状态以及缺少答案的原因，请在 Claude 于 Pull Request 上的评论中打开 **Classifier results**：
+
+* **某次运行达到了预算**：拆分 Pull Request，或调高低于其[上限](https://code.claude.com/docs/zh-CN/approvals-classifiers.md#budget)的 `time` 或 `cost`
+* **某次运行需要读取的内容超出了单次运行的处理能力**，例如较大的 diff：请尝试使用较小的 Pull Request
 
 然后在此处找到 **Claude Approvals** 检查的标题：
 

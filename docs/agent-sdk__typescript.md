@@ -2088,7 +2088,8 @@ type SDKStartupFailureReason =
   | "org_config_required_unavailable"
   | "org_config_refused"
   | "sandbox_required_unavailable"
-  | "config_file_invalid";
+  | "config_file_invalid"
+  | "sideload_flags_disabled";
 ```
 
 每个值命名一个拒绝：
@@ -2116,6 +2117,7 @@ type SDKStartupFailureReason =
 | `org_config_refused` | Anthropic 拒绝为此次登录提供组织的策略和托管设置，例如因为登录已过期或被吊销，或组织不允许此账户使用 Claude Code。需要 Agent SDK v0.3.293 或更高版本 |
 | `sandbox_required_unavailable` | [`failIfUnavailable`](#sandboxsettings) 已开启且沙箱无法启动。`errors` 中的文本以 `Set sandbox.failIfUnavailable=false to allow unsandboxed execution.` 结尾。需要 Agent SDK v0.3.314 或更高版本 |
 | `config_file_invalid` | `~/.claude.json` 不是有效的 JSON。Claude Code 不会更改该文件，因此在有人修复它之前，重试会以同样的方式失败。`errors` 会指出该文件并说明如何恢复或修复它。请参阅 [\~/.claude.json 中的配置错误](https://code.claude.com/docs/zh-CN/errors.md#configuration-error-in-claude-json)。需要 TypeScript Agent SDK v0.3.318 或更高版本以及 Claude Code v2.1.318 或更高版本 |
+| `sideload_flags_disabled` | 某个标志或启动选项违反了托管的 [`disableSideloadFlags`](https://code.claude.com/docs/zh-CN/settings-reference#disablesideloadflags)。需要 TypeScript Agent SDK v0.3.331 或更高版本以及 Claude Code v2.1.331 或更高版本 |
 
 ### `SDKSystemMessage`
 

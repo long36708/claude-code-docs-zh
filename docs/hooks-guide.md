@@ -475,6 +475,7 @@ Claude Code 在其生命周期中的特定点触发 hook 事件。当事件触�
 | `Setup` | 当你使用 `--init-only` 启动 Claude Code，或在 `-p` 模式下使用 `--init` 或 `--maintenance` 时。用于 CI 或脚本中的一次性准备 |
 | `UserPromptSubmit` | 当提交提示词时，在 Claude 处理之前。对于 [Claude Code 自行发起的轮次](https://code.claude.com/docs/zh-CN/hooks.md#userpromptsubmit)也会触发 |
 | `UserPromptExpansion` | 当用户输入的命令扩展为提示词时，在到达 Claude 之前。可以阻止扩展 |
+| `PreSkillShellCommand` | 在 skill 的[注入的 shell 命令](https://code.claude.com/docs/zh-CN/skills.md#inject-dynamic-context)运行之前。可以阻止该命令 |
 | `PreToolUse` | 在工具调用执行之前。可以阻止它 |
 | `PermissionRequest` | 当工具调用需要权限决策时 |
 | `PermissionDenied` | 当自动模式拒绝工具调用时，包括没有分类器判决的拒绝。使用 JSON `hookSpecificOutput.retry: true` 来告诉模型它可以重试被拒绝的工具调用。Claude Code 在分类器未产生判决时忽略 `retry` |
@@ -694,6 +695,7 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 | `ElicitationResult` | MCP 服务器名称 | 与 `Elicitation` 相同的值 |
 | `FileChanged` | 要监视的文字文件名（请参阅 [FileChanged](https://code.claude.com/docs/zh-CN/hooks.md#filechanged)） | `.envrc\|.env` |
 | `UserPromptExpansion` | 命令名称 | 你的 skill 或命令名称 |
+| `PreSkillShellCommand` | 运行该命令的工具 | `Bash`、`PowerShell` |
 | `UserPromptSubmit`、`PostToolBatch`、`Stop`、`TeammateIdle`、`TaskCreated`、`TaskCompleted`、`WorktreeCreate`、`WorktreeRemove`、`CwdChanged`、`MessageDisplay` | 不支持匹配器 | 始终在每次出现时触发 |
 
 下面的选项卡显示不同事件类型上的更多匹配器示例。
@@ -805,7 +807,9 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 
 `if` 字段接受与权限规则相同的模式：`"Bash(git *)"`、`"Edit(*.ts)"` 等。要匹配多个工具名称，使用单独的处理程序，每个都有自己的 `if` 值，或在 `matcher` 级别匹配，其中支持管道交替。
 
-`if` 仅适用于工具事件：`PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest` 和 `PermissionDenied`。将其添加到任何其他事件会阻止 hook 运行。
+> [!NOTE]
+>
+> `if` 仅适用于 `PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest`、`PermissionDenied` 和 `PreSkillShellCommand`。如果将其添加到任何其他事件上，该 hook 不会运行。
 
 ### 配置 hook 位置
 

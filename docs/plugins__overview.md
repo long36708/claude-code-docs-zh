@@ -42,7 +42,7 @@ Claude Code 插件是一个目录，包含 skills、agents、hooks、MCP 服务�
 
 Skills、子代理、hooks 和 MCP 服务器都可以独立工作，无需插件。例如，您在 `~/.claude/skills/` 中保存的 skill 在您计算机上的每个项目中都可用。要单独设置其中一个，请参阅 [Skills](https://code.claude.com/docs/zh-CN/skills.md)、[Subagents](https://code.claude.com/docs/zh-CN/sub-agents.md)、[Hooks](https://code.claude.com/docs/zh-CN/hooks-guide.md) 或 [MCP](https://code.claude.com/docs/zh-CN/mcp.md)。
 
-当您想将多个 skills、子代理、hooks 或 MCP 服务器打包为一个单元时，请使用插件。安装一个以获得某人构建的设置，只需一个命令和来自其市场的更新。创建一个以将您自己的设置提供给团队成员，在许多项目中安装它，或发布版本化的发布版本。
+当您想将多个 skill、子代理、hook 或 MCP 服务器打包为一个单元时，请使用插件。安装一个以获得他人构建的设置，只需一个命令，并可从其市场获得更新。创建一个以分享您自己的设置、在许多项目中安装它，或发布版本化的发布版本。
 
 ### 启用的插件为您的会话添加的内容
 
@@ -122,6 +122,6 @@ Claude Code 在您第一次启动交互式终端会话时添加 Anthropic 的官
 
 * **分享您构建的内容**：[发布和分发插件](https://code.claude.com/docs/zh-CN/plugins/publish.md)，通过您自己的市场或 [Anthropic 的目录](https://code.claude.com/docs/zh-CN/plugins/publish.md#submit-to-anthropics-directory)
 * **检查它是否有效和被使用**：[使用 evals 测试插件](https://code.claude.com/docs/zh-CN/plugin-evals.md)和[测量插件成本和使用情况](https://code.claude.com/docs/zh-CN/plugins/measure.md)
-* **为您的团队运行市场**：[创建市场](https://code.claude.com/docs/zh-CN/plugins/create-marketplace.md)，然后[托管和维护市场](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)
+* **运行市场**：[创建市场](https://code.claude.com/docs/zh-CN/plugins/create-marketplace.md)，然后[托管和维护市场](https://code.claude.com/docs/zh-CN/plugins/host-marketplace.md)
 * **为组织设置插件策略**：[为您的组织管理插件](https://code.claude.com/docs/zh-CN/plugins/org.md)
 * **修复问题**：[插件故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md)

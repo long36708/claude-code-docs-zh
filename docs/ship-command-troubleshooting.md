@@ -107,7 +107,7 @@
 
 | 消息 | 含义 | 处理方法 |
 | :- | :- | :- |
-| `/ship didn't commit your uncommitted work` | 在可以启动监视的情况下，审查和监视会在不包含该工作的情况下继续进行，而您未推送的提交[可能会随 Claude 的下一次推送一起推送](https://code.claude.com/docs/zh-CN/ship-command.md#keep-working-while-a-watch-runs)。导致这种情况的情形包括：公开仓库、已开启自动合并、正在进行合并或变基，或者[无法启动监视](#no-watch-started)的会话 | 如果消息给出了一行 `git push`，请自行提交该工作，然后运行那一行。否则，请在消息提示时再次运行 `/ship` |
+| `/ship didn't commit your uncommitted work` | 原因包括公开仓库、已开启自动合并，以及正在进行合并或拣选（cherry-pick）。如果[无法启动监视](#no-watch-started)，审查会涵盖您未提交的工作。否则，审查不会涵盖这些工作，而您未推送的提交[可能会随 Claude 的下一次推送一起推送](https://code.claude.com/docs/zh-CN/ship-command.md#keep-working-while-a-watch-runs) | 如果消息给出了一行 `git push`，请自行提交该工作，然后运行那一行。否则，请在消息提示时再次运行 `/ship` |
 | `Nothing pushed` 或 `Nothing committed or pushed`，并附有一句关于您未推送提交的说明 | `/ship` 扣留了这些提交。不会启动审查或监视，并且该 Pull Request 上正在运行的监视会结束。原因之一是这些提交中包含名称类似 `password.txt` 的文件 | 如果这些提交应该推送，请运行消息中的 `git push` 行。如果不应推送，请从每个未推送的提交中移除该文件。然后再次运行 `/ship` |
 
 在 v2.1.331 之前，`/ship` 不会打印上述任一消息。一旦 Pull Request 已打开，它就不会提交您未提交的工作，因此请先提交，然后推送，例如在 shell 中运行 `git push origin <branch>`。它不会扣留您未推送的提交，这些提交[可能会随 Claude 的下一次推送一起推送](https://code.claude.com/docs/zh-CN/ship-command.md#keep-working-while-a-watch-runs)。
@@ -238,6 +238,24 @@
 | `Nothing started. A custom /ship isn't loaded`，或针对 `/steward` 的相同消息 | 要运行内置命令，请再次输入同一行。要运行自定义命令，请将其重命名，然后重新启动 Claude Code |
 
 请保持仓库中的 `.claude/skills/steward/SKILL.md` 原样，因为 PR Steward 和监视会将其作为指令读取。这两条消息都不会将此文件计算在内，因此提及 `/steward` 的消息指的是另一个 skill 或命令。
+
+### 无需重命名即可保留自定义的 /ship 或 /steward
+
+如果您已经创建了名为 `/ship` 或 `/steward` 的自定义 skill 或命令，并且不希望内置版本覆盖它，可以关闭内置版本。为此，请使用 `CLAUDE_CODE_DISABLE_SHIP` 环境变量，它会同时关闭这两个命令，并且需要 Claude Code v2.1.331 或更高版本。在设置它之前，请在 `skillOverrides` 下[删除您的命令的所有 `"off"` 条目](#a-skilloverrides-entry-turns-off-%2Fship-or-%2Fsteward)。
+
+将此 [`env`](https://code.claude.com/docs/zh-CN/settings-reference#env) 条目添加到您的[用户设置文件](https://code.claude.com/docs/zh-CN/settings.md#settings-files-and-who-they-affect)，或添加到项目的 `.claude/settings.json` 中（适用于在其顶层文件夹中启动会话的所有人），然后重新启动 Claude Code：
+
+```json theme={null}
+{
+  "env": {
+    "CLAUDE_CODE_DISABLE_SHIP": "1"
+  }
+}
+```
+
+要检查您的命令是否已加载，请在 Claude Code 输入框中输入 `/`，并查找其描述或第一行。
+
+如果您的命令名为 `steward`，且仓库中有 `.claude/skills/steward/SKILL.md` 文件，请查看[实际运行的是哪一个](https://code.claude.com/docs/zh-CN/skills.md#resolve-skills-that-share-a-name)。
 
 ## 相关资源
 

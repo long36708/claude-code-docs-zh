@@ -33,7 +33,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | 参数 | 说明 |
 | :- | :- |
 | [`$`](https://code.claude.com/docs/zh-CN/plugins/mods/events#how-a-hook-handles-an-event) | mods API：[mods API 方法](#mods-api-methods)中的所有方法。每次调用都要完整写出，先写命名空间再写方法，如 `$.fs.read('notes.md')`。 |
-| [`e`](https://code.claude.com/docs/zh-CN/plugins/mods/events#how-a-hook-handles-an-event) | 事件的输入，为深度冻结的纯数据。要更改它，请将副本传给 `next`。 |
+| [`e`](https://code.claude.com/docs/zh-CN/plugins/mods/events#how-a-hook-handles-an-event) | 事件的输入。要更改它，请将副本传给 `next`。 |
 | [`next(e)`](https://code.claude.com/docs/zh-CN/plugins/mods/events#how-a-hook-handles-an-event) | 下一个处理程序，类似中间件。先运行此 hook 之后的 hook，再运行 Claude Code 的行为。解析为事件的结果。 |
 | [`next.signal`](https://code.claude.com/docs/zh-CN/plugins/mods/api#stop-background-work) | 一个 `AbortSignal`，在事件被放弃时中止 |
 | `next.origin` | 触发该事件者的 `{ plugin, tier }`。Claude Code 自身为 `{ plugin: 'engine', tier: 'core' }`。mod 的 `tier` 是它在 [mod 运行顺序](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#the-order-mods-run-in)中的优先级组：`prepend`、`user`、`append` 或 `builtin`。 |
@@ -59,6 +59,7 @@ mod 通过在 `register` 内调用 `on` 来注册它的每个 hook（即事件�
 | `tool.judge` | [自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)即将就某个调用询问其分类器。需要 Claude Code v2.1.326 或更高版本。 | `next(e)` 或 `{ decision }` |
 | `tool.run` | 某个已允许的调用即将运行。需要 Claude Code v2.1.326 或更高版本。 | `next(e)`、`{ deny: reason }` 或 `{ result }` |
 | `tool.describe` | 每个工具一次，在其描述首次发送给 Claude 时。对于 MCP 工具，当 Claude 通过[工具搜索](https://code.claude.com/docs/zh-CN/mcp.md#scale-with-mcp-tool-search)加载它时会再触发一次，此时 `e.description` 设为 Claude 针对已加载工具读取的文本。 | `{ description }`，可选择将 `isDeferred` 设为 `true` 以将该工具置于工具搜索之后，或设为 `false` 以预先加载它。添加 [`breakPromptCache: true`](#break-prompt-cache) 可在下一轮次发送更改后的描述。 |
+| `tool.offer` | Claude Code 构建 Claude 的工具列表时，以及 Claude 调用工具时再次触发。需要 Claude Code v2.1.328 或更高版本。 | `next(e)`，或 `{ isOffered: false }` 以不向 Claude 提供该工具。请参阅[发送更改后的工具列表](#send-a-changed-tool-list)。 |
 
 #### `tool.check` 上的 Agent 和组织字段
 
@@ -115,6 +116,10 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 
 更改后的文本会在下一轮次传达给 Claude，并且[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md)会重新开始，因此该轮次会更慢且成本更高。该字段需要 Claude Code v2.1.321 或更高版本。从 v2.1.299 到 v2.1.321 之前，正在运行的对话会在下一轮次获得更改后的文本。
 
+#### 发送更改后的工具列表
+
+要更改主对话的工具列表，请调用 `$.ui.invalidate('tool.offer')`，并从您的 `tool.offer` hook 返回 `{ isOffered, breakPromptCache: true }`。随后[提示缓存](https://code.claude.com/docs/zh-CN/prompt-caching.md)会重新开始。需要 Claude Code v2.1.331 或更高版本。
+
 ### 命令和配置
 
 | 事件 | 触发时机 | hook 可以返回 |
@@ -138,7 +143,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | :- | :- | :- |
 | [`turn.start`](https://code.claude.com/docs/zh-CN/plugins/mods/events#follow-a-turn) | 轮次开始 | `next(e)` |
 | [`turn.step`](https://code.claude.com/docs/zh-CN/plugins/mods/events#follow-a-turn) | 一个请求即将发往模型 | `yield* next(e)`，或 `next({ ...e, model })`、`next({ ...e, effort })` |
-| [`turn.complete`](https://code.claude.com/docs/zh-CN/plugins/mods/events#follow-a-turn) | 轮次结束 | `next(e)`，或 `{ text }` 以在回答下方显示一行 |
+| [`turn.complete`](https://code.claude.com/docs/zh-CN/plugins/mods/events#follow-a-turn) | 轮次结束 | `next(e)`，或 `{ text }` 以在主对话的回答下方显示一行 |
 
 ### 会话
 
@@ -181,6 +186,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | [`ui.render`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | 某个[渲染位置](#render-sites)即将被绘制 |
 | `ui.resolve` | mod 加载时，每个应用、渲染位置和 mod 各一次。其结果是 `$.ui.resolve(e)` 读取的元素表。 |
 | [`ui.press`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing), [`ui.input`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing), [`ui.select`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#respond-to-presses-and-typing) | mod 绘制的 `Button`、`Input` 或 `Select` 被使用 |
+| [`ui.pointer`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#animate-a-backdrop-with-a-shader) | 用户点击您的 mod 背景中未被应用覆盖的部分。需要 Claude Code v2.1.326 或更高版本。 |
 | `ui.focus`, `ui.scroll` | 获得焦点的控件，或窗格或横栏的滚动位置即将更改 |
 | `ui.close` | 窗格即将关闭。`e.id` 是该窗格，`e.origin.kind` 为 `plugin`、`person` 或 `unload`。 |
 | [`ui.message`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `Client` 元素向其 mod 发送数据 |
@@ -236,17 +242,17 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | :- | :- |
 | `$.plugin` | `name`、`root`：此插件的名称和目录 |
 | [`$.ui`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `resolve`、`invalidate`、`open`、`close`、`panes`、[`place`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#place-a-row-in-the-transcript)、`focus`、`scroll`、`toast`、`notify`、`status`、`log`、`notice`、`ask`、`copy`、`selection`、`blit`、`view`。`view` 需要 Claude Code v2.1.300 或更高版本，`place` 需要 v2.1.314 或更高版本。 |
-| [`$.theme`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `set`、`clear`：设置一个由 Desktop 或移动应用绘制的背景，以及移除该背景。需要 Claude Code v2.1.319 或更高版本。 |
+| [`$.theme`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `set`、`clear`：设置一个由 Desktop 或移动应用绘制的背景，以及移除该背景。需要 Claude Code v2.1.319 或更高版本。[消息样式](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#style-messages-in-the-desktop-app)和[声音](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#add-sound-to-a-theme)需要 v2.1.329 或更高版本。 |
 | [`$.command`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-command) | `register`、`run`、`list` |
 | [`$.tool`](https://code.claude.com/docs/zh-CN/plugins/mods/api#add-a-tool) | `register`、`call`、`check`、`list` |
 | `$.agent` | `register`、`spawn`、`call`、`list`、`limits`。`call` 和 `limits` 需要 Claude Code v2.1.326 或更高版本。`list()` 返回此会话的子代理和队友，每项都带有 `status`，其值为 `pending`、`running`、`waiting`、`idle`、`completed`、`failed` 或 `killed` 之一，其中 `idle` 和 `waiting` 需要 Claude Code v2.1.289 或更高版本。 |
 | [`$.model`](https://code.claude.com/docs/zh-CN/plugins/mods/api#call-a-model) | `complete`、`fork`、`classify` |
 | [`$.prompt`](https://code.claude.com/docs/zh-CN/plugins/mods/api#start-a-turn-from-a-background-job) | `submit`、`read`、`fill`、`suggest`、`compose`。Claude 读取来自 `submit({ text })` 的文本时，前面会有一句指明您的 mod 为发送者的话。`submit({ text, asUser: true })` 将文本作为用户自己的话发送，不带那句话。 |
 | `$.turn` | `abort` |
-| [`$.session`](https://code.claude.com/docs/zh-CN/plugins/mods/api#send-and-receive-messages-between-sessions) | `messages`、`cwd`、`root`、`model`、`turns`、`id`、`repo`、`surfaces`、`usage`、`version`、`info`、`compact`、`send`、`append`、`authorize`。`info` 需要 Claude Code v2.1.326 或更高版本。`usage()` 返回 `{ startedAt, context, rateLimits, cost }`：`context` 包含 `tokens`、`window` 和 `percent`，`rateLimits` 是由 `{ kind, percentUsed, resetsAt }` 组成的列表。 |
+| [`$.session`](https://code.claude.com/docs/zh-CN/plugins/mods/api#send-and-receive-messages-between-sessions) | `messages`、`cwd`、`root`、`model`、`turns`、`id`、`repo`、`surfaces`、`usage`、`version`、`info`、`compact`、`send`、`append`、`authorize`、`redact`。`info` 需要 Claude Code v2.1.326 或更高版本。`redact` 是一种尽力而为、仅针对凭据的脱敏遮盖，需要 v2.1.331 或更高版本。`usage()` 返回 `{ startedAt, context, rateLimits, cost }`：`context` 包含 `tokens`、`window` 和 `percent`，`rateLimits` 是由 `{ kind, percentUsed, resetsAt }` 组成的列表。 |
 | `$.config` | `list`、`set` |
 | [`$.settings`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `read` |
-| [`$.env`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `get`、`set` |
+| [`$.env`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `get`、`set`。被拒绝的 `set` 要么 reject，要么 resolve 为 `{ deny }`。`{ deny }` 结果需要 Claude Code v2.1.301 或更高版本。 |
 | [`$.fs`](https://code.claude.com/docs/zh-CN/plugins/mods/api#reach-files-processes-and-the-network) | `read`、`write`、`list`、`exists`、`stat`、`ancestors`。`write` 不是原子操作：它会原地替换文件内容，因此另一个进程可能读到只写了一部分的文件。请将多个会话都会更改的数据保存在 `$.store` 中。 |
 | [`$.store`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#keep-state) | `get`、`set`、`delete`、`keys`。一个由本机所有会话共享的键值存储。请参阅[从多个会话保存](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#save-from-more-than-one-session)。 |
 | [`$.state`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#keep-a-value-in-\$-state) | 响应式状态：`get`、`set`，以及从 `claude-code` 导入的辅助函数 `atom`、`read`、`update`、`derive` 和 `memberOf` |
@@ -258,6 +264,8 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | `$.audio` | `play`、`speak` |
 | `$.telemetry` | `log`、`mark`。仅当由 Claude Code 或内置 mod 发出调用时，才会发送记录。 |
 
+在终端中，`$.ui.view({ agentId })` 显示某个 Agent 的会话记录，`$.ui.view({})` 则切换回来。请从命令或按钮中调用其中任一方法。由计时器发出的调用会 resolve 为 `{ deny: 'not person-initiated' }`。
+
 ## 渲染位置
 
 渲染位置是 Claude Code 界面中的扩展点。每一行是 `ui.render` hook 中 `e.component` 的一个值，并列出了 `e.props` 的字段以及渲染它的应用。`e.surface` 指明正在绘制的应用，例如 `terminal`、`desktop` 或 `vscode`。[更改 Claude Code 已绘制的内容](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#change-what-claude-code-already-draws)展示了 hook 在某个位置可以做什么，并为每种选择提供了示例。
@@ -267,8 +275,11 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | 位置 | `e.props` | `e.requestId` | 渲染于 |
 | :- | :- | :- | :- |
 | [`Pane`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `title`、`isFocused`、`bodyColumns`、`placement`、`scroll`、`view` | 窗格的 `id` | 终端、Desktop、VS Code |
-| [`AbovePrompt`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `hasSurvey`、[`isCollapsed`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#when-the-user-collapses-the-band)、`isWorking`、`maxRows`、`bodyColumns`、`scroll`、`view` | 单一实例 | 终端、Desktop |
-| `AbovePromptList`，即由 `AbovePrompt` 行组成的堆栈 | `rows`，一个列表，其中每个 mod 的行对应一个 `{ plugin, tree }`，外加 `AbovePrompt` 的 prop | 单一实例 | 终端、Desktop。需要 Claude Code v2.1.323 或更高版本。 |
+| [`AbovePrompt`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#pick-where-to-draw) | `hasSurvey`、[`isCollapsed`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#when-the-user-collapses-the-band)、`isWorking`、`maxRows`、`bodyColumns`、`scroll`、`view` | 单一实例 | 终端、Desktop、VS Code |
+| `AbovePromptList`，即由 `AbovePrompt` 行组成的堆栈 | `rows`，一个列表，其中每个 mod 的行对应一个 `{ plugin, tree }`，外加 `AbovePrompt` 的 prop | 单一实例 | 终端、Desktop、VS Code。需要 Claude Code v2.1.323 或更高版本。 |
+| `BesidePrompt`，即输入框右侧的一个单元格 | `maxColumns`、`floatRows`、`floatColumns`、`isWorking`、`view` | 单一实例 | 处于[全屏渲染](https://code.claude.com/docs/zh-CN/fullscreen.md)的终端、Desktop。需要 Claude Code v2.1.331 或更高版本。 |
+| `Underlay`，即仅在界面空白处可见的图层 | `columns`、`rows`、`isWorking`、`view` | `site:underlay` | 处于全屏渲染的终端。需要 Claude Code v2.1.331 或更高版本。 |
+| `BesidePromptList` 和 `UnderlayList`，即 `BesidePrompt` 单元格和 `Underlay` 图层的顺序 | `plugins` | 单一实例 | 与其所排序的位置相同的应用。需要 Claude Code v2.1.331 或更高版本。 |
 | [`Placed`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#place-a-row-in-the-transcript) | `id`、`plugin`、`onScreen` | `$.ui.place` 返回的 `requestId` | 终端 |
 | [`Backdrop`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#put-a-backdrop-behind-the-conversation) | `scene`、`plugin`、`glass`、`overrideColorScheme`。在 v2.1.323 之前，`scene` 为 `id`，`overrideColorScheme` 为 `colorScheme`。 | `backdrop` | `desktop` 和 `mobile` 使用入口。当 Desktop 或移动应用请求绘制背景时，您的 hook 会运行。 |
 | `UserMessage` | `text`、`origin`、`isExpanded`，以及视来源而定的 `task` 或 `from` | 所绘制行的 id | 终端、Desktop、VS Code |
@@ -309,6 +320,7 @@ mods API 是每个 hook 接收的 `$` 参数。它的方法按命名空间分组
 | [`Input`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#take-typed-input-and-draw-a-row-for-each-item) | `key`、`label`、`placeholder`、`value`、`submitLabel`、[`rows`](https://code.claude.com/docs/zh-CN/plugins/mods/gallery#input)、`onSubmit`、`onInput`、`autoFocus` | ✓ | ✓ | ✓ |
 | `Select` | `key`、`label`、`options`、`value`、`onSelect`、`autoFocus` | ✓ | ✓ | ✓ |
 | `Svg` | 最多 131,072 个字符的 SVG 标记 `source`、`alt` 文本、`width`、`height` 以及 `isInteractive` | | ✓ | ✓ |
+| [`Shader`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#animate-a-backdrop-with-a-shader) | `module`、`values` 以及一个 `Svg` 子元素。仅在 [`Backdrop`](#render-sites) 中绘制。需要 Claude Code v2.1.326 或更高版本。 | | ✓ | |
 | [`Client`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#build-a-tree-from-elements) | `module`、`key`、`props`、`width`、`height`、`flexGrow` | ✓ | ✓ | |
 | [`Raster`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#draw-a-grid-of-colored-cells) | `key`、`columns`（最多 512）、`rows`（最多 256）、`cells`。请参阅[绘制彩色单元格网格](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#draw-a-grid-of-colored-cells)。 | ✓ | | |
 | `Image` | `key`、`source`（例如最多 2 MiB 的 PNG 或 RGBA 字节，或文件路径）、`columns` 和 `rows`（最多 255），以及 `alt` 文本。请参阅[哪些终端会绘制它](https://code.claude.com/docs/zh-CN/plugins/mods/gallery.md#image-and-client)。 | ✓ | | |
@@ -413,10 +425,12 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | `$.model.complete` `maxTokens` | 默认 1024，最多 64,000 或模型的输出上限 |
 | `$.fs.read` 和 `$.fs.write` | 单个文件 4 MiB。在 v2.1.326 或更高版本中，可使用 `$.fs.read(path, { offset, length })` 分段读取更大的文件，两者均以字节为单位。 |
 | `$.http.fetch` 请求正文 | 4 MiB，按字符计算。正文更大的调用会被拒绝。 |
-| `$.http.fetch` 响应正文 | 4 MiB。`text` 保存前 4 MiB，其余部分不会被读取。当 `Content-Length` 标头声明的大小超出此限制时，该调用会改为被拒绝，拒绝原因以 `is over the 4194304-byte limit` 结尾，但经过所有重定向后的最后一个请求使用 `HEAD` 方法时除外。`HEAD` 例外需要 Claude Code v2.1.296 或更高版本。 |
+| `$.http.fetch` 响应正文 | 4 MiB。`text` 保存前 4 MiB，其余部分不会被读取。当 `Content-Length` 标头声明的大小超出此限制时，该调用会改为被拒绝，拒绝原因以 `is over the 4194304-byte limit` 结尾。对于 204、205 或 304 响应，以及经过所有重定向后的最后一个请求使用 `HEAD` 方法时，该调用会忽略此标头。`HEAD` 情况需要 Claude Code v2.1.296 或更高版本，其他情况需要 v2.1.299 或更高版本。 |
 | 单次 `$.http.fetch` 调用（包括重定向和正文） | 30 秒 |
 | 单次 `$.http.fetch` 调用跟随的重定向次数 | 5 |
 | hook 的 `drop` 原因或 `config.set` 的 `deny` 原因 | 4,096 个字符。更长的原因会被截去末尾部分，drop 或 deny 仍然生效。截断需要 Claude Code v2.1.292 或更高版本；在更早的版本中，该 hook 会改为[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)。 |
+| 所有 mod 在[问题对话框上方](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#change-what-claude-code-already-draws)的元素 | 终端中 12 行，Desktop 应用或 VS Code 扩展中 48 行，按 40 列宽度计算。超出此限制时，对话框会出现，但不显示您的元素。 |
+| 调用另一个 mod 在 [`engine.create`](#other-mods) 中添加的方法 | 10 秒。超过此时间后，调用会被拒绝，拒绝原因以 `did not answer within 10000ms` 结尾。 |
 | 单个树中的文本 | 仅绘制前 100,000 个字符 |
 | `Code` 的 `language` 或 `path`、`Select` 选项的 `value`，或 `Client` 的 `module` | 10,000 个字符。如果其中任何一项超出此长度，返回它的 `ui.render` hook 会[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)。 |
 | `Link` 的 `href` | 2,048 个字符。如果超出此长度，返回它的 `ui.render` hook 会[失败](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#handle-a-hook-that-fails)。 |
@@ -428,7 +442,10 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | 单个树中所有 `Image` 的 PNG 或 RGBA 字节数 | 2 MiB |
 | `$.store` | JSON 总计 4 MiB |
 | `$.session.messages()` | 最新的 4,096 个条目 |
+| 传递给 `$.session.redact` 的文本 | 100,000 个字符。文本更长的调用会被拒绝。 |
 | `$.ui.invalidate('ui.render')` 重绘 | 限制为每秒 10 次；在终端中，对于可见窗格、展开区域以及输入框下方的提示行，限制为每秒 30 次。更早到达的调用会被合并。 |
+| [`ui.pointer`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#animate-a-backdrop-with-a-shader) 点击 | 每秒两次。应用会丢弃其余的点击。 |
+| [`Shader`](https://code.claude.com/docs/zh-CN/plugins/mods/interface#animate-a-backdrop-with-a-shader) 的 `values` | 八个数字 |
 | `$.ui.toast` | 显示 4 秒，除非您传入 `{ timeoutMs }`。在[经典渲染器](https://code.claude.com/docs/zh-CN/fullscreen.md#enable-fullscreen-rendering)中，mod 较新的 toast 可能会[取代其较早的 toast](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#a-toast-doesn’t-appear)，无论较早的 toast 正在显示还是正在等待显示。 |
 | 非用户主动打开的窗格 | 终端至少 144 列宽时放置；用户打开过一次后，110 列宽即可 |
 | 单个 mod 在一个对话中同时拥有的来自 `$.ui.place` 的行 | 500。达到此限制时，使用新 `id` 的调用会解析为 `{ isPlaced: false, reason: 'a plugin holds at most 500 placed rows' }`。 |
@@ -468,5 +485,5 @@ hook 和 mods API 调用受时间和大小限制。Claude Code 会跳过超出�
 | [`/plugin`](https://code.claude.com/docs/zh-CN/plugins/mods/overview#see-which-mods-a-session-loaded) | 当有非内置的 mod 加载时，在其标签页下方显示一行，例如 `1 mod active · first-mod` |
 | [`claude plugin validate <directory>`](https://code.claude.com/docs/zh-CN/plugins/mods/create#check-what-claude-code-reads-from-your-mod) | 读取插件的清单和 hook 模块，并报告错误、它处理的事件以及它发出的 mods API 调用。`--strict` 将警告视为错误，`--json` 打印机器可读的报告。 |
 | [`claude plugin test [directory]`](https://code.claude.com/docs/zh-CN/plugins/mods/test#write-a-test) | 运行该目录（如果未指定目录，则为当前目录）下名称以 `.test.ts` 或 `.test.tsx` 结尾的每个文件。有测试失败时以状态 1 退出。 |
-| [`claude --plugin-dir <directory>`](https://code.claude.com/docs/zh-CN/plugins/mods/create#write-a-mod-yourself) | 为一个会话加载插件目录，并在您保存时重新加载其 hook 模块。重复该标志可加载多个目录。 |
+| [`claude --plugin-dir <directory>`](https://code.claude.com/docs/zh-CN/plugins/mods/create#write-a-mod-yourself) | 为一个会话加载插件目录。在交互式终端会话中，会在您保存时重新加载 hook 模块。重复该标志可加载多个目录。 |
 | `/reload-plugins` | 在您运行时重新加载插件 |

@@ -79,7 +79,7 @@ Turned on voice mode (hold). Hold space to record. Dictation language: en (/conf
 
 默认情况下，释放键会插入转录并等待你按 `Enter`。在 `voice` 设置对象中设置 `"autoSubmit": true` 以在释放键时自动发送提示词，只要转录至少有三个单词。
 
-按住或点击 `Space` 仅在该按键原本会输入到提示词中的位置开始听写。在[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)中，`Space` 用于翻页浏览对话；在 [vim 模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode)的非 INSERT 状态下，它是一个命令。要在这两个位置进行听写，请[重新绑定到修饰符组合](#rebind-the-dictation-key)，如 `meta+k`。
+按住或点击 `Space` 仅在该按键原本会输入到提示词中的位置开始听写。在[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer)中，`Space` 用于翻页浏览对话；在 [vim 模式](https://code.claude.com/docs/zh-CN/interactive-mode.md#vim-editor-mode)的非 INSERT 状态下，它是一个命令。要在非 INSERT 状态下听写，或在会话记录查看器中以按住模式听写，请[重新绑定到修饰键组合](#rebind-the-dictation-key)，如 `meta+k`。
 
 ## 点击录音并发送
 
@@ -87,17 +87,42 @@ Turned on voice mode (hold). Hold space to record. Dictation language: en (/conf
 
 使用 `/voice tap` 启用点击模式。当提示词输入为空时，点击 `Space` 开始录制。页脚在录制时显示 `● REC · tap to send`。再次点击 `Space` 停止。
 
-Claude Code 插入转录并在转录至少有三个单词时自动提交提示词。较短的转录被插入但不提交，所以意外点击不会发送一个杂散的单词。
+第二次点击后，Claude Code 会插入会话记录，并在会话记录足够长时提交提示词：
+
+* **三个单词或以上**：Claude Code 自动提交提示词。
+* **少于三个单词**：会话记录被插入但不提交，因此意外点击不会发送一个杂散的单词。
 
 三个单词的阈值计算不使用空格书写的语言中的单词。日语、中文和泰语转录计算单个单词，所以它们在点击模式和带有 `autoSubmit` 的保持模式下自动提交。
 
-第一次点击仅在提示词输入为空时开始录制，所以你仍然可以在撰写消息时正常输入空格。第二次点击停止录制，无论输入内容如何。录制也会在 15 秒无声或总共两分钟后自动停止。
+点击一次即可开始或继续录制，录制也可能无需第二次点击就停止：
+
+* **开始**：仅当提示词输入为空时，第一次点击才会开始录制，因此您在撰写消息时仍然可以正常输入空格。要在已自行停止的录制基础上继续添加内容，请[继续录制](#resume-a-recording-that-stopped-by-itself)。
+* **停止**：当您发送或编辑提示词时，录制也会停止。在 60 秒内未识别到任何单词或总时长达到 10 分钟后，录制会自行停止。
+
+### 继续已自行停止的录制
+
+当点击模式的录制自行停止时，您说的内容会保留在提示词中而不会发送，页脚会显示停止原因。您可以发送这些内容；如果尚未编辑过它们，也可以继续添加：
+
+* **发送内容**：按 `Enter`。
+* **添加内容**：将光标放在内容末尾，然后点击 `Space` 再次录制。当您再次点击停止时，如果您至少添加了三个单词，Claude Code 会发送全部文本。
+
+要查看录制停止的原因，请在页脚消息中找到以 `dictation stopped` 开头的部分：
+
+| 消息 | 录制停止的原因 |
+| :- | :- |
+| `dictation stopped after 1m with no new words` | 60 秒内未识别到任何单词。如果您当时正在说话，请尝试 [`No speech detected`](#troubleshooting) 的修复方法 |
+| `dictation stopped at its 10m limit` | 录制时长达到 10 分钟 |
+| `dictation stopped: lost the connection` | 与转写服务的连接已关闭，或在连接失败后无法重新建立 |
+| `dictation stopped: lost the microphone` | 录制麦克风的程序（例如 SoX 或 `arecord`）已退出或无法启动 |
+| `dictation stopped: the prompt lost focus` | 打开了某个面板（例如模型选择器），或者您打开了[会话记录查看器](https://code.claude.com/docs/zh-CN/interactive-mode.md#transcript-viewer) |
+| `dictation stopped: the terminal detached` | 最后一个剩余的终端已从[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)分离 |
+| `dictation stopped: the prompt changed` | 提示词的文本发生了变化，例如因为您在其中输入了内容。要再次听写，请先发送或清除提示词 |
 
 ## 取消录音
 
-按 `Esc` 或 `Ctrl+C` 可以取消听写，而不是完成它。Claude Code 会停止麦克风，丢弃转录文本，并将提示恢复到录音开始前的状态。
+在没有打开任何面板、问题或权限提示时，按 `Esc` 或 `Ctrl+C` 可以取消听写，而不是完成它。Claude Code 会停止麦克风，丢弃会话记录，并将输入框恢复到录音开始前的内容。
 
-这两个键也可以在完成的录音的转录文本仍在处理时取消。在处理期间编辑或提交的提示会保持您留下的状态。
+在输入框中，当已完成录音的会话记录仍在处理时，这两个键也可以取消。在处理期间编辑或提交的输入框内容会保持您留下的状态。
 
 这两个键在取消的按键中不执行任何其他操作：`Esc` 不会中断 Claude 的响应，`Ctrl+C` 不会清除提示或计为 [退出 Claude Code 的两次按键中的第一次](https://code.claude.com/docs/zh-CN/interactive-mode.md#general-controls)。
 
@@ -177,13 +202,20 @@ Claude Code 插入转录并在转录至少有三个单词时自动提交提示�
 * **`Voice mode could not find a working audio recorder in WSL`**：WSLg 通过 PulseAudio 而不是 ALSA 设备路由音频，因此 SoX 需要显式安装其 PulseAudio 后端。运行 `sudo apt install sox libsox-fmt-pulse`。单独安装 `sox` 会拉入 ALSA 后端，它无法在 WSL 上录制，因为没有 `/dev/snd` 设备。
 * **`Voice input is failing repeatedly and has been paused`**：语音听写在 10 秒内遇到三次失败。Claude Code 暂停听写，直到自第一次失败以来已经过了 10 秒。这通常意味着此主机上的麦克风或音频堆栈无法捕获音频，例如无头服务器、没有音频直通的远程 shell 或被拒绝的麦克风权限。确认工作输入设备，从上面的条目中修复根本原因，然后再次触发语音。在 v2.1.202 之前，只有启动失败计入暂停。
 * **在按住模式中按住 `Space` 时没有任何反应**：在按住时观察提示词输入。如果空格不断累积，语音听写可能已关闭；运行 `/voice hold` 启用它。如果只出现一两个空格然后没有任何反应，语音听写已打开但按住检测未触发。按住检测需要你的终端发送按键重复事件，所以如果在操作系统级别禁用了按键重复，它无法检测按住的键。使用 `/voice tap` 切换到点击模式以避免按键重复要求。
-* **在点击模式中点击 `Space` 输入空格而不是录制**：第一次点击仅在提示词输入为空时开始录制。先清除输入，或通过运行 `/voice tap` 检查你是否处于点击模式。
+* **在点击模式中点击 `Space` 输入空格而不是录制**：当提示词中有文本且您未在[恢复录制](#resume-a-recording-that-stopped-by-itself)时，`Space` 会输入空格。要录制，请先发送或清除提示词。如果提示词已为空，请运行 `/voice tap` 打开点击模式。
 * **`No audio detected from microphone`**：录制开始但捕获了静音。确认正确的输入设备设置为系统默认值，其输入级别未静音或接近零。在 Windows 上，打开设置 → 系统 → 声音 → 输入并选择你的麦克风。在 macOS 上，打开系统设置 → 声音 → 输入。
 * **`Voice connection failed`**：你的录制从未到达转录服务，因为连接失败。检查你的网络并重试。捕获无音频的录制报告 `No audio detected from microphone` 而不是此消息。在 v2.1.200 之前，静音麦克风可能报告连接失败，这表示网络问题，而实际问题是输入设备。
 * **`Dictation error: WebSocket error:` 后跟证书错误，例如 `unable to get local issuer certificate`**：请参阅 VS Code 页面上的[在执行 TLS 检查的代理后听写或 Web 选项卡失败](https://code.claude.com/docs/zh-CN/vs-code.md#dictation-or-the-web-tab-fails-behind-a-tls-inspecting-proxy)。
 * **`Voice stream error: WebSocket upgrade rejected with HTTP <status>`**：服务器以显示的 HTTP 状态拒绝了你的连接，所以这不是网络中断。400 范围内的状态通常意味着过期的登录、代理或机器人保护服务代替转录服务进行应答。运行 `/login` 刷新你的登录，如果状态仍然存在，请检查你的网络路径上是否有 VPN 或代理。如果拒绝到达时你仍在录制，Claude Code 会在显示此消息之前重试一次 400 范围外的状态；它不会重试 400 范围内的状态。在 v2.1.229 到 v2.1.231 中，本机构建没有显示此消息：Claude Code 继续录制，按住模式页脚仍然显示 `listening…`，在你停止录制后报告 `Voice connection failed`。
 * **`No speech detected`**：音频到达转录服务但未识别任何单词。靠近麦克风说话，减少背景噪音，并确认你的[听写语言](#change-the-dictation-language)与你说话的语言匹配。
-* **`Dictation stopped: no speech recognized for 15 seconds` 或 `Dictation stopped at its 2-minute limit`**：在 VS Code 扩展中，如果 15 秒内没有识别到任何单词，或在开始两分钟后，录制就会结束。如果您在这 15 秒内一直在说话，请尝试 `No speech detected` 的修复方法。已识别的单词会保留在输入框中，不会被发送。要添加更多内容，请再次单击麦克风按钮。
+* **终端页脚中显示 `text kept, Enter to send` 或 `dictation stopped`**：您的点击模式录制在没有第二次点击的情况下停止了。仍在提示词中的单词尚未发送。按 `Enter` 发送它们，或[继续添加内容](#resume-a-recording-that-stopped-by-itself)。在 v2.1.332 之前，录制会在 15 秒内未识别到任何单词后或两分钟后停止，然后 Claude Code 会发送包含三个或更多单词的听写文本。
+* **`Dictation stopped: no speech recognized for 60 seconds`、`Dictation stopped at its 10-minute limit` 或 `Dictation stopped: this panel was hidden`**：VS Code 扩展停止了您的录制。已识别的单词会保留在输入框中，不会被发送。要添加更多内容，请再次单击麦克风按钮。面板隐藏时限制更短：
+
+  * **可见面板**：在连接和麦克风正常的情况下，如果 60 秒内没有识别到任何单词，或在开始 10 分钟后，录制就会结束。如果您在这 60 秒内一直在说话，请尝试 `No speech detected` 的修复方法。
+  * **隐藏面板**：隐藏面板后，如果 15 秒内没有识别到任何单词，或在隐藏面板两分钟后，录制就会结束。听写时请保持面板可见。
+
+  在 v2.1.332 之前，前两条消息是 `Dictation stopped: no speech recognized for 15 seconds` 和 `Dictation stopped at its 2-minute limit`。
+* **`Dictation error: The microphone stopped sending audio`**：已识别的单词会保留在 VS Code 扩展的输入框中，不会被发送。要重试，请单击麦克风按钮。
 * **转录是乱码或使用了错误的语言**：听写默认为英语。如果你用另一种语言听写，请先在 `/config` 中设置它。请参阅[更改听写语言](#change-the-dictation-language)。
 
 ### 终端未在 macOS 麦克风设置中列出

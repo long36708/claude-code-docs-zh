@@ -17,7 +17,7 @@ Mod 是一个[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md)，
 设置 hooks、skills、状态行和 MCP 服务器从 Claude Code 外部工作：每一个都运行一个脚本，或给 Claude 文本或工具。Mod 在 Claude Code 内部运行，所以它可以做他们做不了的事情：
 
 * **绘制可以使用的界面**：在文本记录旁边的窗格或提示上方的带状区域，带有选项卡、按钮和文本字段。请参阅[在界面中绘制](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md)。
-* **重新绘制 Claude Code 自己的界面**：替换或重新设置 Claude Code 自己绘制的部分，例如工具调用的行、微调器或 Claude 提出问题的对话框。请参阅[更改 Claude Code 已经绘制的内容](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#change-what-claude-code-already-draws)。
+* **重新绘制 Claude Code 的界面**：替换 Claude Code 自己绘制的部分或重新设置其样式，例如工具调用的行或加载指示器。请参阅[更改 Claude Code 已经绘制的内容](https://code.claude.com/docs/zh-CN/plugins/mods/interface.md#change-what-claude-code-already-draws)。
 * **进入工具调用或请求**：例如，在向用户提出问题时保持工具调用，在不运行工具的情况下回答问题，或将一个请求发送到不同的模型。请参阅[保护或更改工具调用](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#guard-or-change-a-tool-call)和[跟随一个转折](https://code.claude.com/docs/zh-CN/plugins/mods/events.md#follow-a-turn)。
 * **在命令上运行自己的代码**：一个 `/command`，立即运行你的函数，没有 Claude 转折，即使 Claude 正在工作。请参阅[添加命令或工具](https://code.claude.com/docs/zh-CN/plugins/mods/api.md#add-a-command-or-a-tool)。
 * **在 hooks 之间共享数据**：mod 的 hooks 共享其文件中的变量，所以一个 hook 记录的内容，另一个可以显示。例如，一个 hook 可以计算工具调用，而另一个在微调器旁边显示计数，或者一个可以读取每个请求的令牌使用情况，而另一个在窗格中绘制它。请参阅[对事件做出反应](https://code.claude.com/docs/zh-CN/plugins/mods/events.md)。

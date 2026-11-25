@@ -310,7 +310,7 @@ claude --permission-mode plan
 
 计划准备就绪后，Claude 会展示计划并询问如何继续。在该提示中，您可以选择：
 
-* **Yes, and use auto mode**：批准并以[自动模式](#eliminate-prompts-with-auto-mode)开始。如果自动模式[对您的会话不可用](#eliminate-prompts-with-auto-mode)（例如因为您的组织已将其关闭），此选项将显示为 **Yes, auto-accept edits**。如果您在启动会话时启用了绕过权限，此选项则显示为 **Yes, and switch to BYPASS PERMISSIONS (no further prompts) for this session**。
+* **Yes, and use auto mode**：批准并以[自动模式](#eliminate-prompts-with-auto-mode)开始。如果自动模式[对您的会话不可用](#eliminate-prompts-with-auto-mode)，此选项将显示为 **Yes, auto-accept edits**。如果您在启动会话时启用了绕过权限，此选项则显示为 **Yes, and switch to BYPASS PERMISSIONS (no further prompts) for this session**。
 * **Yes, manually approve edits**：批准并逐一审阅每项编辑。
 * **No, keep planning**：保持在计划模式，并告诉 Claude 需要更改什么。
 
@@ -400,7 +400,7 @@ claude --permission-mode plan
 | 在 Claude Sonnet 4.6 上运行 | Sonnet 4.6 |
 | 设置了 [`ANTHROPIC_DEFAULT_SONNET_MODEL`](https://code.claude.com/docs/zh-CN/model-config#environment-variables) | 其值；如果其值为 Claude Sonnet 5.5 或 Claude Opus 5.5，则为 Sonnet 5 |
 
-如果 Sonnet 5 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的模型无法从您的提供商获得，或被您组织的[模型策略](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)排除，Claude Code 会使用备用模型。该备用模型是您会话的模型，在 [Fable 会话](https://code.claude.com/docs/zh-CN/model-config.md#work-with-fable)中则是 Opus 模型。
+如果 Sonnet 5 或 `ANTHROPIC_DEFAULT_SONNET_MODEL` 中的模型无法从您的提供商获得，或被[模型策略](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)排除，Claude Code 会使用备用模型。该备用模型是您会话的模型，在 [Fable 会话](https://code.claude.com/docs/zh-CN/model-config.md#work-with-fable)中则是 Opus 模型。
 
 ### 选择分类器模型
 
@@ -419,7 +419,7 @@ claude --permission-mode plan
 | 情况 | 会发生什么 | 处理方法 |
 | - | - | - |
 | [调试日志](#classifier-model-check)报告了 Anthropic 配置的分类器模型 | 由该模型进行审查 | 无需处理 |
-| 您设置了 Claude Opus 5、Sonnet 5.5、Opus 5.5，或被您组织的[模型策略](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)排除的模型 | 由[默认分类器模型](#default-classifier-model)进行审查 | 设置其他模型 |
+| 您设置了 Claude Opus 5、Sonnet 5.5、Opus 5.5，或被[模型策略](https://code.claude.com/docs/zh-CN/model-config.md#restrict-model-selection)排除的模型 | 由[默认分类器模型](#default-classifier-model)进行审查 | 设置其他模型 |
 | 您的提供商无法提供该模型 | 分类器检查失败，因此 Claude Code 会[拒绝它所检查的每个操作](https://code.claude.com/docs/zh-CN/errors.md#auto-mode-cannot-determine-the-safety-of-an-action) | 设置该提供商可提供的模型，或移除该变量 |
 | 在会话中，`/status` 将 [`Auto mode server`](#server-side-classifier-review) 显示为 `Enabled` | 由服务器进行审查，不使用您的模型 | 无需处理 |
 
@@ -679,7 +679,7 @@ claude --permission-mode dontAsk
 
 `bypassPermissions` 模式禁用权限提示和安全检查，以便工具调用立即执行，包括对[受保护路径](#protected-paths)的写入。
 
-即使在 `bypassPermissions` 模式下，每项[任何模式都不会自动批准的操作](#actions-no-mode-auto-approves)也会触发提示或被拒绝，不过您可以[关闭针对危险 `rm` 命令的提示](#turn-off-the-critical-path-removal-prompt-in-bypasspermissions-mode)。读取[其他组织的公开 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you) 需要您的批准，而此模式不会请求批准，因此 Claude 无法读取此类 Artifact。[PowerShell 中的 Remove-Item](#remove-item-in-powershell) 拒绝也适用于此模式。
+即使在 `bypassPermissions` 模式下，每项[任何模式都不会自动批准的操作](#actions-no-mode-auto-approves)也会触发提示或被拒绝，不过您可以[关闭针对危险 `rm` 命令的提示](#turn-off-the-critical-path-removal-prompt-in-bypasspermissions-mode)。Artifact 工具无法读取您未在此对话中批准的[其他组织的公开 Artifact](https://code.claude.com/docs/zh-CN/artifacts.md#read-an-artifact-shared-with-you)。[PowerShell 中的 Remove-Item](#remove-item-in-powershell) 拒绝也适用于此模式。
 
 两个[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)保护措施在此模式下仍然适用，在可使用绕过权限的交互式终端计划模式会话中同样适用：
 
@@ -704,7 +704,7 @@ claude --permission-mode bypassPermissions
 
 第一次使用此模式启动交互式会话时，Claude Code 会显示一个警告对话框，要求您接受对在没有权限检查的情况下执行的操作的责任：
 
-* **如果您接受**：Claude Code 在 `~/.claude/settings.json` 中将 `skipDangerousModePermissionPrompt` 设置为 `true`，因此后续会话会跳过对话框。要再次看到对话框，请从该文件中删除该键或将其设置为 `false`。[`skipDangerousModePermissionPrompt` 参考](https://code.claude.com/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)列出了您或您的组织可以设置它的其他设置文件。
+* **如果您接受**：Claude Code 在 `~/.claude/settings.json` 中将 `skipDangerousModePermissionPrompt` 设置为 `true`，因此后续会话会跳过对话框。要再次看到对话框，请从该文件中删除该键或将其设置为 `false`。如果对话框仍未出现，请检查 [`skipDangerousModePermissionPrompt` 参考](https://code.claude.com/docs/zh-CN/settings-reference#skipdangerousmodepermissionprompt)中列出的其他设置文件。
 * **如果您拒绝**：Claude Code 退出。
 
 如果您传递的 [`--setting-sources`](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags) 不包含 `user`，即使您之前已接受，对话框也可能再次出现。要跳过它，请添加 `user`，例如 `--setting-sources user,project`。

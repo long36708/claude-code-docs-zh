@@ -60,6 +60,8 @@
 | `Sign in again to take your previous account or API key off the config file.` | [身份验证](#sign-in-again-to-take-your-previous-account-or-api-key-off-the-config-file) |
 | `Your account or API key may still be in the config file. Run claude auth logout.` | [身份验证](#your-account-or-api-key-may-still-be-in-the-config-file) |
 | `Authentication required · Sign in again to continue` | [身份验证](#not-logged-in) |
+| `Sign in again to continue` 后跟 `For security, Claude Code needs a recent sign-in.` | [包装器和 IDE 错误](#claude-code-needs-a-recent-sign-in) |
+| `Claude Code needs a recent sign-in. Signing in won’t stop sessions.` | [包装器和 IDE 错误](#claude-code-needs-a-recent-sign-in) |
 | `Could not resolve authentication method` | [身份验证](#could-not-resolve-authentication-method) |
 | `Invalid API key` | [身份验证](#invalid-api-key) |
 | `Your apiKeyHelper script is failing` | [身份验证](#your-apikeyhelper-script-is-failing) |
@@ -99,19 +101,22 @@
 | `Your account does not have access to Claude. Please login again or contact your administrator.` | [身份验证](#oauth-token-revoked-or-expired) |
 | `API Error: 401 Invalid authentication credentials` | [身份验证](#api-error-401-invalid-authentication-credentials) |
 | `Login expired · Please run /login` | [身份验证](#login-expired) |
+| 云端会话中的 `Authentication error · This may be a temporary network issue` | 重新发送您的消息。 |
+| Agent 视图中的 `login required — run /login` | 如果其后跟有本表中列出的消息，请参见该行。否则请运行 `/login`。 |
 | `Warning: this sign-in` | [检查已存储的登录何时结束](https://code.claude.com/docs/zh-CN/authentication.md#check-when-a-stored-login-ends) |
 | `The browser can't return the sign-in to Claude Code automatically` | [身份验证](#couldnt-start-the-local-sign-in-listener) |
 | `Couldn't start the local listener that receives the browser sign-in. Try again.` | [身份验证](#couldnt-start-the-local-sign-in-listener) |
 | `Failed to start OAuth callback server` | [身份验证](#failed-to-start-oauth-callback-server) |
 | `Claude login not accepted · Run /login, then try again` | [身份验证](#claude-login-not-accepted) |
 | `Artifacts need a claude.ai login` | [身份验证](#artifacts-need-a-claude-ai-login) |
+| `Your authentication token belongs to organization` | [将登录限制到您的组织](https://code.claude.com/docs/zh-CN/authentication.md#restrict-login-to-your-organization) |
 | `Not signed in to the Cloud gateway — run /login.` | [身份验证](#administrator-policy-requires-a-cloud-gateway-sign-in) |
 | `Administrator policy requires a Cloud gateway sign-in on this machine` | [身份验证](#administrator-policy-requires-a-cloud-gateway-sign-in) |
 | `Managed settings on this machine configure a Cloud gateway sign-in; run interactive /login to authenticate.` | [`claude auth login`](https://code.claude.com/docs/zh-CN/cli-reference#cli-commands) |
 | `You chose an organization that is managed in Anthropic's Enterprise Admin Console` | [从 Claude Code 启用登录](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#turn-on-sign-in-from-claude-code) |
 | `The organization's settings won't apply on this computer` | [哪些设置优先](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority) |
 | `no usable organization sign-in` / `no readable organization sign-in` | [登录结束时](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#when-a-sign-in-ends) |
-| `the session no longer runs under that sign-in` / `This Claude Code process ran under your organization` / `After a sign-in to your organization, only a new session sends requests` | [登录 Claude Code](https://code.claude.com/docs/zh-CN/authentication.md#log-in-to-claude-code) |
+| `the session no longer runs under that sign-in` / `This Claude Code process ran under your organization` / `After a sign-in to your organization, only a new session sends requests` / `Claude Code needs to restart to use it` | [登录 Claude Code](https://code.claude.com/docs/zh-CN/authentication.md#log-in-to-claude-code) |
 | `This conversation ran under organization` / `This conversation ran under more than one organization` | [登录 Claude Code](https://code.claude.com/docs/zh-CN/authentication.md#log-in-to-claude-code) |
 | `Claude Code could not read the managed settings that apply to this computer, which may require a sign-in to Anthropic` | [`enforceAnthropicSignIn`](https://code.claude.com/docs/zh-CN/settings-reference#enforceanthropicsignin) |
 | `This computer's managed settings require a sign-in to Anthropic` / `This computer's settings require a sign-in to Anthropic that this app cannot use` | [要求登录](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#require-the-sign-in-with-managed-settings) |
@@ -304,6 +309,7 @@
 | `Shell command failed for pattern "..."`, from `/security-review` or any skill that injects dynamic context | [命令行错误](#security-review-fails-without-origin-head) |
 | `Shell command permission check failed for pattern "..."`, from a skill that injects dynamic context | [命令行错误](#security-review-fails-without-origin-head) |
 | ``Couldn't run `<command>` for <name>. A file named HEAD or .git in this folder or one above it may not be yours``，来自注入动态上下文的 skill | [注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands) |
+| 来自 `/security-review` 或注入动态上下文的 skill 的 `Not run in /<name>` / `Ran anyway in /<name>` / `[not run: blocked by hook` | [PreSkillShellCommand 决策控制](https://code.claude.com/docs/zh-CN/hooks.md#preskillshellcommand-decision-control) |
 | ``Skill <name> requires bash (`shell: bash` in frontmatter) but Git Bash was not found`` | [命令行错误](#security-review-fails-without-origin-head) |
 | `No shell command in <name> was run, because the <tool> tool does not accept one of them` | [命令行错误](#no-shell-command-was-run) |
 | `This skill, command or hook and the arguments filled into it add up to more than 4,000,000 characters` | [命令行错误](#skill-command-or-hook-over-the-4000000-character-limit) |
@@ -349,6 +355,7 @@
 | `/feedback is disabled by your organization's policy`，或 `/bug` 或 `/share` 的相同消息 | [命令行错误](#feedback-is-disabled-by-your-organizations-policy) |
 | `` `plugin eval` is currently in early access `` / `` `plugin eval` is currently unavailable `` | [Plugin 错误](#plugin-eval-is-currently-in-early-access) |
 | `credential store on this machine holds a symbolic link inside it` | [授予工具](https://code.claude.com/docs/zh-CN/plugin-evals.md#grant-tools) |
+| `cannot be disallowed`，来自 `claude plugin eval` | 使用内置工具的[确切名称](https://code.claude.com/docs/zh-CN/plugin-evals.md#disallow-tools)，并[将目标放在 `--disallow-tools` 之前](https://code.claude.com/docs/zh-CN/plugin-evals#choose-what-to-evaluate) |
 | `cannot be evaluated where sessions load it` | [使用 evals 测试插件](https://code.claude.com/docs/zh-CN/plugin-evals.md#cannot-be-evaluated-where-sessions-load-it) |
 | `Marketplace "<name>" is registered from an untrusted source` | [Plugin 错误](#marketplace-is-registered-from-an-untrusted-source) |
 | `Claude Code refuses the marketplace name "<name>"` | [Plugin 错误](#claude-code-refuses-the-marketplace-name) |
@@ -375,6 +382,8 @@
 | `commands path not found: <path>` | [插件故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#commands-path-not-found) |
 | `Plugin not loaded: its manifest <path> was not read` | [Plugin 错误](#plugin-not-loaded-its-manifest-was-not-read) |
 | `path couldn't be checked` / `path could not be checked` | [插件错误](#path-could-not-be-checked) |
+| `Couldn't load hooks from <path>` / `Failed to load hooks from <path>` / `Hook load failed` | [插件故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#failed-to-load-hooks-from-and-hooks-that-dont-fire) |
+| `hooks.json declares PreToolUse/PermissionRequest` | 将事件放在 `hooks` 键下，如[插件 hook 示例](https://code.claude.com/docs/zh-CN/plugins/components.md#hooks)所示。 |
 | `its marketplace entry path does not stay inside the marketplace directory` | [Plugin 错误](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
 | `Plugin source path refused` | [Plugin 错误](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
 | `Failed to load marketplace configuration` | [Plugin 错误](#failed-to-load-marketplace-configuration) |
@@ -388,10 +397,16 @@
 | `Skipping connection (recent failure cached; retries automatically in 15 min, or edit the plugin config to retry now)` | [Plugin 错误](#skipping-connection-recent-failure-cached) |
 | `is not added on this machine, so your organization's marketplace policy keeps its plugins off` | [添加市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace) |
 | `A mod's http.fetch hook stopped this request` | [启用或关闭 mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md#turn-mods-on-or-off) |
+| `hook was skipped. "<mod>" runs first and sent the event on past it.` | 如果您在用户设置的 [`prependPlugins`](https://code.claude.com/docs/zh-CN/settings-reference#prependplugins) 中列出了引号中的 mod，请修改该 mod。否则，请询问您的管理员。 |
+| `<file>: changed while it was read` | 如果这是 `claude plugin validate` 打印的，请重新运行它。否则，请重启会话。 |
+| `installed mods are off for now` | [检查 mod 能否加载](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot.md#check-whether-mods-can-load) |
+| `the hooks worker was lost with <mod>'s <event> hook in flight` | 修复所指名的 mod。关于其中一种原因，请参见 [`it crashed the hooks worker`](https://code.claude.com/docs/zh-CN/plugins/mods/troubleshoot#it-crashed-the-hooks-worker)。 |
+| `dispatches in a row for fills by <mods>` | 修改所指名的 mod，使它们连续填充输入框的次数不超过八次。 |
 | `Error: No such tool available: <tool name>` | [工具错误](#no-such-tool-available) |
 | `MCP server "<name>" connection closed before the tool call was answered` | [工具错误](#connection-closed-before-the-tool-call-was-answered) |
 | `MCP server "<name>" is disabled — re-enable it via /mcp to use its tools` | [工具错误](#mcp-server-is-disabled) |
 | `MCP server "<name>" tool "<tool>" timed out after <N>s. The server asked the user a question, and no answer came before the time limit.` | [工具错误](#mcp-tool-call-timed-out-with-the-servers-question-unanswered) |
+| `The server's response is not a valid MCP response, so it was not read` | 重试之前，请检查该请求是否已执行。将此错误报告给 MCP 服务器的作者。 |
 | `Permission prompt tool returned an invalid result` | [工具错误](#permission-prompt-tool-returned-an-invalid-result) |
 | `would be spawned with zero tools — refusing` | [工具错误](#agent-would-be-spawned-with-zero-tools) |
 | `File is covered by a Read deny rule in your permission settings` | [工具错误](#file-is-covered-by-a-read-deny-rule) |
@@ -437,6 +452,7 @@
 | `Disk full: this computer's volume holding <dir> (Claude Code's temporary directory) has <n> MB free` / `Nearly out of inodes: this computer's volume holding <dir>` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `Disk full: a test write beside this command's output file` / `Disk quota used up: a test write beside this command's output file` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `The command was not started: this computer's disk is full (ENOSPC)` / `the user's disk quota is used up (EDQUOT)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
+| `The sandbox could not create <dir>, a folder it must protect from the command, because the temp disk is full` | 释放临时磁盘上的空间或修复该磁盘，然后让 Claude 重新运行该命令。 |
 | `Your disk quota is full on the filesystem with Claude Code's temp directory <dir> (EDQUOT)` / `The filesystem with Claude Code's temp directory <dir>, or your disk quota on it, is full (ENOSPC)` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `Command output was lost: the temp filesystem at <dir> is full` / `is out of inodes` | [工具错误](#disk-quota-or-temp-filesystem-is-full) |
 | `File is not valid UTF-8. It may use a legacy encoding such as Windows-1252, Shift-JIS or GBK, or be binary` | [工具错误](#file-is-not-valid-utf-8) |
@@ -489,12 +505,19 @@
 | `Subprocess initialization did not complete within 60000ms` | [包装器和 IDE 错误](#subprocess-initialization-did-not-complete-within-60000ms) |
 | `Claude Code did not finish starting` | [包装器和 IDE 错误](#subprocess-initialization-did-not-complete-within-60000ms) |
 | `The connection to Claude Code ended before this message completed` | [包装器和 IDE 错误](#the-connection-to-claude-code-ended-before-this-message-completed) |
+| `Dictation error: The speech service refused the connection` / `Dictation error: The connection to the speech service was lost` / `Dictation error: Couldn’t connect to the speech service`（在 VS Code 中） | 从命令面板运行 **Claude Code: Show Logs**，然后搜索 `Speech-to-text`。 |
+| `The last request was refused`（在 VS Code 登录屏幕上） | 选择 **Cancel**，然后在此表中查找该对话的错误。 |
+| `Plan not copied: The new session starts without a plan file.`（在 VS Code 中） | 如果需要该计划，请让 Claude 在新会话中重新编写。 |
+| `A message is still queued` / `A /clear is still queued`（在 VS Code 中回退代码时） | 停止 Claude，然后按照消息的其余部分操作。 |
+| `Couldn’t load the diff view or code colors`（在 VS Code 中） | 点击某个 diff 重试，或重新加载窗口。 |
+| `Settings file is empty, and another program may still be writing it: <path>`（在 VS Code 中） | 请在一分钟后重试。如果该消息反复出现，请在文件中写入 `{}`。 |
 | `Could not locate the Claude CLI on PATH` | [包装器和 IDE 错误](#could-not-locate-the-claude-cli-on-path) |
 | `Claude Code could not be started from <command>: it is the <system> build, and this computer needs the <build> build` | 如果您设置了 [`claudeCode.claudeProcessWrapper`](https://code.claude.com/docs/zh-CN/vs-code#extension-settings)，请将其指向为 `<build>` 构建的程序。否则，请安装适用于 `<build>` 的 VS Code 扩展包。 |
 | `The Claude Code program for this computer, the <build> build, could not be found` | [包装器和 IDE 错误](#the-claude-code-program-for-this-computer-could-not-be-found) |
 | `Restored the code, but skipped N files` | [Rewind 警告和错误](#restored-the-code-but-skipped-files) |
 | `No files were restored: N files failed (backup missing, or the file could not be updated)` | [Rewind 警告和错误](#no-files-were-restored) |
 | `Couldn't restore N files: the backup is missing or the file can't be written` | 将失败的文件设为可写，然后从版本控制中恢复它们。 |
+| `Kept N files created since then, because a restore failed` | 如果您不需要 Claude 在该检查点之后创建的文件，请将其删除。 |
 | `The file backups are still being copied. Nothing was changed. Try again in a moment.` | 在 [`/rewind`](https://code.claude.com/docs/zh-CN/checkpointing) 中再次选择同一个点。如果您在 [`/branch`](https://code.claude.com/docs/zh-CN/sessions#branch-a-session) 之后不久恢复代码，Claude Code 可能仍在将文件备份复制到新会话。 |
 | `Transcript writes are failing (...)` | [会话保存警告](#transcript-writes-are-failing) |
 | `Transcript saving is off — CLAUDE_CODE_SKIP_PROMPT_HISTORY is set` | [会话保存警告](#transcript-saving-is-off-skip-prompt-history) |
@@ -539,6 +562,7 @@
 | `headersHelper not run — this workspace has no persisted trust` | [配置警告](#headershelper-not-run) |
 | `Invalid permission rule "..." was skipped: Malformed Tool(content) rule` | [配置警告](#malformed-tool-content-rule) |
 | `matches no tool · check for typos` / `matches no known tool — check for typos` | [配置警告](#matches-no-tool) |
+| `lets <tool> run without asking only in the working directories` / `adds nothing to <tool>'s default` | [允许在工作目录之外使用文件工具](https://code.claude.com/docs/zh-CN/permissions.md#allow-a-file-tool-outside-the-working-directories) |
 | `... is not matched by file permission checks` | [配置警告](#is-not-matched-by-file-permission-checks) |
 | `Write(<path>) never matches · use Edit(<path>)` / `Glob(<path>) never matches · use Read(<path>)` | [配置警告](#is-not-matched-by-file-permission-checks) |
 | `... has a wildcard before the rest of the command` | [配置警告](#has-a-wildcard-before-the-rest-of-the-command) |
@@ -5973,6 +5997,31 @@ The connection to Claude Code ended before this message completed — it may not
 * 再次发送消息。下一条消息启动一个新的 `claude` 进程，该进程恢复对话。
 * 如果重复发生，在同一项目的终端中运行 `claude`。持续结束进程的故障通常会在那里重现，并显示其真实错误消息。
 
+### Claude Code needs a recent sign-in
+
+当 Code 标签页中的本地、WSL 或 SSH 会话需要新的已保存登录，而您最近没有登录过时，[Claude Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md)会显示以下消息：
+
+```text theme={null}
+For security, Claude Code needs a recent sign-in.
+```
+
+对于这些会话，无论是否使用单点登录（SSO），每台计算机上的每个账户和组织大约每月最多被要求登录一次属于常规情况。
+
+**应该怎么做：**
+
+* 点击卡片上的 **Sign in again**，然后登录
+* 如果 Code 标签页顶部的横幅显示 `Claude Code needs a recent sign-in. Signing in won’t stop sessions.`，请点击横幅上的 **Sign in again**
+* 如果在同一台计算机上使用相同的账户和组织，您在三周内再次被要求为这些会话登录，请[检查您的 Claude Desktop 版本](https://code.claude.com/docs/zh-CN/desktop.md#check-your-version)。如果版本早于 v5.11492.0，请更新：
+  * **macOS**：选择 **Claude > Check for Updates…**
+  * **Windows**：选择 **Help > Check for Updates…**；如果您是从 Microsoft Store 安装的应用，也可以通过 Microsoft Store 更新
+  * **Linux**：[通过 apt 更新](https://code.claude.com/docs/zh-CN/desktop-linux.md#update)
+  * **托管更新**：如果您的组织[关闭了自动更新](https://code.claude.com/docs/zh-CN/desktop.md#device-management-policies)，请向管理员索取 v5.11492.0 或更高版本
+* 如果在 v5.11492.0 或更高版本上仍然出现这种情况，请[联系支持](https://code.claude.com/docs/zh-CN/desktop.md#still-stuck)
+
+如果您在 Remote Control 会话中看到该卡片，请参阅[受信任设备](https://code.claude.com/docs/zh-CN/remote-control.md#trusted-devices)，该功能可能会要求更近期的登录。
+
+在 Claude Desktop v5.11492.0 之前，当公司代理或网关以 JSON 错误响应其后台续期时，Code 标签页可能会丢失其已保存的登录。
+
 ## Rewind 警告和错误
 
 这些消息来自 [`/rewind`](https://code.claude.com/docs/zh-CN/checkpointing) 代码恢复。`Restored the code, but skipped N files` 是一个警告，表示 Claude Code 跳过了某些路径。`No files were restored` 是一个错误，表示它没有恢复任何内容。
@@ -5999,7 +6048,7 @@ Restored the code, but skipped 2 files: the tracked path is (or became) a link o
 
 ### No files were restored
 
-当您使用 [`/rewind`](https://code.claude.com/docs/zh-CN/checkpointing) 恢复代码且无法恢复该检查点中的任何文件时，Claude Code 会显示此消息。对于每个文件，要么 Claude Code 在编辑前保存的备份丢失，要么 Claude Code 无法写入或删除该文件。
+当 [`/rewind`](https://code.claude.com/docs/zh-CN/checkpointing) 代码恢复在至少一个文件上失败且未恢复任何文件时，您会看到此消息。
 
 ```text theme={null}
 Failed to restore the code:

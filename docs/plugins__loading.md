@@ -200,7 +200,7 @@ Claude Code 在这些终端会话中既不下载也不加载同步插件，即�
 
 > [!NOTE]
 >
-> 如果市场尚未位于您的机器上，请在安装之前[添加市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace)。您可以在 `.claude/settings.json` 的 `extraKnownMarketplaces` 设置中找到其源，或询问您的维护者。
+> 如果市场尚未位于您的机器上，请在安装之前[添加市场](https://code.claude.com/docs/zh-CN/plugins/install.md#add-a-marketplace)。您可以在 `.claude/settings.json` 的 `extraKnownMarketplaces` 设置中找到其源，或询问该项目的维护者。
 
 要进行安装，请在项目中的 shell 里运行以下命令，并使用该插件在 `enabledPlugins` 中的键：
 

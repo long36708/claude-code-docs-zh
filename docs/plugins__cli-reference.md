@@ -493,7 +493,7 @@ claude plugin eval [target] [options]
 * 以 `name` 或 `name@marketplace` 形式给出的已安装插件
 * `name@skills-dir`
 
-请将 target 放在 `--tag`、`--allow-tools` 和 `--json` 之前。这些选项都会把其后的单词作为自己的值，因此写在它们之一之后的 target 会被当作标签、工具名称或 JSON 输出路径，而不是 target。
+请将 target 放在 `--tag`、`--allow-tools`、[`--disallow-tools`](https://code.claude.com/docs/zh-CN/plugin-evals#disallow-tools) 和 `--json` 之前。写在它们之一之后的 target 可能会被当作标签、工具名称或 JSON 输出路径。
 
 下表列出了大多数运行所使用的选项。运行 `claude plugin eval --help` 查看完整选项集，包括 `--case`、`--tag`、`--output-dir`、`--report`、`--allow-real-servers`、`--keep-temp` 和 `--verbose`。
 

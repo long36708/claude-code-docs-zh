@@ -210,11 +210,11 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
 >
 > 会话不受限于单一使用入口。当您的上下文改变时，在它们之间移动工作：
 >
-> * 离开你的办公桌，使用[远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)从你的手机或任何浏览器继续工作
-> * 向 [Dispatch](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch) 发送来自你手机的任务，并打开它创建的桌面会话
-> * 在[网络](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)或 [Claude 移动应用](https://code.claude.com/docs/zh-CN/mobile.md)上启动长时间运行的任务，然后使用 `claude --teleport` 将其拉入你的终端。Teleport 需要 claude.ai 订阅。
-> * 运行 `/desktop` 将你当前的终端会话交给[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)进行视觉差异审查。`/desktop` 交接需要 claude.ai 订阅。可在 macOS 和 x64 Windows 上使用。
-> * 从团队聊天路由任务：在 [Slack](https://code.claude.com/docs/zh-CN/slack.md) 中提及 `@Claude` 并附上错误报告，获得拉取请求
+> * 离开办公桌，使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 从您的手机或任何浏览器继续工作
+> * 从您的手机向 [Dispatch](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch) 发送任务，并打开它创建的 Desktop 会话
+> * 在[网页](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)或 [Claude 移动应用](https://code.claude.com/docs/zh-CN/mobile.md)上启动长时间运行的任务，然后使用 `claude --teleport` 将其拉入您的终端。Teleport 需要 claude.ai 订阅。
+> * 运行 `/desktop` 在 [Desktop 应用](https://code.claude.com/docs/zh-CN/desktop.md)中继续您当前的终端会话，您可以在其中以可视化方式审查 diff。`/desktop` 交接需要 claude.ai 订阅。可在 macOS 和 x64 Windows 上使用。
+> * 在 Team 和 Enterprise 套餐中从团队聊天路由任务：在 [Slack](https://claude.com/docs/claude-tag/overview) 中提及 `@Claude` 并附上错误报告，即可获得 Pull Request
 
 ## 在任何地方使用 Claude Code
 
@@ -230,7 +230,7 @@ Claude Code 在多个平台上运行：终端、IDE 扩展、桌面应用和网�
 | 按定期计划运行 Claude | [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)或[桌面定时任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md) |
 | 自动化 PR 审查和问题分类 | [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md) 或 [GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md) |
 | 在每个 PR 上获得自动代码审查 | [GitHub Code Review](https://code.claude.com/docs/zh-CN/code-review.md) |
-| 将 Slack 中的错误报告路由到拉取请求 | [Slack](https://code.claude.com/docs/zh-CN/slack.md) |
+| 将 Slack 中的错误报告路由到 Pull Request | [Claude Tag](https://claude.com/docs/claude-tag/overview)，适用于 Team 和 Enterprise 计划 |
 | 调试实时网络应用 | [Chrome](https://code.claude.com/docs/zh-CN/chrome.md) |
 | 为你自己的工作流构建自定义代理 | [Agent SDK](https://code.claude.com/docs/zh-CN/agent-sdk/overview.md) |
 

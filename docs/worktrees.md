@@ -141,7 +141,7 @@ Apply the requested refactor across every affected file, then run the tests
 and report the results.
 ```
 
-每个子代理都会获得一个临时 worktree，当子代理完成且没有更改时 Claude Code 会自动删除；带有更改的 worktree 会保留在磁盘上，直到下面的[定期扫描](#clean-up-subagent-and-background-session-worktrees)可以删除它而不会丢失工作。对于由您的 [WorktreeCreate hook](https://code.claude.com/docs/zh-CN/hooks.md#worktreecreate) 创建的 worktree，请改为参阅 [WorktreeRemove](https://code.claude.com/docs/zh-CN/hooks.md#worktreeremove)。
+子代理完成时，如果 git 显示该 worktree 中有已更改的文件、未跟踪的文件或新的提交，Claude Code 会保留该 worktree。否则，Claude Code 可以立即删除该 worktree。保留的 worktree 会一直留在磁盘上，直到[定期扫描](#clean-up-subagent-and-background-session-worktrees)可以删除它而不会丢失工作。对于由您的 [WorktreeCreate hook](https://code.claude.com/docs/zh-CN/hooks.md#worktreecreate) 创建的 worktree，请改为参阅 [WorktreeRemove](https://code.claude.com/docs/zh-CN/hooks.md#worktreeremove)。
 
 子代理 worktrees 使用与 `--worktree` 相同的[基础分支](#choose-the-base-branch)，因此它们从您的存储库的默认分支分支，除非 `worktree.baseRef` 设置为 `"head"`。
 
@@ -161,7 +161,7 @@ Claude Code 运行定期扫描，删除 Claude 为子代理和[后台会话](htt
 
 #### Worktree 锁与手动删除
 
-当代理运行时，Claude Code 在其 worktree 上持有 `git worktree lock`，以便并发清理无法删除它，当代理完成时释放锁。Claude Code 在为后台会话创建的 worktree 上持有相同的锁，同时会话运行，因此扫描会保留 worktree 并且 `git worktree remove` 拒绝删除它。
+Claude Code 会在其为 Agent 创建的 worktree 上加 `git worktree lock`，以便在 Agent 首次运行期间（在任何[恢复](https://code.claude.com/docs/zh-CN/sub-agents.md#resume-subagents)之前），并发清理无法删除它。Claude Code 为转入后台的会话创建的 worktree 在会话运行期间也带有相同的锁，因此扫描会保留该 worktree，并且 `git worktree remove` 会拒绝删除它。
 
 扫描也会释放 Claude Code 为其进程已退出的会话设置的锁，因此被杀死的后台会话不会永久锁定其 worktree。扫描永远不会释放您自己使用 `git worktree lock` 设置的锁。
 

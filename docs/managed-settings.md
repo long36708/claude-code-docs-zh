@@ -123,7 +123,7 @@ Claude Code 首先合并 `managed-settings.json`，然后按字母顺序合并�
 
 ## Claude Code 如何组合托管源
 
-如果您在 claude.ai 的 **Organization settings > Desktop 3P** 下设置提供商或网关，请先阅读企业管理控制台指南中的 [哪些设置优先](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority)。
+如果您在 claude.ai 的 [**Organization settings > Desktop 3P**](https://claude.ai/admin-settings/desktop-deployment) 下设置提供商或网关，请先阅读企业管理控制台指南中的 [哪些设置优先](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#which-settings-take-priority)。
 
 当您的组织向同一台机器交付多个托管源时，[`managedSourcesBehavior`](https://code.claude.com/docs/zh-CN/settings-reference#managedsourcesbehavior) 键决定 Claude Code 对其他源的处理方式：
 
@@ -333,7 +333,7 @@ Claude Code 对 [`policyHelper`](https://code.claude.com/docs/zh-CN/settings-ref
 * 空的托管设置文件计为 `{}`。
 * 用户可写的 HKCU 注册表密钥中的格式错误的值永远不会阻止启动。Claude Code 在 `/status` 和 `claude doctor` 中将其报告为通知。
 
-当托管设置文件、drop-in 文件、`managed-settings.d/` 目录、MDM 配置文件或 HKLM 注册表值存在但无法读取，且没有管理员源提供策略时，发生的情况取决于读取失败的原因：
+如果托管设置文件、drop-in 文件、`managed-settings.d/` 目录或 MDM 配置文件存在但无法读取，且没有管理员源提供策略，则会话会退出，除非是访问被拒绝：
 
 * 如果操作系统拒绝了读取，例如在仅限 root 的文件上，每个会话都会在没有该源的策略的情况下启动。`/status` 和 `claude doctor` 记录失败，使用 `-p` 运行也会将其打印到 stderr。
 * 对于任何其他读取失败，例如 I/O 错误，每个会话在启动时以[联系管理员的消息](https://code.claude.com/docs/zh-CN/errors.md#unable-to-read-managed-policy-settings)退出。

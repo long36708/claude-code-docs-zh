@@ -40,7 +40,7 @@ Claude Code 的设计使得在大多数情况下，您在新会话中的第一�
 
 您给 Claude Code 的每一条指令都属于以下之一：
 
-1. 非确定性：您编写指令，由 Claude（模型）读取。这可以是您的提示词、`CLAUDE.md` 或 skill。然后由模型决定如何处理这些信息。它通常会遵循您的命令，当前模型也很擅长在没有太多上下文的情况下理解您的意图，但并不*保证*它会遵循您的指令。它仍然可能决定不做某些事，或者做其他事。
+1. 非确定性：您编写指令，由 Claude（模型）读取。这可以是您的提示词、`CLAUDE.md` 或 skill。然后由模型决定如何处理这些信息。它通常会遵循您的命令，当前模型也很擅长在没有太多上下文的情况下理解您的意图，但并不*保证*它会遵循您的指令。
 2. 确定性：您配置指令，由 Claude Code（harness）*必须*执行。这可以是 hook、拒绝规则或托管设置。无论模型决定做什么，Claude Code 每次都会应用它。
 
 Claude Code 中的大多数东西都有这两种形式：
@@ -596,8 +596,7 @@ config/dev-credentials.json
 您很少需要自己清理这些：
 
 * 当您退出一个未命名的 worktree 会话时，如果其中没有任何内容，Claude Code 会[删除它使用 git 创建的 worktree](https://code.claude.com/docs/zh-CN/worktrees.md#clean-up-worktrees)。对于已命名的会话或有更改的会话，它会询问如何处理。
-* 子代理的 worktree 会在子代理无更改地完成时消失。
-* 确实被遗留下来的子代理和后台会话 worktree，一旦超过 `cleanupPeriodDays` 且不包含任何工作，就会被清理掉。
+* 被遗留下来的子代理和后台会话 worktree，一旦超过 `cleanupPeriodDays` 且不包含任何工作，就[可以被自动删除](https://code.claude.com/docs/zh-CN/worktrees.md#clean-up-subagent-and-background-session-worktrees)。
 
 > [!NOTE]
 >

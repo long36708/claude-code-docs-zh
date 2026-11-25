@@ -68,9 +68,9 @@ Claude Code 还可以在其他编辑器和容器中运行：
 
 打开 Claude Code 的其他方式：
 
-* **活动栏**：点击左侧边栏中的 Spark 图标以打开会话列表。点击任意会话即可在您的[首选位置](#extension-settings)打开它，或者开始一个新会话。该图标始终显示在活动栏中。
+* **活动栏**：点击左侧边栏中的 Spark 图标以打开会话列表。点击任意会话即可在您的[首选位置](#extension-settings)中打开它，或者启动一个新会话。此图标始终显示在活动栏中。
 * **命令面板**：按 `Cmd+Shift+P`（Mac）或 `Ctrl+Shift+P`（Windows/Linux），输入"Claude Code"，然后选择一个选项，例如"Open in New Tab"
-* **状态栏**：点击窗口右下角的 **✻ Claude Code**。即使没有打开任何文件，此方式也可用。
+* **状态栏**：点击窗口右下角的 **✻ Claude Code**。即使没有打开文件，此方式也可使用。
 
 您可以拖动 Claude 面板，将其放置在 VS Code 中的任意位置。详情请参阅[自定义您的工作流](#customize-your-workflow)。
 
@@ -688,6 +688,8 @@ Claude Code 使用 [NotebookEdit 工具](https://code.claude.com/docs/zh-CN/tool
 | New Conversation | `Cmd+N` (Mac) / `Ctrl+N` (Windows/Linux) | 开始新对话。需要 Claude 处于焦点状态，并将 `enableNewConversationShortcut` 设置为 `true` |
 | Reopen Closed Session | `Cmd+Shift+T` (Mac) / `Ctrl+Shift+T` (Windows/Linux) | 重新打开最近关闭的 Claude 会话标签页。如果最后关闭的标签页不是 Claude 会话，则回退到 VS Code 的常规"重新打开已关闭的编辑器"功能。可通过 `enableReopenClosedSessionShortcut` 禁用 |
 | Insert @-Mention Reference | `Option+K` (Mac) / `Alt+K` (Windows/Linux) | 插入对当前文件和所选内容的引用（需要编辑器处于焦点状态） |
+| Add Cell to Chat | - | 将笔记本单元格、其文本输出或错误，以及对该笔记本的 @-mention 添加到提示词输入框中。需要 Claude Code v2.1.331 或更高版本 |
+| Resolve Merge Conflicts | - | 在提示词输入框中放入一条冲突解决请求。在存在冲突的文件的 **Editor Toolbar** 中或源代码管理的 **Merge Changes** 上点击此命令的按钮。需要 Claude Code v2.1.331 或更高版本 |
 | Accept Change at Cursor | - | 在逐个[审阅建议的编辑](#get-started)时，接受光标处的更改。需要 Claude Code v2.1.275 或更高版本 |
 | Reject Change at Cursor | - | 在逐个审阅建议的编辑时，还原光标处的更改。需要 Claude Code v2.1.275 或更高版本 |
 | Toggle Focus view | `Ctrl+Option+F` (Mac) / `Ctrl+Alt+F` (Windows/Linux) | 隐藏或显示对话中的工具活动。在 Claude 面板或侧边栏可见时生效。在 Windows/Linux 上，当焦点位于调试控制台或可搜索列表（例如资源管理器）中时，`Ctrl+Alt+F` 会改为打开 VS Code 的查找功能。请将焦点移至编辑器或 Claude 面板，然后再次按下该快捷键。需要 Claude Code v2.1.221 或更高版本 |
@@ -771,6 +773,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 | `autosave` | `true` | 在 Read、Edit 和 Write 工具运行之前自动保存文件 |
 | `attachOpenFile` | `true` | 将编辑器中打开的文件添加到您的消息中，并在输入框中显示。关闭时，仅在您选中文本时才随之添加该文件。需要 Claude Code v2.1.271 或更高版本 |
 | `attachSelection` | `true` | 将您在编辑器中选中的文本添加到您的消息中，并在输入框中显示。关闭时，您仍然可以[将选区作为 @-mention 添加](#automatic-context-from-your-selection-and-open-file)。需要 Claude Code v2.1.300 或更高版本 |
+| `showFixActions` | `true` | 在编辑器错误、警告和失败的测试上显示 **Fix with Claude Code**。选择它会将修复请求放入输入框。需要 Claude Code v2.1.331 或更高版本 |
 | `useCtrlEnterToSend` | `false` | 使用 Ctrl/Cmd+Enter 而非 Enter 发送提示词 |
 | `scrollToBottomOnSend` | `true` | 发送消息时将对话滚动到底部。关闭时，对话保持在您离开时的位置。需要 Claude Code v2.1.275 或更高版本 |
 | `pinPrompt` | `true` | 在您滚动浏览 Claude 的回复时，将您的消息固定在顶部。需要 Claude Code v2.1.330 或更高版本 |
@@ -793,7 +796,7 @@ VS Code 从您的用户设置中读取 `initialPermissionMode`，并忽略工作
 
 ## 使用第三方提供商
 
-默认情况下，Claude Code 直接连接到 Anthropic 的 API。如果您的组织使用 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 来访问 Claude，请将扩展配置为改用您的提供商：
+默认情况下，Claude Code 直接连接到 Anthropic 的 API。如果您使用 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 来访问 Claude，请将扩展配置为改用您的提供商：
 
 **1. 禁用登录提示**
 
@@ -996,6 +999,7 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 | `Could not locate the Claude CLI on PATH` | [Could not locate the Claude CLI on PATH](https://code.claude.com/docs/zh-CN/errors.md#could-not-locate-the-claude-cli-on-path) |
 | `The connection to Claude Code ended before this message completed` | [The connection to Claude Code ended before this message completed](https://code.claude.com/docs/zh-CN/errors.md#the-connection-to-claude-code-ended-before-this-message-completed) |
 | `The Claude Code program for this computer, the <build> build, could not be found` | [The Claude Code program for this computer could not be found](https://code.claude.com/docs/zh-CN/errors.md#the-claude-code-program-for-this-computer-could-not-be-found) |
+| `Failed to set model: Settings file is not valid JSON` | [修复损坏的设置文件](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file) |
 | 在 VS Code 的集成终端中找不到 `claude` | [在 VS Code 中运行 CLI](#run-cli-in-vs-code) |
 
 ### 扩展无法安装
@@ -1008,13 +1012,13 @@ hook 和权限规则会将聊天面板的诊断工具视为 `mcp__claude-vscode_
 
 打开文件时，Spark 图标会显示在**编辑器工具栏**（编辑器右上角）中。如果您没有看到该图标：
 
-1. **打开一个文件**：该图标需要有文件处于打开状态。仅打开文件夹是不够的。
+1. **打开一个文件**：该图标需要有文件处于打开状态。
 2. **检查 VS Code 版本**：需要 1.94.0 或更高版本。可在 **Help > About** 下查看
 3. **重启 VS Code**：从命令面板运行"Developer: Reload Window"
 4. **禁用冲突的扩展**：暂时禁用其他 AI 扩展（Cline、Continue 等）
 5. **检查工作区信任**：该扩展在受限模式下无法使用
 
-或者，点击窗口右下角**状态栏**中的 **✻ Claude Code**。即使没有打开文件，此方法也有效。您也可以使用**命令面板**（`Cmd+Shift+P` / `Ctrl+Shift+P`）并输入"Claude Code"。
+或者，点击窗口右下角**状态栏**中的 **✻ Claude Code**。此方法无需打开文件即可使用。您也可以使用**命令面板**（`Cmd+Shift+P` / `Ctrl+Shift+P`）并输入"Claude Code"。
 
 ### 在 macOS 上按 Cmd+Esc 没有反应
 

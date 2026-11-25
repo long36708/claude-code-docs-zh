@@ -72,7 +72,7 @@ Claude Code 还会保留第五个文件 [`~/.claude.json`](https://code.claude.c
 
 ### 将个人设置保留在仓库之外
 
-要在某个项目中仅为自己更改设置而不影响队友，请将其保存在项目内的 `.claude/settings.local.json` 中。Claude Code 会在已提交的 `.claude/settings.json` 之上应用该文件，因此如果团队文件设置了 `"model": "claude-sonnet-5"` 而您想使用 Opus，请在本地文件中放入 `"model": "claude-opus-5-5"`，这样只有您的会话会发生变化。
+要在某个项目中仅为自己更改设置，请将其保存在项目内的 `.claude/settings.local.json` 中。Claude Code 会在已提交的 `.claude/settings.json` 之上应用该文件，因此如果已提交的文件设置了 `"model": "claude-sonnet-5"` 而您想使用 Opus，请在本地文件中放入 `"model": "claude-opus-5-5"`，这样只有您的会话会发生变化。
 
 Claude Code 也会写入此文件，将其排除在您的提交之外，并且无需信任步骤即可应用其允许规则：
 
@@ -230,7 +230,7 @@ Settings precedence, highest first: managed settings, command line, project loca
 1. **托管设置**：由您的组织部署的设置，通过 `managed-settings.json` 文件、MDM 策略或来自 claude.ai 控制台的[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)提供。您自己的设置文件或 `--settings` 中的任何内容都无法覆盖托管的键，而 `--model` 等标志只能从您的组织允许的模型中进行选择。托管的 [`model`](https://code.claude.com/docs/zh-CN/settings-reference#model) 只是初始默认值，而非锁定；起锁定作用的是 [`availableModels`](https://code.claude.com/docs/zh-CN/settings-reference#availablemodels) 和 [`deniedModels`](https://code.claude.com/docs/zh-CN/settings-reference#deniedmodels)。当您的组织提供多个托管来源时，[托管层级内的优先级](https://code.claude.com/docs/zh-CN/managed-settings.md#precedence-within-the-managed-tier)规则说明了 Claude Code 从每个来源读取哪些内容。
 2. **命令行**：启动 `claude` 时通过 `--settings <file-or-json>` 传入的 JSON，仅对该会话有效；请参阅[为单个会话更改设置](#change-a-setting-for-one-session)。在此处设置的键会覆盖项目和用户设置文件中的同一个键，而未在此处设置的键则保留这些文件中的值。其他标志（例如 `--model`）只为会话设置一项内容，不属于此层级堆栈；[设置参考](https://code.claude.com/docs/zh-CN/settings-reference.md)中每个键的条目说明了哪些标志会覆盖该键。
 3. **项目本地设置**（`.claude/settings.local.json`）：您针对此项目的个人设置。
-4. **共享项目设置**（`.claude/settings.json`）：您的团队提交到源代码管理中的设置。
+4. **共享项目设置**（`.claude/settings.json`）：提交到源代码管理中的设置。
 5. **用户设置**（`~/.claude/settings.json`）：适用于所有项目的个人设置。
 
 环境变量不是此层级堆栈中的一个级别。当某个行为同时具有 shell 变量和设置键时，采用哪一个是按每一对单独决定的，而非按级别决定：在 shell 中导出的 `ANTHROPIC_MODEL` 优先于任何文件中的 `model` 键，而 `ANTHROPIC_DEFAULT_MODEL` 仅在没有任何文件设置 `model` 时才生效。[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md#precedence)说明了哪些键具有对应的变量，以及 Claude Code 优先读取哪一个。设置文件中的 `env` 块是一个普通的键，遵循上述级别。

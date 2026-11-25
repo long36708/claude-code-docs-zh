@@ -56,7 +56,7 @@
 * **只包含您希望放入 Pull Request 的文件（用于 `/ship`）**：`/ship` 可能会提交您所有未提交的更改，包括新文件。请在 shell 中运行 `git status`。删除每个不希望放入 Pull Request 的新文件，或使用 `git stash push -u -- <file>` 将其暂存
 * **这些文件中不含机密信息（用于 `/ship`）**：`/ship` 按文件名（例如 `.env`）查找机密信息，因此请您自己检查文件内容。诸如 `Read(./notes.txt)` 之类的拒绝规则并不能将文件排除在提交之外
 * **GitHub 上已打开的 Pull Request（用于 `/steward`）**：它必须是您自己的，并且其分支已在您的本地克隆中检出。对于 GitHub 以外的托管平台，请参阅[在其他托管平台上监视分支](#watch-a-branch-on-another-host)
-* **权限模式**：如果希望 Claude 在无人值守的情况下处理 Pull Request，请选择[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)。在大多数其他权限模式下，Claude 会在每个权限提示处等待。在 `bypassPermissions` 模式下，不会开始任何监视。在计划模式下，`/ship` 不会启动
+* **权限模式**：如果希望 Claude 在无人值守的情况下处理 Pull Request，请选择[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)。在[手动模式和 `acceptEdits` 模式](https://code.claude.com/docs/zh-CN/permission-modes#available-modes)下，Claude 会在每个权限提示处等待。在 `bypassPermissions` 模式下，不会开始任何监视。在 v2.1.331 或更高版本中，`/ship` 不会在计划模式下启动
 
 在原生 Windows 上，[不会开始任何监视](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting.md#cases-where-no-watch-can-start)。在[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)中，同样[不会开始任何监视](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting.md#a-session-setting-blocks-a-watch)。在 v2.1.331 之前，监视可以在后台会话中开始。
 
@@ -86,7 +86,7 @@
 
 * **该分支已有他人打开的 Pull Request**：`/ship` 不会提交或推送您的工作，也不会开始监视
 * **某个未提交文件的名称暗示其包含机密信息，例如 `.env`**：在非公开仓库中，`/ship` 不会提交或推送任何内容。请参阅 [/ship 未提交或推送任何内容](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting.md#%2Fship-committed-or-pushed-nothing)
-* **该分支已有您自己打开的 Pull Request**：在可以开始监视且仓库非公开的情况下，`/ship` 可以提交您未提交的更改，然后将这些更改以及您尚未推送的提交推送到该 Pull Request。[在其他情况下](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting.md#your-pull-request-is-already-open)，它会略过其中部分工作。如果随后开始监视，您尚未推送的提交[可以随 Claude 的下一次推送一起推送](#keep-working-while-a-watch-runs)。在 v2.1.331 之前，`/ship` 在这种情况下不会提交或推送
+* **该分支已有您自己打开的 Pull Request**：`/ship` 可以提交您未提交的更改，然后将这些更改以及您尚未推送的提交推送到该 Pull Request。[在某些情况下](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting.md#your-pull-request-is-already-open)，例如仓库是公开的或已开启自动合并时，它不会提交您的更改。如果随后开始监视，您尚未推送的提交[可以随 Claude 的下一次推送一起推送](#keep-working-while-a-watch-runs)。在 v2.1.331 之前，`/ship` 在这种情况下不会提交或推送
 * **仓库是公开的**：`/ship` 不会提交您未提交的更改。如果您位于默认分支以外的分支上，且该分支有自己的提交，`/ship` 会推送这些提交并创建一个不包含您未提交更改的 Pull Request。否则，请在默认分支以外的分支上提交您的工作，然后再次运行 `/ship`
 * **您的提交位于默认分支上，且没有未提交的内容**：在非公开仓库中，`/ship` 会为这些提交创建一个新分支，推送该分支，创建 Pull Request，并将您的检出切换到新分支。在 v2.1.331 之前，`/ship` 不会推送任何内容，因此请将这些提交放到默认分支以外的分支上，然后再次运行 `/ship`
 

@@ -172,7 +172,7 @@ Agent 代理永远不会将您添加的机密附加到以下请求：
   * **保存的 CLI 默认值**：如果该环境是您保存的 [CLI 默认值](#select-an-environment-from-the-cli)，当您的列表中有 Anthropic 托管的环境时，Claude Code 会在该环境中启动 CLI 云端会话。否则，会在列表中第一个不是 [Remote Control bridge 环境](#the-default-environment)的环境中启动。
   * **显式配置**：任何显式配置了该环境的内容，例如[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md#environments-and-network-access)，都无法在其中启动新会话。请将其指向另一个环境。
 
-当您不再需要某个 Anthropic 托管的环境时，请将其归档。环境对话框和 **Cloud environments** 管理页面都没有删除 Anthropic 托管环境的选项。如果该环境是[自托管](https://code.claude.com/docs/zh-CN/self-hosted-environments)的，所有者可以从管理设置中的 **Cloud environments** 页面将其删除。如果您不是所有者，请联系所有者将其删除。
+当您不再需要某个 Anthropic 托管的环境时，请将其归档。环境对话框和 **Cloud environments** 管理页面都没有删除 Anthropic 托管环境的选项。如果该环境是[自托管](https://code.claude.com/docs/zh-CN/self-hosted-environments)的，所有者可以从管理设置中的 **Cloud environments** 页面将其删除。
 
 ### 组织共享环境
 

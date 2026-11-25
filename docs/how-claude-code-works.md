@@ -18,7 +18,7 @@ Claude Code 是一个在您的终端中运行的代理助手。虽然它在编�
 
 循环会根据您的要求进行调整。关于您代码库的问题可能只需要收集上下文。错误修复会循环通过所有三个阶段多次。重构可能涉及广泛的验证。Claude 根据从前一步学到的内容决定每一步需要什么，将数十个操作链接在一起并沿途进行纠正。
 
-您也是这个循环的一部分。您可以在任何时刻中断以引导 Claude 朝不同的方向发展、提供额外的上下文或要求它尝试不同的方法。Claude 自主工作但对您的输入保持响应。
+您也是这个循环的一部分。您可以在任何时刻中断以引导 Claude 朝不同的方向发展、提供额外的上下文或要求它尝试不同的方法。
 
 代理循环由两个组件驱动：[模型](#models)进行推理和[工具](#tools)采取行动。Claude Code 是围绕模型的层，提供工具并管理模型看到的上下文。这个周围层就是术语代理框架所指的。
 
@@ -88,7 +88,7 @@ Claude Code 在三个环境中运行，每个环境对代码执行位置有不�
 
 ### 界面
 
-您可以通过终端、[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)、[IDE 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)、[claude.ai/code](https://claude.ai/code)、[远程控制](https://code.claude.com/docs/zh-CN/remote-control.md)、[Slack](https://code.claude.com/docs/zh-CN/slack.md) 和 [CI/CD 管道](https://code.claude.com/docs/zh-CN/github-actions.md)访问 Claude Code。界面决定了您如何看到和与 Claude 交互，但底层的代理循环是相同的。有关完整列表，请参阅[在任何地方使用 Claude Code](https://code.claude.com/docs/zh-CN/overview.md#use-claude-code-everywhere)。
+您可以通过终端、[桌面应用](https://code.claude.com/docs/zh-CN/desktop.md)、[IDE 扩展](https://code.claude.com/docs/zh-CN/vs-code.md)、[claude.ai/code](https://claude.ai/code)、[Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 和 [CI/CD 管道](https://code.claude.com/docs/zh-CN/github-actions.md)访问 Claude Code。界面决定了您如何看到和与 Claude 交互，但底层的智能体循环是相同的。有关列表，请参阅[在任何地方使用 Claude Code](https://code.claude.com/docs/zh-CN/overview.md#use-claude-code-everywhere)。
 
 ## 使用会话
 
@@ -131,7 +131,7 @@ Claude 的上下文窗口保存您的对话历史、文件内容、命令输出�
 
 #### 当上下文填满时
 
-Claude Code 在您接近限制时自动管理上下文。它会将对话压缩为摘要。摘要会保留您的请求和关键代码片段，但对话早期的详细说明可能会丢失。将持久规则放在 CLAUDE.md 中，而不是依赖对话历史。
+Claude Code 在您接近限制时自动管理上下文。它会将对话压缩为摘要。摘要会保留您的请求和关键代码片段，但对话早期的详细说明可能会丢失。将持久规则放在 CLAUDE.md 中。
 
 要控制在压缩期间保留的内容，请在 CLAUDE.md 中添加"Compact Instructions"部分或使用焦点运行 `/compact`（如 `/compact focus on the API changes`）。
 

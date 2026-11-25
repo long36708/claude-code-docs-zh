@@ -24,7 +24,7 @@ Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配�
 * 每轮一次：`UserPromptSubmit`、`Stop` 和 `StopFailure`
 * 代理循环内的每个工具调用：`PreToolUse` 和 `PostToolUse`，除了 [`EndConversation`](https://code.claude.com/docs/zh-CN/tools-reference#endconversation-tool-behavior) 调用，它们跳过两者
 
-![Hook 生命周期图，显示可选的 Setup 流入 SessionStart，然后是每轮循环，包含 UserPromptSubmit、用于 slash commands 的 UserPromptExpansion、嵌套的代理循环（PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、PostToolBatch、SubagentStart/Stop、TaskCreated、TaskCompleted）和 Stop 或 StopFailure，然后是 TeammateIdle、PreCompact、PostCompact 和 SessionEnd，Elicitation 和 ElicitationResult 嵌套在 MCP 工具执行内，PermissionDenied 作为 PermissionRequest 的副分支用于自动模式拒绝，WorktreeCreate、WorktreeRemove、Notification、ConfigChange、InstructionsLoaded、CwdChanged、FileChanged 和 DirectoryAdded 作为独立异步事件，PreModelSwitch 作为独立顺序事件，在请求的模型切换之前运行，PostModelSwitch 作为独立异步事件，在会话的模型更改后运行，MessageDisplay 作为仅显示事件，在助手消息文本流式传输时运行](https://mintcdn.com/claude-code/x7pO8l4XcvAXCoVc/images/hooks-lifecycle.svg?fit=max\&auto=format\&n=x7pO8l4XcvAXCoVc\&q=85\&s=81b9256c1bbe8832553485f5d9e9c746)
+![Hook 生命周期图，显示可选的 Setup 流入 SessionStart，然后是每轮循环，包含 UserPromptSubmit、用于斜杠命令的 UserPromptExpansion、嵌套的智能体循环（PreToolUse、PermissionRequest、PostToolUse、PostToolUseFailure、PostToolBatch、SubagentStart/Stop、TaskCreated、TaskCompleted）和 Stop 或 StopFailure，然后是 TeammateIdle、PreCompact、PostCompact 和 SessionEnd，Elicitation 和 ElicitationResult 嵌套在 MCP 工具执行内，PermissionDenied 作为 PermissionRequest 的副分支用于自动模式拒绝，WorktreeCreate、WorktreeRemove、Notification、ConfigChange、InstructionsLoaded、CwdChanged、FileChanged 和 DirectoryAdded 作为独立异步事件，PreSkillShellCommand 作为独立阻塞事件，在正在加载的 skill 中的 shell 命令之前运行，PreModelSwitch 作为独立顺序事件，在请求的模型切换之前运行，PostModelSwitch 作为独立异步事件，在会话的模型更改后运行，MessageDisplay 作为仅显示事件，在助手消息文本流式传输时运行](https://mintcdn.com/claude-code/IWhl7FXSx6ARoVoo/images/hooks-lifecycle.svg?fit=max\&auto=format\&n=IWhl7FXSx6ARoVoo\&q=85\&s=a8adf56a3d13b8a8ba9c446bbd7171f8)
 
 下表总结了每个事件何时触发。[Hook 事件](#hook-events)部分记录了每个事件的完整输入架构和决定控制选项。
 
@@ -34,6 +34,7 @@ Claude Code 在会话期间的特定点运行 hooks。当事件触发且匹配�
 | `Setup` | 当你使用 `--init-only` 启动 Claude Code，或在 `-p` 模式下使用 `--init` 或 `--maintenance` 时。用于 CI 或脚本中的一次性准备 |
 | `UserPromptSubmit` | 当提交提示词时，在 Claude 处理之前。对于 [Claude Code 自行发起的轮次](https://code.claude.com/docs/zh-CN/hooks.md#userpromptsubmit)也会触发 |
 | `UserPromptExpansion` | 当用户输入的命令扩展为提示词时，在到达 Claude 之前。可以阻止扩展 |
+| `PreSkillShellCommand` | 在 skill 的[注入的 shell 命令](https://code.claude.com/docs/zh-CN/skills.md#inject-dynamic-context)运行之前。可以阻止该命令 |
 | `PreToolUse` | 在工具调用执行之前。可以阻止它 |
 | `PermissionRequest` | 当工具调用需要权限决策时 |
 | `PermissionDenied` | 当自动模式拒绝工具调用时，包括没有分类器判决的拒绝。使用 JSON `hookSpecificOutput.retry: true` 来告诉模型它可以重试被拒绝的工具调用。Claude Code 在分类器未产生判决时忽略 `retry` |
@@ -308,6 +309,7 @@ Hook 条目在设置级别之间合并而不是相互替换：用户、项目和
 | `StopFailure` | 错误类型 | `rate_limit`、`authentication_failed`、`oauth_org_not_allowed`、`account_on_hold`、`billing_error`、`invalid_request`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error`、`unknown` |
 | `InstructionsLoaded` | 加载原因 | `session_start`、`nested_traversal`、`path_glob_match`、`include`、`compact` |
 | `UserPromptExpansion` | 命令名称 | 您的技能或命令名称 |
+| `PreSkillShellCommand` | 运行该命令的工具 | `Bash`、`PowerShell` |
 | `Elicitation` | MCP 服务器名称 | 您配置的 MCP 服务器名称 |
 | `ElicitationResult` | MCP 服务器名称 | 与 `Elicitation` 相同的值 |
 | `UserPromptSubmit`、`PostToolBatch`、`Stop`、`TeammateIdle`、`TaskCreated`、`TaskCompleted`、`WorktreeCreate`、`WorktreeRemove`、`MessageDisplay` | 无匹配器支持 | 总是在每次出现时触发 |
@@ -421,7 +423,7 @@ MCP 工具遵循命名模式 `mcp__<server>__<tool>`，例如：
 | 字段 | 必需 | 描述 |
 | :- | :- | :- |
 | `type` | 是 | `"command"`、`"http"`、`"mcp_tool"`、`"prompt"` 或 `"agent"` |
-| `if` | 否 | 用于过滤此 hook 何时运行的 [权限规则语法](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)，如 `"Bash(git *)"` 或 `"Edit(*.ts)"`。hook 命令仅在工具调用匹配模式时运行。请参阅 [Bash 匹配表](#bash-if-matching) 了解 Bash 模式如何针对子命令、`$()` 和反引号进行评估。仅在工具事件上评估：`PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest` 和 `PermissionDenied`。在其他事件上，设置了 `if` 的 hook 永远不会运行 |
+| `if` | 否 | 用于过滤此 hook 何时运行的 [权限规则语法](https://code.claude.com/docs/zh-CN/permissions.md#permission-rule-syntax)，如 `"Bash(git *)"` 或 `"Edit(*.ts)"`。hook 命令仅在工具调用匹配模式时运行。请参阅 [Bash 匹配表](#bash-if-matching) 了解 Bash 模式如何针对子命令、`$()` 和反引号进行评估。仅在 `PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`PermissionRequest`、`PermissionDenied` 和 `PreSkillShellCommand` 上评估。在其他事件上，设置了 `if` 的 hook 不会运行 |
 | `timeout` | 否 | 取消前的秒数。Claude Code 不在您使用 [`async: true`](#run-hooks-in-the-background) 运行的命令 hook 上强制执行。默认值：`command`、`http` 和 `mcp_tool` 为 600；`prompt` 为 30；`agent` 为 60。Claude Code 在 [`UserPromptSubmit`](#userpromptsubmit)、[`PreModelSwitch`](#premodelswitch) 和 [`PostModelSwitch`](#postmodelswitch) 上将 `command`、`http` 和 `mcp_tool` 默认值降低到 30，在 [`MessageDisplay`](#messagedisplay) 上降低到 10。[`SessionEnd`](#sessionend) hooks 共享 1.5 秒的预算；如果您的设置设置了更长的每个 hook `timeout`，Claude Code 会提高预算以匹配，最多 60 秒 |
 | `statusMessage` | 否 | hook 运行时显示的自定义微调消息 |
 | `once` | 否 | 如果为 `true`，Claude Code 在第一次成功运行后删除 hook。失败、以退出代码 2 阻止或超时的运行会将 hook 保留在原位，因此它在下一个匹配事件上再次运行。仅在 [技能 frontmatter](#hooks-in-skills-and-agents) 中声明的 hooks 上受尊重；在设置文件和代理 frontmatter 中被忽略 |
@@ -708,7 +710,7 @@ Subagents 在其 YAML frontmatter 中使用相同的格式。
 
 如果在您或 Claude 调用某个 skill 后，其 frontmatter hook 没有触发，请在该会话中运行 [`/hooks`](#the-%2Fhooks-menu)。如果列表中有这些 hook，请参阅 [Hook 未触发](https://code.claude.com/docs/zh-CN/hooks-guide.md#hook-not-firing)。如果列表中一个都没有，则该 skill 可能受到仅限插件的锁定，或超出了 hook 限制，因而在运行时不带任何 frontmatter hook。请逐一检查每种情况：
 
-* **仅限插件的锁定**：您组织的管理员可以使用 [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization-hooks) 托管设置将 hook 锁定为仅限插件和托管设置。在该锁定下，只有插件 skill、[随附 skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills) 或 [托管设置目录](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms) 中的 skill 才会保留其 frontmatter hook。您自己的设置文件中的 hook 也不会运行。
+* **仅限插件的锁定**：如果您属于某个组织，您的管理员可以使用 [`strictPluginOnlyCustomization`](https://code.claude.com/docs/zh-CN/settings-reference#strictpluginonlycustomization-hooks) 托管设置将 hook 锁定为仅限插件和托管设置。在该锁定下，只有插件 skill、[随附 skill](https://code.claude.com/docs/zh-CN/skills.md#bundled-skills) 或 [托管设置目录](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms) 中的 skill 才会保留其 frontmatter hook。您自己的设置文件中的 hook 也不会运行。
   * **检查**：在 Claude Code 会话中输入 `/status`。如果 [`Setting sources` 行](https://code.claude.com/docs/zh-CN/settings#check-what-your-organization-enforces) 包含 `Enterprise managed settings`，请询问您的管理员 `strictPluginOnlyCustomization` 是否锁定了 hook。
   * **修复**：将该 skill 移入一个 [插件](https://code.claude.com/docs/zh-CN/plugins/create.md#convert-an-existing-claude-setup)，因为插件 skill 会保留其 frontmatter hook。在一个 [市场](https://code.claude.com/docs/zh-CN/plugins/create-marketplace.md#create-a-marketplace) 中列出该插件，然后从该市场安装它。如果 Claude Code 以 [`is blocked by enterprise policy`](https://code.claude.com/docs/zh-CN/plugins/troubleshooting#marketplace-source-is-blocked-by-enterprise-policy) 拒绝该市场，请让您的管理员允许该市场。
 * **Hook 限制**：在 Claude Code v2.1.304 或更高版本中，每个 skill 来源在每个会话中都有各自的限制。您的项目、您的个人 skill 文件夹以及每个插件分别算作独立的来源。来自同一来源的 skill 最多可注册 1,024 个 hook。这些 hook 的匹配器总计最多 16,384 个字符。一个匹配器下有多个 hook 时，每个 hook 都会计算一次该匹配器。
@@ -943,9 +945,9 @@ hook 可以启动一个长时间运行的程序（例如开发服务器），并
 
 > [!NOTE]
 >
-> 在未安装 Git Bash 的 Windows 上，未设置 `onFailure` 的 shell 形式 `PreToolUse` 或 `PermissionRequest` 命令 hook 失败时，可能反而会[阻止工具调用](#failed-hooks-on-windows-without-git-bash)。
+> 在未安装 Git Bash 的 Windows 上，未设置 `onFailure` 的 shell 形式 `PreToolUse`、`PermissionRequest` 或 `PreSkillShellCommand` 命令 hook 失败时，可能反而会[阻止操作](#failed-hooks-on-windows-without-git-bash)。
 
-`.claude/settings.json` 中的这个 `PreToolUse` hook 会在每个 Bash 命令之前运行一个项目脚本，如果脚本失败则阻止该命令：
+`.claude/settings.json` 中的这个 `PreToolUse` hook 会在每个 Bash 工具调用之前运行一个项目脚本，如果脚本失败则阻止该命令：
 
 ```json theme={null}
 {
@@ -998,7 +1000,7 @@ Error: Cannot find module '/path/to/project/.claude/hooks/check-command.js'
 
 #### 未安装 Git Bash 的 Windows 上失败的 hook
 
-如果被阻止的工具调用的错误包含以下文本，则说明某个 `PreToolUse` 或 `PermissionRequest` 命令 hook 失败或超时，并阻止了该调用：
+如果被阻止的工具调用或[注入命令](#preskillshellcommand)的错误包含以下文本，则说明某个 `PreToolUse`、`PermissionRequest` 或 `PreSkillShellCommand` 上的命令 hook 失败或超时，并阻止了它：
 
 ```text theme={null}
 blocking because Git Bash wasn't found, so only exit code 0 or 2 counts as this hook's verdict.
@@ -1037,6 +1039,7 @@ blocking because Git Bash wasn't found, so only exit code 0 or 2 counts as this 
 | `PermissionRequest` | 否 | 不会被读取为决策。改为通过 [`decision` 对象](#permissionrequest-decision-control)拒绝 |
 | `UserPromptSubmit` | 是 | 阻止提示词。请参阅[被阻止的提示词留下什么](#what-a-blocked-prompt-leaves-behind) |
 | `UserPromptExpansion` | 是 | 阻止扩展 |
+| `PreSkillShellCommand` | 是 | 阻止该命令，skill 在加载时不包含其输出 |
 | `Stop` | 是 | 防止 Claude 停止，继续对话 |
 | `SubagentStop` | 是 | 防止子代理停止 |
 | `TeammateIdle` | 是 | 防止队友空闲，因此它继续工作 |
@@ -1213,6 +1216,7 @@ Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `
 | TaskCreated | 退出码或顶级 `decision` | 退出码 2 或 `decision: "block"` [取消任务](#taskcreated-decision-control)并将消息返回给 Claude。`continue: false` 被忽略 |
 | PreToolUse | `hookSpecificOutput` | `permissionDecision`（allow/deny/ask/defer）、`permissionDecisionReason` |
 | PreModelSwitch | `hookSpecificOutput` 或顶级 `decision` | `permissionDecision`（allow/deny/ask）、`permissionDecisionReason`。`decision: "block"` 也会[取消切换](#premodelswitch-decision-control) |
+| PreSkillShellCommand | `hookSpecificOutput` 或顶级 `decision` | `permissionDecision`、`permissionDecisionReason`。该 hook [只能阻止](#preskillshellcommand-decision-control) |
 | PermissionRequest | `hookSpecificOutput` | `decision.behavior`（allow/deny） |
 | PermissionDenied | `hookSpecificOutput` | `retry: true` 告诉模型它可以重试被拒绝的工具调用；Claude Code 对[无判决拒绝](#permissiondenied-decision-control)忽略它 |
 | WorktreeCreate | 路径返回 | 命令 hook 在 stdout 上打印路径；HTTP hook 返回 `hookSpecificOutput.worktreePath`。hook 失败或缺少路径会使创建失败 |
@@ -1228,8 +1232,6 @@ Claude Code 在会话记录中保存注入的文本。对于 `PostToolUse` 或 `
 * `PermissionRequest`：`updatedInput` 位于 `decision` 对象内。请参阅 [PermissionRequest 决策控制](#permissionrequest-decision-control)
 * `PostToolUse`：`updatedToolOutput` 替换工具的结果。请参阅 [PostToolUse 决策控制](#posttooluse-decision-control)，其中包括在 [Cowork](https://claude.com/docs/cowork/overview) 云端会话中的限制
 * `UserPromptSubmit`：无法替换提示词；它仅在其旁边注入 `additionalContext`
-
-对于脱敏或转换用例，请在 `PreToolUse` 处拦截出站工具输入，在 `PostToolUse` 处拦截成功调用的结果。`PostToolUseFailure` 无法改写结果，因此无法对失败命令的输出进行脱敏。
 
 以下是每种模式的实际示例：
 
@@ -1654,6 +1656,79 @@ hook 可能恰好在您中断的同一时刻阻止该提示词。此时提示词
 }
 ```
 
+### PreSkillShellCommand
+
+在[注入命令](https://code.claude.com/docs/zh-CN/skills.md#inject-dynamic-context)之前运行，注入命令是在 skill 或 `/security-review` 等命令加载时运行的 shell 命令。[PreToolUse](#pretooluse) hook 不会为注入命令触发。要使用您已在 PreToolUse 上运行的脚本来记录或阻止它们，请同时将该脚本添加到此事件。在 skill 文件中，注入命令以 `` !`<command>` `` 形式或在 ` ```! ` 块中出现。
+
+需要 Claude Code v2.1.332 或更高版本，桌面应用和 VS Code 扩展中也是如此。请在添加该 hook 之前更新，因为较早的版本运行注入命令时不会调用它。如果您先将其添加到设置文件中，较早的版本（例如 v2.1.331）会在每个交互式终端会话开启时显示一个[警告对话框](https://code.claude.com/docs/zh-CN/settings.md#fix-a-broken-settings-file)：`Unknown hook event "PreSkillShellCommand" was ignored`。要强制要求最低版本，请参阅 [`requiredMinimumVersion`](https://code.claude.com/docs/zh-CN/settings-reference#requiredminimumversion)。
+
+对于必须阻止命令的 hook，请按以下方式设置匹配器、类型、位置和失败处理：
+
+* **匹配器**：使用 `Bash|PowerShell` 以覆盖[运行注入命令的两个工具](https://code.claude.com/docs/zh-CN/skills.md#how-injected-commands-run)。
+* **类型**：使用非[异步](#run-hooks-in-the-background)的 `command`、`http` 或 `mcp_tool` hook，因为异步 hook 无法阻止。如果您在此事件上配置了 `prompt` 或 `agent` hook，Claude Code 无法运行它，并会阻止该 hook 匹配的每个命令。
+* **位置**：在[设置文件](#hook-locations)（例如托管设置）或插件中定义该 hook。skill 在一个会话中首次加载时以及在子代理内加载时，其注入命令运行时不会使用该 skill 自身 frontmatter 中的 hook。[分叉 skill](https://code.claude.com/docs/zh-CN/skills.md#run-skills-in-a-subagent) 的注入命令运行时，既不会使用其自身 frontmatter 中的 hook，也不会使用其子代理定义中的 hook。
+* **失败**：设置 [`onFailure: "block"`](#block-the-action-when-a-hook-fails)，以便在 hook 失败或超时时不运行该命令。
+
+您可以复用[hook 如何解析](#how-a-hook-resolves)中的阻止脚本。
+
+在 macOS 和 Linux 上，`.claude/settings.json` 中的以下条目以 [exec 形式](#exec-form-and-shell-form)运行该脚本：
+
+```json theme={null}
+{
+  "hooks": {
+    "PreSkillShellCommand": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          { "type": "command", "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/block-rm.sh", "args": [], "onFailure": "block" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+在 Windows 上，请将此条目中的 `command` 和 `args` 替换为[hook 如何解析](#how-a-hook-resolves)中 Windows 选项卡里的对应内容。
+
+要在 macOS 或 Linux 上测试此示例，请创建 `.claude/skills/hook-test/SKILL.md`，其中只包含一行 `` !`echo 'rm -rf'` ``。这个[只读命令](https://code.claude.com/docs/zh-CN/permissions.md#read-only-commands)无需批准，也不会删除任何内容。在终端中启动一个会话并输入 `/hook-test`。您会看到 `Not run in /hook-test: echo 'rm -rf' (blocked by hook: Destructive command blocked by hook)`。
+
+#### 哪些命令会到达 PreSkillShellCommand hook
+
+您的脚本在[注入命令的权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)之后运行，因此它获得的是通过检查的命令。它在 `bypassPermissions` 模式下也会运行。
+
+在自动模式下，原本需要批准的命令不会在 skill 加载时运行。Claude 之后可以将其作为工具调用运行，这会触发 `PreToolUse` 而不是此事件，因此请在两个事件上都保留您的脚本。
+
+#### PreSkillShellCommand 输入
+
+除了[通用输入字段](#common-input-fields)（其中包括 `permission_mode`）之外，PreSkillShellCommand hook 还会接收下表中的字段：
+
+| 字段 | 描述 |
+| :- | :- |
+| `tool_name` | 运行该命令的工具，`Bash` 或 `PowerShell` |
+| `tool_input.command` | 将要运行的 shell 命令 |
+| `tool_use_id` | 此命令的 ID，它在会话记录中不对应任何工具调用 |
+| `command_name` | 正在加载的 skill 或命令的名称，例如 `pr-summary`，对于插件的 skill 则为 `my-plugin:deploy` |
+| `command_source` | skill 或命令的来源，例如 `userSettings`、`projectSettings`、`policySettings`、`plugin` 或 `builtin` |
+| `invoked_by` | 当您输入 skill 名称或 Agent SDK 应用发送它时为 `"user"`；当 Claude 或[会话作用域的定时任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)调用该 skill 时为 `"claude"`。其他情况为 `"other"`，例如[预加载该 skill](https://code.claude.com/docs/zh-CN/sub-agents.md#preload-skills-into-subagents) 的子代理。 |
+
+#### PreSkillShellCommand 决策控制
+
+要阻止注入命令，请让您的脚本以退出码 2 退出或返回 `permissionDecision: "deny"`，skill 会在不运行该命令的情况下加载。您可以通过此 hook 阻止命令，但无法批准或更改命令。
+
+对于 JSON 响应，请使用 [PreToolUse 格式](#pretooluse-decision-control)。要在两个事件上使用同一个脚本，请将 `hookEventName` 保留为 `PreToolUse`。对于仅在此事件上运行的脚本，您可以将 `hookEventName` 设置为 `PreSkillShellCommand`。
+
+| Hook 结果 | 发生的情况 |
+| :- | :- |
+| 以退出码 0 退出且无决策，或 `permissionDecision: "allow"` | 命令会运行，除非另一个 hook 阻止它 |
+| 以退出码 2 退出、`permissionDecision: "deny"` 或顶层 `decision: "block"` | 命令不会运行。skill 仍会加载，Claude 会在命令输出的位置读到 `[not run: blocked by hook: <reason>]`。 |
+| `permissionDecision: "ask"` 或 `"defer"`，或任何 `updatedInput` | Claude Code 以与 `"deny"` 相同的方式阻止该命令 |
+| `continue: false` | 调用该 skill 失败，并显示 `Operation stopped by hook: <stopReason>`。其注入命令一个都不会运行，因为 Claude Code 会在运行第一个命令之前收集您所有 hook 的应答。 |
+| `command`、`http` 或 `mcp_tool` hook 失败（例如以退出码 1 退出且无 JSON 输出）或超时 | 命令会运行，除非该 hook 属于[失败时会阻止操作的 hook](#block-the-action-when-a-hook-fails)。在 Claude 已经运行过代码的 [Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md#tool-call-refused-by-a-hook) 会话中，超时默认会阻止该命令。 |
+
+当您在终端中输入 skill 名称时，`Not run in /<name>` 行表示一个被阻止的命令。`Ran anyway in /<name>` 行表示一个在其 hook 失败或超时后仍然运行的命令。
+
+要给出阻止原因，请在以退出码 2 退出时将其写入 stderr。在 JSON 中，将其放在 `permissionDecisionReason` 中，或放在与顶层 `decision` 并列的 `reason` 中。当 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 处于连接状态时，hook 仍会阻止，但您和 Claude 都看不到原因。请在[调试日志](#debug-hooks)中查找。
+
 ### MessageDisplay
 
 在助手消息流式显示到屏幕上时运行。Claude Code 以增量方式显示消息：每当一批新完成的行准备好渲染时，hook 就会用这些行运行一次，Claude Code 会在其位置渲染 hook 返回的替换文本。长消息会产生多次调用；短消息可能只产生一次。
@@ -1791,7 +1866,9 @@ MessageDisplay hook 没有决策控制。它们无法阻止消息，也无法更
 
 > [!WARNING]
 >
-> PreToolUse 仅在 Claude 调用工具时运行。默认情况下，您[在提示词中用 `@` 引用](https://code.claude.com/docs/zh-CN/common-workflows#reference-files-and-directories)的文件会在没有任何工具调用的情况下添加。Claude Code 在构建提示词时插入其内容，因此不会为它们触发任何 PreToolUse hook，包括匹配 `Read` 的 hook。PreToolUse 也不会为 [`EndConversation`](https://code.claude.com/docs/zh-CN/tools-reference#endconversation-tool-behavior) 触发。
+> PreToolUse 在 Claude 调用工具时运行。它不会为[注入命令](https://code.claude.com/docs/zh-CN/skills.md#inject-dynamic-context)触发，注入命令是通过[权限检查](https://code.claude.com/docs/zh-CN/skills.md#permission-checks-on-injected-commands)并在 skill 加载时运行的 shell 命令。要记录或阻止这些命令，请添加 [PreSkillShellCommand](#preskillshellcommand) hook。
+>
+> 默认情况下，您[在提示词中使用 `@` 引用](https://code.claude.com/docs/zh-CN/common-workflows#reference-files-and-directories)的文件在添加时不会经过任何工具调用。Claude Code 在构建提示词时直接插入其内容，因此不会为它们触发任何 PreToolUse hook，包括匹配 `Read` 的 hook。PreToolUse 也不会为 [`EndConversation`](https://code.claude.com/docs/zh-CN/tools-reference#endconversation-tool-behavior) 触发。
 >
 > 您可以阻止 `@` 引用特定路径，或关闭插入功能：
 >
@@ -4030,6 +4107,7 @@ fi
 * `PostModelSwitch`
 * `PreCompact`
 * `PreModelSwitch`
+* `PreSkillShellCommand`
 * `SessionEnd`
 * `StopFailure`
 * `SubagentStart`

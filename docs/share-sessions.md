@@ -92,12 +92,12 @@
 如果接收者无法打开链接，请检查以下原因：
 
 * **可见性**：会话为 **Private**，或者接收者未登录 claude.ai，或者对于 **Team** 链接而言接收者不在您的组织中。请检查[谁可以打开该链接](#share-a-session)。
-* **Free 计划**：接收者使用 Free 账户登录，并被引导至升级页面。请让他们使用拥有[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)功能的账户登录。
 * **仓库访问权限**：该链接[要求仓库访问权限](#share-a-session)，而接收者的 GitHub 账户无法读取该仓库。请让他们[连接一个](https://code.claude.com/docs/zh-CN/web-quickstart.md#connect-github)具有读取权限的账户。
 * **上传的代码或非 GitHub 代码**：该链接要求仓库访问权限，而代码是[上传的](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#send-local-repositories-without-github)，或者位于 GitLab 或 Bitbucket 等 Git 托管平台上。请从仓库位于 github.com 上且并非上传而来的会话进行共享。
 * **无效链接**：共享链接可能与浏览器中的地址不一致，并且当您停止共享后再次共享时，**Public** 链接会发生变化。请从 **Share** 复制当前链接并发送。
 * **组织设置**：组织已[关闭 **Share cloud sessions**](#sharing-is-turned-off-for-your-organization)。请联系 Owner 重新开启。
 * **已升级计划**：您共享了 **Public** 链接，随后将计划升级为 Team 或 Enterprise。该链接将遵循 [Enterprise 和 Team 账户](#share-from-an-enterprise-or-team-account)的规则。
+* **已降级计划**：您共享了 **Public** 链接，随后转为 Free 计划。[升级](https://claude.ai/upgrade)到 Max、Ultra 或 Pro 计划后，同一链接即可打开，无需其他操作。
 
 在以下情况下，您无法恢复链接：
 

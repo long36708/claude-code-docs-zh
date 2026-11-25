@@ -123,7 +123,7 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](https://
 >
 > **如果它关于响应本身，您可能想再次关闭它，请使用 output style**：长度、格式、Claude 解释多少，或不同的角色，如写作助手。Claude Code 包括 [内置风格](https://code.claude.com/docs/zh-CN/output-styles.md#built-in-output-styles)，您可以编写自己的。
 >
-> **它们结合。** CLAUDE.md 保持加载，无论您选择什么风格。Claude 遵循两者作为说明，所以都不是强制执行的。对于必须每次都发生的任何事情，使用 [hook](https://code.claude.com/docs/zh-CN/hooks-guide.md)。
+> **它们可以结合。** Claude 将两者都作为说明来遵循，所以两者都不是强制执行的。对于必须每次都发生的任何事情，使用 [hook](https://code.claude.com/docs/zh-CN/hooks-guide.md)。
 
 > [tab] CLAUDE.md vs Rules vs Skills
 >
@@ -248,11 +248,11 @@ Claude Code 结合了一个能够推理代码的模型和[内置工具](https://
 >
 > > [!TIP]
 > >
-> > 保持 CLAUDE.md 在 200 行以下。将参考材料移到 skills，这些 skills 按需加载。要获取 [已检入 CLAUDE.md 的修剪建议](https://code.claude.com/docs/zh-CN/memory.md#my-claude-md-is-too-large)，请运行 `/doctor`。
+> > 保持 CLAUDE.md 在 200 行以下。将参考材料移到 skill 中，skill 按需加载。要获取 [已检入 CLAUDE.md 的修剪建议](https://code.claude.com/docs/zh-CN/memory.md#my-claude-md-is-too-large)，请运行 `/doctor`。
 
 > [tab] Skills
 >
-> Skills 是 Claude 工具包中的额外功能。它们可以是参考材料（如 API 风格指南）或可调用的工作流，您可以使用 `/<name>` 触发（如 `/deploy`）。Claude Code 包括 [捆绑的 skills](https://code.claude.com/docs/zh-CN/commands.md)，如 `/code-review`、`/batch` 和 `/debug`，可以开箱即用。您也可以创建自己的。
+> Skills 是 Claude 工具包中的额外功能。它们可以是参考材料（如 API 风格指南）或可调用的工作流，您可以使用 `/<name>` 触发（如 `/deploy`）。Claude Code 包括 [随附 skill](https://code.claude.com/docs/zh-CN/commands.md)，如 `/code-review`、`/batch` 和 `/debug`。您也可以创建自己的 skill。
 >
 > **何时：** 取决于 skill 的配置。默认情况下，描述在会话开始时加载，完整内容在使用时加载。对于仅用户 skills（`disable-model-invocation: true`），在您调用它们之前不加载任何内容。
 >

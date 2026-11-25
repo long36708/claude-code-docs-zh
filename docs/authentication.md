@@ -25,8 +25,8 @@ Claude Code 支持多种身份验证方法，具体取决于您的设置。个�
 
 * **Claude Pro、Max 或 Ultra 订阅**：使用您的 claude.ai 账户登录。请在 [claude.com/pricing](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=authentication_pro_max) 订阅。
 * **Claude for Teams 或 Enterprise**：使用团队管理员邀请您加入的 claude.ai 账户登录。
-* **Claude Console**：使用您的 Console 凭据登录。您的管理员必须先[邀请您](#claude-console-authentication)。您可以在[创建 API 密钥](#sign-in-without-an-api-key)或不创建 API 密钥的情况下登录。
-* **云提供商**：如果您的组织使用 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)，请在运行 `claude` 之前设置所需的环境变量。您也可以在登录提示处选择 **3rd-party platform**，这会启动 Bedrock 和 Agent Platform 的交互式设置向导。
+* **Claude Console**：使用您的 [Console 凭据](#claude-console-authentication)登录。您可以在[创建 API 密钥](#sign-in-without-an-api-key)或不创建 API 密钥的情况下登录。
+* **云提供商**：如果您使用 [Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)、[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md) 或 [Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)，请在运行 `claude` 之前设置所需的环境变量。您也可以在登录提示处选择 **3rd-party platform**，这会启动 Bedrock 和 Agent Platform 的交互式设置向导。
 * **Cloud gateway**：如果您的组织运行自托管的 [Claude apps gateway](https://code.claude.com/docs/zh-CN/claude-apps-gateway)，请通过 `/login` 或[从 VS Code](https://code.claude.com/docs/zh-CN/vs-code.md#sign-in-to-a-claude-apps-gateway) 使用企业 SSO 登录。网关颁发的令牌是该会话的唯一凭据。
 * **Enterprise Admin Console**：如果所有者已为您组织的提供商或网关[开启此登录方式](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#turn-on-sign-in-from-claude-code)，请在 shell 中运行 `claude auth login`，然后在浏览器中选择您的组织。要进行确认，请在终端中查找 `Signed in to the organization`。有关所需的 Claude Code 版本，请参阅[开始之前](https://claude.com/docs/third-party/claude-desktop/admin-console-claude-code#before-you-start)。
 
