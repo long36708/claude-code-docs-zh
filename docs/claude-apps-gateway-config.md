@@ -563,10 +563,10 @@ upstreams:
 | `region` | 是 | AWS 区域。网关从它派生端点为 `https://bedrock-mantle.<region>.api.aws/anthropic`。 |
 | `models` | 是 | 您的 AWS 帐户在 Mantle 上获授权的模型，按客户端发送的名称命名，如 `claude-haiku-4-5`。只有这些模型会发送到此上游，其他每个模型都跳到下一个上游。 |
 | `auth` | 否 | 接受与 [Amazon Bedrock](#amazon-bedrock) 上游的 `auth` 块相同的键，遵循相同的规则。 |
-| `assume_role` | 否 | 此上游的请求所经由的角色，键与[`bedrock` 上游上的](#bedrock-in-another-aws-account)相同，包括用于[按开发者归属](#per-developer-aws-cost-attribution)的 `session_name`。为该角色授予 Mantle 的 IAM 操作权限。要求网关运行 Claude Code v2.1.318 或更高版本。更早的网关会在启动时退出并报告 `Unrecognized key(s) in object: 'assume_role'`。 |
+| `assume_role` | 否 | 此上游请求所使用的角色，其键与[在 `bedrock` 上游上](#bedrock-in-another-aws-account)相同，包括用于[按开发者归属](#per-developer-aws-cost-attribution)的 `session_name`。要求网关运行 Claude Code v2.1.318 或更高版本。较早的网关会在启动时退出并显示 `Unrecognized key(s) in object: 'assume_role'`。 |
 | `base_url` | 否 | 覆盖派生的端点。在末尾保留 `/anthropic` 路径。 |
 
-为上游的 AWS 身份授予 Mantle 自己用于推理和 token 计数的 IAM 操作，[使用 Mantle 端点](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#use-the-mantle-endpoint)中列出了这些操作。
+如果您设置了 `assume_role` 角色，请向该角色授予 [Mantle 的 IAM 操作](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#use-the-mantle-endpoint)；否则授予上游的 AWS 身份。
 
 对于网关不知道的 Mantle 模型 ID，在顶层 [`models:`](#models) 块中添加一个条目，其 `upstream_model` 将此上游的名称映射到该 ID。然后也将该条目的 `id` 放入此上游的 `models` 字段。
 

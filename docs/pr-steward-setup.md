@@ -128,7 +128,7 @@
 
 ### 查看 PR Steward 的支出
 
-要查看每个已合并 Pull Request 的平均支出，请打开仓库的 **Edit** 对话框。要查看您组织过去 30 天的总支出，请前往 [claude.ai/analytics/pr-steward](https://claude.ai/analytics/pr-steward)。
+要查看某个仓库在 PR Steward 上的预估支出，请打开该仓库的 **Edit** 对话框。要查看您组织过去 30 天的预估总支出，请前往 [claude.ai/analytics/pr-steward](https://claude.ai/analytics/pr-steward)。
 
 ### 设置 PR Steward 的支出限额
 

@@ -32,7 +32,7 @@ Claude Code 在以下平台和配置上运行：
 
 > [!TIP]
 >
-> 更喜欢图形界面？[桌面应用](https://code.claude.com/docs/zh-CN/desktop-quickstart.md)让您无需使用终端即可使用 Claude Code。下载适用于 [macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)、[Windows](https://claude.com/download?utm_source=claude_code\&utm_medium=docs) 或 [Linux](https://code.claude.com/docs/zh-CN/desktop-linux.md) 的版本。
+> 更喜欢图形界面？[桌面应用](https://code.claude.com/docs/zh-CN/desktop-quickstart.md)让您无需使用终端即可使用 Claude Code。下载适用于 [macOS](https://claude.ai/claude-code/desktop-download?platform=mac\&utm_source=claude_code\&utm_medium=docs)、[Windows](https://claude.ai/claude-code/desktop-download?platform=win\&utm_source=claude_code\&utm_medium=docs) 或 [Linux](https://code.claude.com/docs/zh-CN/desktop-linux.md) 的版本。
 
 要安装 Claude Code，请打开终端并运行适用于您的系统的命令。如果您之前没有使用过终端，[终端指南](https://code.claude.com/docs/zh-CN/terminal-guide)会展示如何打开终端并粘贴命令。
 

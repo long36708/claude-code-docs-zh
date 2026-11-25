@@ -34,7 +34,6 @@
 | :- | :- |
 | Approvals "did not run on this change" | 按照评论所述操作。其中一个原因是 Pull Request 将文件移入或移出策略规则所覆盖的路径。请分两个 Pull Request 完成该移动：一个以新名称添加文件，另一个删除旧文件 |
 | "More than one Claude organization is connected to this GitHub account" | 请应运行 Approvals 的 Claude 组织的 Owner 在 [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-ship) 上点击仓库所属 GitHub 组织旁边的 **Connect**。然后推送一个提交 |
-| "Claude Approvals can't start in this repository yet" | 告知 Owner 该组织没有可用的使用额度 |
 
 ### 请 Owner 检查您的 Claude 组织
 
@@ -45,6 +44,12 @@
 | 组织是否符合条件 | [可用性](https://code.claude.com/docs/zh-CN/approvals.md#availability) |
 | [Claude GitHub App](https://github.com/apps/claude) 是否可以访问该仓库并已关联 | [**Organization settings > Git providers**](https://claude.ai/admin-settings/source-control) |
 | Approvals 是否在此处被关闭 | [**Organization settings > Claude Ship**](https://claude.ai/admin-settings/claude-ship) 上的 **Approvals** 列和 **Approve** 行 |
+
+### 检查 GitHub IP 允许列表
+
+如果请求来自不在组织 IP 允许列表中的地址，GitHub 会拒绝 Approvals 的请求，这可能导致既没有检查也没有评论。
+
+请询问仓库所属 GitHub 组织或企业的所有者是否按 IP 地址限制访问。如果是，请让该所有者按照 [GitHub 允许列表和防火墙](https://code.claude.com/docs/zh-CN/network-config.md#github-allow-lists-and-firewalls)中的说明，允许 Anthropic 的所有出站地址。这些地址获得允许后，向您的 Pull Request 推送一个提交。
 
 ## 解决审查线程后 Approvals 仍未通过
 

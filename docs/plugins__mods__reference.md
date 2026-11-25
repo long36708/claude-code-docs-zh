@@ -150,7 +150,7 @@ hook 可以将更改后的 `text` 或 `frontmatter` 传给 `next`：其后的 ho
 | `session.end` | 会话结束，或运行 `/clear`、`/resume` 或 `/branch` 时。`e.reason` 为 `clear`、`resume`、`logout`、`prompt_input_exit` 或 `other`。`/branch` 报告为 `resume`。 | `next(e)` |
 | `session.compact` | 对话即将被压缩 | `{ skip: reason }` |
 | [`session.receive`](https://code.claude.com/docs/zh-CN/plugins/mods/api#send-and-receive-messages-between-sessions), [`session.send`](https://code.claude.com/docs/zh-CN/plugins/mods/api#send-and-receive-messages-between-sessions) | 一条消息从另一个 Agent 或会话到达，或即将发往另一个 Agent 或会话。请参阅[在会话之间发送和接收消息](https://code.claude.com/docs/zh-CN/plugins/mods/api.md#send-and-receive-messages-between-sessions)。 | `receive` 返回 `{ consumed: reason }`，`send` 返回 `{ isDelivered: false, reason }` |
-| `session.append` | 对话保留的每一行一次，例如提示词、响应块、工具结果或通知，在存储之前触发 | 带有更改后 `message.content` 的 `next({ ...e, message })`，用于重写该行的文本块或其中 `tool_result` 块的 `content` |
+| `session.append` | 对话保留的每一行一次，例如提示词、响应块、工具结果或通知，在存储之前触发 | 带有更改后 `message.content` 的 `next({ ...e, message })`，用于重写该行的文本块或其中 `tool_result` 块的 `content`。您无法重写包含[来自 MCP 服务器的 skill](https://code.claude.com/docs/zh-CN/mcp.md#use-skills-from-mcp-servers) 的行。要更改该 skill 的文本，请改为在 [`skill.prompt`](#prompts-and-what-claude-reads) 上设置 hook。 |
 | `session.attach`, `session.detach` | 另一个应用连接到会话或从会话断开 | `next(e)` |
 | `session.measure` | 每个轮次之后，以及套餐限制的已用百分比发生变化时 | `next(e)` |
 | `session.stop` | 用户停止 Claude，例如在轮次进行中按 Esc。需要 Claude Code v2.1.326 或更高版本。 | `next(e)` |

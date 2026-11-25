@@ -129,11 +129,11 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
       <td>[Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)</td>
       <td>✓（实验性，[需满足要求](https://code.claude.com/docs/zh-CN/code-mode.md#requirements)）</td>
       <td>✓（实验性，[需满足要求](https://code.claude.com/docs/zh-CN/code-mode.md#requirements)）</td>
-      <td>✗</td>
-      <td>✗</td>
-      <td>✗</td>
-      <td>✗</td>
-      <td>✗</td>
+      <td>✓（实验性，[需满足要求](https://code.claude.com/docs/zh-CN/code-mode.md#requirements)）</td>
+      <td>✓（实验性，[需满足要求](https://code.claude.com/docs/zh-CN/code-mode.md#requirements)）</td>
+      <td>✓（实验性，[需满足要求](https://code.claude.com/docs/zh-CN/code-mode.md#requirements)）</td>
+      <td>✓（实验性，[需满足要求](https://code.claude.com/docs/zh-CN/code-mode.md#requirements)）</td>
+      <td>✓（实验性，[需满足要求](https://code.claude.com/docs/zh-CN/code-mode.md#requirements)）</td>
     </tr>
 
     <tr>
@@ -258,7 +258,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 > [tab] Amazon Bedrock
 >
-> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)、[fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)、[fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 >
 > **部分支持：**
 >
@@ -271,7 +271,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 > [tab] Claude Platform on AWS
 >
-> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)、[Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 >
 > **Amazon Bedrock 不可用的地方可用：** [web search](https://code.claude.com/docs/zh-CN/tools-reference.md#websearch-tool-behavior)，以及 Claude Code v2.1.300 或更高版本中的 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md)。
 >
@@ -283,7 +283,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 > [tab] Google Cloud (Anthropic managed)
 >
-> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)、[Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 >
 > **此处可用但 Google Cloud (Google managed) 上不可用：** Claude Code v2.1.300 或更高版本中的 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md)。
 >
@@ -298,7 +298,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 >
 > 如果您设置 `CLAUDE_CODE_USE_VERTEX` 以将 Claude Code 与 Google Cloud's Agent Platform 配合使用，那么您使用的就是此提供商。
 >
-> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 >
 > **部分支持：**
 >
@@ -313,7 +313,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 
 > [tab] Microsoft Foundry
 >
-> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)、[Code Mode](https://code.claude.com/docs/zh-CN/code-mode.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
+> **不可用：** 所有[需要 Claude 订阅的功能](#features-that-require-a-claude-subscription)，加上 [fast mode](https://code.claude.com/docs/zh-CN/fast-mode.md)、[Advisor](https://code.claude.com/docs/zh-CN/advisor.md)、[Channels](https://code.claude.com/docs/zh-CN/channels.md)、[GitLab CI/CD](https://code.claude.com/docs/zh-CN/gitlab-ci-cd.md)、[analytics dashboard](https://code.claude.com/docs/zh-CN/analytics.md)、[server-managed settings](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 和 [`/design-sync` 和 `/import` 命令](https://code.claude.com/docs/zh-CN/commands#all-commands)。
 >
 > **部分支持：**
 >
@@ -346,6 +346,7 @@ Desktop 是部分例外：[网关路由可以在应用中或由管理员配置](
 | [云端定时任务](https://code.claude.com/docs/zh-CN/routines.md) | ✓ | ✓ | ✓ | ✓ | ✓ |
 | [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) | ✓ | ✓ | ✓ | Admin-enabled | Admin-enabled |
 | [Channels](https://code.claude.com/docs/zh-CN/channels.md) | ✓ | ✓ | ✓ | Admin-enabled | Admin-enabled |
+| [来自 MCP 服务器的 Skills](https://code.claude.com/docs/zh-CN/mcp.md#requirements-for-skills-from-mcp-servers) | ✓ | ✓ | ✓ | Admin-enabled | Admin-enabled |
 | [Computer use](https://code.claude.com/docs/zh-CN/computer-use.md) | ✓ | ✓ | ✓ | ✗ | ✗ |
 | Dispatch ([Desktop](https://code.claude.com/docs/zh-CN/desktop.md#sessions-from-dispatch)) | 不向新用户开放 | 不向新用户开放 | 不向新用户开放 | ✗ | ✗ |
 | [Code Review](https://code.claude.com/docs/zh-CN/code-review.md) | ✗ | ✗ | ✗ | ✓ | ✓ |

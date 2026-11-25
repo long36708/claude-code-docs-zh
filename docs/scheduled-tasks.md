@@ -15,7 +15,7 @@
 > * **对事件进行实时反应而不是轮询**：请参阅 [Channels](https://code.claude.com/docs/zh-CN/channels.md)。您的 CI 可以直接将失败推送到会话中。
 > * **让会话逐轮次持续工作直到满足某个条件，而不是按间隔运行**：请参阅 [`/goal`](https://code.claude.com/docs/zh-CN/goal)。
 
-任务是会话范围的。当您使用 `--resume` 或 `--continue` 恢复时，Claude Code 会恢复尚未[过期](#seven-day-expiry)的任务，除了[限制](#limitations)下列出的任务。对于独立于任何会话而存在的调度，请创建[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)、设置 [Desktop 定时任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md)，或使用 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)。
+任务是会话范围的。当您使用 `--resume` 或 `--continue` 恢复时，Claude Code 会恢复尚未[过期](#recurring-task-expiry)的任务，除了[限制](#limitations)下列出的任务。对于独立于任何会话而存在的调度，请创建[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)、设置 [Desktop 定时任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md)，或使用 [GitHub Actions](https://code.claude.com/docs/zh-CN/github-actions.md)。
 
 ## 比较调度选项
 
@@ -78,7 +78,7 @@ Claude Code 提供三种方式来安排定期或一次性工作：
 
 在 [Monitor 工具可用](https://code.claude.com/docs/zh-CN/tools-reference.md#monitor-tool)的会话中，当您请求动态 `/loop` 计划时，Claude 可能会直接使用该工具。Monitor 会运行后台脚本并将每一行输出流式传回，从而完全避免轮询，并且通常比按间隔重新运行提示词更节省 token、响应更及时。
 
-动态安排的循环会像其他任务一样出现在您的[定时任务列表](#manage-scheduled-tasks)中，因此您可以用相同的方式列出或取消它。列表将其待处理的唤醒显示为一次性任务，因此安排在 `:00` 或 `:30` 的唤醒可能会[稍早运行](#when-a-one-shot-task-runs-early)。[七天过期](#seven-day-expiry)规则同样适用于该循环。
+动态安排的循环会出现在您的[定时任务列表](#manage-scheduled-tasks)中，因此您可以让 Claude 列出或取消它。列表将其待处理的唤醒显示为一次性任务，因此安排在 `:00` 或 `:30` 的唤醒可能会[稍早运行](#when-a-one-shot-task-runs-early)。该循环会[在启动 30 天后过期](#recurring-task-expiry)。
 
 > [!NOTE]
 >
@@ -127,7 +127,7 @@ quiet, say so in one line.
 ### 停止循环
 
 * **[自定节奏的循环](#let-claude-choose-the-interval)**：在循环等待下一次迭代时，在空输入框中按 `Esc` 即可停止它。在 Claude 空闲时，您也可以按 `Ctrl+C` 停止它，但在[您已附加到的后台会话](#detach-without-stopping-a-loop)中除外。`Pending wakeup cancelled` 通知会确认该循环不会再次触发。
-* **[固定间隔的循环](#run-on-a-fixed-interval)**：要停止 `/loop 5m` 之类的循环，请让 Claude 取消它，例如 `cancel the deploy check loop`。`Esc` 和 `Ctrl+C` 无法停止它，也无法停止任何您[通过直接询问 Claude 安排的任务](#manage-scheduled-tasks)。未取消的循环会在[七天后](#seven-day-expiry)结束。
+* **[固定间隔的循环](#run-on-a-fixed-interval)**：要停止 `/loop 5m` 之类的循环，请让 Claude 取消它，例如 `cancel the deploy check loop`。`Esc` 和 `Ctrl+C` 无法停止它，也无法停止任何您[通过直接询问 Claude 安排的任务](#manage-scheduled-tasks)。未取消的循环会在[启动 30 天后](#recurring-task-expiry)结束。
 
 在[自定节奏模式](#let-claude-choose-the-interval)下，Claude 也可以在任务完成后自行结束循环。Claude 会使用 `stop: true` 调用 [`ScheduleWakeup` 工具](https://code.claude.com/docs/zh-CN/tools-reference)，从而立即取消待处理的唤醒。
 
@@ -208,9 +208,11 @@ cancel the deploy check job
 
 安排在 `:00` 或 `:30` 的一次性任务最多会提前 90 秒运行。Claude Code 不会调整安排在其他任何分钟的一次性任务，因此当时间很重要时，请避开整点和半点进行安排：使用 `3 9 * * *` 而不是 `0 9 * * *`。
 
-### 七天过期
+### 重复任务过期
 
-重复任务在创建后 7 天自动过期。任务最后触发一次，然后删除自己。这限制了被遗忘的循环可以运行多长时间。如果您需要重复任务持续更长时间，请在过期前取消并重新创建它，或使用[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)或 [Desktop 定时任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md)进行持久调度。
+重复任务在创建后 30 天自动过期。任务最后触发一次，然后删除自己。这限制了被遗忘的循环可以运行多长时间。在 v2.1.330 之前，该限制为 7 天，在这些版本上使用 `CronCreate` 创建的重复任务仍保留该限制。
+
+如果您需要重复任务持续更长时间，请在过期前取消并重新创建它，或使用[云端定时任务](https://code.claude.com/docs/zh-CN/routines.md)或 [Desktop 定时任务](https://code.claude.com/docs/zh-CN/desktop-scheduled-tasks.md)进行持久调度。
 
 ## Cron 表达式参考
 

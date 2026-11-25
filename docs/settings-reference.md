@@ -83,6 +83,7 @@
 | [`disableCommandPluginSources`](#disablecommandpluginsources) | 屏蔽通过运行市场声明的命令进行安装的[插件](https://code.claude.com/docs/zh-CN/plugins/overview.md) | 插件与 skill | 托管 |
 | [`disableDeepLinkRegistration`](#disabledeeplinkregistration) | 阻止 Claude Code 注册 [`claude-cli://` 处理程序](https://code.claude.com/docs/zh-CN/deep-links) | 远程、桌面与通知 | 任意文件 |
 | [`disableDesktopLocalSessions`](#disabledesktoplocalsessions) | 关闭在设备上运行的 [Desktop Code 会话](https://code.claude.com/docs/zh-CN/desktop.md#local-sessions-on-managed-devices)，仅保留通过 SSH 连接其他主机和云端 | 远程、桌面与通知 | 托管 |
+| [`disableDirectMcpSkills`](#disabledirectmcpskills) | 为您的组织开启或关闭[来自 MCP 服务器的 skill](https://code.claude.com/docs/zh-CN/mcp.md#turn-on-skills-for-an-organization)（连接器除外） | MCP | 托管 |
 | [`disabledMcpjsonServers`](#disabledmcpjsonservers) | 拒绝项目 [`.mcp.json`](https://code.claude.com/docs/zh-CN/mcp#project-scope) 中的特定服务器 | MCP | 任意文件 |
 | [`disableMobileSimulatorTools`](#disablemobilesimulatortools) | 在[桌面版](https://code.claude.com/docs/zh-CN/desktop.md) iOS Simulator 窗格中屏蔽 Claude 的工具 | 工具 | 托管 |
 | [`disableRemoteControl`](#disableremotecontrol) | 在所有可启动 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 的地方将其关闭 | 远程、桌面与通知 | 任意文件 |
@@ -4181,6 +4182,8 @@ Claude Code 仅将模板应用于其自身呈现的链接；Claude 在消息中�
 
 锁定 `skills` 类别。Claude Code 停止加载来自 `~/.claude/skills/` 和 `.claude/skills/` 的 skill、来自 `~/.claude/commands/` 和 `.claude/commands/` 的自定义命令、`--add-dir` 目录下的 skill 和命令，以及从您的 claude.ai 账户同步的 skill。它会继续加载随附 skill、托管策略目录中的 skill，以及来自 [skills 目录插件](https://code.claude.com/docs/zh-CN/plugins/loading.md#skills-directory-plugins-blocked-by-managed-settings)以外插件的 skill。
 
+锁定开启后，由用户、项目和 `--mcp-config` 添加的 [MCP 服务器中的 skill](https://code.claude.com/docs/zh-CN/mcp.md#use-skills-from-mcp-servers) 不会加载。来自 claude.ai 连接器的 skill 仍会加载。
+
 * **作用域**：[`Managed`](#scopes)
 * **类型**：[`strictPluginOnlyCustomization`](#strictpluginonlycustomization) 数组中的字符串 `"skills"`
 * **默认值**：不锁定
@@ -4539,6 +4542,28 @@ Claude Code 会忽略项目和本地条目，因为它会将这些值代入插�
 ```
 
 拒绝列表优先于 [`allowedMcpServers`](#allowedmcpservers)，因此同时出现在两个列表中的服务器会被阻止。请参阅[基于策略的允许列表和拒绝列表控制](https://code.claude.com/docs/zh-CN/managed-mcp.md#policy-based-control-with-allowlists-and-denylists)。
+
+### `disableDirectMcpSkills`
+
+为您的组织启用或关闭[来自 MCP 服务器的 skill](https://code.claude.com/docs/zh-CN/mcp.md#turn-on-skills-for-an-organization)。此键涵盖除 claude.ai 连接器之外的所有服务器。对于连接器，改由 Owner 在 [**Organization settings > Connectors**](https://claude.ai/admin-settings/connectors) 中使用 **Skills over MCP** 开关进行控制。来自 MCP 服务器的 skill 需要 Claude Code v2.1.331 或更高版本。
+
+* **作用域**：[`Managed`](#scopes)。如果您使用多个[托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)，请在排名最高的来源中设置 `false`。Claude Code 会忽略 Windows HKCU 注册表中的 `false`
+* **类型**：Boolean
+  * `true`：Claude Code 不会列出或加载来自这些服务器的 skill。这些服务器保留其工具，claude.ai 连接器保留其 skill
+  * `false`：在 Team 和 Enterprise 计划中，允许这些 skill。对于您通过 `strictPluginOnlyCustomization` 锁定的服务器，以及在您的组织不[符合条件](https://code.claude.com/docs/zh-CN/mcp.md#requirements-for-skills-from-mcp-servers)时，这些 skill 仍保持关闭。在其他计划中，`false` 与未设置相同
+* **默认值**：未设置。对于使用 `/login` 登录 claude.ai 的 Team 和 Enterprise 成员，这些 skill 处于关闭状态。有关其他登录方式，请参阅 [MCP skill 可用性](https://code.claude.com/docs/zh-CN/mcp.md#requirements-for-skills-from-mcp-servers)
+
+此示例为 Team 和 Enterprise 成员允许这些 skill：
+
+```json managed-settings.json theme={null}
+{
+  "disableDirectMcpSkills": false
+}
+```
+
+如果任何[管理员来源](https://code.claude.com/docs/zh-CN/managed-settings.md#keys-read-from-every-admin-source)设置了 `true`，这些 skill 将保持关闭。
+
+Anthropic 不会扫描这些 skill。它们可能包含导致 Claude 执行意外操作的指令或代码，包括通过[提示词注入](https://code.claude.com/docs/zh-CN/security.md#protect-against-prompt-injection)。仅当您信任成员添加的服务器时，才将此项设置为 `false`。
 
 ### `disableClaudeAiConnectors`
 

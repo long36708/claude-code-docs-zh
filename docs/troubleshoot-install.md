@@ -67,7 +67,7 @@
 
 > [!TIP]
 >
-> 如果您宁愿完全跳过终端，[Claude Code Desktop 应用](https://code.claude.com/docs/zh-CN/desktop-quickstart.md)可让您通过图形界面安装和使用 Claude Code。为 [macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs) 或 [Windows](https://claude.com/download?utm_source=claude_code\&utm_medium=docs) 下载它，无需任何命令行设置即可开始编码。在 Linux 上，按照 [Linux 安装说明](https://code.claude.com/docs/zh-CN/desktop-linux.md)使用 apt 安装应用。
+> 如果您宁愿完全跳过终端，[Claude Code Desktop 应用](https://code.claude.com/docs/zh-CN/desktop-quickstart.md)可让您通过图形界面安装和使用 Claude Code。为 [macOS](https://claude.ai/claude-code/desktop-download?platform=mac\&utm_source=claude_code\&utm_medium=docs) 或 [Windows](https://claude.ai/claude-code/desktop-download?platform=win\&utm_source=claude_code\&utm_medium=docs) 下载它，无需任何命令行设置即可开始编码。在 Linux 上，按照 [Linux 安装说明](https://code.claude.com/docs/zh-CN/desktop-linux.md)使用 apt 安装应用。
 
 ## 运行诊断检查
 

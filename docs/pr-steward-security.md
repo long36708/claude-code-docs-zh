@@ -60,7 +60,7 @@ Anthropic 的服务允许诸如以下的请求。在设有规则的分支上，�
 
 对于执行合并、启用自动合并或强制推送的命令，会运行两项检查。权限规则会拒绝执行这些操作的常用命令。[自动模式的检查](https://code.claude.com/docs/zh-CN/permission-modes.md#how-auto-mode-evaluates-actions)会对没有任何规则匹配的命令进行判断。规则匹配的是命令的文本，而检查依赖的是模型的判断，因此以其他方式编写的命令可能会同时通过这两项检查。
 
-要让 GitHub 对 PR Steward 推送的内容强制执行审查，请[使用分支规则要求审查](https://code.claude.com/docs/zh-CN/pr-steward-setup.md#require-reviews-with-branch-rules)，并确保 Claude GitHub App 不在每个规则集的绕过列表中。在经典分支保护规则中，确保它不在 **Allow specified actors to bypass required pull requests** 列表中。
+要让 GitHub 对 PR Steward 推送的内容强制执行审查，请[使用分支规则要求审查](https://code.claude.com/docs/zh-CN/pr-steward-setup.md#require-reviews-with-branch-rules)，并确保 Claude GitHub App 不在任何规则集的绕过列表中。在经典分支保护规则中，确保它不在 **Allow specified actors to bypass required pull requests** 列表中。
 
 ## 相关资源
 

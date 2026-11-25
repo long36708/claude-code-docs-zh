@@ -42,7 +42,7 @@ PR Steward 处理失败的检查、合并冲突、审查反馈以及 Claude Appr
 
 ### 停止或限制 PR Steward
 
-要在某个 Pull Request 上停止 PR Steward，请移除 `claude-pr-steward-watching` 标签或[评论 `@claude stop`](https://code.claude.com/docs/zh-CN/pr-steward-pull-requests#start-or-stop-pr-steward-on-one-pull-request)。要在您之后打开的 Pull Request 上关闭或限制 PR Steward，请前往 **Settings > Code** 或 **Settings > Claude Code** 中的 [**PR Steward**](https://claude.ai/settings/claude-code#pr-steward)。
+要在某个 Pull Request 上停止 PR Steward，请移除 `claude-pr-steward-watching` 标签或[评论 `@claude stop`](https://code.claude.com/docs/zh-CN/pr-steward-pull-requests#start-or-stop-pr-steward-on-one-pull-request)。要在您之后打开的 Pull Request 上关闭或限制 PR Steward，请前往 claude.ai 上 **Settings > Code** 中的 [**PR Steward**](https://claude.ai/settings/claude-code#pr-steward)。
 
 ## 判断 PR Steward 是否适合您的团队
 

@@ -534,7 +534,7 @@ Claude 会被告知改用其文件工具读取该路径；当 Claude Code 只是
 * **PreToolUse hook**：返回 `"allow"` 的 [hook](#extend-permissions-with-hooks) 不会跳过该提示
 * **自动模式**：提示会交给您，而不是由[分类器](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)决定该读取
 
-在 `dontAsk` 模式下，Claude Code 会拒绝该读取而不是提示。在 `bypassPermissions` 模式下，以及在可使用[绕过权限](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode)的交互式终端会话中处于计划模式时，该读取无需此提示即可运行。
+在 `dontAsk` 模式下，Claude Code 会直接拒绝该读取操作，而不是提示您确认。在 `bypassPermissions` 模式下，以及在可使用 [bypass permissions](https://code.claude.com/docs/zh-CN/permission-modes.md#skip-all-checks-with-bypasspermissions-mode) 的计划模式交互式终端会话中，该读取操作可以在不显示此提示的情况下运行。
 
 要在没有此提示的情况下读取网络共享上的文件，请先为该共享提供一个本地路径：
 

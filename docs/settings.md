@@ -203,7 +203,21 @@ Claude Code 仅在会话启动时读取某些键一次，因此对其中一个�
 
 在您继续后，运行 `/status` 以查看受影响的文件，`claude doctor` 以查看每个错误的详情。
 
-`-p` 运行不显示对话框。除非[托管设置文档无法解析](https://code.claude.com/docs/zh-CN/errors.md#managed-settings-document-could-not-be-parsed)，Claude Code 会跳过损坏的用户、项目或本地文件或其损坏的值，并继续处理其余部分。在忽略某项设置的 `-p` 运行之后，请从终端运行 `claude doctor` 以查看它删除了什么。
+#### `-p` 运行中的损坏设置
+
+`-p` 运行不显示对话框。除非[托管设置文档无法解析](https://code.claude.com/docs/zh-CN/errors.md#managed-settings-document-could-not-be-parsed)，Claude Code 会跳过损坏的用户、项目或本地文件或其损坏的值，并继续处理其余部分。
+
+使用默认的 `text` [输出格式](https://code.claude.com/docs/zh-CN/headless.md#get-structured-output)时，stderr 会列出未加载或被跳过的内容：
+
+```text theme={null}
+These settings did not load, so nothing in them is in effect, including hooks, permission rules and sandbox settings, though environment variables they already set can stay:
+  /home/you/.claude/settings.json (cleanupPeriodDays): Expected number, but received string
+These settings entries were skipped; the rest of each source is in effect:
+  /home/you/app/.claude/settings.json (permissions.allow): Invalid permission rule "Bash(ls) x" was skipped: Malformed Tool(content) rule. Rules take the form Tool or Tool(content) and must end at the closing ")"; parentheses inside the content are literal
+Fix each problem listed, then start Claude Code again. For settings sent with applyFlagSettings, shown as SDK inline settings, send them again instead.
+```
+
+在忽略某项设置的 `-p` 运行之后，请从终端运行 `claude doctor` 以查看它删除了什么。
 
 ## 设置优先级
 
@@ -330,7 +344,7 @@ Settings precedence, highest first: managed settings, command line, project loca
 * **包含多个仓库的共享项目设置**：在 Anthropic 托管的环境中，包含多个仓库的会话会在各克隆的上层目录启动，并且只从每个仓库的 `.claude/settings.json` 中读取 `enabledPlugins` 和 `extraKnownMarketplaces` 这两个键，而不会读取权限规则、hook、`env` 或其他键。仓库所声明的市场仍然[不会在云端会话中添加](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)。对于自托管环境，请参阅[应用哪个仓库的设置](https://code.claude.com/docs/zh-CN/self-hosted-environments-configuration.md#repository-settings-in-sessions-with-several-repositories)。
 * **用户和项目本地设置** (`~/.claude/settings.json` 和 `.claude/settings.local.json`)：不读取。两者都保持在您的机器上，本地文件不在克隆中。
 * **托管设置**：您设备上的 `managed-settings.json` 文件或 MDM 配置文件不会到达云会话。您组织的[服务器管理设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)会；[表面覆盖](https://code.claude.com/docs/zh-CN/model-config.md#surface-coverage)列出哪些云会话接收它们。[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)也读取其运行器镜像中的托管设置文件。[Claude Code 如何组合托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说该文件何时适用。
-* **`/config`**：在浏览器中的 claude.ai/code 上，它会打开您的 claude.ai **Code** 或 **Claude Code** 设置页面，而不是更改某个值。要为云端会话更改设置，请在环境上设置[环境变量](https://code.claude.com/docs/zh-CN/cloud-environments.md#set-environment-variables)。在项目线程之外只有一个仓库的会话中，您也可以改为将该键提交到该仓库的 `.claude/settings.json`。
+* **`/config`**：在浏览器中的 claude.ai/code 上，它会打开 **Settings > Code**，而不是更改某个值。要为云端会话更改设置，请在环境上设置[环境变量](https://code.claude.com/docs/zh-CN/cloud-environments.md#set-environment-variables)。在项目线程之外只有一个仓库的会话中，您也可以改为将该键提交到该仓库的 `.claude/settings.json`。
 
 [从您的设置中携带什么](https://code.claude.com/docs/zh-CN/cloud-environments.md#what-carries-over-from-your-setup)列出其余的：`CLAUDE.md`、skills、MCP 服务器、plugins 和凭证。
 

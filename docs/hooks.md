@@ -1383,12 +1383,12 @@ SessionStart hook 可以为 Claude 添加上下文、提供第一条用户消息
 #!/bin/bash
 
 git -C ~/.claude/skills/team-skills pull --quiet 2>/dev/null || \
-  git clone --quiet https://git.example.com/your-org/team-skills.git ~/.claude/skills/team-skills
+  git -c protocol.file.allow=never clone --quiet https://git.example.com/your-org/team-skills.git ~/.claude/skills/team-skills
 
 echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "reloadSkills": true}}'
 ```
 
-仓库 URL 是一个占位符。请将其替换为您自己的 skill 仓库。
+仓库 URL 只是占位符。请将其替换为您的 skill 仓库的 HTTPS 或 SSH URL。由于命令中包含 `protocol.file.allow=never`，您无法从文件夹路径克隆。
 
 #### 持久化环境变量
 

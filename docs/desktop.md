@@ -8,11 +8,11 @@
 
 在 Claude Desktop 应用中，Claude Code 就是 **Code** 选项卡。该应用还包含聊天和 [Cowork](https://claude.com/product/cowork)，后者负责 Dispatch 和更长的代理工作。本页是 Code 选项卡的参考。
 
-> [card] [下载 macOS 版本](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code\&utm_medium=docs)
+> [card] [下载 macOS 版本](https://claude.ai/claude-code/desktop-download?platform=mac\&utm_source=claude_code\&utm_medium=docs)
 >
 > 适用于 Intel 和 Apple Silicon 的通用版本
 
-> [card] [下载 Windows 版本](https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)
+> [card] [下载 Windows 版本](https://claude.ai/claude-code/desktop-download?platform=win-x64\&utm_source=claude_code\&utm_medium=docs)
 >
 > 适用于 x64 处理器
 
@@ -20,7 +20,7 @@
 >
 > Ubuntu 和 Debian 的 apt 或 .deb
 
-对于 Windows ARM64，请下载 [ARM64 安装程序](https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code\&utm_medium=docs)。在 Linux 上，使用 apt 安装；请参阅 [Claude Desktop on Linux](https://code.claude.com/docs/zh-CN/desktop-linux.md)。
+对于 Windows ARM64，请下载 [ARM64 安装程序](https://claude.ai/claude-code/desktop-download?platform=win-arm64\&utm_source=claude_code\&utm_medium=docs)。在 Linux 上，使用 apt 安装；请参阅 [Claude Desktop on Linux](https://code.claude.com/docs/zh-CN/desktop-linux.md)。
 
 安装后，启动 Claude，登录，然后点击 **Code** 选项卡。有关首次会话的演练，请参阅[快速开始指南](https://code.claude.com/docs/zh-CN/desktop-quickstart.md)。
 

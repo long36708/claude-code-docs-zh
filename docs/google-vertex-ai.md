@@ -11,9 +11,16 @@
 View plans
 Contact sales
 
+本页介绍通过您的 Google Cloud 项目使用 Claude 的两种方式之一：Google Cloud 的 Agent Platform（原 Vertex AI），由 Google 管理。
+
 > [!NOTE]
 >
-> 本页介绍通过您的 Google Cloud 项目使用 Claude 的两种方式之一：Google Cloud 的 Agent Platform（原 Vertex AI），由 Google 管理。如果您使用的是 Claude Models on Google Cloud（由 Anthropic 管理），请改为按照[其 Claude Code 设置页面](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md)进行操作。要了解您使用的是哪一种，请参阅[您使用的是哪种产品？](https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/overview#which-offering-are-you-using)
+> 在以下情况下，请使用其他页面：
+>
+> * **Claude Models on Google Cloud（由 Anthropic 管理）**：请按照[其 Claude Code 设置页面](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md)进行操作
+> * **不确定您使用的是哪种 Google Cloud 产品**：请参阅[您使用的是哪种产品？](https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/overview#which-offering-are-you-using)
+> * **Code 标签页，且您的组织已安装 Claude Desktop 应用**：请让您的管理员[为 Agent Platform 配置该应用](https://claude.com/docs/third-party/claude-desktop/vertex)
+> * **Code 标签页，且您自行安装 Claude Desktop 应用**：请按照[单机设置步骤](https://claude.com/docs/third-party/claude-desktop/installation#single-machine-setup)进行操作，并输入 [Agent Platform 的连接和模型值](https://claude.com/docs/third-party/claude-desktop/vertex#configure-the-app)
 
 ## 前置条件
 

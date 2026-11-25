@@ -320,6 +320,19 @@ Claude Code 对同步 skill 的正文的处理取决于会话运行的位置：
 * 在您桌面上的 Cowork 会话中，正文保持本地 skill 具有的行为，除了 Claude Code 将每个 `!` 命令行替换为 [`disableSkillShellExecution` 占位符](#inject-dynamic-context)，就像它对您在那里提供的每个 skill 所做的那样。
 * 在终端或 VS Code 会话中，Claude Code 不运行 [`!` 命令](#inject-dynamic-context)，不附加 `@` 引用所指的文件，也不替换 `${CLAUDE_PROJECT_DIR}` 和 `${CLAUDE_SESSION_ID}` 占位符。`@` 引用和这两个占位符都作为文字文本到达 Claude。`!` 命令行也作为文字文本到达 Claude，或在该设置打开时作为 `disableSkillShellExecution` 占位符到达。此处理需要 Claude Code v2.1.228 或更高版本。
 
+### 来自 MCP 服务器的 skill
+
+[MCP 服务器可以提供 skill](https://code.claude.com/docs/zh-CN/mcp.md#use-skills-from-mcp-servers)。使用它们需要 Claude Code v2.1.331 或更高版本。Claude 将 skill 的支持文件作为 [MCP 资源](https://code.claude.com/docs/zh-CN/mcp.md#use-mcp-resources) 从服务器读取。有关提示词和规则，请参阅 [MCP skill 的批准](https://code.claude.com/docs/zh-CN/mcp.md#approvals-for-mcp-skills)。
+
+#### 不适用的 skill 功能
+
+由于内容由服务器提供，您无法在 MCP skill 中使用 [本地 skill](#where-skills-live) 的以下功能：
+
+* **Frontmatter 字段**：Claude Code 忽略 `allowed-tools`、`disallowed-tools`、`hooks`、`model`、`effort`、`context`、`agent`、`background`、`shell`、`paths` 和 `metadata`
+* **[`!` 命令](#inject-dynamic-context)**：它们不会运行
+* **`@` 引用**：文件不会被附加
+* **`${CLAUDE_PROJECT_DIR}` 和 `${CLAUDE_SESSION_ID}`**：它们不会被替换
+
 ### 在会话期间编辑 skill
 
 Claude Code 监视 skill 目录的文件更改，除了在 [bare 模式](https://code.claude.com/docs/zh-CN/headless.md#start-faster-with-bare-mode) 中。当您在 `~/.claude/skills/`、项目 `.claude/skills/` 或 `--add-dir` 目录内的 `.claude/skills/` 中添加、编辑或删除 skill 时，Claude Code 在当前会话中获取更改。
@@ -675,9 +688,14 @@ Fix GitHub issue $ARGUMENTS following our coding standards.
 5. Create a commit
 ```
 
-当您运行 `/fix-issue 123` 时，Claude 会收到 "Fix GitHub issue 123 following our coding standards..."
+当您运行 `/fix-issue 123` 时，Claude 会收到 `Fix GitHub issue 123 following our coding standards...`
 
-如果您在调用 skill 时传递了参数，但 skill 内容中没有占位符接收参数，Claude Code 会将 `ARGUMENTS: <your input>` 附加到 skill 内容的末尾，以便 Claude 仍能看到您输入的内容。占位符是指 `$ARGUMENTS`、索引形式（例如 `$1`）或命名参数。在其位置上没有参数的索引占位符会保留为字面文本，不算作接收了参数。命名占位符即使在其位置上没有参数也算作接收了参数，因为它会展开为空字符串。
+如果您在调用 skill 时传递了参数，但 skill 内容中没有占位符接收参数，Claude Code 会将 `ARGUMENTS: <your input>` 附加到 skill 内容的末尾，以便 Claude 仍能看到您输入的内容。占位符是指 `$ARGUMENTS`、索引形式（例如 `$1`）或命名参数。
+
+当其位置上没有参数时，只有命名占位符才算作接收了参数：
+
+* **索引占位符，例如 `$1`**：保留为字面文本
+* **命名占位符，例如 `$issue`**：展开为空字符串
 
 要按位置访问单个参数，请使用 `$ARGUMENTS[N]` 或更简短的 `$N`：
 
@@ -871,9 +889,11 @@ Research $ARGUMENTS thoroughly:
 
 ### 限制 Claude 的技能访问
 
-默认情况下，Claude 可以调用任何未设置 `disable-model-invocation: true` 的 skill。定义了 [`allowed-tools`](#pre-approve-tools-for-a-skill) 的 skill 会在调用该 skill 的轮次中授予 Claude 使用这些工具的权限，无需逐次批准；当您发送下一条消息时，该授予即被清除。您的[权限设置](https://code.claude.com/docs/zh-CN/permissions.md)仍然管理所有其他工具的基线批准行为。一些内置命令也可以通过 Skill 工具使用，包括 `/init` 和 `/security-review`。其他内置命令（例如 `/compact`）则不可用。
+默认情况下，Claude 可以调用任何未设置 `disable-model-invocation: true` 的 skill。定义了 [`allowed-tools`](#pre-approve-tools-for-a-skill) 的 skill 会在调用该 skill 的轮次中授予 Claude 使用这些工具的权限，无需逐次批准；当您发送下一条消息时，该授予即被清除。您的[权限设置](https://code.claude.com/docs/zh-CN/permissions.md)仍然管理所有其他工具的基线批准行为。对于[来自 MCP 服务器的 skill](#skills-from-mcp-servers)，Claude 不会获得任何 `allowed-tools` 授予。
 
-控制 Claude 可以调用哪些技能的三种方法：
+一些内置命令也可以通过 Skill 工具使用，包括 `/init` 和 `/security-review`。其他内置命令（例如 `/compact`）则不可用。
+
+您可以通过以下方式控制 Claude 调用哪些 skill：
 
 **通过在 `/permissions` 中拒绝 Skill 工具来禁用所有技能**：
 
@@ -912,6 +932,8 @@ Claude Code 仅针对技能自己的名称和 Claude 调用中的名称匹配 `a
 * `Skill(anthropic-skills:pdf)` 批准同步的 `pdf` 技能
 * `Skill(anthropic-skills *)` 批准每个同步的技能
 * `Skill(anthropic *)` 不涵盖 `anthropic-skills:pdf`，因为命名空间外的前缀不匹配其中的名称
+
+对于[来自 MCP 服务器的 skill](#skills-from-mcp-servers)，请改为[为其服务器设置规则](https://code.claude.com/docs/zh-CN/mcp.md#block-a-servers-skills-or-ask-first)。您无法通过针对该 skill 名称的 `allow` 规则跳过其提示。
 
 **通过向其 frontmatter 添加 `disable-model-invocation: true` 来隐藏单个技能**。这将技能从 Claude 的上下文中完全删除。
 

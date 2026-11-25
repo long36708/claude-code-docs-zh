@@ -11,6 +11,15 @@
 View plans
 Contact sales
 
+本页介绍如何为 Claude Code CLI 设置 Microsoft Foundry。
+
+> [!NOTE]
+>
+> 要在 Claude Desktop 应用的 **Code** 标签页中使用 Microsoft Foundry，需要由您或您的管理员配置该应用：
+>
+> * **您的组织安装了该应用**：请让您的管理员[为 Microsoft Foundry 配置该应用](https://claude.com/docs/third-party/claude-desktop/foundry)
+> * **您自行安装该应用**：按照[单机设置步骤](https://claude.com/docs/third-party/claude-desktop/installation#single-machine-setup)操作，并输入 [Microsoft Foundry 的连接和模型值](https://claude.com/docs/third-party/claude-desktop/foundry#configure-the-app)
+
 ## 前置条件
 
 在使用 Microsoft Foundry 配置 Claude Code 之前，请确保您拥有：

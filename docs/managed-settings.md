@@ -177,6 +177,7 @@ Claude Code 按此顺序检查源，优先级最高的优先：
 
   没有锁时，Claude Code 从它应用的托管源读取 `allowedMcpServers`，因此在 `"first-wins"` 下，未选定的管理员源的列表被忽略。需要 Claude Code v2.1.273 或更高版本
 * `deniedMcpServers` 和 [`disableClaudeAiConnectors`](https://code.claude.com/docs/zh-CN/settings-reference#disableclaudeaiconnectors)：任何管理员源中的条目或 `true` 都会应用。需要 Claude Code v2.1.273 或更高版本
+* [`disableDirectMcpSkills`](https://code.claude.com/docs/zh-CN/settings-reference#disabledirectmcpskills)：任何管理员源中的 `true` 都会关闭来自 claude.ai 连接器以外的 MCP 服务器的 skill。要打开它们，请在您使用的最高排名管理员源中设置 `false`。Claude Code 会忽略 HKCU 注册表中的 `false`。来自 MCP 服务器的 skill 需要 Claude Code v2.1.331 或更高版本
 * 沙箱二进制路径 `sandbox.bwrapPath` 和 `sandbox.socatPath`
 * 沙箱 `ripgrep` 二进制文件，[`sandbox.ripgrep`](https://code.claude.com/docs/zh-CN/settings-reference#sandbox-ripgrep)
 * `sandbox.filesystem.disabled` 和 `sandbox.network.strictAllowlist`
@@ -424,6 +425,7 @@ Claude Code 仅从托管源读取以下密钥；将它们放在用户或项目�
 | [`blockedMarketplaces`](https://code.claude.com/docs/zh-CN/settings-reference#blockedmarketplaces) | 市场源的阻止列表。被阻止的源在下载前被检查，因此它们永远不会接触文件系统。请参阅[托管市场限制](https://code.claude.com/docs/zh-CN/plugins/org.md#restrict-what-users-can-install) |
 | [`channelsEnabled`](https://code.claude.com/docs/zh-CN/settings-reference#channelsenabled) | 允许组织的[通道](https://code.claude.com/docs/zh-CN/channels.md)。请参阅[企业控制](https://code.claude.com/docs/zh-CN/channels.md#enterprise-controls)以获取每个计划上的默认值 |
 | [`disableCommandPluginSources`](https://code.claude.com/docs/zh-CN/settings-reference#disablecommandpluginsources) | 当 `true` 时，完全阻止[`command` 插件源](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference#command-plugin-source)，因此市场声明的命令永远不会运行。也阻止市场[`headersHelper` 命令](https://code.claude.com/docs/zh-CN/plugins/host-marketplace#authenticate-archive-downloads)，除了托管设置本身声明的市场。未设置时，遵循 `allowManagedHooksOnly`。需要 Claude Code v2.1.229 或更高版本，`headersHelper` 块需要 v2.1.238 或更高版本 |
+| [`disableDirectMcpSkills`](https://code.claude.com/docs/zh-CN/settings-reference#disabledirectmcpskills) | 控制[来自 claude.ai 连接器以外的 MCP 服务器的 skill](https://code.claude.com/docs/zh-CN/mcp.md#turn-on-skills-for-an-organization)。设置为 `false` 可为 Team 和 Enterprise 计划启用它们，设置为 `true` 可关闭它们。来自 MCP 服务器的 skill 需要 Claude Code v2.1.331 或更高版本 |
 | [`disableSideloadFlags`](https://code.claude.com/docs/zh-CN/settings-reference#disablesideloadflags) | 在启动时拒绝 `--plugin-dir`、`--plugin-url`、`--agents` 和 `--mcp-config` 标志。在云会话中，Claude Code 删除服务器通过 `--mcp-config` 交付的 MCP 服务器，除了其[参考条目](https://code.claude.com/docs/zh-CN/settings-reference.md#disablesideloadflags)列出的异常，并启动会话。需要 Claude Code v2.1.193 或更高版本 |
 | [`forceRemoteSettingsRefresh`](https://code.claude.com/docs/zh-CN/settings-reference#forceremotesettingsrefresh) | 当 `true` 时，阻止 CLI 启动，直到远程托管设置被新鲜获取，如果获取失败则退出。请参阅[失败关闭强制执行](https://code.claude.com/docs/zh-CN/server-managed-settings.md#enforce-fail-closed-startup) |
 | [`managedMcpServers`](https://code.claude.com/docs/zh-CN/settings-reference#managedmcpservers) | 提供给每个用户的远程 MCP 服务器，与他们自己的一起。它提供服务器而不是锁定任何东西。请参阅[通过托管设置提供服务器](https://code.claude.com/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings)。需要 Claude Code v2.1.259 或更高版本 |

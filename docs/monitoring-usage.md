@@ -323,7 +323,7 @@ MCP 工具、WebFetch 和 WebSearch 也记录此事件，在 Claude Code v2.1.28
 Claude Code 从工具调用的成功返回时写入此事件，因此引发错误的调用不记录任何内容，无论工具如何。在确实返回的调用中，它不为以下内容记录 `tool.output` 事件：
 
 * 对除 Read、Edit、Write、Bash、WebFetch、WebSearch 和 MCP 工具之外的任何工具的调用
-* 返回除文件文本之外的任何内容的 Read，例如图像、PDF 或重新读取内容未更改的文件
+* 返回除文件文本之外的任何内容的 Read，例如图像或 PDF
 * Edit 或 Write 调用，除非您也设置 `OTEL_LOG_TOOL_DETAILS=1`
 * Claude Code 在运行期间移到后台、以便等待中的消息能够送达 Claude 的 WebFetch 或 WebSearch 调用。稍后到达的结果也不会被记录。要了解 Claude Code 何时移动调用，对于终端请参阅[Claude Code 何时发送您排队的内容](https://code.claude.com/docs/zh-CN/interactive-mode.md#when-claude-code-sends-what-you-queued)，对于 Agent SDK 会话请参阅 [`priority` 字段](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkusermessage)
 

@@ -760,7 +760,7 @@ Bypass permissions was requested at launch and ignored · if that was you, ~/.cl
 | 模式 | 受保护路径写入 |
 | :- | :- |
 | `default`、`acceptEdits` | 提示 |
-| `plan` | 在[绕过权限](#skip-all-checks-with-bypasspermissions-mode)可用的交互式终端会话中允许。否则，当[自动模式](#eliminate-prompts-with-auto-mode)在规划期间可用时路由到分类器，当它不可用时提示 |
+| `plan` | 在[绕过权限](#skip-all-checks-with-bypasspermissions-mode)可用的交互式终端会话中可以被允许。否则，当[自动模式](#eliminate-prompts-with-auto-mode)在规划期间可用时路由到分类器，当它不可用时提示 |
 | `auto` | 路由到分类器，由分类器决定 |
 | `dontAsk` | 拒绝 |
 | `bypassPermissions` | 允许 |

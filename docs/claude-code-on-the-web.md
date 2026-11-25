@@ -285,7 +285,7 @@ Claude Code 根据原始 git blob 内容计算这些 diff，因此仓库中配�
 
 * **`/model`、`/effort`、`/color` 和 `/rename`**：将值作为参数传递，例如 `/model sonnet`，而不是打开终端选择器或滑块。参数形式遵循每个命令的[可用性说明](https://code.claude.com/docs/zh-CN/commands.md#all-commands)。
 * **`/fast`**：当快速模式在[你的账户上可用](https://code.claude.com/docs/zh-CN/fast-mode.md#requirements)时，为会话切换[快速模式](https://code.claude.com/docs/zh-CN/fast-mode.md#use-fast-mode-in-cloud-sessions)。需要会话环境中的 Claude Code v2.1.271 或更高版本。
-* **`/config`**：在浏览器中访问 claude.ai/code 时，此命令会打开 **Settings > Code** 或 **Settings > Claude Code**，而不是设置某个值。要更改云端会话的设置，请在环境中设置[环境变量](https://code.claude.com/docs/zh-CN/cloud-environments.md#set-environment-variables)。在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)的线程之外且仅包含一个仓库的会话中，请改为将该键提交到该仓库的 `.claude/settings.json` 中。[云端会话中的设置](https://code.claude.com/docs/zh-CN/settings.md#settings-in-cloud-sessions)列出了每个会话读取的内容。
+* **`/config`**：在浏览器中访问 claude.ai/code 时，此命令会打开 **Settings > Code**，而不是设置某个值。要更改云端会话的设置，请在环境中设置[环境变量](https://code.claude.com/docs/zh-CN/cloud-environments.md#set-environment-variables)。在[项目](https://code.claude.com/docs/zh-CN/claude-projects.md)的线程之外且仅包含一个仓库的会话中，请改为将该键提交到该仓库的 `.claude/settings.json` 中。[云端会话中的设置](https://code.claude.com/docs/zh-CN/settings.md#settings-in-cloud-sessions)列出了每个会话读取的内容。
 
 对于[项目线程](https://code.claude.com/docs/zh-CN/claude-projects.md#choose-models-and-let-claude-manage-context)之外的云端会话中的上下文管理：
 
@@ -467,8 +467,8 @@ Claude 可能会作为解决审查评论线程的一部分在 GitHub 上回复�
 
 从 [claude.ai/code](https://claude.ai/code) 重新打开会话以预配新的 VM：
 
-* **会恢复**：您的对话历史
-* **不会恢复**：VM 被回收时仍在运行或待处理的后台工作，包括：
+* **会恢复**：您的对话历史，以及对仍在连接器上运行的 [MCP 任务](https://code.claude.com/docs/zh-CN/mcp.md#mcp-task-results-in-the-cloud)的跟踪
+* **不会恢复**：VM 被回收时仍在运行或待处理的其他后台工作，包括：
   * **Shell 命令**：Claude Code 会告知 Claude 哪些命令已停止。请让 Claude 重新运行您仍需要的命令。
   * **子代理**：Claude Code 会告知 Claude 哪些子代理已停止，以及其中哪些可以[恢复](https://code.claude.com/docs/zh-CN/sub-agents.md#resume-subagents)而无需从头开始。请让 Claude 继续它们的工作。
   * **会话范围的定时任务**：您[在会话中安排的任务](https://code.claude.com/docs/zh-CN/scheduled-tasks.md)以及正在等待下一次迭代的 `/loop` 不会延续到重新打开的会话中。请让 Claude 重新安排这些任务，或再次运行 `/loop` 以重新启动循环。

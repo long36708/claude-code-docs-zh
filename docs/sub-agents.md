@@ -1182,7 +1182,9 @@ Continue that code review and now analyze the authorization logic
 
 `SendMessage` 会检查某个名称是否仍指向对话中先前通过该名称联系到的同一个 Agent。如果该名称已被较新的 Agent 占用（例如重新生成的后台 Agent 复用了该名称），Claude Code 会拒绝发送，而不是将消息送达错误的 Agent，并且错误会报告该名称现在指向哪个 Agent，以便 Claude 重新指定目标。要在较早的 Agent 仍在运行时联系它，Claude 会使用生成该 Agent 时收到的 Agent ID 来寻址。此检查仅限于当前对话，并会在 `/clear` 时重置。
 
-子代理会将来自启动它的 Agent 的消息视为正常的任务指示，包括任务进行中的方向修正，并在其自身的权限设置范围内执行。无论消息由谁发送，以下两项限制始终有效：任何 Agent 发来的消息都不算作您对待处理权限提示的批准；任何 Agent 消息都无法更改子代理的权限设置、`CLAUDE.md` 或配置。只有权限系统或您本人的消息才能给予批准。
+> [!NOTE]
+>
+> 子代理会将来自启动它的 Agent 的消息视为正常的任务指示，包括任务进行中的方向修正，并在其自身的权限设置范围内执行。来自 Agent 的消息不算作您对待处理权限提示的批准。
 
 如果您想明确引用某个子代理，也可以向 Claude 询问其 Agent ID，或在 `~/.claude/projects/{project}/{sessionId}/subagents/` 下的会话记录文件中查找 ID。每份会话记录存储为 `agent-{agentId}.jsonl`。
 

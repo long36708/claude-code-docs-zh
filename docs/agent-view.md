@@ -239,7 +239,7 @@ agent view 打开时，当本地后台会话开始需要您的输入、完成或
 
 在选中的行上按 `Enter` 或 `→` 即可附加。agent view 会被完整的交互式会话取代。附加时，Claude 会发布一段简短回顾，说明您离开期间发生了什么。
 
-附加后，会话的行为与任何其他 Claude Code 会话相同：[命令](https://code.claude.com/docs/zh-CN/commands.md)、快捷键和功能都可正常使用，但以下情况除外。
+附加后，[命令](https://code.claude.com/docs/zh-CN/commands.md)、快捷键和功能都可正常使用，但以下情况除外。[`/ship` 或 `/steward` 监视](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting#a-session-setting-blocks-a-watch)不会在后台会话中启动。
 
 附加后，`/install-github-app` 和 [`/mcp`](https://code.claude.com/docs/zh-CN/mcp) 设置列表可正常使用，因为终端前有人可以完成它们的对话框。没有人附加时，这些命令无法打开对话框，因此会话会出现在 agent view 的 `Needs input` 下，行中显示类似 `open this session to manage MCP servers` 的内容，会话记录中的回复也会说明同样的情况。附加并再次运行该命令即可继续；附加时需要输入的行会被清除。`/mcp reconnect <server>`、`/mcp enable` 和 `/mcp disable` 无论是否附加都可使用。
 
@@ -444,6 +444,10 @@ Skill、您自己的命令以及会展开为提示词的内置命令（如 `/ini
 #### 将会话发送到后台
 
 运行 `/background` 或其别名 `/bg` 将当前对话移到后台会话。传递一个提示词，例如 `/bg run the test suite and fix any failures`，可以先再给出一条指令。如果您运行 `/bg` 时 Claude 正在回复，回复会在后台会话中继续。
+
+> [!NOTE]
+>
+> 当 [`/ship` 或 `/steward` 监视](https://code.claude.com/docs/zh-CN/ship-command) 处于开启状态时，`/bg` 会将会话保留在前台并打印原因。请参阅 [监视期间的消息](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting.md#messages-during-a-watch)。
 
 如果您在某些类型的后台工作（例如子代理或工作流）正在运行时退出会话，`Background work is running` 对话框会警告这些工作将会停止。选择 `Move to background and exit` 可以像 `/background` 一样将会话移到后台并返回到您的 shell。当 Agent 视图 [已关闭](#turn-off-agent-view) 时不显示该选项。
 
@@ -1052,6 +1056,8 @@ Agent view 在研究预览期间发展迅速。如果您使用的是较旧的 Cl
 
 | 版本 | 更改 |
 | - | - |
+| v2.1.331 | [`/ship` 或 `/steward` 监视](https://code.claude.com/docs/zh-CN/ship-command-troubleshooting#a-session-setting-blocks-a-watch)不会在后台会话中启动。在此版本之前，可以在后台会话中启动监视。 |
+| v2.1.331 | 当 `/ship` 或 `/steward` 监视处于开启状态时，[`/background`](#send-the-session-to-the-background) 不会将会话移到后台。在此版本之前，会话会被移到后台，监视随之结束。 |
 | v2.1.323 | 在 agent view 的输入框中，[`Ctrl+Y`](#keyboard-shortcuts) 会恢复已清除的文本。 |
 | v2.1.299 | [调度输入框中的 `/effort` 和 `/fast`](#set-the-model-effort-and-fast-mode) 会为您接下来调度的会话设置 effort 级别和快速模式。键入不带值的 `/model`、`/effort` 或 `/fast` 会打开选择器。 |
 | v2.1.299 | Claude Code 仅在任何单独的 `--` 分隔符之前、且不在其他标志的值中时，才[将 `--bg` 和 `--background` 识别为该标志](#from-your-shell)，对于位置有歧义的情况会拒绝而不是猜测。在此版本之前，发送给后台会话的内容为 `--bg` 或 `--background` 的提示词或回复可能会被当作该标志。这可能会反复启动新的后台会话，而不是投递该文本。 |

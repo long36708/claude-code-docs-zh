@@ -208,7 +208,7 @@ claude -p "Extract the main function names from auth.py" \
 claude -p "Explain recursion" --output-format stream-json --verbose --include-partial-messages
 ```
 
-流的最后一行是包含最终响应文本、成本和会话元数据的 `result` 消息。
+请按 `type` 查找每条 [`result` 消息](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#sdkresultmessage)，因为任务通知等消息可能跟在结果之后并开始另一轮次。成功的 `result` 消息包含任何最终响应文本、累计成本总额和会话元数据。
 
 如果您的消费者缓慢读取流，Claude Code 会等待队列中的输出排空后再退出，根据仍然队列中的数量缩放等待时间，上限为 30 秒。
 
@@ -377,6 +377,7 @@ claude -p "Look at my staged changes and create an appropriate commit" \
 > 命令支持在 `-p` 模式下有所不同：
 >
 > * 用户调用的 [skill](https://code.claude.com/docs/zh-CN/skills.md) 和自定义命令可以使用。在提示词字符串中包含 `/skill-name`，Claude Code 会在运行前展开它。
+> * 不支持 [来自 MCP 服务器的 skill](https://code.claude.com/docs/zh-CN/mcp.md#requirements-for-skills-from-mcp-servers)。
 > * 仅在终端界面中运行的内置命令，例如 `/login`，不可用。
 > * `/model`、`/effort`、`/fast`、`/color` 和 `/rename` 接受该值作为参数，例如 `/model sonnet`，`/mcp` 不带参数时打印服务器状态的文本摘要。这些形式遵循每个命令的 [可用性说明](https://code.claude.com/docs/zh-CN/commands.md#all-commands)。
 > * 要更改设置，请将 `key=value` 传递给 `/config`，例如 `/config verbose=true`。

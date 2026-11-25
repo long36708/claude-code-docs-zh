@@ -64,7 +64,7 @@ Claude Code 在启动时如果无法验证您现有的 AWS 凭据，也会运行
 工作区 API 密钥是一个长期有效的密钥，当您不想管理联合 AWS 凭证时很有用。在 AWS Console 中的 **Claude Platform on AWS → API keys** 下生成一个，并将其设置为 `ANTHROPIC_AWS_API_KEY`：
 
 ```bash theme={null}
-export ANTHROPIC_AWS_API_KEY=sk-ant-xxxxx
+export ANTHROPIC_AWS_API_KEY=your-workspace-api-key
 ```
 
 该密钥作为 `x-api-key` 发送，优先于 SigV4，因此您环境中的任何 AWS 凭证都会被忽略。来自单独 Claude Console 组织的 API 密钥在此处不起作用。

@@ -330,6 +330,9 @@
 | `Failed to resume the conversation` | [命令行错误](#failed-to-resume-the-conversation) |
 | `No conversation found with session ID: <session-id>` | [命令行错误](#no-conversation-found-with-the-session-id) |
 | `Windows reported an error (EBADF) when Claude Code read this session's transcript file` | [命令行错误](#windows-reported-an-error-ebadf) |
+| `Failed to resolve base branch "HEAD"` / `Failed to resolve HEAD in <folder>` | [使用 worktree 运行并行会话](https://code.claude.com/docs/zh-CN/common-workflows.md#run-parallel-sessions-with-worktrees) |
+| `points to a bare repository` | [手动管理 worktree](https://code.claude.com/docs/zh-CN/worktrees.md#manage-worktrees-manually) |
+| `Cannot use PR/MR #<number>` | 按照消息中的修复方法操作。 |
 | `Cannot switch renderers in this session` | [命令行错误](#cannot-switch-renderers-in-this-session) |
 | `Cannot switch renderers while work is running in the background` | [命令行错误](#cannot-switch-renderers-in-this-session) |
 | `Can't restart while work is running in the background` | [命令行错误](#cant-restart-while-work-is-running-or-remote-control-is-connected) |
@@ -350,6 +353,7 @@
 | `Marketplace "<name>" is registered from an untrusted source` | [Plugin 错误](#marketplace-is-registered-from-an-untrusted-source) |
 | `Claude Code refuses the marketplace name "<name>"` | [Plugin 错误](#claude-code-refuses-the-marketplace-name) |
 | `Marketplace name impersonates an official Anthropic/Claude marketplace` | [Plugin 错误](#claude-code-refuses-the-marketplace-name) |
+| `Can't use the marketplace name "<name>"` | [保留名称](https://code.claude.com/docs/zh-CN/plugins/marketplace-reference.md#reserved-names) |
 | `Marketplace "<name>" is already added from a different source` | [Plugin 错误](#marketplace-is-already-added-from-a-different-source) |
 | `"<name>" is another spelling of "<reserved>", a reserved marketplace name` | [Plugin 错误](#marketplace-name-is-another-spelling-of-a-reserved-name) |
 | `Cannot add marketplace "<name>": Claude Code cannot install plugins from a marketplace with this name` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#cannot-install-plugins-from-a-marketplace-with-this-name) |
@@ -367,6 +371,8 @@
 | `does not load (...), so Claude Code ignores the whole file` | [Plugin 故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#does-not-load-so-claude-code-ignores-the-whole-file) |
 | `path escapes plugin directory` | [Plugin 错误](#path-escapes-plugin-directory) |
 | `path not read: <path> is absolute or has a ".." part` | [插件错误](#server-file-path-not-read) |
+| `Plugin path not found: <path>` | 修复启动会话时使用的插件路径。对于从 claude.ai 同步的插件，请重新启动 Claude Code。 |
+| `commands path not found: <path>` | [插件故障排除](https://code.claude.com/docs/zh-CN/plugins/troubleshooting.md#commands-path-not-found) |
 | `Plugin not loaded: its manifest <path> was not read` | [Plugin 错误](#plugin-not-loaded-its-manifest-was-not-read) |
 | `path couldn't be checked` / `path could not be checked` | [插件错误](#path-could-not-be-checked) |
 | `its marketplace entry path does not stay inside the marketplace directory` | [Plugin 错误](#marketplace-entry-path-does-not-stay-inside-the-marketplace-directory) |
@@ -407,6 +413,7 @@
 | `Sandbox is required (sandbox.failIfUnavailable) and stopped being available in this session: <reason>` | [沙箱隔离故障排除](https://code.claude.com/docs/zh-CN/sandboxing.md#commands-refused-with-sandbox-is-required) |
 | `pkill: refusing to run` | [工具错误](#pkill-pattern-matches-the-claude-code-process) |
 | `Sandbox settings can't be changed here` / `Sandbox settings are overridden by a higher-priority configuration` | [沙箱隔离故障排除](https://code.claude.com/docs/zh-CN/sandboxing.md#sandbox-settings-overridden) |
+| `GH_HOST names a host other than github.com` / `GH_REPO names a host other than github.com` | 请让 Claude 在 `gh api` 命令中传递 `--hostname <host>`，例如 `gh api --hostname ghe.example.com repos/my-org/my-repo/pulls`。对于 `GH_REPO`，还需让 Claude 将命令中的 `{owner}` 和 `{repo}` 替换为实际名称。 |
 | `Failed to write to <name>'s inbox — nothing was sent` | [工具错误](#failed-to-write-to-a-teammate-inbox) |
 | `Failed to write the plan approval request to the lead's inbox — plan not submitted` | [工具错误](#failed-to-write-to-a-teammate-inbox) |
 | `Its agent definition was not restored: the folder its definition file came from is not trusted` | [工具错误](#teammate-agent-definition-not-restored) |
@@ -523,6 +530,7 @@
 | `Managed settings drop-in directory could not be read` | [配置警告](#managed-settings-document-could-not-be-parsed) |
 | `Unable to read managed policy settings` | [配置警告](#unable-to-read-managed-policy-settings) |
 | `Managed settings contain invalid entries, including PreToolUse/PermissionRequest hooks that are NOT loaded; fix or remove each entry:` | [配置警告](#managed-settings-hooks-not-loaded) |
+| 在 `-p` 运行中出现 `did not load, so nothing in them is in effect` / `These settings entries were skipped` | [`-p` 运行中的损坏设置](https://code.claude.com/docs/zh-CN/settings#broken-settings-in-a-p-run) |
 | `otelHeadersHelper failed; telemetry is not being exported. See /status: ...` | [配置警告](#otelheadershelper-failed) |
 | `apply_flag_settings: nothing in this request was applied and earlier settings stay in force. Fix or remove these invalid settings and send it again` | [`applyFlagSettings()`](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#applyflagsettings) |
 | `Invalid JSON provided to --settings` / `Invalid JSON provided to the settings option` | [`--settings` 标志](https://code.claude.com/docs/zh-CN/cli-reference#cli-flags)或 [`settings` 选项](https://code.claude.com/docs/zh-CN/agent-sdk/typescript#options) |
@@ -615,8 +623,8 @@ Claude Code 不重试这些故障：
 
 | 变量 | 默认值 | 效果 |
 | :- | :- | :- |
-| [`CLAUDE_CODE_MAX_RETRIES`](https://code.claude.com/docs/zh-CN/env-vars) | 10 | 重试尝试次数。从 v2.1.186 开始上限为 15；从 v2.1.199 开始 `CLAUDE_CODE_RETRY_WATCHDOG` 提高默认值并移除上限。降低它以在脚本中更快地显示故障。 |
-| [`CLAUDE_CODE_RETRY_WATCHDOG`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 在 CI 作业等无人值守会话中设置为 `1`，以无限期重试 `429` 和 `529` 容量错误，而不是在 `CLAUDE_CODE_MAX_RETRIES` 尝试后失败。当标准速度请求获得报告支出限制或耗尽使用额度的 `429` 时，Claude Code 立即失败，即使来自 [gateway spend cap](#spend-limit-reached) 的也是如此，该上限按计划重置。在 v2.1.239 之前，看门狗无限期重试这些。对于快速模式请求，请参阅 [Handle rate limits](https://code.claude.com/docs/zh-CN/fast-mode.md#handle-rate-limits)。在 v2.1.199 或更高版本上，它还为其他瞬时错误（例如服务器错误、超时和断开连接）提高默认重试计数至 300，大约三小时的退避，如果您明确设置该变量，则移除 `CLAUDE_CODE_MAX_RETRIES` 的 15 上限。 |
+| [`CLAUDE_CODE_MAX_RETRIES`](https://code.claude.com/docs/zh-CN/env-vars) | 10 | 重试尝试次数，上限为 15。降低它以在脚本中更快地显示故障。在 v2.1.199 或更高版本上设置 `CLAUDE_CODE_RETRY_WATCHDOG` 后，该上限不适用，且容量错误以外的瞬时错误的默认值为 300。 |
+| [`CLAUDE_CODE_RETRY_WATCHDOG`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 在 CI 作业等无人值守会话中设置为 `1`，以便在超出 `CLAUDE_CODE_MAX_RETRIES` 后继续重试 `429` 和 `529` 容量错误。有关例外情况，请参阅[重试看门狗何时停止重试](#when-the-retry-watchdog-stops-retrying)。对于快速模式请求，请参阅 [Handle rate limits](https://code.claude.com/docs/zh-CN/fast-mode.md#handle-rate-limits)。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 时，每个 API 请求在等待 `429` 和 `529` 错误上所花费的最长时间（毫秒）。未设置时，等待时间没有限制。需要 Claude Code v2.1.295 或更高版本。 |
 | `CLAUDE_CODE_RETRY_WATCHDOG_MAX_USAGE_LIMIT_WAIT_MS` | 无上限 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 后，单个请求等待您套餐的[用量限制](#youve-hit-your-session-limit)（例如会话限制或每周限制）重置的最长时间（毫秒）。当重置时间晚于此上限时，请求会立即失败，除非使用额度仍有余量或 API 无法检查使用额度。在这些情况下，请求会被重试，如果在成功之前超过该上限，则请求失败。需要 Claude Code v2.1.301 或更高版本。 |
 | [`CLAUDE_CODE_RETRY_WATCHDOG_USAGE_LIMIT_RECHECK_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 设置 `CLAUDE_CODE_RETRY_WATCHDOG` 后，当请求等待[用量限制](#youve-hit-your-session-limit)重置时，检查该限制是否已提前解除的最短间隔（毫秒）。当检查发现限制已解除时，请求会立即发出。请提供 `60000` 到 `10800000` 之间的纯数字。未设置或超出该范围时，不进行检查。关于 Claude Code 何时跳过这些检查，请参阅[环境变量参考](https://code.claude.com/docs/zh-CN/env-vars.md)。需要 Claude Code v2.1.305 或更高版本。 |
@@ -625,6 +633,16 @@ Claude Code 不重试这些故障：
 | [`API_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 600000 | 每次请求尝试接收其响应头的时限（毫秒）。它不限制流式响应在此之后持续的时长。为慢速网络或代理提高它。关于它如何限制首字节截止时间，请参阅 [No response from API](#no-response-from-api)。 |
 | [`CLAUDE_CODE_NONSTREAMING_TIMEOUT_RETRIES`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 超时的[非流式请求](#streaming-response-ended-before-any-complete-data-was-received)的重新发送次数限制。达到该限制时，请求失败。生成时间超过超时时间的 Claude 响应在每次重新发送时都会再次超时，因此请设置较低的数值（例如 `0`）以更快地失败。关于每次尝试的超时时间，请参阅[非流式尝试的等待时长](#how-long-a-non-streaming-attempt-waits)。需要 Claude Code v2.1.285 或更高版本。 |
 | [`CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS`](https://code.claude.com/docs/zh-CN/env-vars) | 未设置 | 流式请求的第一个响应字节的截止时间（毫秒）。需要 Claude Code v2.1.242 或更高版本。对于当此未设置时 Claude Code 如何选择截止时间，请参阅 [No response from API](#no-response-from-api)。 |
+
+#### 重试看门狗何时停止重试
+
+设置 `CLAUDE_CODE_RETRY_WATCHDOG` 后，对于快速模式以外的请求，Claude Code 会在收到如下响应时停止重试：
+
+* **支出限制**：针对[使用额度支出限制](#youve-hit-your-monthly-spend-limit)的 `429`，或针对按计划重置的[网关支出上限](#spend-limit-reached)的 `429`。
+* **[使用额度](https://code.claude.com/docs/zh-CN/costs.md#add-usage-credits-to-your-subscription)已耗尽**：额度耗尽的 `429`，且既不带 `anthropic-ratelimit-unified-overage-status` 标头，也不带 `anthropic-ratelimit-unified-representative-claim` 标头。
+* **标记为不可重试**：带有 [`x-should-retry: false`](https://code.claude.com/docs/zh-CN/llm-gateway-protocol#response-headers) 标头的 `429` 或 `529`。当 API 无法检查您的使用额度时，Claude Code 仍会重试该请求。
+
+支出限制和使用额度的情况需要 Claude Code v2.1.239 或更高版本。`x-should-retry` 的情况需要 v2.1.311 或更高版本。
 
 #### 非流式尝试的等待时长
 
@@ -3938,7 +3956,7 @@ build.sh --target�dist
 
 包含 `more than 4,000,000 characters` 的消息表示某个 skill、命令或 [prompt 或 agent hook](https://code.claude.com/docs/zh-CN/hooks.md#prompt-and-agent-hook-fields) 没有运行。如果您将长文本作为参数粘贴，请将其保存到文件中，运行 `/clear`（因为该文本仍会留在对话中），然后传入其路径。
 
-如果您的 `PreToolUse` prompt 或 agent hook 超过了该限制，Claude 直接发起的工具调用不会被阻止。请改用没有此限制的 [command hook](https://code.claude.com/docs/zh-CN/hooks.md#command-hook-fields)。对于 Code Mode 中来自代码的调用，请参阅[被 hook 拒绝的工具调用](https://code.claude.com/docs/zh-CN/code-mode.md#tool-call-refused-by-a-hook)。
+如果您的 `PreToolUse` 提示词或 Agent hook 超出限制，Claude 直接发起的工具调用不会被阻止。请使用没有此类限制的[命令 hook](https://code.claude.com/docs/zh-CN/hooks.md#command-hook-fields)。对于来自 Code Mode 中代码的调用，请参阅 [hook 失败后工具调用仍然运行](https://code.claude.com/docs/zh-CN/code-mode.md#tool-call-ran-after-a-hook-failed)。
 
 ### 使用 `--print` 时必须提供输入
 
@@ -4642,7 +4660,7 @@ Claude Code 向操作系统询问某个插件路径是否存在时，收到了�
 * 插件的某个[默认组件位置](https://code.claude.com/docs/zh-CN/plugins/manifest-reference.md#standard-layout)，例如 `skills/` 文件夹、`monitors/monitors.json` 文件或[插件根目录下的 `SKILL.md`](https://code.claude.com/docs/zh-CN/plugins/components#skills)：插件的其他组件仍会加载
 * 插件自身的目录：不会加载该插件的任何内容
 
-对于根本不存在的路径，您不会看到此错误。在 `/plugin` 中，该错误显示在插件下方，并指明路径以及操作系统返回的代码：
+在 `/plugin` 中，该错误会指明路径以及操作系统返回的代码：
 
 ```text theme={null}
 skills path couldn't be checked: /home/user/my-plugin/skills (ELOOP)

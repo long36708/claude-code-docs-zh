@@ -26,7 +26,12 @@ Claude Approvals 是 GitHub Pull Request 上的一项检查，用于报告还有
 
 Approvals 会在其评估的 Pull Request 上添加一项名为 **Claude Approvals** 的检查。检查的标题会说明仍需满足的条件，例如 **Waiting on human review from any person (1/2)**。以 **(observe mode)** 开头的标题表示检查运行时策略未被强制执行。在[观察模式](#set-up-claude-approvals)下，检查会显示您的策略将作出的决定。
 
-Claude 还会发布一条说明原因的评论。在策略允许的情况下，Claude 可以发布一条批准审查。有关常见标题以及针对每种标题该如何处理，请参阅[查找您的审批状态及后续操作](https://code.claude.com/docs/zh-CN/approvals-pull-requests.md#find-your-approval-status-and-what-to-do-next)。如果 Pull Request 上没有检查，请参阅[未出现 Claude Approvals 检查](https://code.claude.com/docs/zh-CN/approvals-troubleshooting.md#no-claude-approvals-check-appeared)。
+Claude 还会发布一条说明原因的评论。在策略允许的情况下，Claude 可以发布一条批准审查：
+
+* **在由 Claude GitHub App 报告检查的 github.com 仓库中**：该审查来自 `claude[bot]`
+* **在由 `claude[bot]` 创建的 Pull Request 上**：添加 [Claude Approvals GitHub App](https://code.claude.com/docs/zh-CN/approvals-pull-requests.md#pull-requests-that-claude-opens) 后，该审查来自 `claude-approvals[bot]`
+
+有关常见标题以及针对每种标题该如何处理，请参阅[查找您的审批状态及后续操作](https://code.claude.com/docs/zh-CN/approvals-pull-requests.md#find-your-approval-status-and-what-to-do-next)。如果 Pull Request 上没有检查，请参阅[未出现 Claude Approvals 检查](https://code.claude.com/docs/zh-CN/approvals-troubleshooting.md#no-claude-approvals-check-appeared)。
 
 ## 示例策略
 

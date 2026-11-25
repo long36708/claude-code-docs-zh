@@ -59,10 +59,7 @@
 * **可见性选项**：**Private** 和 **Public**
 * **仓库访问权限**：**Require repository access** 默认处于关闭状态。开启后，您共享的云端会话将仅限拥有该会话每个私有仓库访问权限的接收者打开。没有仓库访问权限的人可能仍能打开 Remote Control 会话的链接。
 
-要开启 **Require repository access** 或关闭 **Show your name**，请在 claude.ai 上打开 Settings，然后：
-
-* **如果 Settings 菜单显示的是 Code 而不是 Claude Code**：前往 [**Privacy**](https://claude.ai/settings/data-privacy-controls)
-* **否则**：前往 [**Claude Code > Sharing settings**](https://claude.ai/settings/claude-code)
+要开启 **Require repository access** 或关闭 **Show your name**，请前往 claude.ai 上的 [**Settings > Privacy**](https://claude.ai/settings/data-privacy-controls)，然后点击 **Shared Code sessions** 旁边的 **Manage**。
 
 ## 停止共享会话
 

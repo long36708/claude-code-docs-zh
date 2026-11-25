@@ -29,6 +29,10 @@
 
 两个策略都指定了 `claude/code_review`。请在策略文件中保留它。一旦该文件进入默认分支，无论处于观察模式还是强制执行模式，在没有匹配规则指定它的地方，自动 Code Review 通常会停止。
 
+> [!TIP]
+>
+> 如需让 Claude 为您编写或更改策略文件，请在仓库中的 Claude Code 输入框中输入 [`/claude-approvals`](https://code.claude.com/docs/zh-CN/commands)，后跟您想要的内容。需要 Claude Code v2.1.331 或更高版本以及[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)。
+
 ### 在 Code Review 通过时让 Claude 批准
 
 强制执行此入门策略后，通过 Claude 审查的 Pull Request 通常不需要其他人批准，`.claude/` 下的更改除外。其他 Pull Request 通常需要[作者以外](https://code.claude.com/docs/zh-CN/approvals-policy.md#whether-a-pull-request’s-author-counts)的一个人批准。

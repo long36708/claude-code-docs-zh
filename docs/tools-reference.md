@@ -56,7 +56,7 @@ Claude Code 可以访问一组内置工具，帮助它理解和修改您的代�
 | `SendMessage` | 向另一个 Agent 发送消息：[agent team](https://code.claude.com/docs/zh-CN/agent-teams.md) 队友、[通过 Agent ID 或名称恢复的子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#resume-subagents)，或您的其他 Claude Code 会话之一，无论在此机器上还是其他机器上。向其他会话发送消息需要 Claude Code v2.1.224 或更高版本。[跨会话消息传递](https://code.claude.com/docs/zh-CN/cross-session-messaging.md)涵盖 Claude 可以到达的会话、[消息到达时的样子](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#what-a-message-looks-like)以及[Claude 如何在另一个会话空闲时获得通知](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#get-a-notice-when-another-session-goes-idle)。Claude 可以包含可选的 `summary` 输入，通常为 5-10 个单词，Claude Code 显示为单行预览。当 Claude 在[纯文本消息](https://code.claude.com/docs/zh-CN/cross-session-messaging.md#limitations)上省略它时，Claude Code 使用消息的第一行作为摘要。Claude Code 使用省略号截断长于 200 个字符的摘要 | 否 |
 | `SendUserFile` | 从会话向您发送文件，带有可选标题，以便生成的报告、图表、屏幕截图或构建产物到达您的设备，而不仅仅在会话记录中提及。可选的 `display` 输入控制呈现方式：`render` 在客户端中内联打开文件，`attach` 仅显示下载卡，未设置时客户端按文件类型决定。在连接 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md) 客户端或在[云端会话](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md)中时可用。传递通过 Anthropic 托管的基础设施运行，因此该工具在 Amazon Bedrock、Google Cloud 的 Agent Platform 或 Microsoft Foundry 上不可用 | 否 |
 | `ShareOnboardingGuide` | 上传 `ONBOARDING.md` 并返回队友可以在 Claude Code 中打开的共享链接。在编写指南后从 `/team-onboarding` 调用。适用于 Team 和 Enterprise 计划上的 claude.ai 订阅者 | 是 |
-| `Skill` | 在主对话中执行[skill](https://code.claude.com/docs/zh-CN/skills.md#control-who-invokes-a-skill)。对于设置了 `allowed-tools`、`disallowed-tools` 或 `hooks` 的 skill，可能会提示 | 部分 skill |
+| `Skill` | 在主对话中执行[skill](https://code.claude.com/docs/zh-CN/skills.md#control-who-invokes-a-skill)。对于设置了 `allowed-tools`、`disallowed-tools` 或 `hooks` 的 skill，以及[来自 MCP 服务器的 skill](https://code.claude.com/docs/zh-CN/mcp.md#approvals-for-mcp-skills)，可能会提示 | 部分 skill |
 | `SubagentHandback` | 将子代理的最终报告传递给接收该子代理结果的任何对话。仅在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)中提供，给 Agent 工具在本地运行的子代理，除了[分叉](https://code.claude.com/docs/zh-CN/sub-agents.md#fork-the-current-conversation)，并在终端 CLI、IDE 扩展、云端会话和 Agent SDK 中可用；分类器在传递报告前审查它。需要 Claude Code v2.1.271 或更高版本 | 否 |
 | `SuggestPluginInstall` | 显示一张您可以添加的[建议插件卡片](https://code.claude.com/docs/zh-CN/claude-code-on-the-web.md#plugin-suggestions-in-the-conversation)。在与 `ListPlugins` 相同的会话中可用 | 否 |
 | `SuggestSkills` | 显示一张您可以添加的 claude.ai skill 卡片。在与 `ListPlugins` 相同的会话中可用 | 否 |
@@ -226,6 +226,7 @@ Claude Code 在命令运行时将命令的输出流式传输到工作文件；�
 移到后台的命令的结果说明发生了什么：
 
 * 当超时触发移动时，结果明确报告：`Command did not complete within its 120s timeout and was moved to the background`，秒数与应用的超时匹配，后跟任务 ID 和输出被写入的文件路径。
+* 在交互式会话中，[后台子代理](https://code.claude.com/docs/zh-CN/sub-agents.md#run-subagents-in-foreground-or-background)的命令可能在运行 3 分钟后、达到其超时之前被移到后台。此时结果包含 `Command was moved to the background (ID: <id>) after running for 180s`。
 * 移到后台的命令内的 `cd`、`pushd`、`popd` 或 `chdir` 永远不会传递：结果说明 `Session cwd remains <dir>; directory changes made by the backgrounded command do not apply to subsequent commands.`，所以 Claude 不会对没有发生的目录更改进行操作。
 
 ### Linux 和 WSL 上的内存限制

@@ -39,19 +39,19 @@ await edit(target, "maxAttempts: 3", "maxAttempts: 5");
 
 在启用 Code Mode 之前，请确认您可以接受以下限制：
 
-* **恢复会话**：只能在终端中、并且在 Code Mode 开启的情况下恢复 Code Mode 会话
+* **恢复会话**：只能在 Code Mode 开启的情况下恢复 Code Mode 会话。使用 Claude 订阅或 Console 账户运行过的 Code Mode 会话，无法在 Amazon Bedrock 等云服务提供商上恢复
 * **自动模式**：自动模式的分类器[审查的是代码，而不是每个工具调用](#permission-checks)
 * **长时间运行的代码**：除非[代码可以在后台运行](#long-running-code)，否则您需要等待代码运行完成，并且代码会在十分钟后停止
-* **Hook**：当 `PreToolUse` hook 未能完成时（例如超时后），您可能会看到[工具调用被拒绝](#tool-call-refused-by-a-hook)
+* **Hook**：默认情况下，当 `PreToolUse` hook 未能完成时，预计会出现[工具调用被拒绝](#tool-call-refused-by-a-hook)的情况；当 hook 以其他方式失败时，[调用仍可能运行](#tool-call-ran-after-a-hook-failed)
 * **不可用的功能**：无法使用 [Remote Control](https://code.claude.com/docs/zh-CN/remote-control.md)、[Claude in Chrome](https://code.claude.com/docs/zh-CN/chrome.md) 或[计算机使用](https://code.claude.com/docs/zh-CN/computer-use.md)
 * **移动会话**：无法将会话移到 Desktop 应用，也无法将其转为[后台会话](https://code.claude.com/docs/zh-CN/agent-view.md)，并且 `/fork` 无法启动后台副本
 
 ## 要求
 
 * **版本**：Claude Code v2.1.323 或更高版本，任一[发布频道](https://code.claude.com/docs/zh-CN/setup.md#configure-release-channel)均可。旧版本会在不启用 Code Mode 的情况下启动，可能附带也可能不附带原因 `it isn't open to your account yet`
-* **账户**：Claude 订阅或 Console 账户。无法通过网关、Amazon Bedrock、Claude Platform on AWS、Google Cloud 的 Agent Platform、Microsoft Foundry 或 [Claude Models on Google Cloud (Anthropic managed)](https://code.claude.com/docs/zh-CN/claude-models-on-google-cloud-anthropic-managed.md) 使用 Code Mode
+* **账户或提供商**：Claude 订阅、Console 账户，或 Amazon Bedrock、Google Cloud 的 Agent Platform、Microsoft Foundry 等[云提供商](https://code.claude.com/docs/zh-CN/feature-availability.md#availability-by-model-provider)。使用云提供商时，需要 v2.1.331 或更高版本。无法通过[网关](https://code.claude.com/docs/zh-CN/gateways.md)或在 Claude for Government 中使用 Code Mode。如果您通过 [Enterprise Admin Console 登录](https://code.claude.com/docs/zh-CN/authentication.md#log-in-to-claude-code)访问云提供商，则需要使用 Agent Platform，或未使用 [Mantle 端点](https://code.claude.com/docs/zh-CN/amazon-bedrock.md#use-the-mantle-endpoint)的 Amazon Bedrock
 * **组织**：您的组织未使用 [HIPAA 配置](https://code.claude.com/docs/zh-CN/hipaa-setup.md)或[零数据保留](https://code.claude.com/docs/zh-CN/zero-data-retention.md)
-* **模型**：Claude Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 5.2
+* **模型**：Claude Opus 5.5、Sonnet 5.5、Haiku 5.5 或 Fable 5.2。如果您通过部署名称或应用程序推理配置文件选择模型，请向管理该名称的人员确认它是否指向上述模型之一
 * **使用入口**：终端中的交互式 `claude` 会话。Code Mode 不适用于 VS Code 面板、Desktop 应用或云端会话
 * **Agent teams**：要在开启 [agent teams](https://code.claude.com/docs/zh-CN/agent-teams.md) 的情况下使用 Code Mode，需要 v2.1.326 或更高版本。在默认的[进程内显示模式](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)下，队友以 Code Mode 运行；在分屏窗格中，队友则在不启用 Code Mode 的情况下启动
 * **Mods**：要在使用 hook 工具调用的 [mod](https://code.claude.com/docs/zh-CN/plugins/mods/overview.md) 时使用 Code Mode，需要 v2.1.327 或更高版本。如果您使用的是 `stable` 频道，且更新未达到该版本，请[切换到 `latest`](https://code.claude.com/docs/zh-CN/setup#configure-release-channel)
@@ -59,7 +59,7 @@ await edit(target, "maxAttempts: 3", "maxAttempts: 5");
 * **安装**：Claude Code 的[原生构建版本](https://code.claude.com/docs/zh-CN/setup.md)
 * **Windows**：已安装 [Git for Windows](https://git-scm.com/downloads/win)
 
-此外，在某些设置开启时也无法启动 Code Mode，例如 API 密钥助手。有关每种情况的解决方法，请参阅 [Code Mode 无法启动](#code-mode-doesnt-start)。
+此外，在某些设置开启时也无法启动 Code Mode，例如在直接连接 Anthropic 时使用 API 密钥助手。有关每种情况的解决方法，请参阅 [Code Mode 无法启动](#code-mode-doesnt-start)。
 
 ## 试用 Code Mode
 
@@ -67,7 +67,7 @@ await edit(target, "maxAttempts: 3", "maxAttempts: 5");
 
 **1. 检查您的版本**
 
-运行 `claude --version`。如果版本低于 v2.1.323，请运行 `claude update`。如果您使用的是 `stable` 频道，且更新后未达到 v2.1.323，请等待 `stable` 跟进，或[切换到 `latest`](https://code.claude.com/docs/zh-CN/setup#configure-release-channel)。
+运行 `claude --version`。如果版本低于[您的设置所需的版本](#requirements)，请运行 `claude update`。如果您使用的是 `stable` 频道，且更新后未达到该版本，请等待 `stable` 跟进，或[切换到 `latest`](https://code.claude.com/docs/zh-CN/setup#configure-release-channel)。
 
 **2. 在开启 Code Mode 的情况下启动 Claude Code**
 
@@ -128,7 +128,7 @@ Read every Markdown file in this project and list the links that point to local 
 
 ### 关闭 Code Mode
 
-从 shell 和 `~/.claude/settings.json` 中移除 `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE`，然后启动新会话。您也可以保留该变量，并在任一位置将其值改为 `0`。只要其中一处为 `0`，即使另一处设置为 `1`，Code Mode 也会保持关闭。
+从 shell、`~/.claude/settings.json` 以及任何 `--settings` 文件中移除 `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE`，然后启动新会话。您也可以保留该变量，并在其中任一位置将其值改为 `0`。只要其中一处为 `0`，即使另一处设置为 `1`，Code Mode 也会保持关闭。
 
 ### 为您的组织禁用 Code Mode
 
@@ -141,6 +141,8 @@ Read every Markdown file in this project and list the links that point to local 
   }
 }
 ```
+
+如果您的用户可以通过云提供商进行连接，请通过 [MDM 或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#delivery-mechanisms)部署此设置。在 shell 或用户设置中设置了 `CLAUDE_CODE_USE_BEDROCK` 等提供商变量的用户，可以在不接收[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)的情况下启动 Code Mode。
 
 正处于 Code Mode 会话中的用户会继续留在该会话中，直到他们退出或重新启动 Claude Code。此后，用户将在不启用 Code Mode 的情况下启动，并且在 `0` 生效期间无法恢复其 Code Mode 会话。您无法通过托管设置为用户启用 Code Mode。
 
@@ -160,7 +162,7 @@ Read every Markdown file in this project and list the links that point to local 
 
 在自动模式和 `bypassPermissions` 模式下，代码可以从头到尾运行而不出现权限提示。某些调用仍会提示您，例如[任何模式都不会自动批准的操作](https://code.claude.com/docs/zh-CN/permission-modes.md#actions-no-mode-auto-approves)。
 
-代码中的每个工具调用都会以该工具的常用名称（例如 `Bash` 或 [MCP 工具的名称](https://code.claude.com/docs/zh-CN/permissions.md#mcp)）经过您的 `deny` 和 `ask` [权限规则](https://code.claude.com/docs/zh-CN/permissions.md)以及 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse)。除了规则和 hook 之外，在自动模式下，分类器会审查代码；在会进行询问的模式下，您需要回复提示：
+如需控制代码中的工具调用，请以该工具的常用名称（例如 `Bash` 或 [MCP 工具的名称](https://code.claude.com/docs/zh-CN/permissions.md#mcp)）编写 `deny` 和 `ask` [权限规则](https://code.claude.com/docs/zh-CN/permissions.md)以及 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse)。除了规则和 hook 之外，在自动模式下，分类器会审查代码；在会进行询问的模式下，您需要回复提示：
 
 * **[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)**：分类器会在每段代码运行之前对其进行审查，而不是审查每个工具调用。它看不到运行时计算出的值，例如从搜索输出中获取的路径，因此对于必须加以控制的调用，请保留规则或 hook。对于某些调用，您仍可能[收到提示](#permission-prompt-with-a-countdown)，例如在分类器多次阻止后由您亲自批准的代码中的调用
 * **其他[权限模式](https://code.claude.com/docs/zh-CN/permission-modes.md)**：对于在该模式下会提示您的每个工具调用，您都会收到提示
@@ -225,10 +227,10 @@ Read every Markdown file in this project and list the links that point to local 
 
 如需在后台运行代码，请以自动模式或 `bypassPermissions` 模式启动会话。如果 Claude 仍然在等待，请检查您当前的模式以及启动会话的方式：
 
-* **您切换到了其他模式**：按 `Shift+Tab`，直到回到您启动时所用的模式
-* **您以其他模式启动**：如果您可以[使用自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，请退出，然后在 Code Mode 开启的情况下运行 `claude --continue --permission-mode auto`
-* **您使用的是 v2.1.328 之前的版本，并从 `claude --resume` 列表中选择了该会话**：请退出，[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)，然后在 Code Mode 开启的情况下运行相同的 `claude --resume` 命令。如需保持当前版本，请将 `--resume` 替换为 `--continue`
-* **您向 `--tools` 传递了工具名称**：以自动模式重新启动，不使用该标志
+* **您使用的是 v2.1.328 之前的版本，并从 `claude --resume` 列表中选择了该会话**：请退出，[更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)，然后在 Code Mode 开启的情况下运行相同的 `claude --resume` 命令。如需保持当前版本，请将 `--resume` 替换为 `--continue`。如果更新后 Claude 仍在等待，请以自动模式启动新会话
+* **您向 `--tools` 传递了工具名称**：以自动模式启动新会话，开启 Code Mode 且不使用该标志
+* **会话最初以自动模式或 `bypassPermissions` 模式启动**：按 `Shift+Tab`，直到回到该模式。如果这没有帮助，请退出，然后在 Code Mode 开启的情况下运行 `claude --continue --permission-mode auto`
+* **会话最初以其他模式启动**：如果您可以[使用自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)，请退出，然后在 Code Mode 开启的情况下运行 `claude --permission-mode auto` 以启动新会话。在 v2.1.331 或更高版本中，如果您改为恢复旧会话，Claude 预计会继续等待
 
 ### 停止正在运行的代码
 
@@ -260,7 +262,8 @@ Read every Markdown file in this project and list the links that point to local 
 
 * **修改文本**：对 `result`、`stdout`、`stderr` 和 `error` 进行脱敏。需处理 `result` 缺失或为 `null` 的情况，并且仅在代码失败或被停止时才会出现 `error`
 * **保持结构**：以字符串形式返回 `code`、`stdout` 和 `stderr`，并以字符串形式返回 `error` 或将其省略。如果破坏了此结构，Claude 会获得原始输出
-* **移除图片和 PDF**：如果副本中有需要隐藏的 `images` 或 `documents`，请将该字段设置为 `[]`
+* **移除图片、PDF 和页面错误**：如果副本中有需要隐藏的 `images`、`documents` 或 `imagePagesFailed`，请将该字段设置为 `[]`。`imagePagesFailed` 字段列出了每个无法显示的 PDF 页面的文件路径和错误
+* **移除长输出的路径**：在 v2.1.331 或更高版本中，请从副本中省略 `uncutOutputNote`。该字段会向 Claude 提供未截断文本的路径
 
 如需隐藏 `notes.txt` 结果中的部署令牌，请输出以下 JSON：
 
@@ -306,9 +309,11 @@ Read every Markdown file in this project and list the links that point to local 
 | :- | :- |
 | `it isn't open to your account in this version` 或 `it isn't open to your account yet` | 如果您的版本低于 v2.1.323，请[更新](#try-code-mode)。否则，请检查网络连接并重新启动。如果该原因仍然存在，请改日再试 |
 | `Anthropic has turned it off for now` | [更新 Claude Code](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)，或稍后重新启动 |
-| `it only works directly with the Anthropic API` 或 `it only works with the Anthropic API` | 移除通过云提供商、网关或自定义 `ANTHROPIC_BASE_URL` 路由请求的设置 |
+| `it only works directly with the Anthropic API` 或 `it only works with the Anthropic API` | 如果您使用云提供商且未使用网关，请将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.331 或更高版本。如果您使用网关，请按照下一行操作 |
+| `it isn't offered yet through a gateway or proxy` | 如果该[网关](https://code.claude.com/docs/zh-CN/gateways.md)是由您的管理员设置的、您需要该网关，或者您使用 Claude for Government，请[关闭 Code Mode](#turn-off-code-mode)，以便不再看到该行。否则，请移除[网关的设置](https://code.claude.com/docs/zh-CN/llm-gateway-connect.md)和密钥，并直接连接。您可以保留 `HTTPS_PROXY`。如果您登录了 Claude apps 网关，还需移除[用户设置中的相关条目](https://code.claude.com/docs/zh-CN/claude-apps-gateway#set-the-gateway-url-in-user-settings)并运行 `/logout`，这也会移除已保存的 MCP 服务器登录信息和插件密钥 |
+| `it isn't offered yet through a gateway or proxy`，且使用 [Enterprise Admin Console 登录](https://code.claude.com/docs/zh-CN/authentication.md#log-in-to-claude-code) | 运行 `/status`。如果 `API provider` 显示的提供商被[要求](#requirements)排除在外，例如 `Microsoft Foundry` 或 `Amazon Bedrock (Mantle)`，请[关闭 Code Mode](#turn-off-code-mode)，以便不再看到该行。否则，请按照上一行操作 |
 | `it doesn't work with an API key helper` | 移除 `apiKeyHelper`、`ANTHROPIC_AUTH_TOKEN`，以及 `ANTHROPIC_CUSTOM_HEADERS` 中的任何 `Authorization` 或 `X-Api-Key` 标头。然后登录或设置 `ANTHROPIC_API_KEY` |
-| `it only works with Opus 5.5, Sonnet 5.5 and later models` | 使用[受支持的模型](#requirements)启动，例如使用 `--model opus`。Haiku 5.5 和 Fable 5.2 也可以使用 |
+| `it only works with Opus 5.5, Sonnet 5.5 and later models` | 传入您的账户可以使用的[受支持模型](#requirements)的完整名称，例如 `--model claude-opus-5-5`；在 Microsoft Foundry 上，则传入您对某个受支持模型的部署名称。避免使用 `sonnet` 等别名，这些别名[在某些提供商上会选择较旧的模型](https://code.claude.com/docs/zh-CN/model-config.md#model-aliases) |
 | `it doesn't work in background jobs` | 在前台启动，不使用 `--remote-control`。如果该原因显示在队友的分屏窗格中，请使用[进程内显示模式](https://code.claude.com/docs/zh-CN/agent-teams.md#choose-a-display-mode)，以在 Code Mode 中运行队友 |
 | `it needs settings that Claude Code downloads from Anthropic` | 将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)以满足[遥测设置要求](#requirements)。如需继续使用当前版本，请取消设置[关闭功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)的变量，例如 `DISABLE_TELEMETRY` |
 | `OpenTelemetry tracing is on` | 如果您不需要[追踪](https://code.claude.com/docs/zh-CN/monitoring-usage.md#traces-beta)，请取消设置 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA`、`ENABLE_ENHANCED_TELEMETRY_BETA` 和 `ENABLE_BETA_TRACING_DETAILED` |
@@ -317,6 +322,7 @@ Read every Markdown file in this project and list the links that point to local 
 | `it doesn't yet work with an installed mod` | 将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)以满足 [mod 要求](#requirements)。如需继续使用当前版本，请运行 `/plugin`，并禁用您安装的每个 mod |
 | `it can't be used together with agent teams yet` | 如需保持 agent team 启用，请将 [Claude Code 更新](https://code.claude.com/docs/zh-CN/setup.md#update-claude-code)到 v2.1.326 或更高版本。如需继续使用当前版本，请取消设置 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` |
 | `this launch's tool options` | 不使用 `--restricted` 启动，将 `REPL` 添加到 `--tools`，并从 `--disallowedTools` 和您的 `deny` 规则中移除 `REPL` |
+| `couldn't read your organization's settings or policy` | 重新启动。如果您的 Enterprise Admin Console 登录已结束，请运行 `claude auth login` 并选择您的组织。如果该原因仍然存在，且您的网络阻止了 `api.anthropic.com`，请让您的管理员允许该主机。如果您使用云提供商而非该登录方式，也可以改为取消设置 `ANTHROPIC_API_KEY` 并运行 `claude auth logout`，这也会移除已保存的 MCP 服务器登录信息和插件密钥 |
 | `couldn't save your answer` | 使 `~/.claude.json` 可写 |
 | `your organization's settings don't allow it` | 向您的管理员咨询相关[托管设置](#block-code-mode-for-your-organization) |
 
@@ -324,7 +330,9 @@ Read every Markdown file in this project and list the links that point to local 
 
 ### 带倒计时的权限提示
 
-在自动模式下，如果您在[分类器多次阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#when-auto-mode-falls-back)后自行批准代码，系统可能会就该代码以及仍在运行的先前代码中的工具调用询问您。在未连接 IDE 的情况下，提示可能会显示倒计时：
+在自动模式下，如果您在[分类器多次阻止](https://code.claude.com/docs/zh-CN/permission-modes.md#when-auto-mode-falls-back)后自行批准代码，系统可能会就该代码以及仍在运行的先前代码中的工具调用询问您。在自动模式下，如果 [`ask` 规则](#approve-each-piece-of-code-first)或 `REPL` 上的 `PreToolUse` hook 要求您批准代码，也会出现同样的情况。
+
+在未连接 IDE 的情况下，提示可能会显示倒计时：
 
 ```text theme={null}
 Claude Code will automatically block this request in 1:59, to avoid holding up an unattended session
@@ -336,15 +344,22 @@ Claude Code will automatically block this request in 1:59, to avoid holding up a
 
 ### 工具调用被 hook 拒绝
 
-如果 Claude 报告工具调用被拒绝，请让它提供错误文本。以下错误表示您的 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse) 未给出决定：
+如果 Claude 报告调用被拒绝，请让它提供错误文本。以下错误表示您的 [`PreToolUse` hook](https://code.claude.com/docs/zh-CN/hooks#pretooluse) 未给出决定：
 
-* **`the hook did not finish`**：您的 hook 超时，或者您的 Agent hook 在未给出决定的情况下结束。发生超时后，请增大该 hook 的 [`timeout`](https://code.claude.com/docs/zh-CN/hooks#common-fields)。对于未给出决定的 Agent hook，请将检查移至 `command` hook。您可能会在来自代码的调用上看到此错误，也可能在 Claude 于会话中运行代码后的其他工具调用上看到此错误
-* **`the hook failed`**：对于来自代码的调用，您的 hook 无法启动、被终止、以 126、127 或大于 128 的代码退出，或者返回了 HTTP 错误或无效输出。请修复该 hook。您可能会在 v2.1.329 之前的版本中看到此错误。在更高版本中，此错误很少见：其中一个原因是在 Claude 运行代码后，[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)在会话期间被关闭
+* **`the hook did not finish`**：您的 hook 超时，或者您的 Agent hook 在未给出决定的情况下结束。请增大该 hook 的 [`timeout`](https://code.claude.com/docs/zh-CN/hooks#common-fields)，或在 `command` 或 `http` hook 上设置 [`"onFailure": "continue"`](#tool-call-ran-after-a-hook-failed)。如果 Agent hook 仍出现此错误，请将检查移至 `command` hook。在 Claude 运行代码后，您也可能会在代码之外的调用上看到此错误
+* **`the hook failed`**：您的 hook 在来自代码的调用上失败，例如因为无法启动。请在[调试日志](https://code.claude.com/docs/zh-CN/hooks.md#debug-hooks)中找到失败原因并进行修复。在 v2.1.329 之前的版本中可能会出现此错误。在更高版本中，如果您在会话期间关闭[功能标志获取](https://code.claude.com/docs/zh-CN/env-vars.md#features-that-need-feature-flag-fetching)，可能会看到此错误
 
-在 v2.1.329 或更高版本中，当发生 `the hook did not finish` 以外的 hook 失败后，来自代码的调用默认会继续运行。如需选择是否运行该调用，请使用 `command` 或 `http` hook，并在其上设置 [`onFailure`](https://code.claude.com/docs/zh-CN/hooks#block-the-action-when-a-hook-fails)：
+### hook 失败后工具调用仍然运行
 
-* **在超时或失败后阻止调用**：设置 `"onFailure": "block"`。对于用于把关调用的 hook，请这样设置
-* **在超时或失败后允许调用运行**：设置 `"onFailure": "continue"`
+如需在来自代码的调用的 `PreToolUse` hook 失败时阻止该调用，请使用 `command` 或 `http` hook，并设置 [`"onFailure": "block"`](https://code.claude.com/docs/zh-CN/hooks#block-the-action-when-a-hook-fails)。如果多个设置文件中都有该 hook，请在每个文件中为其设置相同的 `onFailure` 值。
+
+在 v2.1.329 或更高版本中，`command` 和 `http` hook 的结果如下：
+
+| `onFailure` | hook 超时 | hook 以其他方式失败，例如脚本缺失 |
+| :- | :- | :- |
+| 未设置 | 被拒绝 | 继续进行权限检查，[少数情况除外](#tool-call-refused-by-a-hook) |
+| `"block"` | 被拒绝 | 被拒绝 |
+| `"continue"` | 继续进行权限检查 | 继续进行权限检查 |
 
 ### 代码输出被 hook 拦截
 

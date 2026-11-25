@@ -101,7 +101,7 @@ PR Steward 的默认指令是给 Claude 的指令，因此它们描述的是 PR 
 
 ### 在您的所有 Pull Request 上关闭或限制 PR Steward
 
-在 claude.ai 上前往 **Settings > Code** 或 **Settings > Claude Code** 中的 [**PR Steward**](https://claude.ai/settings/claude-code#pr-steward)，选择 PR Steward 在您打开的 Pull Request 上执行多少操作。要更改此设置，您需要一个[已连接的 GitHub 账户](https://code.claude.com/docs/zh-CN/web-quickstart.md#connect-github)。
+在 claude.ai 上前往 **Settings > Code** 中的 [**PR Steward**](https://claude.ai/settings/claude-code#pr-steward)，选择 PR Steward 在您打开的 Pull Request 上执行多少操作。要更改此设置，您需要一个[已连接的 GitHub 账户](https://code.claude.com/docs/zh-CN/web-quickstart.md#connect-github)。
 
 | 选项 | PR Steward 在您的 Pull Request 上的行为 |
 | :- | :- |
@@ -118,7 +118,7 @@ PR Steward 在 Pull Request 上启动时读取您的设置，因此更改会应�
 
 要针对您打开的每个 Pull Request 告诉 PR Steward 要处理什么，请使用设置中的开关。仓库的 `.claude/skills/steward/SKILL.md` 可能有不同的规定，因此请参阅[哪些指令优先](#which-pr-steward-instructions-take-priority)。
 
-1. 在 claude.ai 上前往 **Settings > Code** 或 **Settings > Claude Code** 中的 [**PR Steward**](https://claude.ai/settings/claude-code#pr-steward)
+1. 在 claude.ai 上前往 **Settings > Code** 中的 [**PR Steward**](https://claude.ai/settings/claude-code#pr-steward)
 2. 对于 **How much should Steward do on its own?**，选择 [**Customize**](#turn-off-or-limit-pr-steward-on-all-your-pull-requests)
 3. 关闭您不希望 PR Steward 执行的每一项对应的开关。每个开关在您关闭之前都处于打开状态：
    * **Failing CI and merge conflicts**
@@ -141,7 +141,7 @@ PR Steward 在 Pull Request 上启动时读取您的设置，因此更改会应�
 
 ### 为您打开的每个 Pull Request 保存 PR Steward 指令
 
-要在您打开的每个 Pull Request 上向 PR Steward 提供相同的指令，请在 claude.ai 上前往 **Settings > Code** 或 **Settings > Claude Code** 中的 [**PR Steward**](https://claude.ai/settings/claude-code#pr-steward)。在 **My instructions for Steward** 下，输入最多 1,000 个字符。
+要在您打开的每个 Pull Request 上向 PR Steward 提供相同的指令，请在 claude.ai 上前往 **Settings > Code** 中的 [**PR Steward**](https://claude.ai/settings/claude-code#pr-steward)。在 **My instructions for Steward** 下，输入最多 1,000 个字符。
 
 以下指令要求使用小型提交，并且不要回复审查者：
 
