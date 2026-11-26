@@ -411,8 +411,8 @@
     "claude-security.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-security",
       "original_md_url": "https://code.claude.com/docs/zh-CN/claude-security.md",
-      "hash": "b7f3eed437f6a2159ed6ee3573155df2512b622fb0ceefbc2b3f732bf8988e2f",
-      "last_updated": "2026-11-25T03:06:34.588719"
+      "hash": "633d0efd3a05868b9aa7f31fa144e967c7779b29e8c93995926f4dcde0062d63",
+      "last_updated": "2026-11-26T09:46:54.677755"
     },
     "claude-ship.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/claude-ship",
@@ -1330,8 +1330,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-26T00:35:13.599807",
-    "fetch_duration_seconds": 117.569474,
+    "last_fetch_completed": "2026-11-26T09:48:15.475055",
+    "fetch_duration_seconds": 117.396243,
     "total_pages_discovered": 219,
     "pages_fetched_successfully": 221,
     "pages_failed": 0,
@@ -1341,7 +1341,7 @@
     "total_files": 221,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-26T00:35:13.599838",
+  "last_updated": "2026-11-26T09:48:15.475083",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",

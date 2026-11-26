@@ -67,7 +67,7 @@ Claude Security 插件会在 Claude Code 会话中对您的代码库运行多 Ag
 
 ### 更新插件
 
-如果某个命令或选项无法正常工作，请[检查](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin)您的插件版本是否为 0.13.0 或更高版本。
+如果某个命令或选项无法正常工作，请[检查](https://code.claude.com/docs/zh-CN/plugins/install.md#install-a-plugin)您的插件版本是否为 0.13.1 或更高版本。
 
 如需自行更新插件，请参阅[立即更新插件](https://code.claude.com/docs/zh-CN/plugins/install.md#update-plugins-now)。除非关闭了自动更新，否则 Claude Code 也会[自动更新插件](https://code.claude.com/docs/zh-CN/plugins/install.md#keep-plugins-updated)。
 
@@ -290,11 +290,27 @@ Claude 会读取您的代码和任何扫描报告，然后询问您的系统情�
 
 该命令包含在插件中。要将其添加到您的 `PATH`，请在 Claude Code 中输入 `/claude-security:install-cli`，并按照其输出的内容操作。
 
-然后在您的仓库中运行它，如果您的系统需要，请加上 `--sudo` 或 `--no-sandbox`：
+要在沙箱中扫描，请添加 `--provider`，并指定接收您代码的提供商所对应的值：
 
-* **扫描代码库**：`claude-security`
-* **扫描此分支的更改**：`claude-security --changes`
-* **以全屏视图扫描**：`claude-security --tui`，需要 Node.js 18 或更高版本
+* `anthropic`：付费计划或 Anthropic API
+* `bedrock`：[Amazon Bedrock](https://code.claude.com/docs/zh-CN/amazon-bedrock.md)
+* `vertex`：[Google Cloud 的 Agent Platform](https://code.claude.com/docs/zh-CN/google-vertex-ai.md)，前身为 Vertex AI
+* `foundry`：[Microsoft Foundry](https://code.claude.com/docs/zh-CN/microsoft-foundry.md)
+
+要找到您的值，请在终端中运行 `claude`，输入 [`/status`](https://code.claude.com/docs/zh-CN/commands#all-commands)，然后查找 `API provider` 行和基础 URL 行：
+
+* **`API provider` 行**：对于 `Amazon Bedrock`、`Google Vertex AI` 或 `Microsoft Foundry`，请使用对应的值。对于任何其他提供商，例如 `Amazon Bedrock (Mantle)`，请[在会话中扫描](#scan-and-fix-your-codebase)。
+* **基础 URL 行**：同时传入该 URL。例如，对于 `Anthropic base URL`，请使用 `--provider anthropic --model-base-url https://models.example.com`。如果命令拒绝该 URL，请在会话中扫描。
+* **两行均不存在**：如果您通过组织使用 Claude Code，请询问管理员应使用哪个值。否则，请使用 `anthropic`。
+
+如果您传入基础 URL，您的凭据可能会发送到该主机。对于 `Anthropic base URL`，请导出由该主机签发的凭据：bearer 令牌使用 `ANTHROPIC_AUTH_TOKEN`，API 密钥使用 `ANTHROPIC_API_KEY`。
+
+在您的仓库中运行以下命令之一，将 `<provider>` 替换为您的值，并在需要时加上 `--model-base-url` 或 `--sudo`：
+
+* **扫描代码库**：`claude-security --provider <provider>`
+* **扫描此分支的更改**：`claude-security --provider <provider> --changes`
+* **以全屏视图扫描**：`claude-security --provider <provider> --tui`，需要 Node.js 18 或更高版本
+* **在 Windows 上扫描**：将 `--provider` 和 `--model-base-url` 替换为 `--no-sandbox`，例如 `claude-security --no-sandbox --changes`
 * **列出其他选项**：`claude-security --help`
 
 该命令在[自动模式](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode)下运行，如果自动模式不可用则会停止。如果您的 Claude Code 模型不支持自动模式，请添加 `--model` 并指定一个支持自动模式的模型。对于任何其他原因，请[在会话中扫描](#scan-and-fix-your-codebase)。
