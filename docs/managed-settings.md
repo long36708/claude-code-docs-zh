@@ -137,7 +137,7 @@ Claude Code 首先合并 `managed-settings.json`，然后按字母顺序合并�
 
 Claude Code 按此顺序检查源，优先级最高的优先：
 
-1. 远程设置，从 claude.ai 作为 [服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 或通过 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 交付。Claude Code 仅在会话满足以下条件之一时才获取此源：
+1. 远程设置，从 claude.ai 作为 [服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md) 或通过 [Claude 应用网关](https://code.claude.com/docs/zh-CN/claude-apps-gateway) 交付。当会话满足以下条件之一时，Claude Code 可以获取此源：
 
    * 它具有 [符合条件的凭据](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)
    * 它使用 `/login` 登录网关

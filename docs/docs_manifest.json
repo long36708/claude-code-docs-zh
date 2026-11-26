@@ -765,8 +765,8 @@
     "managed-settings.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/managed-settings",
       "original_md_url": "https://code.claude.com/docs/zh-CN/managed-settings.md",
-      "hash": "a3b20e1609e5b965c0539477563277f5704a8e882f488581112cdefd8f76d987",
-      "last_updated": "2026-11-25T14:45:46.265758"
+      "hash": "8eaa0ec596479884b976e60a258f3a015f09db19772d417ff3613173e3bad405",
+      "last_updated": "2026-11-26T00:34:24.333802"
     },
     "mcp.md": {
       "original_url": "https://code.claude.com/docs/zh-CN/mcp",
@@ -1330,8 +1330,8 @@
     }
   },
   "fetch_metadata": {
-    "last_fetch_completed": "2026-11-25T14:46:45.143457",
-    "fetch_duration_seconds": 136.770955,
+    "last_fetch_completed": "2026-11-26T00:35:13.599807",
+    "fetch_duration_seconds": 117.569474,
     "total_pages_discovered": 219,
     "pages_fetched_successfully": 221,
     "pages_failed": 0,
@@ -1341,7 +1341,7 @@
     "total_files": 221,
     "fetch_tool_version": "3.0"
   },
-  "last_updated": "2026-11-25T14:46:45.143484",
+  "last_updated": "2026-11-26T00:35:13.599838",
   "base_url": "https://raw.githubusercontent.com/long36708/claude-code-docs-zh/chinese/docs/",
   "github_repository": "long36708/claude-code-docs-zh",
   "github_ref": "chinese",
