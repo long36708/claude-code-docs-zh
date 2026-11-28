@@ -459,7 +459,7 @@ Claude Enterprise 计划上的组织管理员可以从 claude.ai 管理控制台
 
 管理员还可以配置组织默认值以覆盖用户选择。启用覆盖后，它优先于用户、项目和本地设置中的 `model` 值。此时您使用 `/model` 保存的模型在当前会话中应用，组织默认值在新会话中恢复。当您的选择不同时，`/model` 显示 `Your organization's default (<model>) applies on restart`。
 
-即使启用了覆盖，`--model` 标志、`ANTHROPIC_MODEL`、托管设置和 `--settings` 仍然优先。要限制成员可以选择的模型，请改用[组织模型限制](#organization-model-restrictions)或 [`availableModels`](#restrict-model-selection)。
+在终端中，即使启用了覆盖，新会话仍会以 `--model` 标志、`ANTHROPIC_MODEL`、托管设置或 `--settings` 所设置的模型启动。要限制成员可以选择的模型，请使用[组织模型限制](#organization-model-restrictions)或 [`availableModels`](#restrict-model-selection)。
 
 Claude Code 在启动时读取组织默认值一次，因此管理员在会话中期更改的默认值在下次启动时生效。
 

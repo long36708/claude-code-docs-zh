@@ -1291,9 +1291,11 @@ Host devbox
 
 | `ConnectTimeout` | 连接 | 您拥有的时间 |
 | - | - | - |
-| 未设置 | 您在 macOS 或 Linux 上使用 Claude Desktop v4.4212.0 或更高版本，通过跳板机或 `ProxyCommand` 启动会话 | 30 秒，然后第二次尝试有 90 秒。如果 Desktop 在第一次尝试期间向您显示了提示，则没有第二次尝试。在 Desktop 为 `ProxyJump` 主机显示的登录提示处花费的时间不计入。路由上的其他等待时间则计入。 |
-| 未设置 | Windows 上的 Desktop 或更早版本、设置了 `MaxSessions 1` 的远程计算机，或 Desktop 自行发起的重新连接 | 30 秒。路由上的所有等待时间都计入。 |
+| 未设置 | 您自己通过新会话、消息或在 Desktop 中重试而发起的、经由跳板主机或 `ProxyCommand` 的连接 | 30 秒。如果 30 秒用完，在表格下方所列的版本上，Desktop 可以再尝试一次，时间为 90 秒。如果 Desktop 在第一次尝试期间向您显示了提示，则不会有第二次尝试。请计入路由上的每一次等待。 |
+| 未设置 | 任何其他连接或重新连接，例如 Desktop 自行发起的重新连接 | 按 30 秒计划。路由上的每一次等待都计入在内。 |
 | 已设置 | 每次连接和重新连接 | 您设置的值。路由上的所有等待时间都计入。 |
+
+90 秒的第二次尝试需要[通过 OpenSSH 客户端](#use-your-ssh-configuration)进行连接。对于新会话，它还需要 Claude Desktop v4.4212.0 或更高版本，对于消息或重试，则需要 v4.23118.0 或更高版本。如果 Desktop 在 Windows 上运行，或者远程机器[设置了 `MaxSessions 1`](#remote-machine-requirements-for-ssh-sessions)，则需要 v6.6395.0 或更高版本。
 
 如果远程计算机本身需要等待您在手机上批准，请在 45 秒内批准，无论您设置的 `ConnectTimeout` 是多少。您无法提高此限制，因为 Desktop 会自行设置 `ServerAliveInterval` 和 `ServerAliveCountMax`，如果远程计算机在这段时间内没有发送任何内容，`ssh` 就会关闭该登录。
 
@@ -1349,7 +1351,7 @@ Windows 远程计算机的测试少于 Linux 远程计算机。在依赖它之�
 * **终端**：在文件夹为 Windows 路径（例如 `C:/projects/app`）的会话中，[终端](#run-commands-in-the-terminal)不会打开
 * **沙箱**：Claude Code 在那里以原生 Windows 方式运行，在此环境下它运行命令时不使用沙箱。请参阅[沙箱在何处运行](https://code.claude.com/docs/zh-CN/sandboxing.md)。
 * **插件**：如果插件包含 Windows 无法存储的文件或文件夹名称（例如含有 `:` 的名称），Desktop 不会复制该插件。会话会列出 Desktop 遗漏的插件。
-* **MCP 服务器**：在某些 Windows 远程计算机上，Claude 对来自 `claude_desktop_config.json` 的 MCP 服务器的调用会经过 Desktop，因此 [Desktop 断开连接时](#limits-while-desktop-is-disconnected) Claude 无法调用其工具。在 Claude Desktop v2.37337.0 之前，这适用于所有 Windows 远程计算机。
+* **断开连接时的 MCP 服务器**：要[在 Desktop 断开连接时](#limits-while-desktop-is-disconnected)使用您计算机的 `claude_desktop_config.json` 中的 MCP 服务器，请使用 Claude Desktop v6.6395.0 或更高版本[通过 OpenSSH 客户端连接](#use-your-ssh-configuration)。否则，在任务使用这些服务器时，请保持 Desktop 连接。
 * **Worktree**：worktree 位于 `<project-root>/.claude/worktrees/`。如果您[选择其他文件夹](#choose-where-ssh-session-worktrees-go)，Desktop 会忽略它。
 * **早期消息**：如果 SSH 服务器的 shell 是 `cmd.exe` 或 Windows PowerShell，您可能需要先连接才能看到会话的早期消息
 * **分叉**：如果 SSH 服务器的 shell 是 `cmd.exe` 或 Windows PowerShell，您只能在会话的第一条消息处分叉会话
@@ -1394,6 +1396,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 * **减少请求**：选择[让任务更少等待您](#handle-requests-that-arrive-while-you-are-away)的权限模式、规则或 hook
 * **检查跳板机**：如果您的跳板机要求登录（例如向手机发送推送），请改用无需提示即可工作的登录方式。否则，Desktop 每次尝试重新连接时都可能发送另一条推送。
 * **测试远程计算机**：启动一个短任务，在任务仍在运行时退出 Desktop，并在任务应该完成很久之后再次打开会话。如果任务尚未完成且会话未显示身份验证错误，请检查远程计算机上[可能结束任务的因素](#limits-while-desktop-is-disconnected)。
+* **测试文件操作和工作流**：如果长时间任务需要它们，请启动一个在几分钟后编辑文件或启动工作流的简短任务，并在此之前退出 Desktop。至少 20 分钟后再次打开会话。如果读取、搜索、编辑或工作流失败，请在长时间任务期间[保持 Desktop 连接](#limits-while-desktop-is-disconnected)。
 * **不要在 Desktop 的终端中运行命令**：如果远程计算机会[注销空闲终端](#limits-while-desktop-is-disconnected)，请从 Desktop 之外的 SSH 登录运行您自己的命令
 
 ##### Desktop 断开连接时的限制
@@ -1409,9 +1412,15 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 在 Desktop 断开连接期间，文件编辑和某些工具可能会失败。如果任务需要它们，请保持 Desktop 连接：
 
 * **Worktree**：在使用 [worktree](#run-a-session-in-its-own-worktree) 的会话中，Desktop 会在 Claude 进行每次文件编辑之前对其进行检查。在 Desktop 断开连接期间，每次编辑会等待约 30 秒然后失败。Shell 命令仍会运行。在 Linux 或 macOS 远程机器上，[编辑可以继续正常进行](#worktree-edits-while-disconnected)。如果您不确定，请在不使用 worktree 的情况下启动会话。
-* **文件夹限制**：如果您的组织限制了会话可以使用的文件夹，无论是否使用 worktree，Desktop 都会检查每次文件读取、搜索和编辑。在 Desktop 断开连接期间，每项操作最多等待 10 分钟，然后失败。
+* **文件夹限制**：如果您的组织限制了会话可以使用哪些文件夹，无论是否使用 worktree，Desktop 都会检查每次文件读取、搜索和编辑。在 Linux 或 macOS 远程机器上，使用 Claude Desktop v6.6395.0 或更高版本时，这三项操作在 Desktop 断开连接期间都可以继续正常进行。请将任务的文件保存在会话的 worktree 中，如果会话没有 worktree，则保存在会话的文件夹中，然后[测试远程机器](#prepare-a-long-task)。
+
+  在 Windows 远程机器上，或使用较早版本时，请保持 Desktop 连接：在其断开连接期间，这三项操作中的每一项都会等待最多 10 分钟，然后失败。
 * **连接器**：[连接器](#connect-external-tools)和 Desktop 提供的其他工具通过 Desktop 运行，因此在其断开连接期间，每次调用都会在约 30 秒后失败
-* **工作流**：Desktop 会在每个新[工作流](https://code.claude.com/docs/zh-CN/workflows.md)启动前对其进行检查，因此在 Desktop 断开连接期间，新工作流最多等待 10 分钟，然后失败
+* **工作流**：Desktop 会在每个新[工作流](https://code.claude.com/docs/zh-CN/workflows.md)启动之前对其进行检查，因此在 Desktop 断开连接期间，新工作流会等待最多 10 分钟，然后失败。
+
+  在文件夹限制下、在[企业启动器](https://code.claude.com/docs/zh-CN/corporate-launcher.md)之后，或在 Claude Desktop v5.11492.0 之前，Desktop 断开连接期间无法启动新工作流。
+
+  否则，请在长时间任务之前批准一个工作流：在远程机器上的会话中让 Claude 创建一个工作流，如果 Desktop 询问，则[批准它](https://code.claude.com/docs/zh-CN/workflows.md#approve-the-plan-before-it-runs)。然后为长时间任务打开一个新会话，因为该批准仅在您之后打开的会话中生效。在新会话中，选择一个不会在每个工作流之前询问的[权限模式](#choose-a-permission-mode)（例如 Auto），并先[测试远程机器](#prepare-a-long-task)。
 * **MCP 服务器**：Claude Code 在远程计算机上启动的 MCP 服务器不通过 Desktop 运行，因此 Claude 仍可调用其工具。仅当 Desktop 未使用其[内置 SSH 客户端](#worktree-edits-while-disconnected)时，来自 `claude_desktop_config.json` 的服务器才属于这一类。否则，以及在[某些 Windows 远程计算机](#windows-remote-machines)上，Desktop 断开连接期间 Claude 无法调用其工具。
 
 > [accordion] worktree 中的编辑何时可以继续工作
@@ -1423,7 +1432,7 @@ Claude Code 作为进程在远程计算机上运行，由 Desktop 在那里安�
 > * **内置 SSH 客户端**：Desktop 使用了它，例如在通过 Microsoft Store 安装的版本中，或在没有 Microsoft OpenSSH 9.4 或更高版本的 Windows 计算机上
 > * **仓库位置**：仓库是您的主目录、其上层文件夹或 `~/.claude`
 > * **macOS 路径**：在 macOS 远程计算机上，仓库位于 `/Volumes` 下，或者仓库或 worktree 路径中的某个文件夹名称包含 `~` 或非 ASCII 字符
-> * **文件夹限制**：您的组织限制了会话可以使用的文件夹
+> * **文件夹限制**：您的组织限制了会话可以使用哪些文件夹，且 Claude Desktop 早于 v6.6395.0。请更新 Desktop。
 > * **企业启动器**：在 Claude Desktop v2.37337.0 之前，您使用 Claude 账户登录，且您的组织通过[企业启动器](https://code.claude.com/docs/zh-CN/corporate-launcher.md)在远程计算机上启动 Claude Code
 >
 > 不使用 worktree 的会话没有此类检查，除非您的组织限制了会话可以使用的文件夹。
@@ -1944,9 +1953,7 @@ echo(!host!
 
 > [!WARNING]
 >
-> 如果您的组织提供[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)，请在其中设置 `sshHostAllowlist`。默认情况下，Desktop 仅从[提供策略键的最高优先级托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取该键。如果该来源未设置该键，Desktop 会忽略较低优先级的 MDM 策略或托管设置文件中的列表，并将该键视为[未设置](https://code.claude.com/docs/zh-CN/settings-reference.md#sshhostallowlist)。Desktop 不会显示任何警告。
->
-> 同时，请在每个用户计算机上的最高优先级 MDM 策略或托管设置文件中保留相同的列表。Desktop 在启动时获取服务器托管设置，且不保留缓存副本，因此在获取成功之前，适用的是该计算机上的列表。
+> 如果您提供[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)，请在其中以及每台计算机上设置相同的 `sshHostAllowlist`。在计算机上，请将其放在 Claude Code 的 MDM 策略中，如果没有 MDM 策略，则放在其托管设置文件中，而不是放在桌面应用自身的[设备管理策略](#device-management-policies)中。如果只在一处设置列表，Desktop 有时可能会允许任何主机：请参阅[哪些 SSH 主机允许列表适用](#which-ssh-host-allowlists-apply)。
 
 模式不区分大小写。`*` 匹配任何主机，`*.example.com` 匹配 `example.com` 及其任何子域。其他任何内容均为精确匹配。检查针对的是通过 `ssh -G` 进行 `~/.ssh/config` 解析后的主机名，因此只要 `Host` 别名解析后的 `HostName` 匹配，就允许使用该别名。会话的[跳板主机](#allow-jump-hosts)也必须匹配。
 
@@ -2016,7 +2023,7 @@ SSH host "bastion.example.com" is not allowed by your organization's managed set
 * **版本**：`disableDesktopLocalSessions` 需要 Claude Desktop v1.37937.0 或更高版本
 * **文件权限**：确保计算机上每位开发者的账户都能读取托管设置文件。Desktop 不会应用账户无法读取的文件中的键，Claude Code 也会[在没有这些键的情况下启动](https://code.claude.com/docs/zh-CN/managed-settings.md#find-entries-claude-code-dropped)。
 
-将这三个键放在一个[托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)中，即您提供的最高优先级来源。如果您提供[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)，还要在每台计算机上的最高优先级 MDM 策略或托管设置文件中保留这三个键的副本。Desktop 在启动时获取服务器托管设置，在获取成功之前，计算机上的副本适用。
+如果您提供[服务器托管设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)，请将这三个键[放在服务器托管设置中以及每台计算机上](#keys-that-apply-from-server-managed-settings-and-managed-settings-on-a-computer)。在计算机上，请使用 Claude Code 的 MDM 策略，如果没有 MDM 策略，则使用其托管设置文件，而不是桌面应用自身的[设备管理策略](#device-management-policies)。如果没有服务器托管设置，请使用优先级最高的[托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)。
 
 若要确认设置已生效，请检查开发者的计算机：
 
@@ -2068,15 +2075,16 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 | `permissions.disableBypassPermissionsMode` | 设置为 `"disable"` 以防止用户启用绕过权限模式。 |
 | `disableAutoMode` | 设置为 `"disable"` 以从模式选择器中删除 [Auto](https://code.claude.com/docs/zh-CN/permission-modes.md#eliminate-prompts-with-auto-mode) 模式。也在 `permissions` 下接受。 |
 | `autoMode` | 自定义自动模式分类器在您的组织中信任和阻止的内容。请参阅[配置自动模式](https://code.claude.com/docs/zh-CN/auto-mode-config.md)。 |
+| `model` | 设置[新本地会话启动时使用](#set-the-model-that-new-sessions-start-on)的模型 ID |
 | `browserExternalPageTools` | 设置为 `"disabled"` 以防止 Claude 使用工具在[浏览器窗格](#browse-external-sites)中读取或作用于外部页面。用户仍然可以自己导航到外部网站，本地开发服务器预览不受影响。 |
 | `disableMobileSimulatorTools` | 设置为 `true` 以阻止 Claude 在 [iOS Simulator 窗格](https://code.claude.com/docs/zh-CN/desktop-ios-simulator.md#turn-off-simulator-access)中控制和捕获设备的工具。该窗格仍可用于用户自己的点击；仅删除 Claude 的访问权限。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `disableBrowserExternalNavigation` | 设置为 `true` 以完全关闭[浏览器窗格](#browse-external-sites)中的外部浏览。用户和 Claude 都无法导航到外部网站，localhost 开发服务器预览不受影响。SSH 和 WSL 会话中浏览器窗格的 HTML 预览[不运行脚本](#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。 |
 | `disableRemotePreviewScripts` | 设置为 `true` 以[关闭 SSH 和 WSL 会话中浏览器窗格 HTML 预览的脚本](#turn-off-scripts-in-ssh-and-wsl-previews-for-your-organization)，而不关闭外部浏览。Desktop 不会从远程机器或 WSL 发行版中读取它。该值必须是 JSON 布尔值 `true`；字符串 `"true"` 被忽略。需要 Claude Desktop v5.1231.0 或更高版本。 |
 | `sshConfigs` | 预配置[SSH 连接](#pre-configure-ssh-connections-for-your-team)，在环境选择器中显示。用户无法删除托管连接，也无法编辑除其自己的 **Worktree folder** 之外的任何内容。 |
 | `sshHostCommands` | 为用户提供[主机来自命令的 SSH 连接](#distribute-commands-to-your-team)，与用户自己的连接并存。Desktop 从计算机上的托管设置文件或 MDM 策略中读取它，并在[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)中忽略它。需要 macOS 或 Linux 上的 Claude Desktop v3.6556.0 或更高版本，或 Windows 上的 v4.16336.0 或更高版本，并使用 Claude 帐户登录。在 Windows 上，Desktop 还必须[通过 OpenSSH 客户端连接](#use-your-ssh-configuration)。 |
-| `sshHostAllowlist` | 限制 [SSH 会话](#restrict-which-ssh-hosts-users-can-connect-to)连接到已解析主机名与这些模式之一匹配的主机。仅从托管设置中读取。 |
-| `disableDesktopLocalSessions` | 设置为 `true` 以关闭[在设备上运行的 Code 会话](#local-sessions-on-managed-devices)，仅保留到其他主机的 SSH 会话和云端会话可用。该值必须是 JSON 布尔值 `true`。仅从托管设置中读取。需要 Claude Desktop v1.37937.0 或更高版本。 |
-| `disableSshSavedPasswords` | 设置为 `true` 以阻止 Desktop 提供记住 SSH 密码的选项，并阻止其使用或显示之前保存的密码。启用此设置不会删除这些密码。仅从托管设置中读取。需要 Claude Desktop v1.49585.0 或更高版本。 |
+| `sshHostAllowlist` | 限制 [SSH 会话](#restrict-which-ssh-hosts-users-can-connect-to)连接到已解析主机名与这些模式之一匹配的主机。仅从托管设置中读取。使用服务器管理的设置时，请[在两处设置相同的列表](#which-ssh-host-allowlists-apply)。 |
+| `disableDesktopLocalSessions` | 设置为 `true` 以关闭[在设备上运行的 Code 会话](#local-sessions-on-managed-devices)，仅保留到其他主机的 SSH 会话和云端会话可用。请使用 JSON 布尔值 `true`。仅从托管设置中读取。需要 Claude Desktop v1.37937.0 或更高版本。使用服务器管理的设置时，请[在两处都设置它](#keys-that-apply-from-server-managed-settings-and-managed-settings-on-a-computer)。 |
+| `disableSshSavedPasswords` | 设置为 JSON 布尔值 `true` 以阻止 Desktop 提供记住 SSH 密码的选项，并阻止其使用或显示之前保存的密码。启用此设置不会删除这些密码。仅从托管设置中读取。需要 Claude Desktop v1.49585.0 或更高版本。使用服务器管理的设置时，请[在两处都设置它](#keys-that-apply-from-server-managed-settings-and-managed-settings-on-a-computer)。 |
 | `managedMcpServers` | 将 MCP 服务器配置推送到所有用户。仅在第三方 (3P) Desktop 部署中可用。在每个条目中，设置 `"http"`、`"sse"` 或 `"stdio"` 的传输、连接详细信息，以及可选的 `toolPolicy` 映射，该映射限制该服务器中用户可以调用的工具。通过托管设置文件、MDM 或 Claude apps gateway 策略的 [`desktop` 块](https://code.claude.com/docs/zh-CN/claude-apps-gateway-config#claude-desktop-overlay)提供它，因为 3P 部署不接收管理员控制台设置。要通过网关提供它，您需要网关服务器上的 Claude Code v2.1.232 或更高版本。这是桌面应用自己的键；Claude Code 读取自己的[同名托管设置](https://code.claude.com/docs/zh-CN/managed-mcp.md#provide-servers-through-managed-settings)，具有不同的条目形状。 |
 
 如果您在计算机的[最高优先级 MDM 策略或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)中使用以下四个键之一关闭某项功能，该功能将在该计算机上保持关闭：
@@ -2090,14 +2098,52 @@ Team 或 Enterprise 计划上的组织可以通过管理员控制台控制、托
 
 * **此机器上的本地会话**：部署到磁盘的托管设置文件适用。通过管理员控制台远程推送的托管设置也在会话使用[符合条件的登录](https://code.claude.com/docs/zh-CN/server-managed-settings.md#platform-availability)向 Anthropic 的 API 进行身份验证时到达这些会话，遵循与终端 CLI 相同的[设置优先级](https://code.claude.com/docs/zh-CN/settings.md#settings-precedence)。
 * **[云端会话](#cloud-sessions)**：接收[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)；设备部署的文件无法到达它们，因为它们在 Anthropic 管理的虚拟机上运行。路由到[自托管环境](https://code.claude.com/docs/zh-CN/self-hosted-environments)的会话也读取运行程序镜像中的托管设置文件。[Claude Code 如何组合托管源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)说明该文件何时适用。
-* **[SSH 会话](#ssh-sessions)**：会话从远程主机读取托管设置文件。Desktop 本身在本地机器上读取 `sshConfigs`、`sshHostAllowlist`、`disableSshSavedPasswords` 和 `disableDesktopLocalSessions`。如果您提供多个托管源，它[默认只从其中一个](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取。如果您在本地机器上生效的托管设置中设置了 `permissions.disableBypassPermissionsMode` 或 `disableAutoMode`，则无论远程主机如何设置，SSH 会话的模式选择器都不会提供该模式。
+* **[SSH 会话](#ssh-sessions)**：会话从远程主机读取托管设置文件。Desktop 本身在本地机器上读取 `sshConfigs`、`sshHostAllowlist`、`disableSshSavedPasswords` 和 `disableDesktopLocalSessions`。如果您提供多个托管源，有关 `sshConfigs` 键请参阅 [`sshConfigs`](https://code.claude.com/docs/zh-CN/settings-reference#sshconfigs)，有关其他三个键请参阅[从服务器管理的设置和计算机上的托管设置中应用的键](#keys-that-apply-from-server-managed-settings-and-managed-settings-on-a-computer)。
 * **[Cowork](https://claude.com/docs/cowork/overview) 会话**：在此机器上的 Cowork 会话中，Claude Code 永远不会获取管理员控制台设置，即使用户使用 Team 或 Enterprise 帐户登录，并读取部署到机器的策略，除非您的 Claude Desktop 配置设置了 `requireCoworkFullVmSandbox`。远程 Cowork 会话两者都不接收。请参阅[策略应用的位置和时间](https://code.claude.com/docs/zh-CN/managed-settings.md#where-and-when-a-policy-applies)了解哪些设备文件到达 Cowork，以及[MCP 权限规则](https://code.claude.com/docs/zh-CN/permissions.md#mcp)了解 `Bash` 和 `WebFetch` 规则如何应用于 Cowork 的工具。
 
 在本地和 SSH 会话中，桌面应用直接将每个用户连接的 claude.ai 连接器传递给 Claude Code。无论您使用哪个设置源或文件位置，都没有 MCP 设置或 `managed-mcp.json` 到达这些连接器。要在这些会话中阻止连接器的工具，请使用您的组织的[连接器工具控制](https://code.claude.com/docs/zh-CN/mcp.md#organization-controls-on-connector-tools)。[连接器如何到达 Claude Code](https://code.claude.com/docs/zh-CN/mcp.md#how-connectors-reach-claude-code)显示在每种会话中哪些设置管理连接器。
 
-要防止用户覆盖 `permissions.disableBypassPermissionsMode` 或 `disableAutoMode`，请在托管设置中设置它。
+要防止用户覆盖 `permissions.disableBypassPermissionsMode` 或 `disableAutoMode`，请在托管设置中设置它。如果您在本地机器上生效的托管设置中设置了 `permissions.disableBypassPermissionsMode` 或 `disableAutoMode`，则无论远程主机如何设置，SSH 会话的模式选择器都不会提供该模式。
 
 有关仅托管源可以设置的权限、插件和交付键，请参阅[仅托管设置可以设置的键](https://code.claude.com/docs/zh-CN/managed-settings.md#managed-only-settings)。
+
+#### 从服务器管理的设置和计算机上的托管设置中应用的键
+
+Claude Desktop v3.1623.0 或更高版本会同时从[服务器管理的设置](https://code.claude.com/docs/zh-CN/server-managed-settings.md)和计算机上 Claude Code 的 [MDM 策略或托管设置文件](https://code.claude.com/docs/zh-CN/managed-settings.md#where-each-mechanism-stores-the-policy)中读取以下键。如果您使用 MDM 策略，请在 Claude Code 的策略中设置它们，即 macOS 上的 `com.anthropic.claudecode` 域或 Windows 上的 `HKLM\SOFTWARE\Policies\ClaudeCode`，而不是在 Desktop 自己的[设备管理策略](#device-management-policies)中设置。
+
+对于使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)、不使用 Claude 帐户登录的用户，请参阅 [3P 上 Claude Desktop 中的 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions)。
+
+| 键 | 适用方式 | 放宽方法 |
+| - | - | - |
+| `sshHostAllowlist` | 主机必须与您设置的每个列表匹配，[哪些 SSH 主机允许列表适用](#which-ssh-host-allowlists-apply)下列出的例外情况除外 | 将该主机添加到您设置的每个列表中 |
+| `disableDesktopLocalSessions` | 计算机上的 `true`，或 Desktop 获取服务器管理的设置后其中的 `true`，会关闭本地会话，即使另一处为 `false` | 在您设置 `true` 的所有位置将其删除 |
+| `disableSshSavedPasswords` | 计算机上的 `true`，或 Desktop 获取服务器管理的设置后其中的 `true`，会关闭已保存的密码，即使另一处为 `false` | 在您设置 `true` 的所有位置将其删除 |
+
+* **一台计算机上同时有 Claude Code 的 MDM 策略和托管设置文件**：请在策略中设置这些键。只要策略设置了任何策略键，Desktop [默认](https://code.claude.com/docs/zh-CN/settings-reference.md#managedsourcesbehavior)就会[忽略文件中的这些键](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)。
+* **v3.1623.0 之前的版本**：同样在服务器管理的设置中设置每个键。[默认情况下](https://code.claude.com/docs/zh-CN/settings-reference.md#managedsourcesbehavior)，一旦 Desktop 获取了服务器管理的设置，这些键就仅从那里应用。
+* **两个 `disable` 键**：在服务器管理的设置和每台计算机上都设置 `true`，以便在 Desktop 只有一个来源时该键仍然适用。
+
+##### 哪些 SSH 主机允许列表适用
+
+请在服务器管理的设置和每台计算机上设置相同的列表，因为在以下情况下，用户并不会同时受两个列表的约束：
+
+* **每次启动后，直到 Desktop 获取服务器管理的设置之前**：请在计算机上保留一个列表，因为没有它，Desktop 可能允许任何主机。Claude Desktop v4.16336.0 或更高版本还会根据早先获取的服务器管理列表副本检查主机（前提是存在不超过 30 天的副本）。请勿依赖该副本，因为用户可以删除或编辑它。
+* **用户登录到其他组织或个人帐户**：请在计算机上保留一个列表，因为此时 Desktop 不会获取您的服务器管理列表。
+* **您在[最高优先级来源](https://code.claude.com/docs/zh-CN/managed-settings.md#compose-every-managed-source)中将 [`managedSourcesBehavior`](https://code.claude.com/docs/zh-CN/settings-reference#managedsourcesbehavior) 设置为 `"merge"`**：为每个来源提供相同的列表。Desktop 会[将服务器管理的列表与计算机上的列表合并](https://code.claude.com/docs/zh-CN/settings-reference.md#sshhostallowlist)，并可能允许仅其中一个列表包含的主机。
+
+空数组被视为没有任何主机能匹配的列表，这与未设置的键不同，后者不施加任何限制。要关闭 SSH 会话，请在每个来源中设置空数组。
+
+#### 设置新会话启动时使用的模型
+
+模型选择器中某个模型旁边显示 **Set by admin**，表示您的托管设置将其设为 [`model`](https://code.claude.com/docs/zh-CN/model-config#control-the-model-users-run-on)。如果显示该标签，则在新的本地会话启动时，只要用户可以选择该模型，它就会优先于用户上次的选择。用户仍然可以为会话选择其他模型。
+
+要停止设置启动模型：
+
+1. 在用户的计算机上打开 **Settings > Code** 或 **Settings > Claude Code**，查看 **Starting values from your organization** 下方的内容，了解适用的是哪个托管源。
+2. 从每个设置了 `model` 的托管源中删除它，并让用户重新启动 Desktop。
+3. 让每个用户在其使用的每个文件夹中，在发送会话的第一条消息之前选择一个模型。在此之前，新会话仍可能以您删除的模型启动。
+
+如果您的[组织默认模型](https://code.claude.com/docs/zh-CN/model-config.md#organization-default-model)覆盖用户选择，则当用户可以选择该默认模型时，这些会话会以该默认模型启动，即使在终端中您的 `model` 优先。要让用户自行选择，还需在 [**Organization settings > Models**](https://claude.ai/admin-settings/models) 以及每个具有自己默认值的自定义角色中关闭 **Always start with the default model and effort level**。
 
 #### 为所有用户部署 Skill
 
@@ -2299,7 +2345,7 @@ Desktop 和 CLI 读取相同的配置文件，因此您的设置会沿用：
 * 在 `~/.claude.json` 或 `.mcp.json` 中配置的 **[MCP 服务器](https://code.claude.com/docs/zh-CN/mcp.md)** 在两者中均可使用
 * 在设置中定义的 **[hook](https://code.claude.com/docs/zh-CN/hooks.md)** 和 **[skill](https://code.claude.com/docs/zh-CN/skills.md)** 适用于两者
 * `~/.claude.json` 和 `~/.claude/settings.json` 中的 **[设置](https://code.claude.com/docs/zh-CN/settings.md)** 是共享的。权限规则、允许的工具和 `settings.json` 中的其他设置适用于 Desktop 会话。某些设置项[在 Code 选项卡中的行为有所不同](#claude-code-settings-that-behave-differently-in-the-code-tab)。
-* **模型**：相同的[模型](https://code.claude.com/docs/zh-CN/model-config.md#available-models)在两者中都可用。在 Desktop 中，从输入框下方一行中的模型选择器中选择模型。您可以在会话期间从同一选择器更改模型。
+* **模型**：在 Desktop 中，从输入框下方一行中的模型选择器中选择模型。您可以在会话期间从同一选择器更改模型。
 
 #### 来自 Claude Desktop 聊天应用的 MCP 服务器
 

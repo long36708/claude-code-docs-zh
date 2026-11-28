@@ -4982,10 +4982,10 @@ Claude Code 在非交互模式下从不显示回顾。
 
 桌面应用读取此设置项；终端 CLI 会忽略它。需要 Claude Desktop v1.37937.0 或更高版本。
 
-* **作用域**：[`Managed`](#scopes)。默认情况下，桌面应用从[一个托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取此设置项。
-* **类型**：Boolean；只有 JSON Boolean `true` 才会生效
+* **作用域**：[`Managed`](#scopes)。如果您提供服务器托管设置，请[在其中以及每台计算机上都设置此设置项](https://code.claude.com/docs/zh-CN/desktop.md#keys-that-apply-from-server-managed-settings-and-managed-settings-on-a-computer)。否则，默认情况下，桌面应用从[一个托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取此设置项。
+* **类型**：Boolean。请使用 JSON Boolean `true`。
   * `true`：桌面应用不提供设备本机的 Code 会话；现有本地会话仍会列出，但无法继续
-  * `false`：本地会话保持可用
+  * `false`：本地会话保持可用，不过另一处的 `true` 仍可将其关闭
 * **默认值**：未设置，因此本地会话可用
 
 ```json managed-settings.json theme={null}
@@ -4994,7 +4994,7 @@ Claude Code 在非交互模式下从不显示回顾。
 }
 ```
 
-桌面应用会忽略任何其他值，而非 Boolean 的值（例如字符串 `"true"` 或 `1`）还会记录一条警告。请将其与 [`sshConfigs`](#sshconfigs) 搭配使用，使用户连接到可用的连接，并与 [`sshHostAllowlist`](#sshhostallowlist) 搭配使用，以限制用户可以访问的主机。请参阅[托管设备上的本地会话](https://code.claude.com/docs/zh-CN/desktop.md#local-sessions-on-managed-devices)。
+请将其与 [`sshConfigs`](#sshconfigs) 搭配使用，使用户拥有可用的连接，并与 [`sshHostAllowlist`](#sshhostallowlist) 搭配使用，以限制用户可以访问的主机。
 
 Claude Desktop 会向 Code 会话提供从您的桌面配置派生的策略，例如第三方部署中的出站允许列表、文件系统沙箱和 MCP 限制。只要存在[管理员来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)（服务器托管设置、MDM 或操作系统级策略，或托管设置文件），Claude Code 就会忽略这些父级设置。因此，在此前没有任何此类来源的设备上通过其中之一部署此设置项（例如在第三方部署中），会使从桌面派生的策略不再生效。[允许嵌入宿主添加策略](https://code.claude.com/docs/zh-CN/managed-settings.md#let-an-embedding-host-add-policy)说明了父级设置在何种情况下仍可合并；这适用于您以这种方式部署的任何设置项，而不仅仅是此设置项。
 
@@ -5161,9 +5161,9 @@ Claude Code 会忽略来自项目设置或本地设置的 `true`，因此仓库�
 
 在 Claude Desktop v3.1623.0 或更高版本中，会话的[跳板主机](https://code.claude.com/docs/zh-CN/desktop.md#allow-jump-hosts)也必须与某个模式匹配。
 
-* **作用域**：[`Managed`](#scopes)。默认情况下，Desktop 从[一个托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取此设置项。
+* **作用域**：[`Managed`](#scopes)。如果您提供服务器托管设置，请在其中以及每台计算机上设置相同的列表：请参阅[哪些 SSH 主机允许列表适用](https://code.claude.com/docs/zh-CN/desktop.md#which-ssh-host-allowlists-apply)。如果没有服务器托管设置，默认情况下，Desktop 从[一个托管来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)读取此设置项。Desktop 不会从策略辅助程序读取此设置项，因此请[在指定该辅助程序的策略或文件中设置它](#keys-that-only-claude-desktop-uses)。
 * **类型**：主机名模式数组
-* **默认值**：未设置，因此允许任何主机
+* **默认值**：未设置，因此允许任何主机。使用[第三方提供商](https://code.claude.com/docs/zh-CN/third-party-integrations.md)时，SSH 会话默认处于关闭状态。要开启它们，请参阅[启用 SSH 远程会话](https://claude.com/docs/third-party/claude-desktop/ssh-remote-sessions#enable-ssh-remote-sessions)。
 
 此示例允许 `devboxes.example.com` 及其子域，以及精确主机 `bastion.example.com`：
 
@@ -5175,7 +5175,7 @@ Claude Code 会忽略来自项目设置或本地设置的 `true`，因此仓库�
 
 Desktop 无法读取为主机列表的值（例如 `true` 或对象）在您更正之前会被视为空数组，但 `null` 除外，它被视为未设置。需要 Claude Desktop v2.26454.0 或更高版本。
 
-如果您在优先级最高的来源中将 [`managedSourcesBehavior`](#managedsourcesbehavior) 设置为 `"merge"`，Desktop 会合并来自每个[管理员来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)的列表，并允许与其中任一列表匹配的主机。如果您在某个来源中设置了空数组，对于另一个来源所列出的主机，SSH 会话仍保持开启。
+如果您在排名最高的来源中将 [`managedSourcesBehavior`](#managedsourcesbehavior) 设置为 `"merge"`，Desktop 会合并来自每个[管理员来源](https://code.claude.com/docs/zh-CN/managed-settings.md#how-claude-code-combines-managed-sources)的列表，并且可以允许仅与其中一个列表匹配的主机。如果您在某个来源中设置了空数组，对于另一个来源列出的主机，SSH 会话仍可保持开启。
 
 ### `sshHostCommands`
 
@@ -5832,6 +5832,10 @@ Claude Code 在不带参数的情况下运行辅助程序，在其环境中设�
 * **[`enforceAnthropicSignIn`](#enforceanthropicsignin)**：Claude Code 从 MDM 策略或托管设置文件中读取此键
 
 如果辅助程序以 `0` 退出，但输出的封装对象中省略了 `managedSettings`，则它不提供任何托管设置，其他来源照常生效。
+
+#### 仅由 Claude Desktop 使用的键
+
+Claude Desktop 在读取仅由其使用的键（例如 [`sshHostAllowlist`](#sshhostallowlist) 和 [`disableDesktopLocalSessions`](#disabledesktoplocalsessions)）时不会运行辅助程序，因此它会将仅由辅助程序输出的键视为未设置。请在指定该辅助程序的 MDM 策略或托管设置文件中设置这些键。
 
 #### 辅助程序失败
 
